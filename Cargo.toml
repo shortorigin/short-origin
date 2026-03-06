@@ -98,7 +98,7 @@ sha2 = "0.10.9"
 thiserror = "2.0.17"
 toml = "0.8.23"
 tracing = "0.1.41"
-uuid = { version = "1.18.1", features = ["serde", "v4"] }
+uuid = { version = "1.22.0", features = ["serde", "v4"] }
 
 [workspace.lints.rust]
 unsafe_code = "deny"
