@@ -1343,7 +1343,7 @@ mod tests {
     }
 
     #[test]
-    fn activate_app_opens_new_window_for_multi_instance_apps() {
+    fn activate_app_reuses_existing_window_for_single_instance_compat_apps() {
         let mut state = DesktopState::default();
         let mut interaction = InteractionState::default();
 
@@ -1366,7 +1366,7 @@ mod tests {
         )
         .expect("activate explorer second");
 
-        assert_eq!(state.windows.len(), 2);
+        assert_eq!(state.windows.len(), 1);
         assert!(state
             .windows
             .iter()
@@ -1814,7 +1814,7 @@ mod tests {
         let window_id = open(
             &mut state,
             &mut interaction,
-            ApplicationId::trusted("system.explorer"),
+            ApplicationId::trusted("system.control-center"),
         );
         let payload = serde_json::json!({ "path": "/Projects/demo" });
 

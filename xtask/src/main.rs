@@ -75,6 +75,7 @@ fn run_ui(args: Vec<String>) -> Result<(), String> {
     command.current_dir(&site_dir);
     command.arg(trunk_subcommand);
     command.arg(index);
+    sanitize_trunk_environment(&mut command);
 
     let mut passthrough = passthrough.to_vec();
     normalize_dist_arg(&workspace_root, &mut passthrough);
@@ -253,6 +254,12 @@ fn drop_no_open_arg(args: &mut Vec<String>) {
     args.retain(|arg| arg != "--no-open");
 }
 
+fn sanitize_trunk_environment(command: &mut Command) {
+    if matches!(env::var("NO_COLOR").as_deref(), Ok("1")) {
+        command.env("NO_COLOR", "true");
+    }
+}
+
 fn absolutize(workspace_root: &Path, value: &str) -> PathBuf {
     let path = PathBuf::from(value);
     if path.is_absolute() {
@@ -303,4 +310,59 @@ fn workspace_root() -> Result<PathBuf, String> {
 
 fn help() -> String {
     "usage: cargo xtask <delivery|github|ui|tauri|components|verify> ...".to_string()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{drop_no_open_arg, normalize_dist_arg, sanitize_trunk_environment};
+    use std::path::Path;
+    use std::process::Command;
+
+    #[test]
+    fn normalize_dist_arg_absolutizes_split_flag_value() {
+        let workspace_root = Path::new("/workspace");
+        let mut args = vec!["--dist".to_string(), "target/ui-dist".to_string()];
+        normalize_dist_arg(workspace_root, &mut args);
+        assert_eq!(args, ["--dist", "/workspace/target/ui-dist"]);
+    }
+
+    #[test]
+    fn normalize_dist_arg_absolutizes_inline_value() {
+        let workspace_root = Path::new("/workspace");
+        let mut args = vec!["--dist=target/ui-dist".to_string()];
+        normalize_dist_arg(workspace_root, &mut args);
+        assert_eq!(args, ["--dist=/workspace/target/ui-dist"]);
+    }
+
+    #[test]
+    fn drop_no_open_arg_removes_flag() {
+        let mut args = vec![
+            "--port".to_string(),
+            "1420".to_string(),
+            "--no-open".to_string(),
+        ];
+        drop_no_open_arg(&mut args);
+        assert_eq!(args, ["--port", "1420"]);
+    }
+
+    #[test]
+    fn sanitize_trunk_environment_normalizes_no_color_value() {
+        let original = std::env::var_os("NO_COLOR");
+        std::env::set_var("NO_COLOR", "1");
+
+        let mut command = Command::new("trunk");
+        sanitize_trunk_environment(&mut command);
+
+        let no_color = command
+            .get_envs()
+            .find(|(key, _)| *key == "NO_COLOR")
+            .and_then(|(_, value)| value);
+        assert_eq!(no_color, Some("true".as_ref()));
+
+        if let Some(value) = original {
+            std::env::set_var("NO_COLOR", value);
+        } else {
+            std::env::remove_var("NO_COLOR");
+        }
+    }
 }
