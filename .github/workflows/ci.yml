@@ -46,10 +46,20 @@ jobs:
         with:
           components: rustfmt, clippy
 
-      - name: Cache cargo
+      - name: Cache cargo for core validation
         uses: Swatinem/rust-cache@v2
+        if: needs.changes.outputs.rust_ui != 'true'
         with:
-          shared-key: ${{ needs.changes.outputs.rust_ui == 'true' && 'rust-ui-ubuntu-stable-v1' || 'rust-core-ubuntu-stable-v1' }}
+          shared-key: rust-core-ubuntu-stable-v1
+          cache-all-crates: "false"
+          cache-bin: "false"
+          cache-workspace-crates: "false"
+
+      - name: Cache cargo for UI validation
+        uses: Swatinem/rust-cache@v2
+        if: needs.changes.outputs.rust_ui == 'true'
+        with:
+          shared-key: rust-ui-ubuntu-stable-v1
           cache-all-crates: "false"
           cache-bin: "false"
           cache-workspace-crates: "false"
