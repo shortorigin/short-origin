@@ -19,7 +19,7 @@ desktop-tauri = ["desktop_runtime/desktop-tauri", "platform_host_web/desktop-hos
 [dependencies]
 desktop_app_contract = { path = "../desktop_app_contract" }
 desktop_runtime = { path = "../desktop_runtime", default-features = false }
-leptos = { version = "0.6", default-features = false }
+leptos = { version = "0.8", default-features = false }
 leptos_meta = { version = "0.6", default-features = false }
 leptos_router = { version = "0.6", default-features = false }
 platform_host_web = { path = "../platform_host_web", default-features = false }

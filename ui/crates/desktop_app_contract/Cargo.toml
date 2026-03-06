@@ -9,7 +9,7 @@ csr = ["leptos/csr"]
 
 [dependencies]
 futures = "0.3"
-leptos = { version = "0.6", default-features = false }
+leptos = { version = "0.8", default-features = false }
 platform_host = { path = "../platform_host" }
 sdk-rs = { path = "../../../platform/sdk/sdk-rs" }
 serde = { version = "1", features = ["derive"] }

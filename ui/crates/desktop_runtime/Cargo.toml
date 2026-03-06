@@ -21,7 +21,7 @@ desktop_app_terminal = { path = "../apps/terminal", default-features = false }
 desktop_app_settings = { path = "../apps/settings", default-features = false }
 futures = "0.3"
 js-sys = "0.3"
-leptos = { version = "0.6", default-features = false }
+leptos = { version = "0.8", default-features = false }
 nu-ansi-term = { version = "0.50.3", default-features = false }
 nu-protocol = { version = "0.110.0", default-features = false }
 nu-table = { version = "0.110.0", default-features = false }

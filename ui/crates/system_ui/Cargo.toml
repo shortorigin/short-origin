@@ -8,4 +8,4 @@ default = ["csr"]
 csr = ["leptos/csr"]
 
 [dependencies]
-leptos = { version = "0.6", default-features = false }
+leptos = { version = "0.8", default-features = false }
