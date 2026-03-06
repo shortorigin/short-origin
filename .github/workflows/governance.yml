@@ -1,13 +1,7 @@
 name: Governance
 
 on:
-  pull_request:
-    types:
-      - opened
-      - edited
-      - reopened
-      - synchronize
-      - ready_for_review
+  workflow_dispatch:
 
 permissions:
   contents: read
