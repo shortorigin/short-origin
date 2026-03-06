@@ -393,70 +393,6 @@ fn default_window_rect_for_app(
     crate::model::WindowRect { x, y, w, h }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn launcher_and_desktop_registry_only_ship_supported_apps() {
-        let shipped = app_registry()
-            .iter()
-            .filter(|entry| entry.show_in_launcher || entry.show_on_desktop)
-            .map(|entry| entry.app_id.to_string())
-            .collect::<Vec<_>>();
-
-        assert_eq!(
-            shipped,
-            vec![
-                APP_ID_CONTROL_CENTER.to_string(),
-                APP_ID_TERMINAL.to_string(),
-                APP_ID_SETTINGS.to_string(),
-            ]
-        );
-    }
-
-    #[test]
-    fn default_open_request_by_id_scales_to_viewport() {
-        let viewport = crate::model::WindowRect {
-            x: 0,
-            y: 0,
-            w: 900,
-            h: 620,
-        };
-        let req =
-            default_open_request_by_id(&builtin_app_id(APP_ID_CONTROL_CENTER), Some(viewport))
-                .expect("default request");
-        let rect = req.rect.expect("default rect");
-
-        assert!(rect.w <= ((viewport.w as f32) * 0.92) as i32);
-        assert!(rect.h <= ((viewport.h as f32) * 0.92) as i32);
-        assert!(rect.w >= SYSTEM_CONTROL_CENTER_MANIFEST.window_defaults.0);
-        assert!(rect.h >= SYSTEM_CONTROL_CENTER_MANIFEST.window_defaults.1);
-    }
-
-    #[test]
-    fn control_center_defaults_are_larger_than_terminal() {
-        let viewport = crate::model::WindowRect {
-            x: 0,
-            y: 0,
-            w: 1280,
-            h: 760,
-        };
-        let control_center =
-            default_open_request_by_id(&builtin_app_id(APP_ID_CONTROL_CENTER), Some(viewport))
-                .expect("control center request")
-                .rect
-                .expect("control center rect");
-        let terminal = default_open_request_by_id(&builtin_app_id(APP_ID_TERMINAL), Some(viewport))
-            .expect("terminal request")
-            .rect
-            .expect("terminal rect");
-
-        assert!(control_center.w > terminal.w);
-        assert!(control_center.h >= terminal.h);
-    }
-}
-
 fn mount_control_center_app(context: AppMountContext) -> View {
     view! {
         <ControlCenterApp
@@ -489,4 +425,67 @@ fn mount_settings_app(context: AppMountContext) -> View {
         />
     }
     .into_view()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn launcher_and_desktop_registry_only_ship_supported_apps() {
+        let shipped = app_registry()
+            .iter()
+            .filter(|entry| entry.show_in_launcher || entry.show_on_desktop)
+            .map(|entry| entry.app_id.to_string())
+            .collect::<Vec<_>>();
+
+        assert_eq!(
+            shipped,
+            vec![
+                APP_ID_CONTROL_CENTER.to_string(),
+                APP_ID_TERMINAL.to_string(),
+                APP_ID_SETTINGS.to_string(),
+            ]
+        );
+    }
+
+    #[test]
+    fn default_open_request_by_id_preserves_authored_defaults_for_reducer_clamping() {
+        let viewport = crate::model::WindowRect {
+            x: 0,
+            y: 0,
+            w: 900,
+            h: 620,
+        };
+        let req =
+            default_open_request_by_id(&builtin_app_id(APP_ID_CONTROL_CENTER), Some(viewport))
+                .expect("default request");
+        let rect = req.rect.expect("default rect");
+
+        assert_eq!(req.viewport, Some(viewport));
+        assert_eq!(rect.w, SYSTEM_CONTROL_CENTER_MANIFEST.window_defaults.0);
+        assert_eq!(rect.h, SYSTEM_CONTROL_CENTER_MANIFEST.window_defaults.1);
+    }
+
+    #[test]
+    fn control_center_defaults_are_larger_than_terminal() {
+        let viewport = crate::model::WindowRect {
+            x: 0,
+            y: 0,
+            w: 1280,
+            h: 760,
+        };
+        let control_center =
+            default_open_request_by_id(&builtin_app_id(APP_ID_CONTROL_CENTER), Some(viewport))
+                .expect("control center request")
+                .rect
+                .expect("control center rect");
+        let terminal = default_open_request_by_id(&builtin_app_id(APP_ID_TERMINAL), Some(viewport))
+            .expect("terminal request")
+            .rect
+            .expect("terminal rect");
+
+        assert!(control_center.w > terminal.w);
+        assert!(control_center.h >= terminal.h);
+    }
 }
