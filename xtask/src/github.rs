@@ -983,7 +983,8 @@ mod tests {
         assert_eq!(config.organization.login, "shortorigin");
         assert_eq!(config.project.title, "Engineering Flow");
         assert!(config.repository_defaults.allow_auto_merge);
-        assert!(config.repository_defaults.require_code_owner_review);
+        assert!(!config.repository_defaults.require_code_owner_review);
+        assert_eq!(config.repository_defaults.required_approving_review_count, 0);
         assert_eq!(
             config.repository_defaults.required_status_checks,
             vec![
@@ -1046,7 +1047,9 @@ mod tests {
             .any(|rule| rule["type"] == "required_status_checks"));
         assert!(main_rules.iter().any(|rule| {
             rule["type"] == "pull_request"
-                && rule["parameters"]["require_code_owner_review"] == serde_json::Value::Bool(true)
+                && rule["parameters"]["require_code_owner_review"] == serde_json::Value::Bool(false)
+                && rule["parameters"]["required_approving_review_count"]
+                    == serde_json::Value::Number(0.into())
         }));
         assert!(branch_rules
             .iter()
