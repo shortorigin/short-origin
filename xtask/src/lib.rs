@@ -14,6 +14,7 @@ use std::process::{Command, ExitStatus};
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use codegen::{embedded_contract_schemas, embedded_event_schemas, embedded_surrealdb_schemas};
 use infra::InfraStack;
+use serde::Serialize;
 use ui_e2e::UiE2eScene;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -182,6 +183,12 @@ impl DoctorDomain {
     }
 }
 
+#[derive(Copy, Clone, Debug, Eq, PartialEq, ValueEnum)]
+enum OutputFormat {
+    Text,
+    Json,
+}
+
 impl From<DoctorDomain> for TaskDomain {
     fn from(value: DoctorDomain) -> Self {
         match value {
@@ -298,6 +305,39 @@ impl ToolKind {
             }
         }
     }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+struct TaskListItem {
+    id: &'static str,
+    description: &'static str,
+    domains: Vec<&'static str>,
+    prerequisites: Vec<&'static str>,
+    dependencies: Vec<&'static str>,
+    ci_included: bool,
+    listed: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+struct TaskListOutput {
+    tasks: Vec<TaskListItem>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+struct DoctorEntryStatus {
+    tool: &'static str,
+    required_by: Vec<&'static str>,
+    optional: bool,
+    status: &'static str,
+    guidance: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+struct DoctorOutput {
+    domain: &'static str,
+    missing_required: bool,
+    entries: Vec<DoctorEntryStatus>,
+    notes: Vec<String>,
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -899,7 +939,39 @@ fn run_named_task_inner(
     run_task_action(task.action)
 }
 
-fn run_tasks_list() {
+fn task_list_output() -> TaskListOutput {
+    TaskListOutput {
+        tasks: registered_tasks()
+            .into_iter()
+            .filter(|task| task.listed)
+            .map(|task| TaskListItem {
+                id: task.id,
+                description: task.description,
+                domains: task.domains.into_iter().map(TaskDomain::label).collect(),
+                prerequisites: task
+                    .prerequisites
+                    .into_iter()
+                    .map(ToolKind::label)
+                    .collect(),
+                dependencies: task.dependencies,
+                ci_included: task.ci_included,
+                listed: task.listed,
+            })
+            .collect(),
+    }
+}
+
+fn run_tasks_list(format: OutputFormat) -> Result<(), String> {
+    if matches!(format, OutputFormat::Json) {
+        let output = task_list_output();
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&output)
+                .map_err(|error| format!("failed to serialize task list: {error}"))?
+        );
+        return Ok(());
+    }
+
     for task in registered_tasks().into_iter().filter(|task| task.listed) {
         let domains = task
             .domains
@@ -931,6 +1003,7 @@ fn run_tasks_list() {
             task.description
         );
     }
+    Ok(())
 }
 
 fn optional_tools_for_domain(domain: DoctorDomain) -> Vec<ToolKind> {
@@ -982,52 +1055,81 @@ fn doctor_entries(domain: DoctorDomain) -> Vec<DoctorEntry> {
     entries.into_values().collect()
 }
 
-fn run_doctor(domain: DoctorDomain, ci: bool) -> Result<(), String> {
-    let entries = doctor_entries(domain);
-    println!("DX doctor domain={}", domain.label());
-    let mut missing_required = false;
+fn doctor_notes(domain: DoctorDomain) -> Vec<String> {
+    if matches!(domain, DoctorDomain::Ui | DoctorDomain::All) {
+        vec![
+            "note: `cargo xtask ui e2e` bootstraps Playwright package dependencies and Chromium automatically.".to_string(),
+            "note: Linux desktop UI system packages are provisioned in CI; local host packages vary by OS.".to_string(),
+        ]
+    } else {
+        Vec::new()
+    }
+}
 
-    for entry in entries {
-        let status = entry.tool.check();
-        let required_by = if entry.required_by.is_empty() {
-            String::new()
-        } else {
-            format!(
-                " required-by={}",
-                entry.required_by.into_iter().collect::<Vec<_>>().join(",")
-            )
-        };
-        if let Ok(()) = status {
-            println!("[ok] {}{}", entry.tool.label(), required_by);
-        } else {
-            let prefix = if entry.optional {
-                "[warn]"
+fn doctor_output(domain: DoctorDomain) -> DoctorOutput {
+    let mut missing_required = false;
+    let entries = doctor_entries(domain)
+        .into_iter()
+        .map(|entry| {
+            let status = if entry.tool.check().is_ok() {
+                "ok"
+            } else if entry.optional {
+                "warn"
             } else {
-                "[missing]"
-            };
-            println!(
-                "{} {}{} :: {}",
-                prefix,
-                entry.tool.label(),
-                required_by,
-                entry.tool.guidance()
-            );
-            if !entry.optional {
                 missing_required = true;
+                "missing"
+            };
+            DoctorEntryStatus {
+                tool: entry.tool.label(),
+                required_by: entry.required_by.into_iter().collect(),
+                optional: entry.optional,
+                status,
+                guidance: entry.tool.guidance(),
             }
+        })
+        .collect();
+
+    DoctorOutput {
+        domain: domain.label(),
+        missing_required,
+        entries,
+        notes: doctor_notes(domain),
+    }
+}
+
+fn run_doctor(domain: DoctorDomain, ci: bool, format: OutputFormat) -> Result<(), String> {
+    let output = doctor_output(domain);
+
+    if matches!(format, OutputFormat::Json) {
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&output)
+                .map_err(|error| format!("failed to serialize doctor output: {error}"))?
+        );
+    } else {
+        println!("DX doctor domain={}", output.domain);
+        for entry in &output.entries {
+            let required_by = if entry.required_by.is_empty() {
+                String::new()
+            } else {
+                format!(" required-by={}", entry.required_by.join(","))
+            };
+
+            match entry.status {
+                "ok" => println!("[ok] {}{}", entry.tool, required_by),
+                "warn" | "missing" => println!(
+                    "[{}] {}{} :: {}",
+                    entry.status, entry.tool, required_by, entry.guidance
+                ),
+                _ => {}
+            }
+        }
+        for note in &output.notes {
+            println!("{note}");
         }
     }
 
-    if matches!(domain, DoctorDomain::Ui | DoctorDomain::All) {
-        println!(
-            "note: `cargo xtask ui e2e` bootstraps Playwright package dependencies and Chromium automatically."
-        );
-        println!(
-            "note: Linux desktop UI system packages are provisioned in CI; local host packages vary by OS."
-        );
-    }
-
-    if ci && missing_required {
+    if ci && output.missing_required {
         return Err(format!(
             "doctor failed for domain {} because required tools are missing",
             domain.label()
@@ -1039,13 +1141,10 @@ fn run_doctor(domain: DoctorDomain, ci: bool) -> Result<(), String> {
 fn dispatch(cli: Cli) -> Result<(), String> {
     match cli.command {
         CommandGroup::Tasks(args) => match args.command {
-            TasksCommand::List => {
-                run_tasks_list();
-                Ok(())
-            }
+            TasksCommand::List(args) => run_tasks_list(args.format),
         },
         CommandGroup::Run(args) => run_named_task(&args.task),
-        CommandGroup::Doctor(args) => run_doctor(args.domain, args.ci),
+        CommandGroup::Doctor(args) => run_doctor(args.domain, args.ci, args.format),
         CommandGroup::Workspace(args) => match args.command {
             WorkspaceCommand::Verify(args) => run_workspace_verify(args.profile),
         },
@@ -1303,7 +1402,13 @@ struct TasksArgs {
 #[derive(Debug, Subcommand)]
 enum TasksCommand {
     /// List registered tasks, domains, prerequisites, and CI participation.
-    List,
+    List(ListArgs),
+}
+
+#[derive(Debug, Args)]
+struct ListArgs {
+    #[arg(long, value_enum, default_value = "text")]
+    format: OutputFormat,
 }
 
 #[derive(Debug, Args)]
@@ -1318,6 +1423,8 @@ struct DoctorArgs {
     domain: DoctorDomain,
     #[arg(long)]
     ci: bool,
+    #[arg(long, value_enum, default_value = "text")]
+    format: OutputFormat,
 }
 
 #[derive(Debug, Args)]
@@ -1658,8 +1765,9 @@ struct LegacyVerifyProfileArgs {
 #[cfg(test)]
 mod tests {
     use super::{
-        doctor_entries, find_task, infra, resolve_cache_status, ui_e2e, CacheMode, CacheSource,
-        Cli, CommandPlan, DoctorDomain, TaskAction, ToolKind, VerifyProfile,
+        doctor_entries, doctor_output, find_task, infra, resolve_cache_status, task_list_output,
+        ui_e2e, CacheMode, CacheSource, Cli, CommandPlan, DoctorDomain, TaskAction, ToolKind,
+        VerifyProfile,
     };
     use clap::{Parser, ValueEnum};
     use std::path::{Path, PathBuf};
@@ -1757,6 +1865,40 @@ mod tests {
         assert!(labels.contains(&ToolKind::Node));
         assert!(labels.contains(&ToolKind::Npm));
         assert!(labels.contains(&ToolKind::CargoTauri));
+    }
+
+    #[test]
+    fn cli_parses_json_output_flags() {
+        let tasks = Cli::try_parse_from(["xtask", "tasks", "list", "--format", "json"])
+            .expect("parse tasks json");
+        assert!(format!("{tasks:?}").contains("Json"));
+
+        let doctor = Cli::try_parse_from(["xtask", "doctor", "--domain", "ui", "--format", "json"])
+            .expect("parse doctor json");
+        assert!(format!("{doctor:?}").contains("Json"));
+    }
+
+    #[test]
+    fn task_list_output_contains_public_task_metadata() {
+        let output = task_list_output();
+        let verify = output
+            .tasks
+            .into_iter()
+            .find(|task| task.id == "verify-full")
+            .expect("verify-full");
+        assert!(verify.ci_included);
+        assert!(verify.prerequisites.contains(&"rustfmt"));
+        assert!(verify.prerequisites.contains(&"clippy"));
+    }
+
+    #[test]
+    fn doctor_output_marks_missing_required_tools_for_security_domain() {
+        let output = doctor_output(DoctorDomain::Security);
+        assert_eq!(output.domain, "security");
+        assert!(output
+            .entries
+            .iter()
+            .any(|entry| entry.tool == "cargo-audit" && matches!(entry.status, "ok" | "missing")));
     }
 
     #[test]

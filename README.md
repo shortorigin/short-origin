@@ -41,9 +41,11 @@ Run these from the repository root when setting up or diagnosing a local environ
 cargo doctor --domain all
 cargo tasks
 cargo verify
+cargo dx
 ```
 
 Cargo aliases in [.cargo/config.toml](/Users/justinshort/short%20origin/.cargo/config.toml) provide a short front door for the `xtask` substrate. Use `cargo x ...` as the escape hatch for any full `xtask` command, `cargo tasks` to list registered workflows, `cargo task <task-id>` to run a named task, and `cargo doctor --domain <domain>` to inspect prerequisites.
+`cargo dx` launches the Ratatui developer console for Git state, issue/PR workflow state, prerequisite checks, task execution, workflow runs, and guarded release dispatch.
 
 ## Verification
 
