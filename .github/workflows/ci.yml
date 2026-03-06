@@ -57,33 +57,8 @@ jobs:
       - name: Install Trunk
         run: cargo install trunk --locked
 
-      - name: cargo fmt
-        run: cargo fmt --all --check
-
-      - name: cargo clippy
-        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
-
-      - name: cargo test
-        run: cargo test --workspace --all-targets
-
-      - name: Component build and parity checks
-        run: cargo components-build
-
-      - name: WIT and repository smoke tests
-        run: cargo test -p wasmcloud-bindings -p wasmcloud-smoke-tests -p surrealdb-access
-
-      - name: Browser preview build
-        run: cargo xtask ui build --features desktop-tauri --dist target/trunk-ci-dist
-
-      - name: Tauri check
-        run: cargo check -p desktop_tauri --all-features
-
-      - name: Infrastructure posture validation
-        run: |
-          if rg -n 'driver\s*=\s*"raw_exec"' infrastructure/nomad/jobs; then
-            echo "raw_exec deployments are not allowed for workload services"
-            exit 1
-          fi
+      - name: Run workspace validation profile
+        run: cargo verify-ci
 
   nomad:
     name: Nomad validation

@@ -393,6 +393,40 @@ fn default_window_rect_for_app(
     crate::model::WindowRect { x, y, w, h }
 }
 
+fn mount_control_center_app(context: AppMountContext) -> View {
+    view! {
+        <ControlCenterApp
+            launch_params=context.launch_params.clone()
+            restored_state=Some(context.restored_state.clone())
+            services=Some(context.services)
+        />
+    }
+    .into_view()
+}
+
+fn mount_terminal_app(context: AppMountContext) -> View {
+    view! {
+        <TerminalApp
+            window_id=context.window_id
+            launch_params=context.launch_params.clone()
+            restored_state=Some(context.restored_state.clone())
+            services=Some(context.services)
+        />
+    }
+    .into_view()
+}
+
+fn mount_settings_app(context: AppMountContext) -> View {
+    view! {
+        <SettingsApp
+            launch_params=context.launch_params.clone()
+            restored_state=Some(context.restored_state.clone())
+            services=Some(context.services)
+        />
+    }
+    .into_view()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -420,8 +454,8 @@ mod tests {
         let viewport = crate::model::WindowRect {
             x: 0,
             y: 0,
-            w: 900,
-            h: 620,
+            w: 1280,
+            h: 760,
         };
         let req =
             default_open_request_by_id(&builtin_app_id(APP_ID_CONTROL_CENTER), Some(viewport))
@@ -455,38 +489,4 @@ mod tests {
         assert!(control_center.w > terminal.w);
         assert!(control_center.h >= terminal.h);
     }
-}
-
-fn mount_control_center_app(context: AppMountContext) -> View {
-    view! {
-        <ControlCenterApp
-            launch_params=context.launch_params.clone()
-            restored_state=Some(context.restored_state.clone())
-            services=Some(context.services)
-        />
-    }
-    .into_view()
-}
-
-fn mount_terminal_app(context: AppMountContext) -> View {
-    view! {
-        <TerminalApp
-            window_id=context.window_id
-            launch_params=context.launch_params.clone()
-            restored_state=Some(context.restored_state.clone())
-            services=Some(context.services)
-        />
-    }
-    .into_view()
-}
-
-fn mount_settings_app(context: AppMountContext) -> View {
-    view! {
-        <SettingsApp
-            launch_params=context.launch_params.clone()
-            restored_state=Some(context.restored_state.clone())
-            services=Some(context.services)
-        />
-    }
-    .into_view()
 }

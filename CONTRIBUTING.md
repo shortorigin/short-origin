@@ -63,6 +63,12 @@ Use milestones to group issues into release objectives such as `v0.1 - MVP` and 
 Run the baseline checks from the repository root:
 
 ```bash
+cargo verify-ci
+```
+
+For the narrower baseline that excludes UI/build parity checks:
+
+```bash
 cargo fmt --all --check
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo test --workspace --all-targets

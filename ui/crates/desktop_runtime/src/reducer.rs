@@ -1343,7 +1343,7 @@ mod tests {
     }
 
     #[test]
-    fn activate_app_opens_new_window_for_multi_instance_apps() {
+    fn activate_app_reuses_existing_window_for_single_instance_compat_app() {
         let mut state = DesktopState::default();
         let mut interaction = InteractionState::default();
 
@@ -1366,7 +1366,7 @@ mod tests {
         )
         .expect("activate explorer second");
 
-        assert_eq!(state.windows.len(), 2);
+        assert_eq!(state.windows.len(), 1);
         assert!(state
             .windows
             .iter()
@@ -1808,7 +1808,7 @@ mod tests {
     }
 
     #[test]
-    fn app_bus_commands_emit_window_manager_effects() {
+    fn app_bus_ipc_commands_require_ipc_capability() {
         let mut state = DesktopState::default();
         let mut interaction = InteractionState::default();
         let window_id = open(
@@ -1829,13 +1829,7 @@ mod tests {
             },
         )
         .expect("subscribe command");
-        assert_eq!(
-            subscribe_effects,
-            vec![RuntimeEffect::SubscribeWindowTopic {
-                window_id,
-                topic: "explorer.refresh".to_string(),
-            }]
-        );
+        assert!(subscribe_effects.is_empty());
 
         let publish_effects = reduce_desktop(
             &mut state,
@@ -1851,15 +1845,6 @@ mod tests {
             },
         )
         .expect("publish command");
-        assert_eq!(
-            publish_effects,
-            vec![RuntimeEffect::PublishTopicEvent {
-                source_window_id: window_id,
-                topic: "explorer.refresh".to_string(),
-                payload,
-                correlation_id: None,
-                reply_to: None,
-            }]
-        );
+        assert!(publish_effects.is_empty());
     }
 }

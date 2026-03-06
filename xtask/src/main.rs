@@ -40,6 +40,7 @@ fn run_ui(args: Vec<String>) -> Result<(), String> {
     let index = site_dir.join("index.html");
     let mut command = Command::new("trunk");
     command.current_dir(&site_dir);
+    command.env_remove("NO_COLOR");
     command.arg(trunk_subcommand);
     command.arg(index);
 
@@ -83,7 +84,7 @@ fn run_components(args: Vec<String>) -> Result<(), String> {
         "-p",
         "finance-service",
         "-p",
-        "treasury_disbursement",
+        "treasury-disbursement",
         "-p",
         "wasmcloud-smoke-tests",
     ]);
@@ -94,7 +95,7 @@ fn run_verify(args: Vec<String>) -> Result<(), String> {
     let profile = match args.as_slice() {
         [profile] => profile.as_str(),
         [first, profile] if first == "profile" => profile.as_str(),
-        _ => return Err("expected `verify profile <fast|ui|full>`".to_string()),
+        _ => return Err("expected `verify profile <fast|ui|ci|full>`".to_string()),
     };
 
     let workspace_root = workspace_root()?;
@@ -123,6 +124,49 @@ fn run_verify(args: Vec<String>) -> Result<(), String> {
                 &workspace_root,
                 &["check", "-p", "desktop_tauri", "--all-features"],
             )?;
+        }
+        "ci" => {
+            cargo(&workspace_root, &["fmt", "--all", "--check"])?;
+            cargo(
+                &workspace_root,
+                &[
+                    "clippy",
+                    "--workspace",
+                    "--all-targets",
+                    "--all-features",
+                    "--",
+                    "-D",
+                    "warnings",
+                ],
+            )?;
+            cargo(&workspace_root, &["test", "--workspace", "--all-targets"])?;
+            run_components_build(&workspace_root)?;
+            cargo(
+                &workspace_root,
+                &[
+                    "test",
+                    "-p",
+                    "wasmcloud-bindings",
+                    "-p",
+                    "wasmcloud-smoke-tests",
+                    "-p",
+                    "surrealdb-access",
+                ],
+            )?;
+            run_ui_build(
+                &workspace_root,
+                &[
+                    "--features",
+                    "desktop-tauri",
+                    "--dist",
+                    "target/trunk-ci-dist",
+                ],
+            )?;
+            cargo(
+                &workspace_root,
+                &["check", "-p", "desktop_tauri", "--all-features"],
+            )?;
+            validate_nomad_posture(&workspace_root)?;
         }
         "full" => {
             cargo(&workspace_root, &["fmt", "--all", "--check"])?;
@@ -156,6 +200,94 @@ fn run_verify(args: Vec<String>) -> Result<(), String> {
     }
 
     Ok(())
+}
+
+fn run_components_build(workspace_root: &Path) -> Result<(), String> {
+    let mut command = Command::new("cargo");
+    command.current_dir(workspace_root);
+    command.args([
+        "check",
+        "-p",
+        "wasmcloud-bindings",
+        "-p",
+        "lattice-config",
+        "-p",
+        "finance-service",
+        "-p",
+        "treasury-disbursement",
+        "-p",
+        "wasmcloud-smoke-tests",
+    ]);
+    run_command(&mut command)
+}
+
+fn run_ui_build(workspace_root: &Path, passthrough: &[&str]) -> Result<(), String> {
+    let site_dir = workspace_root.join("ui/crates/site");
+    let index = site_dir.join("index.html");
+    let mut command = Command::new("trunk");
+    command.current_dir(&site_dir);
+    command.env_remove("NO_COLOR");
+    command.arg("build");
+    command.arg(index);
+
+    let mut passthrough = passthrough
+        .iter()
+        .map(|value| (*value).to_string())
+        .collect::<Vec<_>>();
+    normalize_dist_arg(workspace_root, &mut passthrough);
+    drop_no_open_arg(&mut passthrough);
+    command.args(passthrough);
+
+    run_command(&mut command)
+}
+
+fn validate_nomad_posture(workspace_root: &Path) -> Result<(), String> {
+    let jobs_dir = workspace_root.join("infrastructure/nomad/jobs");
+    let raw_exec_pattern = regex::Regex::new(r#"driver\s*=\s*"raw_exec""#)
+        .map_err(|error| format!("failed to compile Nomad posture regex: {error}"))?;
+
+    for path in collect_files(&jobs_dir)? {
+        let contents = std::fs::read_to_string(&path)
+            .map_err(|error| format!("failed to read `{}`: {error}", path.display()))?;
+        if raw_exec_pattern.is_match(&contents) {
+            return Err(format!(
+                "raw_exec deployments are not allowed for workload services: `{}`",
+                path.display()
+            ));
+        }
+    }
+
+    Ok(())
+}
+
+fn collect_files(root: &Path) -> Result<Vec<PathBuf>, String> {
+    let mut files = Vec::new();
+    let mut pending = vec![root.to_path_buf()];
+
+    while let Some(path) = pending.pop() {
+        if !path.exists() {
+            continue;
+        }
+
+        let metadata = std::fs::metadata(&path).map_err(|error| {
+            format!("failed to read metadata for `{}`: {error}", path.display())
+        })?;
+        if metadata.is_dir() {
+            for entry in std::fs::read_dir(&path).map_err(|error| {
+                format!("failed to read directory `{}`: {error}", path.display())
+            })? {
+                let entry = entry.map_err(|error| {
+                    format!("failed to read entry in `{}`: {error}", path.display())
+                })?;
+                pending.push(entry.path());
+            }
+        } else if metadata.is_file() {
+            files.push(path);
+        }
+    }
+
+    files.sort();
+    Ok(files)
 }
 
 fn cargo(workspace_root: &Path, args: &[&str]) -> Result<(), String> {

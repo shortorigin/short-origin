@@ -98,7 +98,7 @@ pub fn ControlCenterApp(
                     view! {
                         <Button
                             variant=ButtonVariant::Quiet
-                            selected=Signal::derive(move || selected())
+                            selected=Signal::derive(selected)
                             on_click=Callback::new(move |_| {
                                 state.update(|state| state.active_section = section);
                             })
