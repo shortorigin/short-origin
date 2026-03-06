@@ -1,0 +1,8 @@
+{
+  "handoff_id": "handoff::short-origin-validator-enforcement::architecture-to-plan",
+  "objective": "Turn the tooling design into executable tasks.",
+  "inputs_used": ["architecture-design.json", "requirements-spec.json"],
+  "decisions_made": ["Fixtures and CI updates ship in the same leaf slice."],
+  "pending_actions": ["List validator rules, test cases, and workflow wiring."],
+  "verification_status": "passed"
+}

@@ -1,0 +1,4 @@
+config:
+  aws:region: us-west-2
+  short-origin-bootstrap-state:stateBucketPrefix: short-origin-pulumi-state
+  short-origin-bootstrap-state:lockTableName: short-origin-pulumi-locks

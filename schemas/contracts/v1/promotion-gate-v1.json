@@ -1,0 +1,5 @@
+{
+  "name": "PromotionGateV1",
+  "version": "v1",
+  "fields": ["backtest_evidence", "paper_trade_evidence", "risk_signoff", "compliance_attested", "recommendation_id", "strategy_id", "config_hash", "recommended", "summary", "required_workflows"]
+}

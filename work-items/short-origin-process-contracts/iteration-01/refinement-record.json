@@ -1,0 +1,32 @@
+{
+  "work_item_id": "short-origin-process-contracts",
+  "parent_work_item_id": "short-origin-recursive-chatgpt-method",
+  "iteration": 1,
+  "affected_paths": [
+    "schemas/contracts/v1/",
+    "schemas/crates/contracts/",
+    "schemas/crates/codegen/"
+  ],
+  "affected_modules": ["schemas"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": [
+    "All process artifact contracts exist in schemas/contracts/v1.",
+    "Rust process artifact mirrors round-trip through serde and appear in the embedded schema registry."
+  ],
+  "open_questions": [
+    {
+      "question": "Contract field sets stay additive and aligned with the validator.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T17:40:00Z",
+  "decision": "close",
+  "improvements": [
+    "The process contract layer now matches the validator and docs."
+  ],
+  "residual_risks": [
+    "Future iterations may add more profile evidence keys."
+  ],
+  "next_work_item_ids": []
+}

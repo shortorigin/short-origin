@@ -1,0 +1,8 @@
+{
+  "handoff_id": "handoff::short-origin-recursive-chatgpt-method::requirements-to-architecture",
+  "objective": "Convert requirements into a boundary-safe design.",
+  "inputs_used": ["requirements-spec.json", "research-synthesis.json"],
+  "decisions_made": ["The process must be enforced in CI.", "Leaf work items alone can generate code batches."],
+  "pending_actions": ["Map required contracts, docs, validator, and child slices."],
+  "verification_status": "passed"
+}

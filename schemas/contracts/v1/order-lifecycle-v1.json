@@ -1,0 +1,5 @@
+{
+  "name": "OrderLifecycleV1",
+  "version": "v1",
+  "fields": ["order_id", "strategy_id", "symbol", "venue", "side", "quantity", "limit_price", "order_type", "tif", "submitted_at", "status", "fill_id", "price", "fee"]
+}

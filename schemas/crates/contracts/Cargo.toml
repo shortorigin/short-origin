@@ -1,0 +1,16 @@
+[package]
+name = "contracts"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+version.workspace = true
+
+[dependencies]
+chrono.workspace = true
+identity = { path = "../../../shared/identity" }
+serde.workspace = true
+serde_json.workspace = true
+uuid.workspace = true
+
+[lints]
+workspace = true

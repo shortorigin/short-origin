@@ -1,0 +1,26 @@
+[package]
+name = "strategy-sandbox"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+version.workspace = true
+
+[features]
+default = []
+in-memory = []
+
+[dependencies]
+chrono.workspace = true
+contracts = { path = "../../../schemas/crates/contracts" }
+serde.workspace = true
+serde_json.workspace = true
+trading-core = { path = "../../../shared/trading-core" }
+trading-errors = { path = "../../../shared/trading-errors" }
+wasmtime = { version = "30.0.2", default-features = false, features = ["cranelift", "runtime", "std"] }
+wat = "1.245.1"
+
+[dev-dependencies]
+trading-sim = { path = "../../../shared/trading-sim" }
+
+[lints]
+workspace = true

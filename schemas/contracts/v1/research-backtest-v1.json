@@ -1,0 +1,5 @@
+{
+  "name": "ResearchBacktestV1",
+  "version": "v1",
+  "fields": ["strategy_name", "parameter_grid", "training_window", "test_window", "config_hash", "summary", "trade_count", "metadata"]
+}

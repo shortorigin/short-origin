@@ -1,0 +1,2 @@
+version = "v1"
+required_evidence = ["board_decision", "delegated_authority_change", "invariant_change"]

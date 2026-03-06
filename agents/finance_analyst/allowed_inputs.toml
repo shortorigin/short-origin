@@ -1,0 +1,1 @@
+allowed_inputs = ["enterprise", "schemas", "telemetry", "knowledge_record", "workflow_state"]

@@ -1,0 +1,39 @@
+{
+  "work_item_id": "short-origin-process-contracts",
+  "parent_work_item_id": "short-origin-recursive-chatgpt-method",
+  "iteration": 1,
+  "affected_paths": [
+    "schemas/contracts/v1/",
+    "schemas/crates/contracts/",
+    "schemas/crates/codegen/"
+  ],
+  "affected_modules": ["schemas"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": [
+    "All process artifact contracts exist in schemas/contracts/v1.",
+    "Rust process artifact mirrors round-trip through serde and appear in the embedded schema registry."
+  ],
+  "open_questions": [
+    {
+      "question": "Contract field sets stay additive and aligned with the validator.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T17:15:00Z",
+  "objective": "Specify the contract slice.",
+  "functional_requirements": [
+    "Add work item, stage, and refinement contracts.",
+    "Expose matching Rust structs for validator consumption."
+  ],
+  "non_functional_requirements": [
+    "Preserve additive-first contract evolution.",
+    "Keep serialization deterministic."
+  ],
+  "out_of_scope": ["Validator CLI behavior."],
+  "success_metrics": [
+    "Process artifacts serialize and deserialize cleanly.",
+    "Embedded contract registry exposes the new documents."
+  ],
+  "assumptions": ["JSON contract field lists are sufficient for this v1 schema registry."]
+}

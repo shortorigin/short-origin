@@ -1,0 +1,8 @@
+{
+  "handoff_id": "handoff::short-origin-wasmcloud-ui-shell::research-to-requirements",
+  "objective": "Turn the architecture review into repository requirements.",
+  "inputs_used": ["research-synthesis.json", "AGENTS.md", "ui/"],
+  "decisions_made": ["ui/ must become first-class and all governed data must stay on typed contracts."],
+  "pending_actions": ["Specify runtime, storage, and deployment requirements in detail."],
+  "verification_status": "passed"
+}

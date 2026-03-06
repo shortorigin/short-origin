@@ -1,0 +1,4082 @@
+[
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:00:00Z",
+      "close_time": "2026-03-01T00:01:00Z",
+      "open": 100.68259462967019,
+      "high": 100.70030041235721,
+      "low": 100.36258050667094,
+      "close": 100.45867116124586,
+      "volume": 6585.712546398787
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:01:00Z",
+      "close_time": "2026-03-01T00:02:00Z",
+      "open": 100.45867116124586,
+      "high": 100.47789613624705,
+      "low": 100.06926523091668,
+      "close": 100.19715411288115,
+      "volume": 6285.114165897101
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:02:00Z",
+      "close_time": "2026-03-01T00:03:00Z",
+      "open": 100.19715411288115,
+      "high": 100.54501840480705,
+      "low": 100.16076249380811,
+      "close": 100.49140331488775,
+      "volume": 1858.7708392510415
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:03:00Z",
+      "close_time": "2026-03-01T00:04:00Z",
+      "open": 100.49140331488775,
+      "high": 100.51483411054505,
+      "low": 100.01247059204883,
+      "close": 100.0613175733363,
+      "volume": 4447.870188642311
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:04:00Z",
+      "close_time": "2026-03-01T00:05:00Z",
+      "open": 100.0613175733363,
+      "high": 100.4027575498019,
+      "low": 99.93000684323478,
+      "close": 100.286078063201,
+      "volume": 1233.9530192917546
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:05:00Z",
+      "close_time": "2026-03-01T00:06:00Z",
+      "open": 100.286078063201,
+      "high": 100.67170912170613,
+      "low": 100.26783613671313,
+      "close": 100.64193888972562,
+      "volume": 9333.926322843668
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:06:00Z",
+      "close_time": "2026-03-01T00:07:00Z",
+      "open": 100.64193888972562,
+      "high": 100.91205983792152,
+      "low": 100.49446405587803,
+      "close": 100.8713717802688,
+      "volume": 8063.462218516778
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:07:00Z",
+      "close_time": "2026-03-01T00:08:00Z",
+      "open": 100.8713717802688,
+      "high": 101.37060301610902,
+      "low": 100.77754072866442,
+      "close": 101.31992921198722,
+      "volume": 2358.9454358561857
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:08:00Z",
+      "close_time": "2026-03-01T00:09:00Z",
+      "open": 101.31992921198722,
+      "high": 101.80920462160347,
+      "low": 101.2767717339798,
+      "close": 101.75321888355295,
+      "volume": 4304.373631766154
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:09:00Z",
+      "close_time": "2026-03-01T00:10:00Z",
+      "open": 101.75321888355295,
+      "high": 102.34306587375947,
+      "low": 101.67514174774402,
+      "close": 102.23943580037778,
+      "volume": 4315.889495495561
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:10:00Z",
+      "close_time": "2026-03-01T00:11:00Z",
+      "open": 102.23943580037778,
+      "high": 102.26598480001277,
+      "low": 101.95706108958437,
+      "close": 101.99557731530379,
+      "volume": 3815.8117549337617
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:11:00Z",
+      "close_time": "2026-03-01T00:12:00Z",
+      "open": 101.99557731530379,
+      "high": 102.27092191275835,
+      "low": 101.92769181863073,
+      "close": 102.22113899080351,
+      "volume": 2157.9645969794037
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:12:00Z",
+      "close_time": "2026-03-01T00:13:00Z",
+      "open": 102.22113899080351,
+      "high": 102.67625913921533,
+      "low": 102.06942468899993,
+      "close": 102.56304323604205,
+      "volume": 9886.670493419258
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:13:00Z",
+      "close_time": "2026-03-01T00:14:00Z",
+      "open": 102.56304323604205,
+      "high": 102.61812927726167,
+      "low": 102.30346382236735,
+      "close": 102.33864884648243,
+      "volume": 279.72743696398874
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:14:00Z",
+      "close_time": "2026-03-01T00:15:00Z",
+      "open": 102.33864884648243,
+      "high": 102.34201997663048,
+      "low": 102.0295973889199,
+      "close": 102.03974980809237,
+      "volume": 6255.588892593695
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:15:00Z",
+      "close_time": "2026-03-01T00:16:00Z",
+      "open": 102.03974980809237,
+      "high": 102.39967120048685,
+      "low": 102.00278862230707,
+      "close": 102.26810783052355,
+      "volume": 3013.761080861898
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:16:00Z",
+      "close_time": "2026-03-01T00:17:00Z",
+      "open": 102.26810783052355,
+      "high": 102.3174978966857,
+      "low": 102.0773795350164,
+      "close": 102.15356814995823,
+      "volume": 373.0226547699339
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:17:00Z",
+      "close_time": "2026-03-01T00:18:00Z",
+      "open": 102.15356814995823,
+      "high": 102.2345357418443,
+      "low": 101.88272604611261,
+      "close": 101.91293707994535,
+      "volume": 5053.797984140139
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:18:00Z",
+      "close_time": "2026-03-01T00:19:00Z",
+      "open": 101.91293707994535,
+      "high": 101.98303328298765,
+      "low": 101.57014428495876,
+      "close": 101.65935595298681,
+      "volume": 3684.408374645655
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:19:00Z",
+      "close_time": "2026-03-01T00:20:00Z",
+      "open": 101.65935595298681,
+      "high": 101.94092023087906,
+      "low": 101.62460431661755,
+      "close": 101.83441268134234,
+      "volume": 6430.524614757998
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:20:00Z",
+      "close_time": "2026-03-01T00:21:00Z",
+      "open": 101.83441268134234,
+      "high": 102.12878394953836,
+      "low": 101.77003925183033,
+      "close": 102.0021086840535,
+      "volume": 9763.488320566474
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:21:00Z",
+      "close_time": "2026-03-01T00:22:00Z",
+      "open": 102.0021086840535,
+      "high": 102.02053442987608,
+      "low": 101.66041094056601,
+      "close": 101.69258761691546,
+      "volume": 7137.969581529341
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:22:00Z",
+      "close_time": "2026-03-01T00:23:00Z",
+      "open": 101.69258761691546,
+      "high": 101.95845272910387,
+      "low": 101.58095072244514,
+      "close": 101.9229552781233,
+      "volume": 8221.82713828822
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:23:00Z",
+      "close_time": "2026-03-01T00:24:00Z",
+      "open": 101.9229552781233,
+      "high": 102.06671715509569,
+      "low": 101.56263796780725,
+      "close": 101.65678692899778,
+      "volume": 504.57665079555
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:24:00Z",
+      "close_time": "2026-03-01T00:25:00Z",
+      "open": 101.65678692899778,
+      "high": 101.75989776584387,
+      "low": 101.61215293708584,
+      "close": 101.63028673990473,
+      "volume": 7552.373873359322
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:25:00Z",
+      "close_time": "2026-03-01T00:26:00Z",
+      "open": 101.63028673990473,
+      "high": 101.69934985035547,
+      "low": 101.23971411539313,
+      "close": 101.35078280140122,
+      "volume": 7322.620196732521
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:26:00Z",
+      "close_time": "2026-03-01T00:27:00Z",
+      "open": 101.35078280140122,
+      "high": 101.39940945267317,
+      "low": 101.25689105948128,
+      "close": 101.37357744328351,
+      "volume": 763.6936907821232
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:27:00Z",
+      "close_time": "2026-03-01T00:28:00Z",
+      "open": 101.37357744328351,
+      "high": 101.8796998265523,
+      "low": 101.31331898154828,
+      "close": 101.73925441313719,
+      "volume": 8801.74246700486
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:28:00Z",
+      "close_time": "2026-03-01T00:29:00Z",
+      "open": 101.73925441313719,
+      "high": 101.74466521662913,
+      "low": 101.19000188885043,
+      "close": 101.25177079975646,
+      "volume": 8668.886025950052
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:29:00Z",
+      "close_time": "2026-03-01T00:30:00Z",
+      "open": 101.25177079975646,
+      "high": 101.50738371178,
+      "low": 101.20402153983272,
+      "close": 101.41674895425383,
+      "volume": 7267.894522842462
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:30:00Z",
+      "close_time": "2026-03-01T00:31:00Z",
+      "open": 101.41674895425383,
+      "high": 101.54334376607049,
+      "low": 101.15792374257664,
+      "close": 101.24406509043303,
+      "volume": 4519.632878430276
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:31:00Z",
+      "close_time": "2026-03-01T00:32:00Z",
+      "open": 101.24406509043303,
+      "high": 101.27275935987377,
+      "low": 100.98397418942865,
+      "close": 101.11770421024715,
+      "volume": 952.6962440259653
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:32:00Z",
+      "close_time": "2026-03-01T00:33:00Z",
+      "open": 101.11770421024715,
+      "high": 101.20946152919781,
+      "low": 100.98938995488436,
+      "close": 101.06514200774122,
+      "volume": 6782.496857399131
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:33:00Z",
+      "close_time": "2026-03-01T00:34:00Z",
+      "open": 101.06514200774122,
+      "high": 101.488254975316,
+      "low": 101.03059994310355,
+      "close": 101.45633492163056,
+      "volume": 7970.909756101412
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:34:00Z",
+      "close_time": "2026-03-01T00:35:00Z",
+      "open": 101.45633492163056,
+      "high": 101.48788871164736,
+      "low": 100.9943592698735,
+      "close": 101.00816376986035,
+      "volume": 7110.145147841096
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:35:00Z",
+      "close_time": "2026-03-01T00:36:00Z",
+      "open": 101.00816376986035,
+      "high": 101.27239423604425,
+      "low": 100.88735517277686,
+      "close": 101.26092032852333,
+      "volume": 8555.92594576674
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:36:00Z",
+      "close_time": "2026-03-01T00:37:00Z",
+      "open": 101.26092032852333,
+      "high": 101.28898640571171,
+      "low": 101.04797861217581,
+      "close": 101.12101677053363,
+      "volume": 2388.8338180119904
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:37:00Z",
+      "close_time": "2026-03-01T00:38:00Z",
+      "open": 101.12101677053363,
+      "high": 101.229678685382,
+      "low": 100.73711168393919,
+      "close": 100.8138756250521,
+      "volume": 8473.283076901556
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:38:00Z",
+      "close_time": "2026-03-01T00:39:00Z",
+      "open": 100.8138756250521,
+      "high": 100.81898837366921,
+      "low": 100.27789027359498,
+      "close": 100.41989286088133,
+      "volume": 8107.824142687321
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:39:00Z",
+      "close_time": "2026-03-01T00:40:00Z",
+      "open": 100.41989286088133,
+      "high": 100.59256526004813,
+      "low": 100.37714305277834,
+      "close": 100.56264420702762,
+      "volume": 813.0397900407255
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:40:00Z",
+      "close_time": "2026-03-01T00:41:00Z",
+      "open": 100.56264420702762,
+      "high": 100.87741790518794,
+      "low": 100.43017919362195,
+      "close": 100.801098859193,
+      "volume": 4356.779293848816
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:41:00Z",
+      "close_time": "2026-03-01T00:42:00Z",
+      "open": 100.801098859193,
+      "high": 100.90905412924403,
+      "low": 100.65001883330771,
+      "close": 100.7675627271305,
+      "volume": 3314.9467497082005
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:42:00Z",
+      "close_time": "2026-03-01T00:43:00Z",
+      "open": 100.7675627271305,
+      "high": 101.37406196101394,
+      "low": 100.73581435028768,
+      "close": 101.26201765305585,
+      "volume": 1627.094019899016
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:43:00Z",
+      "close_time": "2026-03-01T00:44:00Z",
+      "open": 101.26201765305585,
+      "high": 101.28042833593368,
+      "low": 101.01467623498115,
+      "close": 101.01588140014101,
+      "volume": 9048.539838748573
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:44:00Z",
+      "close_time": "2026-03-01T00:45:00Z",
+      "open": 101.01588140014101,
+      "high": 101.65276072369686,
+      "low": 100.92271241548038,
+      "close": 101.51171186683267,
+      "volume": 4812.468070590931
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:45:00Z",
+      "close_time": "2026-03-01T00:46:00Z",
+      "open": 101.51171186683267,
+      "high": 101.71732615258426,
+      "low": 101.37830120183004,
+      "close": 101.58200258713164,
+      "volume": 4198.8870610706435
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:46:00Z",
+      "close_time": "2026-03-01T00:47:00Z",
+      "open": 101.58200258713164,
+      "high": 101.94984559110263,
+      "low": 101.56839489081278,
+      "close": 101.83004629477612,
+      "volume": 9075.824353090558
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:47:00Z",
+      "close_time": "2026-03-01T00:48:00Z",
+      "open": 101.83004629477612,
+      "high": 101.89086090507054,
+      "low": 101.30384780993616,
+      "close": 101.4298103052079,
+      "volume": 4364.114464980383
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:48:00Z",
+      "close_time": "2026-03-01T00:49:00Z",
+      "open": 101.4298103052079,
+      "high": 101.49887464789929,
+      "low": 101.31596665358245,
+      "close": 101.47378432187875,
+      "volume": 9298.568429215376
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:49:00Z",
+      "close_time": "2026-03-01T00:50:00Z",
+      "open": 101.47378432187875,
+      "high": 101.61439714337124,
+      "low": 101.38143862116121,
+      "close": 101.43781035535429,
+      "volume": 2647.4834797239446
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:50:00Z",
+      "close_time": "2026-03-01T00:51:00Z",
+      "open": 101.43781035535429,
+      "high": 101.8054718238233,
+      "low": 101.41677909793712,
+      "close": 101.72275785716788,
+      "volume": 7589.228147282781
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:51:00Z",
+      "close_time": "2026-03-01T00:52:00Z",
+      "open": 101.72275785716788,
+      "high": 101.74621266011414,
+      "low": 101.15652888120596,
+      "close": 101.24917288328922,
+      "volume": 7077.232551039659
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:52:00Z",
+      "close_time": "2026-03-01T00:53:00Z",
+      "open": 101.24917288328922,
+      "high": 101.38180575132738,
+      "low": 101.11066585866448,
+      "close": 101.34338910036651,
+      "volume": 3648.4214263283934
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:53:00Z",
+      "close_time": "2026-03-01T00:54:00Z",
+      "open": 101.34338910036651,
+      "high": 101.40203672187094,
+      "low": 101.29226858730166,
+      "close": 101.34413983292983,
+      "volume": 5884.402788531876
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:54:00Z",
+      "close_time": "2026-03-01T00:55:00Z",
+      "open": 101.34413983292983,
+      "high": 101.40581540638662,
+      "low": 100.81942503775387,
+      "close": 100.92438817709322,
+      "volume": 2043.973488700723
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:55:00Z",
+      "close_time": "2026-03-01T00:56:00Z",
+      "open": 100.92438817709322,
+      "high": 100.9949119759729,
+      "low": 100.48936190420352,
+      "close": 100.58347295334488,
+      "volume": 1914.4466034619086
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:56:00Z",
+      "close_time": "2026-03-01T00:57:00Z",
+      "open": 100.58347295334488,
+      "high": 100.61314423891439,
+      "low": 100.03091183658312,
+      "close": 100.12946863797043,
+      "volume": 3022.4476061896275
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:57:00Z",
+      "close_time": "2026-03-01T00:58:00Z",
+      "open": 100.12946863797043,
+      "high": 100.15463267257816,
+      "low": 99.93680975385519,
+      "close": 100.08241084955323,
+      "volume": 2863.60416287039
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:58:00Z",
+      "close_time": "2026-03-01T00:59:00Z",
+      "open": 100.08241084955323,
+      "high": 100.21095597804464,
+      "low": 99.83985144177745,
+      "close": 99.94018256677329,
+      "volume": 2297.2902529187872
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:59:00Z",
+      "close_time": "2026-03-01T01:00:00Z",
+      "open": 99.94018256677329,
+      "high": 100.45531679465498,
+      "low": 99.8092618157471,
+      "close": 100.36255902582387,
+      "volume": 316.3944469145774
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:00:00Z",
+      "close_time": "2026-03-01T01:01:00Z",
+      "open": 100.36255902582387,
+      "high": 100.49164805606922,
+      "low": 100.07081325739058,
+      "close": 100.08990503445158,
+      "volume": 5220.0941193538965
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:01:00Z",
+      "close_time": "2026-03-01T01:02:00Z",
+      "open": 100.08990503445158,
+      "high": 100.20874924652149,
+      "low": 99.69856433660466,
+      "close": 99.75969643805983,
+      "volume": 9729.0583506558
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:02:00Z",
+      "close_time": "2026-03-01T01:03:00Z",
+      "open": 99.75969643805983,
+      "high": 99.79858893990641,
+      "low": 99.44041361827462,
+      "close": 99.49293726315413,
+      "volume": 7372.771857858845
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:03:00Z",
+      "close_time": "2026-03-01T01:04:00Z",
+      "open": 99.49293726315413,
+      "high": 99.5831317174238,
+      "low": 99.29868233936023,
+      "close": 99.41308877680072,
+      "volume": 189.76384636850716
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:04:00Z",
+      "close_time": "2026-03-01T01:05:00Z",
+      "open": 99.41308877680072,
+      "high": 99.53086285368131,
+      "low": 99.28829922689084,
+      "close": 99.46782808622687,
+      "volume": 1020.2850955356284
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:05:00Z",
+      "close_time": "2026-03-01T01:06:00Z",
+      "open": 99.46782808622687,
+      "high": 99.48741807945919,
+      "low": 98.94125368469136,
+      "close": 99.03211585317486,
+      "volume": 6012.894448558749
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:06:00Z",
+      "close_time": "2026-03-01T01:07:00Z",
+      "open": 99.03211585317486,
+      "high": 99.46251063940896,
+      "low": 99.01154770656944,
+      "close": 99.45802633606955,
+      "volume": 2456.806653552227
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:07:00Z",
+      "close_time": "2026-03-01T01:08:00Z",
+      "open": 99.45802633606955,
+      "high": 99.59093399324364,
+      "low": 99.30692196398478,
+      "close": 99.32347908807955,
+      "volume": 1671.6075313411154
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:08:00Z",
+      "close_time": "2026-03-01T01:09:00Z",
+      "open": 99.32347908807955,
+      "high": 99.3539460753169,
+      "low": 99.27818973303472,
+      "close": 99.32705564923401,
+      "volume": 2861.608692464363
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:09:00Z",
+      "close_time": "2026-03-01T01:10:00Z",
+      "open": 99.32705564923401,
+      "high": 99.35645889487235,
+      "low": 98.88320171540028,
+      "close": 98.93586932752613,
+      "volume": 4954.375638209893
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:10:00Z",
+      "close_time": "2026-03-01T01:11:00Z",
+      "open": 98.93586932752613,
+      "high": 98.99728577816151,
+      "low": 98.7660436606563,
+      "close": 98.90424298754888,
+      "volume": 7552.642444712599
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:11:00Z",
+      "close_time": "2026-03-01T01:12:00Z",
+      "open": 98.90424298754888,
+      "high": 98.9833784885025,
+      "low": 98.77754551132193,
+      "close": 98.88223105430886,
+      "volume": 9369.232051755913
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:12:00Z",
+      "close_time": "2026-03-01T01:13:00Z",
+      "open": 98.88223105430886,
+      "high": 99.1914994725769,
+      "low": 98.86984976270232,
+      "close": 99.12099173170674,
+      "volume": 8244.383584921528
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:13:00Z",
+      "close_time": "2026-03-01T01:14:00Z",
+      "open": 99.12099173170674,
+      "high": 99.31678225569776,
+      "low": 99.02221164613644,
+      "close": 99.19103841085364,
+      "volume": 8087.818326299449
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:14:00Z",
+      "close_time": "2026-03-01T01:15:00Z",
+      "open": 99.19103841085364,
+      "high": 99.32507363982555,
+      "low": 98.71652254246486,
+      "close": 98.84060997735094,
+      "volume": 3039.58348449929
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:15:00Z",
+      "close_time": "2026-03-01T01:16:00Z",
+      "open": 98.84060997735094,
+      "high": 98.84440321751661,
+      "low": 98.36296604112574,
+      "close": 98.51011174482338,
+      "volume": 7030.137062618531
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:16:00Z",
+      "close_time": "2026-03-01T01:17:00Z",
+      "open": 98.51011174482338,
+      "high": 98.84302240037098,
+      "low": 98.47041531597088,
+      "close": 98.75997253571977,
+      "volume": 5677.289723544268
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:17:00Z",
+      "close_time": "2026-03-01T01:18:00Z",
+      "open": 98.75997253571977,
+      "high": 98.88630169073458,
+      "low": 98.48190201497623,
+      "close": 98.4835358807576,
+      "volume": 4771.748637123377
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:18:00Z",
+      "close_time": "2026-03-01T01:19:00Z",
+      "open": 98.4835358807576,
+      "high": 98.53576193088668,
+      "low": 98.15144035767328,
+      "close": 98.29542804155537,
+      "volume": 4918.870979238689
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:19:00Z",
+      "close_time": "2026-03-01T01:20:00Z",
+      "open": 98.29542804155537,
+      "high": 98.32751592365321,
+      "low": 97.76419045622941,
+      "close": 97.84513070951647,
+      "volume": 5765.140122794419
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:20:00Z",
+      "close_time": "2026-03-01T01:21:00Z",
+      "open": 97.84513070951647,
+      "high": 98.038478140489,
+      "low": 97.72701234686338,
+      "close": 97.90548935064098,
+      "volume": 631.069578695217
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:21:00Z",
+      "close_time": "2026-03-01T01:22:00Z",
+      "open": 97.90548935064098,
+      "high": 97.95281428013139,
+      "low": 97.67525987152358,
+      "close": 97.74956507545765,
+      "volume": 5004.31913900627
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:22:00Z",
+      "close_time": "2026-03-01T01:23:00Z",
+      "open": 97.74956507545765,
+      "high": 97.8772364306556,
+      "low": 97.66991725896256,
+      "close": 97.83915437473566,
+      "volume": 7879.13291117363
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:23:00Z",
+      "close_time": "2026-03-01T01:24:00Z",
+      "open": 97.83915437473566,
+      "high": 98.00794520454961,
+      "low": 97.82864500741951,
+      "close": 97.95549736112179,
+      "volume": 9731.937733448915
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:24:00Z",
+      "close_time": "2026-03-01T01:25:00Z",
+      "open": 97.95549736112179,
+      "high": 98.21155760755967,
+      "low": 97.81239192583436,
+      "close": 98.08964409032868,
+      "volume": 3590.897701119888
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:25:00Z",
+      "close_time": "2026-03-01T01:26:00Z",
+      "open": 98.08964409032868,
+      "high": 98.23523894079854,
+      "low": 97.93555404965049,
+      "close": 97.94375380533039,
+      "volume": 2932.5687140016344
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:26:00Z",
+      "close_time": "2026-03-01T01:27:00Z",
+      "open": 97.94375380533039,
+      "high": 98.41592598454403,
+      "low": 97.83968961402896,
+      "close": 98.33506211468425,
+      "volume": 1618.3605810123254
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:27:00Z",
+      "close_time": "2026-03-01T01:28:00Z",
+      "open": 98.33506211468425,
+      "high": 98.67006102219628,
+      "low": 98.31405237015923,
+      "close": 98.54846043476958,
+      "volume": 6886.5786097066475
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:28:00Z",
+      "close_time": "2026-03-01T01:29:00Z",
+      "open": 98.54846043476958,
+      "high": 98.64976369882415,
+      "low": 98.28512315480565,
+      "close": 98.39590732893332,
+      "volume": 6759.388833411072
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:29:00Z",
+      "close_time": "2026-03-01T01:30:00Z",
+      "open": 98.39590732893332,
+      "high": 98.48954592889946,
+      "low": 98.05515298695987,
+      "close": 98.13223340327635,
+      "volume": 5439.19018664195
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:30:00Z",
+      "close_time": "2026-03-01T01:31:00Z",
+      "open": 98.13223340327635,
+      "high": 98.2583304145572,
+      "low": 98.10523373610644,
+      "close": 98.2581816132963,
+      "volume": 7701.289699168359
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:31:00Z",
+      "close_time": "2026-03-01T01:32:00Z",
+      "open": 98.2581816132963,
+      "high": 98.73472768629993,
+      "low": 98.1137444370357,
+      "close": 98.7083449232939,
+      "volume": 357.8773511623677
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:32:00Z",
+      "close_time": "2026-03-01T01:33:00Z",
+      "open": 98.7083449232939,
+      "high": 98.83006603739209,
+      "low": 98.2558888775494,
+      "close": 98.33196862330573,
+      "volume": 1573.8502877376825
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:33:00Z",
+      "close_time": "2026-03-01T01:34:00Z",
+      "open": 98.33196862330573,
+      "high": 98.63465105246344,
+      "low": 98.31365729139817,
+      "close": 98.58039522582374,
+      "volume": 9400.08021752734
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:34:00Z",
+      "close_time": "2026-03-01T01:35:00Z",
+      "open": 98.58039522582374,
+      "high": 98.88024644647508,
+      "low": 98.53160347192332,
+      "close": 98.81933039106598,
+      "volume": 8585.305117366974
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:35:00Z",
+      "close_time": "2026-03-01T01:36:00Z",
+      "open": 98.81933039106598,
+      "high": 99.11541339322856,
+      "low": 98.71257727607524,
+      "close": 99.02325546306615,
+      "volume": 2745.8453940021054
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:36:00Z",
+      "close_time": "2026-03-01T01:37:00Z",
+      "open": 99.02325546306615,
+      "high": 99.11997756262042,
+      "low": 98.79355042754536,
+      "close": 98.80149280275559,
+      "volume": 9994.293617772657
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:37:00Z",
+      "close_time": "2026-03-01T01:38:00Z",
+      "open": 98.80149280275559,
+      "high": 98.99033253564225,
+      "low": 98.72920744438619,
+      "close": 98.94779783226491,
+      "volume": 5497.777839936272
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:38:00Z",
+      "close_time": "2026-03-01T01:39:00Z",
+      "open": 98.94779783226491,
+      "high": 99.13847525767031,
+      "low": 98.85996355523783,
+      "close": 99.12607099674094,
+      "volume": 1468.58879434147
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:39:00Z",
+      "close_time": "2026-03-01T01:40:00Z",
+      "open": 99.12607099674094,
+      "high": 99.24029880091263,
+      "low": 98.67393543806328,
+      "close": 98.69227504043612,
+      "volume": 5712.409954632751
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:40:00Z",
+      "close_time": "2026-03-01T01:41:00Z",
+      "open": 98.69227504043612,
+      "high": 98.7716128838171,
+      "low": 98.37832645600683,
+      "close": 98.38275853567406,
+      "volume": 6013.009065265004
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:41:00Z",
+      "close_time": "2026-03-01T01:42:00Z",
+      "open": 98.38275853567406,
+      "high": 98.74213729423555,
+      "low": 98.34654643803822,
+      "close": 98.69871202731828,
+      "volume": 5549.863215261521
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:42:00Z",
+      "close_time": "2026-03-01T01:43:00Z",
+      "open": 98.69871202731828,
+      "high": 98.7450539974628,
+      "low": 98.46088211877795,
+      "close": 98.58772029657968,
+      "volume": 2162.3382250003006
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:43:00Z",
+      "close_time": "2026-03-01T01:44:00Z",
+      "open": 98.58772029657968,
+      "high": 98.5927975582614,
+      "low": 98.20801802209117,
+      "close": 98.26617863426452,
+      "volume": 2174.7630228384623
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:44:00Z",
+      "close_time": "2026-03-01T01:45:00Z",
+      "open": 98.26617863426452,
+      "high": 98.34244190673537,
+      "low": 98.10951848291914,
+      "close": 98.18046983818084,
+      "volume": 679.6910783857489
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:45:00Z",
+      "close_time": "2026-03-01T01:46:00Z",
+      "open": 98.18046983818084,
+      "high": 98.3914907606688,
+      "low": 98.0865370469937,
+      "close": 98.35838067886249,
+      "volume": 5009.92081879052
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:46:00Z",
+      "close_time": "2026-03-01T01:47:00Z",
+      "open": 98.35838067886249,
+      "high": 98.42126090638598,
+      "low": 97.98197264999132,
+      "close": 98.09252924648234,
+      "volume": 5347.334840139293
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:47:00Z",
+      "close_time": "2026-03-01T01:48:00Z",
+      "open": 98.09252924648234,
+      "high": 98.46496381540425,
+      "low": 98.00658791014824,
+      "close": 98.38027627562909,
+      "volume": 8425.255170974831
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:48:00Z",
+      "close_time": "2026-03-01T01:49:00Z",
+      "open": 98.38027627562909,
+      "high": 98.38507038501493,
+      "low": 98.00878038156111,
+      "close": 98.13774318295134,
+      "volume": 9344.694334105532
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:49:00Z",
+      "close_time": "2026-03-01T01:50:00Z",
+      "open": 98.13774318295134,
+      "high": 98.20414705937365,
+      "low": 97.91121985561878,
+      "close": 97.95252298709863,
+      "volume": 9119.446779596949
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:50:00Z",
+      "close_time": "2026-03-01T01:51:00Z",
+      "open": 97.95252298709863,
+      "high": 97.99749951792326,
+      "low": 97.70302285798046,
+      "close": 97.7326043732494,
+      "volume": 8164.406732916507
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:51:00Z",
+      "close_time": "2026-03-01T01:52:00Z",
+      "open": 97.7326043732494,
+      "high": 98.1684557771739,
+      "low": 97.66534360077732,
+      "close": 98.15779703078067,
+      "volume": 7589.247736975611
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:52:00Z",
+      "close_time": "2026-03-01T01:53:00Z",
+      "open": 98.15779703078067,
+      "high": 98.18747375898901,
+      "low": 97.95236574065083,
+      "close": 98.00543877944759,
+      "volume": 9203.56307850506
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:53:00Z",
+      "close_time": "2026-03-01T01:54:00Z",
+      "open": 98.00543877944759,
+      "high": 98.2229033089462,
+      "low": 97.95913684840785,
+      "close": 98.16039806881138,
+      "volume": 3200.4035463439895
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:54:00Z",
+      "close_time": "2026-03-01T01:55:00Z",
+      "open": 98.16039806881138,
+      "high": 98.4668291841584,
+      "low": 98.12890975958567,
+      "close": 98.36622921487366,
+      "volume": 9152.82524718647
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:55:00Z",
+      "close_time": "2026-03-01T01:56:00Z",
+      "open": 98.36622921487366,
+      "high": 98.84796596026268,
+      "low": 98.32177481752923,
+      "close": 98.82535583492893,
+      "volume": 6859.706134131464
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:56:00Z",
+      "close_time": "2026-03-01T01:57:00Z",
+      "open": 98.82535583492893,
+      "high": 99.39887010882272,
+      "low": 98.77812913627776,
+      "close": 99.262419021192,
+      "volume": 8381.827351505246
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:57:00Z",
+      "close_time": "2026-03-01T01:58:00Z",
+      "open": 99.262419021192,
+      "high": 99.3416007873505,
+      "low": 98.86759229909448,
+      "close": 98.95049893913986,
+      "volume": 1621.4910308917817
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:58:00Z",
+      "close_time": "2026-03-01T01:59:00Z",
+      "open": 98.95049893913986,
+      "high": 99.15253215140046,
+      "low": 98.91055106277996,
+      "close": 99.0967293131325,
+      "volume": 9104.353246601244
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:59:00Z",
+      "close_time": "2026-03-01T02:00:00Z",
+      "open": 99.0967293131325,
+      "high": 99.70293401301942,
+      "low": 99.02797046871194,
+      "close": 99.56667972626504,
+      "volume": 3709.5629292769217
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:00:00Z",
+      "close_time": "2026-03-01T02:01:00Z",
+      "open": 99.56667972626504,
+      "high": 99.70750983517932,
+      "low": 99.43880634277406,
+      "close": 99.62879799588497,
+      "volume": 9677.01623626022
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:01:00Z",
+      "close_time": "2026-03-01T02:02:00Z",
+      "open": 99.62879799588497,
+      "high": 100.21754728799455,
+      "low": 99.5491036461889,
+      "close": 100.07447796597046,
+      "volume": 2688.239745819084
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:02:00Z",
+      "close_time": "2026-03-01T02:03:00Z",
+      "open": 100.07447796597046,
+      "high": 100.46619981554551,
+      "low": 99.9675051693569,
+      "close": 100.39410552379266,
+      "volume": 4816.337670639785
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:03:00Z",
+      "close_time": "2026-03-01T02:04:00Z",
+      "open": 100.39410552379266,
+      "high": 100.46875716067545,
+      "low": 100.01718806608424,
+      "close": 100.12891604214569,
+      "volume": 9947.919587359484
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:04:00Z",
+      "close_time": "2026-03-01T02:05:00Z",
+      "open": 100.12891604214569,
+      "high": 100.62518459913346,
+      "low": 100.07529112376027,
+      "close": 100.56187671429835,
+      "volume": 3626.7795443634054
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:05:00Z",
+      "close_time": "2026-03-01T02:06:00Z",
+      "open": 100.56187671429835,
+      "high": 100.78636595100419,
+      "low": 100.41707679118737,
+      "close": 100.66678634946355,
+      "volume": 9534.317513596203
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:06:00Z",
+      "close_time": "2026-03-01T02:07:00Z",
+      "open": 100.66678634946355,
+      "high": 100.75259172219437,
+      "low": 100.17712852675164,
+      "close": 100.26467558894,
+      "volume": 2198.075616270135
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:07:00Z",
+      "close_time": "2026-03-01T02:08:00Z",
+      "open": 100.26467558894,
+      "high": 100.37514651227599,
+      "low": 100.22202819024109,
+      "close": 100.28887120506893,
+      "volume": 9493.394757533551
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:08:00Z",
+      "close_time": "2026-03-01T02:09:00Z",
+      "open": 100.28887120506893,
+      "high": 100.38466070778105,
+      "low": 100.23656742826897,
+      "close": 100.3679050351272,
+      "volume": 4776.895053303699
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:09:00Z",
+      "close_time": "2026-03-01T02:10:00Z",
+      "open": 100.3679050351272,
+      "high": 100.37863579145487,
+      "low": 100.31857041665742,
+      "close": 100.32112524627401,
+      "volume": 9945.75214452641
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:10:00Z",
+      "close_time": "2026-03-01T02:11:00Z",
+      "open": 100.32112524627401,
+      "high": 100.42221431596633,
+      "low": 99.98416506857171,
+      "close": 100.10585314322459,
+      "volume": 4521.361038377625
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:11:00Z",
+      "close_time": "2026-03-01T02:12:00Z",
+      "open": 100.10585314322459,
+      "high": 100.1345374787651,
+      "low": 99.93455371238188,
+      "close": 100.04951629437534,
+      "volume": 2304.9850436830675
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:12:00Z",
+      "close_time": "2026-03-01T02:13:00Z",
+      "open": 100.04951629437534,
+      "high": 100.16650530975859,
+      "low": 99.8354180543125,
+      "close": 99.92766090487913,
+      "volume": 6599.900934774371
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:13:00Z",
+      "close_time": "2026-03-01T02:14:00Z",
+      "open": 99.92766090487913,
+      "high": 100.31724885929475,
+      "low": 99.86432234323414,
+      "close": 100.24781156510494,
+      "volume": 8520.79885697396
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:14:00Z",
+      "close_time": "2026-03-01T02:15:00Z",
+      "open": 100.24781156510494,
+      "high": 100.63406206191917,
+      "low": 100.1607233575229,
+      "close": 100.53112136436853,
+      "volume": 5141.080455658574
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:15:00Z",
+      "close_time": "2026-03-01T02:16:00Z",
+      "open": 100.53112136436853,
+      "high": 100.72803518588302,
+      "low": 100.49758226063523,
+      "close": 100.65078453991894,
+      "volume": 5367.084199756156
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:16:00Z",
+      "close_time": "2026-03-01T02:17:00Z",
+      "open": 100.65078453991894,
+      "high": 100.75405054859435,
+      "low": 100.44436975460074,
+      "close": 100.54296034704394,
+      "volume": 7536.630134267661
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:17:00Z",
+      "close_time": "2026-03-01T02:18:00Z",
+      "open": 100.54296034704394,
+      "high": 100.85994580312656,
+      "low": 100.43757600721484,
+      "close": 100.83735181660629,
+      "volume": 5864.722398028537
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:18:00Z",
+      "close_time": "2026-03-01T02:19:00Z",
+      "open": 100.83735181660629,
+      "high": 101.03141247680853,
+      "low": 100.79968192329177,
+      "close": 100.90265382066242,
+      "volume": 2048.1839155445714
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:19:00Z",
+      "close_time": "2026-03-01T02:20:00Z",
+      "open": 100.90265382066242,
+      "high": 101.52024264186137,
+      "low": 100.80387297176942,
+      "close": 101.38617184660389,
+      "volume": 2078.4601994713003
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:20:00Z",
+      "close_time": "2026-03-01T02:21:00Z",
+      "open": 101.38617184660389,
+      "high": 102.00396684366152,
+      "low": 101.30650693629491,
+      "close": 101.85279798467668,
+      "volume": 7169.62584010046
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:21:00Z",
+      "close_time": "2026-03-01T02:22:00Z",
+      "open": 101.85279798467668,
+      "high": 101.94783991122081,
+      "low": 101.28851562911879,
+      "close": 101.35637590383804,
+      "volume": 4469.499331607675
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:22:00Z",
+      "close_time": "2026-03-01T02:23:00Z",
+      "open": 101.35637590383804,
+      "high": 101.59915031990124,
+      "low": 101.24480763111114,
+      "close": 101.44988539423221,
+      "volume": 1884.4842377979792
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:23:00Z",
+      "close_time": "2026-03-01T02:24:00Z",
+      "open": 101.44988539423221,
+      "high": 101.53787128836291,
+      "low": 101.38307842061536,
+      "close": 101.460946361984,
+      "volume": 8701.249313065815
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:24:00Z",
+      "close_time": "2026-03-01T02:25:00Z",
+      "open": 101.460946361984,
+      "high": 101.51025728006044,
+      "low": 101.38675113842552,
+      "close": 101.47754905348296,
+      "volume": 8192.527631499259
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:25:00Z",
+      "close_time": "2026-03-01T02:26:00Z",
+      "open": 101.47754905348296,
+      "high": 101.7612090769949,
+      "low": 101.39379174816223,
+      "close": 101.73537585704003,
+      "volume": 8759.597242062713
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:26:00Z",
+      "close_time": "2026-03-01T02:27:00Z",
+      "open": 101.73537585704003,
+      "high": 101.79641503134255,
+      "low": 101.56869681343817,
+      "close": 101.66464516725935,
+      "volume": 3065.2539195410804
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:27:00Z",
+      "close_time": "2026-03-01T02:28:00Z",
+      "open": 101.66464516725935,
+      "high": 101.68639166806507,
+      "low": 101.47112046863496,
+      "close": 101.53311576658454,
+      "volume": 3535.264295488785
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:28:00Z",
+      "close_time": "2026-03-01T02:29:00Z",
+      "open": 101.53311576658454,
+      "high": 101.63084488048317,
+      "low": 101.38894246121811,
+      "close": 101.59276633798757,
+      "volume": 1217.3911583394254
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:29:00Z",
+      "close_time": "2026-03-01T02:30:00Z",
+      "open": 101.59276633798757,
+      "high": 101.93666179989329,
+      "low": 101.54417971540333,
+      "close": 101.92236801063933,
+      "volume": 2393.159726719784
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:30:00Z",
+      "close_time": "2026-03-01T02:31:00Z",
+      "open": 101.92236801063933,
+      "high": 101.99659665228845,
+      "low": 101.73051336017204,
+      "close": 101.73143812765538,
+      "volume": 271.2515532424527
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:31:00Z",
+      "close_time": "2026-03-01T02:32:00Z",
+      "open": 101.73143812765538,
+      "high": 101.98927542916736,
+      "low": 101.66422528140563,
+      "close": 101.89463391326782,
+      "volume": 9795.79146501309
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:32:00Z",
+      "close_time": "2026-03-01T02:33:00Z",
+      "open": 101.89463391326782,
+      "high": 102.25446444121609,
+      "low": 101.82191216639589,
+      "close": 102.17435180388118,
+      "volume": 7256.763593403566
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:33:00Z",
+      "close_time": "2026-03-01T02:34:00Z",
+      "open": 102.17435180388118,
+      "high": 102.22609161805762,
+      "low": 101.95047882151198,
+      "close": 102.04598353614278,
+      "volume": 5306.586079717793
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:34:00Z",
+      "close_time": "2026-03-01T02:35:00Z",
+      "open": 102.04598353614278,
+      "high": 102.11607322962679,
+      "low": 101.63463751809655,
+      "close": 101.72656909826497,
+      "volume": 5362.079624735171
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:35:00Z",
+      "close_time": "2026-03-01T02:36:00Z",
+      "open": 101.72656909826497,
+      "high": 101.72964163713125,
+      "low": 101.40030038031294,
+      "close": 101.51069637400536,
+      "volume": 480.15377104654726
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:36:00Z",
+      "close_time": "2026-03-01T02:37:00Z",
+      "open": 101.51069637400536,
+      "high": 101.79821256104162,
+      "low": 101.42799604591498,
+      "close": 101.73315657911029,
+      "volume": 4838.539311052555
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:37:00Z",
+      "close_time": "2026-03-01T02:38:00Z",
+      "open": 101.73315657911029,
+      "high": 101.80259111273143,
+      "low": 101.52256584047254,
+      "close": 101.58534894219609,
+      "volume": 5692.054072767275
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:38:00Z",
+      "close_time": "2026-03-01T02:39:00Z",
+      "open": 101.58534894219609,
+      "high": 101.70106903358031,
+      "low": 101.2342921119967,
+      "close": 101.33719913575312,
+      "volume": 4242.6197805519905
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:39:00Z",
+      "close_time": "2026-03-01T02:40:00Z",
+      "open": 101.33719913575312,
+      "high": 101.62871541974496,
+      "low": 101.21917342598181,
+      "close": 101.52565231608536,
+      "volume": 329.2300538223035
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:40:00Z",
+      "close_time": "2026-03-01T02:41:00Z",
+      "open": 101.52565231608536,
+      "high": 102.06628272,
+      "low": 101.49686343310977,
+      "close": 102.013392148529,
+      "volume": 7599.759650529567
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:41:00Z",
+      "close_time": "2026-03-01T02:42:00Z",
+      "open": 102.013392148529,
+      "high": 102.02030813349444,
+      "low": 101.56300293589217,
+      "close": 101.61153465767345,
+      "volume": 3947.7921095625566
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:42:00Z",
+      "close_time": "2026-03-01T02:43:00Z",
+      "open": 101.61153465767345,
+      "high": 101.9211779962419,
+      "low": 101.59970748484213,
+      "close": 101.77167845824167,
+      "volume": 2209.8706684592635
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:43:00Z",
+      "close_time": "2026-03-01T02:44:00Z",
+      "open": 101.77167845824167,
+      "high": 101.82624574705419,
+      "low": 101.64998253087012,
+      "close": 101.67543162469094,
+      "volume": 9379.560728453567
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:44:00Z",
+      "close_time": "2026-03-01T02:45:00Z",
+      "open": 101.67543162469094,
+      "high": 101.73291984548158,
+      "low": 101.06783732666794,
+      "close": 101.19240507665127,
+      "volume": 4168.297285797804
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:45:00Z",
+      "close_time": "2026-03-01T02:46:00Z",
+      "open": 101.19240507665127,
+      "high": 101.34161464826278,
+      "low": 100.84167357508493,
+      "close": 100.85281826118246,
+      "volume": 78.20501225619026
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:46:00Z",
+      "close_time": "2026-03-01T02:47:00Z",
+      "open": 100.85281826118246,
+      "high": 101.05804471815152,
+      "low": 100.73501335690688,
+      "close": 101.00050870984438,
+      "volume": 8985.977697592016
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:47:00Z",
+      "close_time": "2026-03-01T02:48:00Z",
+      "open": 101.00050870984438,
+      "high": 101.4358978321901,
+      "low": 100.87030611768614,
+      "close": 101.37178035303154,
+      "volume": 6705.589218058364
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:48:00Z",
+      "close_time": "2026-03-01T02:49:00Z",
+      "open": 101.37178035303154,
+      "high": 101.8570161833636,
+      "low": 101.31488256719318,
+      "close": 101.75845199144663,
+      "volume": 6652.576358020549
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:49:00Z",
+      "close_time": "2026-03-01T02:50:00Z",
+      "open": 101.75845199144663,
+      "high": 102.1212418971123,
+      "low": 101.7514336359092,
+      "close": 101.98266829419026,
+      "volume": 9268.141514245677
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:50:00Z",
+      "close_time": "2026-03-01T02:51:00Z",
+      "open": 101.98266829419026,
+      "high": 102.08628925326377,
+      "low": 101.88308153726499,
+      "close": 101.97697243548113,
+      "volume": 5174.686498625149
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:51:00Z",
+      "close_time": "2026-03-01T02:52:00Z",
+      "open": 101.97697243548113,
+      "high": 102.5407611707775,
+      "low": 101.87947170858627,
+      "close": 102.47141171068613,
+      "volume": 1238.012158409159
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:52:00Z",
+      "close_time": "2026-03-01T02:53:00Z",
+      "open": 102.47141171068613,
+      "high": 102.96947257795054,
+      "low": 102.41404152102615,
+      "close": 102.83205907830762,
+      "volume": 2908.325961484931
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:53:00Z",
+      "close_time": "2026-03-01T02:54:00Z",
+      "open": 102.83205907830762,
+      "high": 102.86954087624234,
+      "low": 102.68187761996643,
+      "close": 102.8157800434567,
+      "volume": 9818.042407479934
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:54:00Z",
+      "close_time": "2026-03-01T02:55:00Z",
+      "open": 102.8157800434567,
+      "high": 103.24578527051891,
+      "low": 102.81416555051672,
+      "close": 103.14525770985057,
+      "volume": 6605.705107037067
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:55:00Z",
+      "close_time": "2026-03-01T02:56:00Z",
+      "open": 103.14525770985057,
+      "high": 103.23676836138058,
+      "low": 102.57917717592483,
+      "close": 102.72497472685781,
+      "volume": 3858.5340374356865
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:56:00Z",
+      "close_time": "2026-03-01T02:57:00Z",
+      "open": 102.72497472685781,
+      "high": 102.73444816147119,
+      "low": 102.36035514042823,
+      "close": 102.4059291808086,
+      "volume": 6493.591664321834
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:57:00Z",
+      "close_time": "2026-03-01T02:58:00Z",
+      "open": 102.4059291808086,
+      "high": 102.58040671025242,
+      "low": 102.32909775192103,
+      "close": 102.48937318176722,
+      "volume": 5637.611368837295
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:58:00Z",
+      "close_time": "2026-03-01T02:59:00Z",
+      "open": 102.48937318176722,
+      "high": 103.11255934997955,
+      "low": 102.46561437818868,
+      "close": 102.99063373836064,
+      "volume": 5767.246693709979
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:59:00Z",
+      "close_time": "2026-03-01T03:00:00Z",
+      "open": 102.99063373836064,
+      "high": 103.0714860425075,
+      "low": 102.45760325349892,
+      "close": 102.60019642558389,
+      "volume": 5370.340550874309
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:00:00Z",
+      "close_time": "2026-03-01T03:01:00Z",
+      "open": 102.60019642558389,
+      "high": 102.72125454070537,
+      "low": 102.37630425767736,
+      "close": 102.41661259028216,
+      "volume": 6016.65191255137
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:01:00Z",
+      "close_time": "2026-03-01T03:02:00Z",
+      "open": 102.41661259028216,
+      "high": 102.52661894981635,
+      "low": 102.10144267608192,
+      "close": 102.1625013870275,
+      "volume": 7833.630671195299
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:02:00Z",
+      "close_time": "2026-03-01T03:03:00Z",
+      "open": 102.1625013870275,
+      "high": 102.33673767788514,
+      "low": 102.06359924297797,
+      "close": 102.33024297635212,
+      "volume": 5665.863502717924
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:03:00Z",
+      "close_time": "2026-03-01T03:04:00Z",
+      "open": 102.33024297635212,
+      "high": 102.84627529702057,
+      "low": 102.31451434964809,
+      "close": 102.70567417293924,
+      "volume": 8152.0027429191805
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:04:00Z",
+      "close_time": "2026-03-01T03:05:00Z",
+      "open": 102.70567417293924,
+      "high": 102.81892936572966,
+      "low": 102.6661596177517,
+      "close": 102.759023210386,
+      "volume": 364.52390218383886
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:05:00Z",
+      "close_time": "2026-03-01T03:06:00Z",
+      "open": 102.759023210386,
+      "high": 103.05297648595672,
+      "low": 102.69875312723897,
+      "close": 103.03487496013828,
+      "volume": 8417.703251098827
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:06:00Z",
+      "close_time": "2026-03-01T03:07:00Z",
+      "open": 103.03487496013828,
+      "high": 103.42582427617985,
+      "low": 102.91992049718083,
+      "close": 103.27642013483326,
+      "volume": 7104.843162604194
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:07:00Z",
+      "close_time": "2026-03-01T03:08:00Z",
+      "open": 103.27642013483326,
+      "high": 103.32460829020462,
+      "low": 102.81882601352288,
+      "close": 102.87134343930227,
+      "volume": 187.729900621498
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:08:00Z",
+      "close_time": "2026-03-01T03:09:00Z",
+      "open": 102.87134343930227,
+      "high": 102.96185435666156,
+      "low": 102.69322406672228,
+      "close": 102.70289267872354,
+      "volume": 9932.366204599875
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:09:00Z",
+      "close_time": "2026-03-01T03:10:00Z",
+      "open": 102.70289267872354,
+      "high": 102.76442199026646,
+      "low": 102.18526481174698,
+      "close": 102.3055725170894,
+      "volume": 8292.265118298565
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:10:00Z",
+      "close_time": "2026-03-01T03:11:00Z",
+      "open": 102.3055725170894,
+      "high": 102.31647540607733,
+      "low": 102.23834217765261,
+      "close": 102.26347676824082,
+      "volume": 5733.43697678693
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:11:00Z",
+      "close_time": "2026-03-01T03:12:00Z",
+      "open": 102.26347676824082,
+      "high": 102.31611060773007,
+      "low": 101.71926211146022,
+      "close": 101.81489382736525,
+      "volume": 8949.430276767296
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:12:00Z",
+      "close_time": "2026-03-01T03:13:00Z",
+      "open": 101.81489382736525,
+      "high": 101.96405633483953,
+      "low": 101.27141166687753,
+      "close": 101.34942818861366,
+      "volume": 1631.7255967220954
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:13:00Z",
+      "close_time": "2026-03-01T03:14:00Z",
+      "open": 101.34942818861366,
+      "high": 101.5028895755424,
+      "low": 101.34908094687326,
+      "close": 101.36170839502292,
+      "volume": 3527.3065942396456
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:14:00Z",
+      "close_time": "2026-03-01T03:15:00Z",
+      "open": 101.36170839502292,
+      "high": 101.41934163988142,
+      "low": 101.19004768441232,
+      "close": 101.19119926831505,
+      "volume": 8340.15481678083
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:15:00Z",
+      "close_time": "2026-03-01T03:16:00Z",
+      "open": 101.19119926831505,
+      "high": 101.25665593104299,
+      "low": 100.70597006132833,
+      "close": 100.82115855199365,
+      "volume": 1569.7983252954414
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:16:00Z",
+      "close_time": "2026-03-01T03:17:00Z",
+      "open": 100.82115855199365,
+      "high": 101.16377095882986,
+      "low": 100.67135290214999,
+      "close": 101.08971975981494,
+      "volume": 1211.9645810266375
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:17:00Z",
+      "close_time": "2026-03-01T03:18:00Z",
+      "open": 101.08971975981494,
+      "high": 101.60329810931604,
+      "low": 100.99100437747947,
+      "close": 101.54355374776385,
+      "volume": 8707.183124636287
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:18:00Z",
+      "close_time": "2026-03-01T03:19:00Z",
+      "open": 101.54355374776385,
+      "high": 101.59522100579554,
+      "low": 101.31782497287688,
+      "close": 101.4072855484112,
+      "volume": 2899.0704533241383
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:19:00Z",
+      "close_time": "2026-03-01T03:20:00Z",
+      "open": 101.4072855484112,
+      "high": 101.89213022668844,
+      "low": 101.35337016299425,
+      "close": 101.81576174243139,
+      "volume": 4995.615867812553
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:20:00Z",
+      "close_time": "2026-03-01T03:21:00Z",
+      "open": 101.81576174243139,
+      "high": 101.86729039151597,
+      "low": 101.73298949016855,
+      "close": 101.75482280787521,
+      "volume": 1421.0713019053053
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:21:00Z",
+      "close_time": "2026-03-01T03:22:00Z",
+      "open": 101.75482280787521,
+      "high": 102.03045161417512,
+      "low": 101.69986066399022,
+      "close": 101.94719434154254,
+      "volume": 1194.1360274852677
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:22:00Z",
+      "close_time": "2026-03-01T03:23:00Z",
+      "open": 101.94719434154254,
+      "high": 102.427214084343,
+      "low": 101.8243299019167,
+      "close": 102.3550226381618,
+      "volume": 2392.6675295211844
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:23:00Z",
+      "close_time": "2026-03-01T03:24:00Z",
+      "open": 102.3550226381618,
+      "high": 102.52049046884433,
+      "low": 102.27878459632335,
+      "close": 102.36943605675536,
+      "volume": 532.3530428465476
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:24:00Z",
+      "close_time": "2026-03-01T03:25:00Z",
+      "open": 102.36943605675536,
+      "high": 102.44168626875485,
+      "low": 102.17598590583601,
+      "close": 102.30341206291922,
+      "volume": 6897.495503517443
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:25:00Z",
+      "close_time": "2026-03-01T03:26:00Z",
+      "open": 102.30341206291922,
+      "high": 102.31517476980244,
+      "low": 101.82154538698505,
+      "close": 101.90197035730411,
+      "volume": 4426.030990277248
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:26:00Z",
+      "close_time": "2026-03-01T03:27:00Z",
+      "open": 101.90197035730411,
+      "high": 101.95092226782552,
+      "low": 101.7089380095487,
+      "close": 101.82086937167779,
+      "volume": 7389.10105853269
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:27:00Z",
+      "close_time": "2026-03-01T03:28:00Z",
+      "open": 101.82086937167779,
+      "high": 101.90810662392818,
+      "low": 101.59158088376002,
+      "close": 101.68614599550892,
+      "volume": 8298.624438702474
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:28:00Z",
+      "close_time": "2026-03-01T03:29:00Z",
+      "open": 101.68614599550892,
+      "high": 101.84594018347761,
+      "low": 101.5863966323918,
+      "close": 101.75352185266892,
+      "volume": 7189.669630198325
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:29:00Z",
+      "close_time": "2026-03-01T03:30:00Z",
+      "open": 101.75352185266892,
+      "high": 101.75862852244995,
+      "low": 101.2472027431399,
+      "close": 101.2689134175182,
+      "volume": 5422.3459039749505
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:30:00Z",
+      "close_time": "2026-03-01T03:31:00Z",
+      "open": 101.2689134175182,
+      "high": 101.58607297189742,
+      "low": 101.24025588540259,
+      "close": 101.46038566756827,
+      "volume": 6739.913981790354
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:31:00Z",
+      "close_time": "2026-03-01T03:32:00Z",
+      "open": 101.46038566756827,
+      "high": 101.84355775554788,
+      "low": 101.33942299699027,
+      "close": 101.71532036201982,
+      "volume": 4419.914524610533
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:32:00Z",
+      "close_time": "2026-03-01T03:33:00Z",
+      "open": 101.71532036201982,
+      "high": 101.8851939323719,
+      "low": 101.60816788910016,
+      "close": 101.80458035675474,
+      "volume": 9788.217241621649
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:33:00Z",
+      "close_time": "2026-03-01T03:34:00Z",
+      "open": 101.80458035675474,
+      "high": 101.95692300938332,
+      "low": 101.62562416693788,
+      "close": 101.70984216360159,
+      "volume": 1665.8528439922961
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:34:00Z",
+      "close_time": "2026-03-01T03:35:00Z",
+      "open": 101.70984216360159,
+      "high": 101.82131622171157,
+      "low": 101.149439546285,
+      "close": 101.24316470560775,
+      "volume": 5589.846327105236
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:35:00Z",
+      "close_time": "2026-03-01T03:36:00Z",
+      "open": 101.24316470560775,
+      "high": 101.39238465417947,
+      "low": 100.70701112089463,
+      "close": 100.77188126700068,
+      "volume": 4597.614820669803
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:36:00Z",
+      "close_time": "2026-03-01T03:37:00Z",
+      "open": 100.77188126700068,
+      "high": 100.91381708063751,
+      "low": 100.44346173147939,
+      "close": 100.54130775889051,
+      "volume": 4237.945597660571
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:37:00Z",
+      "close_time": "2026-03-01T03:38:00Z",
+      "open": 100.54130775889051,
+      "high": 100.83589468986474,
+      "low": 100.50289177287341,
+      "close": 100.72465026899313,
+      "volume": 1999.9408370152105
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:38:00Z",
+      "close_time": "2026-03-01T03:39:00Z",
+      "open": 100.72465026899313,
+      "high": 100.80099623319664,
+      "low": 100.6631010037396,
+      "close": 100.68192820843493,
+      "volume": 4494.592333043353
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:39:00Z",
+      "close_time": "2026-03-01T03:40:00Z",
+      "open": 100.68192820843493,
+      "high": 100.98450650902089,
+      "low": 100.59401291437125,
+      "close": 100.86932397675733,
+      "volume": 7107.099748961377
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:40:00Z",
+      "close_time": "2026-03-01T03:41:00Z",
+      "open": 100.86932397675733,
+      "high": 100.96258975375267,
+      "low": 100.58282483029315,
+      "close": 100.60794825489972,
+      "volume": 6703.5260741838365
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:41:00Z",
+      "close_time": "2026-03-01T03:42:00Z",
+      "open": 100.60794825489972,
+      "high": 100.85915860730627,
+      "low": 100.59196663306548,
+      "close": 100.81963948661782,
+      "volume": 5875.09630997637
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:42:00Z",
+      "close_time": "2026-03-01T03:43:00Z",
+      "open": 100.81963948661782,
+      "high": 100.94461814496717,
+      "low": 100.43519707459066,
+      "close": 100.44423019605298,
+      "volume": 9623.835579032171
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:43:00Z",
+      "close_time": "2026-03-01T03:44:00Z",
+      "open": 100.44423019605298,
+      "high": 100.90592561830388,
+      "low": 100.30797394254056,
+      "close": 100.81847697691232,
+      "volume": 7786.264468532414
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:44:00Z",
+      "close_time": "2026-03-01T03:45:00Z",
+      "open": 100.81847697691232,
+      "high": 100.85296952060165,
+      "low": 100.26593476664881,
+      "close": 100.36948857571123,
+      "volume": 7324.988803497085
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:45:00Z",
+      "close_time": "2026-03-01T03:46:00Z",
+      "open": 100.36948857571123,
+      "high": 100.42926941202104,
+      "low": 99.7714002818994,
+      "close": 99.89356991399954,
+      "volume": 9946.478267413044
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:46:00Z",
+      "close_time": "2026-03-01T03:47:00Z",
+      "open": 99.89356991399954,
+      "high": 100.08979782363684,
+      "low": 99.77364318525052,
+      "close": 99.94243093652122,
+      "volume": 7215.785160000982
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:47:00Z",
+      "close_time": "2026-03-01T03:48:00Z",
+      "open": 99.94243093652122,
+      "high": 100.17588529488417,
+      "low": 99.79846505797342,
+      "close": 100.1635550881933,
+      "volume": 769.013041662497
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:48:00Z",
+      "close_time": "2026-03-01T03:49:00Z",
+      "open": 100.1635550881933,
+      "high": 100.62699279014167,
+      "low": 100.04760038369682,
+      "close": 100.48656151818061,
+      "volume": 5723.152842424025
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:49:00Z",
+      "close_time": "2026-03-01T03:50:00Z",
+      "open": 100.48656151818061,
+      "high": 100.54376256426627,
+      "low": 100.33798256539447,
+      "close": 100.46023245419747,
+      "volume": 6391.2517392147665
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:50:00Z",
+      "close_time": "2026-03-01T03:51:00Z",
+      "open": 100.46023245419747,
+      "high": 100.59116937642968,
+      "low": 100.27305739233388,
+      "close": 100.40984934852264,
+      "volume": 5329.2475165304895
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:51:00Z",
+      "close_time": "2026-03-01T03:52:00Z",
+      "open": 100.40984934852264,
+      "high": 100.47402539988276,
+      "low": 100.23696260844119,
+      "close": 100.37344091370659,
+      "volume": 8346.680264850822
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:52:00Z",
+      "close_time": "2026-03-01T03:53:00Z",
+      "open": 100.37344091370659,
+      "high": 100.43351109365234,
+      "low": 99.94788418800351,
+      "close": 100.09343286807756,
+      "volume": 3259.766879843818
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:53:00Z",
+      "close_time": "2026-03-01T03:54:00Z",
+      "open": 100.09343286807756,
+      "high": 100.21448032400797,
+      "low": 99.84074177002559,
+      "close": 99.9466654637238,
+      "volume": 6498.174765435499
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:54:00Z",
+      "close_time": "2026-03-01T03:55:00Z",
+      "open": 99.9466654637238,
+      "high": 100.03293248614423,
+      "low": 99.58530807315626,
+      "close": 99.68037528157568,
+      "volume": 4299.774893398667
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:55:00Z",
+      "close_time": "2026-03-01T03:56:00Z",
+      "open": 99.68037528157568,
+      "high": 99.95818950768391,
+      "low": 99.66703485148113,
+      "close": 99.82812964621974,
+      "volume": 1080.7778428594531
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:56:00Z",
+      "close_time": "2026-03-01T03:57:00Z",
+      "open": 99.82812964621974,
+      "high": 100.1543142069676,
+      "low": 99.7857792311595,
+      "close": 100.06780971659255,
+      "volume": 6435.076576028837
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:57:00Z",
+      "close_time": "2026-03-01T03:58:00Z",
+      "open": 100.06780971659255,
+      "high": 100.20633688434029,
+      "low": 100.04746697699282,
+      "close": 100.13120110750012,
+      "volume": 361.40185437194765
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:58:00Z",
+      "close_time": "2026-03-01T03:59:00Z",
+      "open": 100.13120110750012,
+      "high": 100.54707462049058,
+      "low": 100.02870541941726,
+      "close": 100.4994541638943,
+      "volume": 7630.6846619838225
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Oanda",
+        "asset_class": "Forex",
+        "base": "EUR",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:59:00Z",
+      "close_time": "2026-03-01T04:00:00Z",
+      "open": 100.4994541638943,
+      "high": 100.85976284005429,
+      "low": 100.44826060484445,
+      "close": 100.84535030558094,
+      "volume": 1527.2155434832562
+    }
+  }
+]

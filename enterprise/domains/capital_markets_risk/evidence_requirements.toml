@@ -1,0 +1,2 @@
+version = "v1"
+required_evidence = ["trading_risk_state", "risk_limit_breach"]

@@ -1,0 +1,4 @@
+version = "v1"
+primary_service = "revenue-service"
+approved_workflows = ["revenue_approval", "contract_lifecycle"]
+owned_aggregates = ["pricing_decision", "revenue_record"]

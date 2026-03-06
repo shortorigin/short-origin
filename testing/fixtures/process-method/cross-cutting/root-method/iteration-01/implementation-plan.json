@@ -1,0 +1,32 @@
+{
+  "work_item_id": "root-method",
+  "parent_work_item_id": null,
+  "iteration": 1,
+  "affected_paths": ["enterprise/", "schemas/", "services/", "workflows/", "platform/", "agents/"],
+  "affected_modules": ["enterprise", "schemas", "services", "workflows", "platform", "agents"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": ["Cross-cutting work item splits cleanly into child slices."],
+  "open_questions": [{"question": "Child slices carry implementation.", "severity": "low"}],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T12:15:00Z",
+  "objective": "Plan the child slices.",
+  "change_slices": ["Create one child slice for schema implementation."],
+  "target_paths": ["enterprise/", "schemas/", "services/", "workflows/", "platform/", "agents/"],
+  "test_scenarios": ["Parent validation succeeds without change batch and validation report."],
+  "profile_evidence": [
+    {"area": "enterprise.ontology_alignment", "notes": ["Ontology terms remain aligned."]},
+    {"area": "enterprise.downstream_impacts", "notes": ["Downstream services and workflows are listed."]},
+    {"area": "schemas.compatibility_notes", "notes": ["Schema evolution remains additive."]},
+    {"area": "schemas.fixture_updates", "notes": ["Fixtures update with contract changes."]},
+    {"area": "services.contract_refs", "notes": ["Service slices bind to public contracts only."]},
+    {"area": "services.owned_aggregate_boundaries", "notes": ["Owned aggregate boundaries stay explicit."]},
+    {"area": "workflows.failure_modes", "notes": ["Failure modes are identified."]},
+    {"area": "workflows.compensations", "notes": ["Compensations are required where side effects exist."]},
+    {"area": "workflows.policy_gates", "notes": ["Policy checkpoints are mandatory." ]},
+    {"area": "workflows.audit_outputs", "notes": ["Workflow slices emit auditable outputs."]},
+    {"area": "platform.runtime_compatibility", "notes": ["Wasmtime and wasmCloud compatibility stays explicit."]},
+    {"area": "agents.deterministic_io", "notes": ["Agent handoffs stay structured."]},
+    {"area": "agents.eval_updates", "notes": ["Agent eval scenarios are updated with process changes."]}
+  ],
+  "rollout_notes": ["Child slices execute leaf changes."]
+}

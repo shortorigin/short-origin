@@ -1,0 +1,4 @@
+name: short-origin-bootstrap-state
+runtime: nodejs
+description: Bootstrap Pulumi S3 backend and DynamoDB lock table for short origin.
+main: src/index.ts

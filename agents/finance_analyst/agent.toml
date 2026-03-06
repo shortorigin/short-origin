@@ -1,0 +1,4 @@
+role = "finance_analyst"
+objective = "Prepare governed finance and treasury actions for approval."
+classification_ceiling = "restricted"
+owner_role = "CFO"

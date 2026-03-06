@@ -1,0 +1,19 @@
+{
+  "version": "v1",
+  "relationships": [
+    { "from": "policy", "to": "control", "relationship": "governs" },
+    { "from": "control", "to": "approval_request", "relationship": "requires" },
+    { "from": "approval_request", "to": "approval_decision", "relationship": "is_resolved_by" },
+    { "from": "approval_decision", "to": "workflow_execution", "relationship": "authorizes" },
+    { "from": "workflow_execution", "to": "evidence_manifest", "relationship": "produces" },
+    { "from": "workflow_execution", "to": "risk_record", "relationship": "updates" },
+    { "from": "workflow_execution", "to": "treasury_ledger", "relationship": "mutates" },
+    { "from": "market_dataset", "to": "experiment_result", "relationship": "feeds" },
+    { "from": "experiment_result", "to": "promotion_recommendation", "relationship": "supports" },
+    { "from": "execution_session", "to": "portfolio_snapshot", "relationship": "updates" },
+    { "from": "execution_session", "to": "trading_risk_state", "relationship": "constrains" },
+    { "from": "compliance_pack", "to": "promotion_recommendation", "relationship": "attests" },
+    { "from": "knowledge_record", "to": "policy", "relationship": "documents" },
+    { "from": "continuity_plan", "to": "workflow_execution", "relationship": "activates" }
+  ]
+}

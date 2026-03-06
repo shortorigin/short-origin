@@ -1,0 +1,18 @@
+{
+  "work_item_id": "root-method",
+  "parent_work_item_id": null,
+  "iteration": 1,
+  "affected_paths": ["enterprise/", "schemas/", "services/", "workflows/", "platform/", "agents/"],
+  "affected_modules": ["enterprise", "schemas", "services", "workflows", "platform", "agents"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": ["Cross-cutting work item splits cleanly into child slices."],
+  "open_questions": [{"question": "Child slices carry implementation.", "severity": "low"}],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T12:10:00Z",
+  "objective": "Design the parent fixture.",
+  "design_summary": ["The parent owns scope and decomposition only."],
+  "public_interface_changes": ["Downstream slices may update public contracts."],
+  "boundary_impacts": ["Enterprise, schemas, services, workflows, platform, and agents all receive downstream work."],
+  "decomposition_decision": "split",
+  "child_work_item_ids": ["contracts-slice"]
+}

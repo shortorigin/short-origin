@@ -1,0 +1,140 @@
+name: Promote Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      rc_tag:
+        description: Existing release-candidate tag in the form vX.Y.Z-rc.N
+        required: true
+        type: string
+      release_tag:
+        description: Final release tag in the form vX.Y.Z
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  id-token: write
+  packages: write
+
+jobs:
+  promote-release:
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency: production-release
+    env:
+      AWS_REGION: us-west-2
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      GH_TOKEN: ${{ github.token }}
+      PULUMI_BACKEND_URL: s3://${{ secrets.PULUMI_STATE_BUCKET }}?region=us-west-2&awssdk=v2
+      RC_TAG: ${{ inputs.rc_tag }}
+      RELEASE_TAG: ${{ inputs.release_tag }}
+    steps:
+      - name: Validate inputs
+        run: |
+          if [[ ! "${RC_TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+$ ]]; then
+            echo "rc_tag must match vX.Y.Z-rc.N"
+            exit 1
+          fi
+          if [[ ! "${RELEASE_TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "release_tag must match vX.Y.Z"
+            exit 1
+          fi
+
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: infrastructure/pulumi/package-lock.json
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Setup ORAS
+        uses: oras-project/setup-oras@v1
+
+      - name: Login to GHCR
+        run: echo "${{ github.token }}" | oras login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Download stage manifest from release candidate
+        run: |
+          mkdir -p target/release-assets
+          gh release download "${RC_TAG}" --pattern "stage-lattice-config.json" --dir target/release-assets
+
+      - name: Read release-candidate manifest
+        id: manifest
+        run: |
+          manifest_path="target/release-assets/stage-lattice-config.json"
+          finance_ref="$(jq -r '.components[] | select(.workload_name == "finance-service") | .component.component_ref' "${manifest_path}")"
+          finance_digest="$(jq -r '.components[] | select(.workload_name == "finance-service") | .component.digest' "${manifest_path}")"
+          treasury_ref="$(jq -r '.components[] | select(.workload_name == "treasury-disbursement") | .component.component_ref' "${manifest_path}")"
+          treasury_digest="$(jq -r '.components[] | select(.workload_name == "treasury-disbursement") | .component.digest' "${manifest_path}")"
+          finance_repo="${finance_ref%:*}"
+          treasury_repo="${treasury_ref%:*}"
+          echo "finance_repo=${finance_repo}" >> "${GITHUB_OUTPUT}"
+          echo "finance_digest=${finance_digest}" >> "${GITHUB_OUTPUT}"
+          echo "treasury_repo=${treasury_repo}" >> "${GITHUB_OUTPUT}"
+          echo "treasury_digest=${treasury_digest}" >> "${GITHUB_OUTPUT}"
+
+      - name: Promote GHCR tags without rebuilding
+        run: |
+          oras tag "${{ steps.manifest.outputs.finance_repo }}@${{ steps.manifest.outputs.finance_digest }}" "${RELEASE_TAG}"
+          oras tag "${{ steps.manifest.outputs.treasury_repo }}@${{ steps.manifest.outputs.treasury_digest }}" "${RELEASE_TAG}"
+
+      - name: Render production manifest
+        run: |
+          cargo xtask delivery render-manifest \
+            --environment prod \
+            --finance-ref "${{ steps.manifest.outputs.finance_repo }}:${RELEASE_TAG}" \
+            --finance-digest "${{ steps.manifest.outputs.finance_digest }}" \
+            --treasury-ref "${{ steps.manifest.outputs.treasury_repo }}:${RELEASE_TAG}" \
+            --treasury-digest "${{ steps.manifest.outputs.treasury_digest }}" \
+            --output target/delivery/manifests/prod/lattice-config.json
+
+      - name: Install Pulumi dependencies
+        working-directory: infrastructure/pulumi
+        run: npm ci
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: us-west-2
+
+      - name: Install Pulumi CLI
+        uses: pulumi/setup-pulumi@v3
+
+      - name: Pulumi login
+        working-directory: infrastructure/pulumi
+        run: pulumi login "$PULUMI_BACKEND_URL"
+
+      - name: Deploy production stack
+        working-directory: infrastructure/pulumi
+        run: npm --workspace live run up:prod
+
+      - name: Run post-deploy smoke tests
+        run: cargo test -p wasmcloud-smoke-tests
+
+      - name: Resolve final release target
+        id: release-target
+        run: |
+          target_commitish="$(
+            gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${RC_TAG}" --jq '.target_commitish'
+          )"
+          echo "target_commitish=${target_commitish}" >> "${GITHUB_OUTPUT}"
+
+      - name: Create production release
+        run: |
+          cp target/delivery/manifests/prod/lattice-config.json target/delivery/prod-lattice-config.json
+          gh release create "${RELEASE_TAG}" \
+            --target "${{ steps.release-target.outputs.target_commitish }}" \
+            --title "${RELEASE_TAG}" \
+            --generate-notes \
+            target/delivery/prod-lattice-config.json

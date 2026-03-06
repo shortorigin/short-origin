@@ -1,0 +1,4 @@
+version = "v1"
+primary_service = "trading-risk-service"
+approved_workflows = ["quant_strategy_promotion"]
+owned_aggregates = ["trading_risk_state", "kill_switch", "risk_limit_breach"]

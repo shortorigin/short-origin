@@ -1,0 +1,11 @@
+[package]
+name = "system_ui"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = ["csr"]
+csr = ["leptos/csr"]
+
+[dependencies]
+leptos = { version = "0.6", default-features = false }

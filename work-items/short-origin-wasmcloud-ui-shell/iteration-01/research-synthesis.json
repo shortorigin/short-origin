@@ -1,0 +1,67 @@
+{
+  "work_item_id": "short-origin-wasmcloud-ui-shell",
+  "parent_work_item_id": null,
+  "iteration": 1,
+  "affected_paths": [
+    "AGENTS.md",
+    ".cargo/",
+    ".github/workflows/",
+    "Cargo.toml",
+    "docs/adr/",
+    "infrastructure/",
+    "platform/",
+    "schemas/",
+    "services/",
+    "shared/",
+    "ui/",
+    "workflows/",
+    "xtask/"
+  ],
+  "affected_modules": [
+    "platform",
+    "schemas",
+    "services",
+    "workflows",
+    "shared",
+    "ui",
+    "infrastructure"
+  ],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": [
+    "Backend deployment posture is expressed as wasmCloud on Wasmtime with deployable component metadata instead of native service binaries.",
+    "The OS shell subset is rehomed under ui/ and exposes only the governed release apps for this product profile.",
+    "SurrealDB access is centralized behind shared repository abstractions and UI data access stays on typed SDK/contracts.",
+    "Workspace tooling, CI, and process validation encode the new ui and wasmCloud-first rules."
+  ],
+  "open_questions": [
+    {
+      "question": "Nomad host/service topology can be refined further once real lattice rollout automation is introduced.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T18:00:00Z",
+  "objective": "Review the current workspace, imported OS crates, and deployment/runtime assumptions.",
+  "research_inputs": [
+    "../os",
+    "platform/runtime/strategy-sandbox/src/lib.rs",
+    "platform/sdk/sdk-rs/src/lib.rs",
+    "infrastructure/nomad/jobs/*.nomad.hcl"
+  ],
+  "source_refs": [
+    "AGENTS.md",
+    "platform/README.md",
+    "services/README.md",
+    "schemas/README.md"
+  ],
+  "findings": [
+    "The repository already assumes Rust-first services and wasmCloud-compatible workloads but did not yet encode component metadata and ui ownership uniformly.",
+    "The OS shell can be rehomed into ui/ with a trimmed release surface and typed host/runtime contracts.",
+    "SurrealDB access needed a shared repository layer to make the no-direct-ui-db rule enforceable."
+  ],
+  "constraints": [
+    "Avoid breaking canonical contracts outside schemas.",
+    "Keep browser/WASM preview available while treating Tauri desktop as the release runtime."
+  ],
+  "decomposition_signals": []
+}

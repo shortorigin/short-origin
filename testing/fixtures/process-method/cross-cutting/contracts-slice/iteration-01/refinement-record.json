@@ -1,0 +1,16 @@
+{
+  "work_item_id": "contracts-slice",
+  "parent_work_item_id": "root-method",
+  "iteration": 1,
+  "affected_paths": ["schemas/"],
+  "affected_modules": ["schemas"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": ["Child schema slice validates end to end."],
+  "open_questions": [{"question": "No blocking questions remain.", "severity": "low"}],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T13:00:00Z",
+  "decision": "close",
+  "improvements": ["Child is complete."],
+  "residual_risks": [],
+  "next_work_item_ids": []
+}

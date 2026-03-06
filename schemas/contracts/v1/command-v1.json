@@ -1,0 +1,5 @@
+{
+  "name": "CommandV1",
+  "version": "v1",
+  "fields": ["command_id", "target_service", "target_aggregate", "actor_ref", "authority_ref", "classification", "payload_ref"]
+}

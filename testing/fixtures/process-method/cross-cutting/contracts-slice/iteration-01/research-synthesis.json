@@ -1,0 +1,18 @@
+{
+  "work_item_id": "contracts-slice",
+  "parent_work_item_id": "root-method",
+  "iteration": 1,
+  "affected_paths": ["schemas/"],
+  "affected_modules": ["schemas"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": ["Child schema slice validates end to end."],
+  "open_questions": [{"question": "No blocking questions remain.", "severity": "low"}],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T12:30:00Z",
+  "objective": "Research the schema child.",
+  "research_inputs": ["schemas/"],
+  "source_refs": ["schemas/contracts/v1/command-v1.json"],
+  "findings": ["Child slice stays within schemas."],
+  "constraints": ["No breaking changes."],
+  "decomposition_signals": []
+}

@@ -1,0 +1,16 @@
+.desktop-shell[data-skin="classic-xp"] {
+  --sys-color-desktop: #0f5c92;
+  --sys-color-surface: #ece9d8;
+  --sys-color-surface-muted: #dfd9c3;
+  --sys-color-surface-inset: #fffdf5;
+  --sys-color-border: #8d8b83;
+  --sys-color-border-strong: #4d4a43;
+  --sys-color-text-primary: #101010;
+  --sys-color-text-secondary: #4f4f4f;
+  --sys-color-accent: #0057d8;
+  --sys-color-accent-strong: #003c97;
+  --sys-color-accent-muted: rgba(0, 87, 216, 0.14);
+  --sys-radius-1: 4px;
+  --sys-radius-2: 6px;
+  --sys-radius-3: 8px;
+}

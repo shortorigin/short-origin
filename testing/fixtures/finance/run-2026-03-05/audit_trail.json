@@ -1,0 +1,21 @@
+[
+  {
+    "event_id": "3571b5a3-fa80-4c48-ba26-ff3a0082cdf2",
+    "recorded_at": "2026-03-05T17:44:41.669719Z",
+    "payload": {
+      "event": "pipeline_start",
+      "seed": 20260305
+    },
+    "previous_hash": "GENESIS",
+    "current_hash": "b7435315395d8cdcf6e53f771a5b060f94337ee04c3b66574a55f7dc486c9fa5"
+  },
+  {
+    "event_id": "079a0d3d-0b68-4704-9420-9195798ad3d8",
+    "recorded_at": "2026-03-05T17:44:41.669742Z",
+    "payload": {
+      "event": "compliance_pack_generated"
+    },
+    "previous_hash": "b7435315395d8cdcf6e53f771a5b060f94337ee04c3b66574a55f7dc486c9fa5",
+    "current_hash": "96590a0e57f7096ebe76ee84a507db3f78a019565bf8f23561f28d30042f4ede"
+  }
+]

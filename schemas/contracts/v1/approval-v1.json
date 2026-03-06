@@ -1,0 +1,5 @@
+{
+  "name": "ApprovalV1",
+  "version": "v1",
+  "fields": ["action_id", "approval_scope", "required_approver_roles", "minimum_approvals", "impact_tier", "expires_at", "rationale", "approver", "approved", "decided_at"]
+}

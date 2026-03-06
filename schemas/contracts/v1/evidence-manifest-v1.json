@@ -1,0 +1,5 @@
+{
+  "name": "EvidenceManifestV1",
+  "version": "v1",
+  "fields": ["evidence_id", "producer", "artifact_hash", "storage_ref", "retention_class", "classification", "related_decision_refs"]
+}

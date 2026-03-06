@@ -1,0 +1,8 @@
+{
+  "handoff_id": "handoff::short-origin-prompt-procedures::research-to-requirements",
+  "objective": "Turn the doc gap analysis into explicit documentation requirements.",
+  "inputs_used": ["research-synthesis.json", "agents/README.md"],
+  "decisions_made": ["Prompt procedures will be documented, not runtime manifests, in this pass."],
+  "pending_actions": ["Define required docs and success criteria."],
+  "verification_status": "passed"
+}

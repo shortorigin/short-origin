@@ -1,0 +1,14 @@
+schema_version = 1
+app_id = "system.terminal"
+display_name = "Terminal"
+version = "0.1.0"
+runtime_contract_version = "2.0.0"
+requested_capabilities = ["window", "state"]
+single_instance = true
+suspend_policy = "never"
+show_in_launcher = true
+show_on_desktop = true
+
+[window_defaults]
+width = 560
+height = 360

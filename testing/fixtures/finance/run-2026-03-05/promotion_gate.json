@@ -1,0 +1,6 @@
+{
+  "backtest_evidence": true,
+  "paper_trade_evidence": true,
+  "risk_signoff": true,
+  "compliance_attested": true
+}

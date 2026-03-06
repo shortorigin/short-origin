@@ -1,0 +1,8 @@
+{
+  "handoff_id": "handoff::short-origin-process-contracts::architecture-to-plan",
+  "objective": "Turn the schema design into executable edits.",
+  "inputs_used": ["architecture-design.json", "requirements-spec.json"],
+  "decisions_made": ["The work item is leaf-sized and stays inside schemas."],
+  "pending_actions": ["List the exact schema, Rust, and test edits."],
+  "verification_status": "passed"
+}

@@ -1,0 +1,8 @@
+{
+  "handoff_id": "handoff::short-origin-wasmcloud-ui-shell::requirements-to-architecture",
+  "objective": "Map the requirements onto concrete module boundaries and runtime patterns.",
+  "inputs_used": ["requirements-spec.json", "platform/README.md", "services/README.md", "schemas/README.md"],
+  "decisions_made": ["Backend deployment stays wasmCloud-first and ui ownership stays isolated under ui/."],
+  "pending_actions": ["Design the code, schema, and host integration surfaces."],
+  "verification_status": "passed"
+}

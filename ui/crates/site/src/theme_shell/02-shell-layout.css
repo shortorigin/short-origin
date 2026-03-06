@@ -1,0 +1,243 @@
+.desktop-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) var(--sys-comp-taskbar-height);
+  background: var(--sys-color-desktop);
+}
+
+[data-ui-kind="desktop-backdrop"] {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 16%, color-mix(in srgb, var(--sys-color-accent) 18%, transparent), transparent 34%),
+    radial-gradient(circle at 82% 18%, color-mix(in srgb, var(--sys-color-success) 14%, transparent), transparent 30%),
+    linear-gradient(180deg, color-mix(in srgb, var(--sys-color-desktop) 88%, #07131b), color-mix(in srgb, var(--sys-color-desktop) 72%, #020609));
+}
+
+[data-ui-kind="wallpaper-layer"],
+[data-ui-slot="atmosphere"],
+[data-ui-slot="dismiss-layer"],
+[data-ui-kind="desktop-window-layer"] {
+  position: absolute;
+  inset: 0;
+}
+
+[data-ui-kind="wallpaper-layer"] {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+[data-ui-slot="atmosphere"] {
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--sys-color-accent) 20%, transparent), transparent 30%),
+    radial-gradient(circle at 80% 24%, color-mix(in srgb, var(--sys-color-warning) 18%, transparent), transparent 32%);
+  opacity: var(--sys-opacity-overlay);
+}
+
+[data-ui-slot="dismiss-layer"] {
+  z-index: var(--sys-z-backdrop);
+}
+
+[data-ui-kind="desktop-icon-grid"] {
+  position: absolute;
+  left: var(--sys-space-3);
+  top: var(--sys-space-3);
+  z-index: 2;
+  display: grid;
+  gap: var(--sys-space-2);
+  grid-auto-rows: min-content;
+  width: 108px;
+}
+
+[data-ui-kind="desktop-icon-button"] {
+  display: grid;
+  justify-items: center;
+  gap: var(--sys-space-2);
+  width: 100%;
+  min-height: 88px;
+  padding: var(--sys-space-2);
+  border: 0;
+  border-radius: var(--sys-radius-2);
+  background: transparent;
+  color: var(--sys-color-text-inverse);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+[data-ui-kind="desktop-icon-button"] > span:first-child {
+  display: grid;
+  place-items: center;
+  width: var(--sys-comp-icon-desktop-size);
+  height: var(--sys-comp-icon-desktop-size);
+  border-radius: var(--sys-radius-2);
+  background: color-mix(in srgb, var(--sys-color-surface) 88%, transparent);
+  color: var(--sys-color-accent-strong);
+  box-shadow: var(--sys-elevation-raised);
+}
+
+[data-ui-kind="desktop-window-layer"] {
+  z-index: var(--sys-z-windows);
+  pointer-events: none;
+}
+
+[data-ui-kind="window-frame"] {
+  position: absolute;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  pointer-events: auto;
+  border: var(--sys-border-width-hairline) solid var(--sys-color-border-strong);
+  border-radius: var(--sys-radius-3);
+  background: var(--sys-color-surface);
+  box-shadow: var(--sys-elevation-overlay);
+}
+
+[data-ui-kind="window-titlebar"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sys-space-3);
+  min-height: var(--sys-comp-window-titlebar-height);
+  padding: 0 var(--sys-space-3);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--sys-color-surface) 80%, white), var(--sys-color-surface-muted));
+  border-bottom: var(--sys-border-width-hairline) solid var(--sys-color-border);
+}
+
+[data-ui-kind="window-title"] {
+  display: flex;
+  align-items: center;
+  gap: var(--sys-space-2);
+  min-width: 0;
+  font-weight: 600;
+}
+
+[data-ui-kind="window-controls"] {
+  display: flex;
+  align-items: center;
+  gap: var(--sys-space-1);
+}
+
+[data-ui-kind="window-body"] {
+  min-height: 0;
+  background: var(--sys-color-surface);
+}
+
+[data-ui-slot="window-body-content"] {
+  height: 100%;
+}
+
+[data-ui-kind="resize-handle"] {
+  position: absolute;
+}
+
+[data-ui-slot="north"],
+[data-ui-slot="south"] {
+  left: 12px;
+  right: 12px;
+  height: 10px;
+}
+
+[data-ui-slot="east"],
+[data-ui-slot="west"] {
+  top: 12px;
+  bottom: 12px;
+  width: 10px;
+}
+
+[data-ui-slot="north"] { top: -5px; }
+[data-ui-slot="south"] { bottom: -5px; }
+[data-ui-slot="east"] { right: -5px; }
+[data-ui-slot="west"] { left: -5px; }
+[data-ui-slot="north-east"],
+[data-ui-slot="north-west"],
+[data-ui-slot="south-east"],
+[data-ui-slot="south-west"] {
+  width: 14px;
+  height: 14px;
+}
+
+[data-ui-slot="north-east"] { top: -6px; right: -6px; }
+[data-ui-slot="north-west"] { top: -6px; left: -6px; }
+[data-ui-slot="south-east"] { right: -6px; bottom: -6px; }
+[data-ui-slot="south-west"] { left: -6px; bottom: -6px; }
+
+[data-ui-kind="taskbar"] {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--sys-space-3);
+  align-items: center;
+  padding: var(--sys-space-2) var(--sys-space-3);
+  border-top: var(--sys-border-width-hairline) solid var(--sys-color-border);
+  background: color-mix(in srgb, var(--sys-color-surface) 92%, white);
+}
+
+[data-ui-kind="taskbar-section"] {
+  display: flex;
+  align-items: center;
+  gap: var(--sys-space-2);
+}
+
+[data-ui-slot="running-strip"],
+[data-ui-kind="tray-list"] {
+  display: flex;
+  align-items: center;
+  gap: var(--sys-space-2);
+}
+
+[data-ui-slot="start-button"],
+[data-ui-slot="taskbar-button"],
+[data-ui-slot="taskbar-overflow-button"],
+[data-ui-slot="tray-button"],
+[data-ui-slot="clock-button"],
+[data-ui-slot="window-control"],
+[data-ui-slot="menu-item"] {
+  min-height: 34px;
+}
+
+[data-ui-slot="clock-button"] {
+  min-width: 96px;
+}
+
+[data-ui-kind="menu-surface"] {
+  position: absolute;
+  z-index: var(--sys-z-menu);
+}
+
+[data-ui-slot="launcher-menu"] {
+  left: var(--sys-space-3);
+  bottom: calc(var(--sys-comp-taskbar-height) + var(--sys-space-2));
+}
+
+[data-ui-slot="workspace"] {
+  align-items: start;
+}
+
+[data-ui-slot="display-panel"] {
+  min-height: var(--sys-comp-display-min-height);
+  display: grid;
+  gap: var(--sys-space-2);
+}
+
+[data-ui-slot="expression"] {
+  font-family: var(--sys-font-mono);
+  color: var(--sys-color-text-secondary);
+}
+
+[data-ui-slot="display"] {
+  font-family: var(--sys-font-mono);
+  font-size: var(--sys-type-title-lg);
+  font-weight: 600;
+}
+
+[data-ui-slot="keypad"] {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--sys-space-2);
+}
+
+[data-ui-slot="secondary-pane"] {
+  display: grid;
+  gap: var(--sys-space-3);
+  align-content: start;
+}

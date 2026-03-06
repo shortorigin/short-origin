@@ -1,0 +1,5 @@
+{
+  "name": "EventEnvelopeV1",
+  "version": "v1",
+  "fields": ["event_id", "event_type", "event_version", "actor_ref", "occurred_at", "recorded_at", "correlation_id", "causation_id", "decision_ref", "classification", "schema_ref", "integrity_hash"]
+}

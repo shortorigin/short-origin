@@ -1,0 +1,4 @@
+version = "v1"
+domain = "capital_markets_portfolio"
+policy_owner = "CFO"
+primary_service = "portfolio-service"

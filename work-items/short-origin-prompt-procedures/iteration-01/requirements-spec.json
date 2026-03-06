@@ -1,0 +1,37 @@
+{
+  "work_item_id": "short-origin-prompt-procedures",
+  "parent_work_item_id": "short-origin-recursive-chatgpt-method",
+  "iteration": 1,
+  "affected_paths": [
+    "docs/process/",
+    "agents/procedures/",
+    "agents/README.md"
+  ],
+  "affected_modules": ["agents", "docs"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": [
+    "The recursive playbook defines the common loop, stage outputs, recursion rules, and verification gates.",
+    "Each role procedure maps to a specific stage artifact and handoff."
+  ],
+  "open_questions": [
+    {
+      "question": "Prompt procedures remain documentation in this first pass rather than runtime agent manifests.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T17:15:00Z",
+  "objective": "Define the documentation slice.",
+  "functional_requirements": [
+    "Publish one shared playbook for the recursive loop.",
+    "Publish a role-specific procedure for each stage owner."
+  ],
+  "non_functional_requirements": [
+    "Prompt procedures must be concise and directly executable in ChatGPT sessions."
+  ],
+  "out_of_scope": ["Runtime registration of new agent roles."],
+  "success_metrics": [
+    "The playbook and prompt procedures reference the same stage file names as the validator."
+  ],
+  "assumptions": ["Documentation is the correct delivery vehicle for the new implementation and validation roles."]
+}

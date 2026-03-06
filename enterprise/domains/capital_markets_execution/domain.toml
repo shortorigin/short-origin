@@ -1,0 +1,4 @@
+version = "v1"
+domain = "capital_markets_execution"
+policy_owner = "COO"
+primary_service = "execution-service"

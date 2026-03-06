@@ -1,0 +1,46 @@
+package shortorigin:platform@1.0.0;
+
+interface component-metadata {
+  record capability-binding {
+    provider-id: string,
+    contract-id: string,
+    link-name: string,
+  }
+
+  enum workload-kind {
+    service,
+    workflow,
+  }
+
+  record signed-component-ref {
+    component-ref: string,
+    digest: string,
+    signature-ref: option<string>,
+  }
+
+  record interface-binding {
+    package-name: string,
+    world-name: string,
+    version: string,
+  }
+
+  record component-binding {
+    workload-name: string,
+    workload-kind: workload-kind,
+    component: signed-component-ref,
+    rollout-environment: string,
+    config-schema-refs: list<string>,
+    interfaces: list<interface-binding>,
+    required-capabilities: list<capability-binding>,
+  }
+
+  component-descriptor: func() -> component-binding;
+}
+
+world service-component {
+  export component-metadata;
+}
+
+world workflow-component {
+  export component-metadata;
+}

@@ -1,0 +1,15 @@
+[package]
+name = "finance-service"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+version.workspace = true
+
+[dependencies]
+contracts = { path = "../../schemas/crates/contracts" }
+enforcement = { path = "../../platform/runtime/enforcement" }
+error-model = { path = "../../shared/error-model" }
+wasmcloud-bindings = { path = "../../platform/wasmcloud/bindings" }
+
+[lints]
+workspace = true

@@ -1,0 +1,5 @@
+{
+  "name": "PolicyDecisionV1",
+  "version": "v1",
+  "fields": ["request_id", "actor_ref", "action", "resource", "environment", "impact_tier", "classification", "cross_domain", "policy_refs", "exception_refs", "decision", "obligations", "denial_reasons", "evidence_refs"]
+}

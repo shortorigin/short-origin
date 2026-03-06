@@ -1,0 +1,4 @@
+version = "v1"
+primary_service = "quant-research-service"
+approved_workflows = ["quant_strategy_promotion"]
+owned_aggregates = ["experiment_result", "research_task"]

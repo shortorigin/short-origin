@@ -1,0 +1,16 @@
+version = "v1"
+
+[[entries]]
+scope = "production_control_exception"
+approval_owner = "Chief Compliance Officer"
+control_owner = "CISO"
+
+[[entries]]
+scope = "treasury_disbursement"
+approval_owner = "CFO"
+control_owner = "CHRO"
+
+[[entries]]
+scope = "continuity_activation"
+approval_owner = "COO"
+control_owner = "Head of Resilience"

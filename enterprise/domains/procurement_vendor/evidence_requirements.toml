@@ -1,0 +1,2 @@
+version = "v1"
+required_evidence = ["vendor_due_diligence", "spend_approval", "vendor_risk_evidence"]

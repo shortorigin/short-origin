@@ -1,0 +1,108 @@
+name: Delivery Dev
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+  packages: write
+
+jobs:
+  publish-and-deploy:
+    runs-on: ubuntu-latest
+    environment: dev
+    concurrency: delivery-dev
+    env:
+      AWS_REGION: us-west-2
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      GH_TOKEN: ${{ github.token }}
+      PULUMI_BACKEND_URL: s3://${{ secrets.PULUMI_STATE_BUCKET }}?region=us-west-2&awssdk=v2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: infrastructure/pulumi/package-lock.json
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Setup ORAS
+        uses: oras-project/setup-oras@v1
+
+      - name: Login to GHCR
+        run: echo "${{ github.token }}" | oras login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Render component descriptors
+        run: cargo xtask delivery render-components --environment dev --tag "sha-${GITHUB_SHA}" --output-dir target/delivery/components
+
+      - name: Publish component descriptors
+        id: publish
+        run: |
+          short_sha="${GITHUB_SHA::12}"
+          finance_digest="$(
+            ./.github/scripts/publish_component_descriptor.sh \
+              target/delivery/components/finance-service.json \
+              ghcr.io/shortorigin/finance-service \
+              "sha-${GITHUB_SHA},main-${short_sha}"
+          )"
+          treasury_digest="$(
+            ./.github/scripts/publish_component_descriptor.sh \
+              target/delivery/components/treasury-disbursement.json \
+              ghcr.io/shortorigin/treasury-disbursement \
+              "sha-${GITHUB_SHA},main-${short_sha}"
+          )"
+          echo "finance_ref=ghcr.io/shortorigin/finance-service:sha-${GITHUB_SHA}" >> "${GITHUB_OUTPUT}"
+          echo "finance_digest=${finance_digest}" >> "${GITHUB_OUTPUT}"
+          echo "treasury_ref=ghcr.io/shortorigin/treasury-disbursement:sha-${GITHUB_SHA}" >> "${GITHUB_OUTPUT}"
+          echo "treasury_digest=${treasury_digest}" >> "${GITHUB_OUTPUT}"
+
+      - name: Render dev manifest
+        run: |
+          cargo xtask delivery render-manifest \
+            --environment dev \
+            --finance-ref "${{ steps.publish.outputs.finance_ref }}" \
+            --finance-digest "${{ steps.publish.outputs.finance_digest }}" \
+            --treasury-ref "${{ steps.publish.outputs.treasury_ref }}" \
+            --treasury-digest "${{ steps.publish.outputs.treasury_digest }}" \
+            --output target/delivery/manifests/dev/lattice-config.json
+
+      - name: Upload dev manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-lattice-config
+          path: target/delivery/manifests/dev/lattice-config.json
+
+      - name: Install Pulumi dependencies
+        working-directory: infrastructure/pulumi
+        run: npm ci
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: us-west-2
+
+      - name: Install Pulumi CLI
+        uses: pulumi/setup-pulumi@v3
+
+      - name: Pulumi login
+        working-directory: infrastructure/pulumi
+        run: pulumi login "$PULUMI_BACKEND_URL"
+
+      - name: Deploy dev stack
+        working-directory: infrastructure/pulumi
+        run: npm --workspace live run up:dev
+
+      - name: Run smoke tests
+        run: cargo test -p wasmcloud-smoke-tests

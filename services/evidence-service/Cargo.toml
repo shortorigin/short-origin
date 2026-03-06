@@ -1,0 +1,19 @@
+[package]
+name = "evidence-service"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+version.workspace = true
+
+[dependencies]
+chrono.workspace = true
+contracts = { path = "../../schemas/crates/contracts" }
+error-model = { path = "../../shared/error-model" }
+evidence-sdk = { path = "../../shared/evidence-sdk" }
+serde.workspace = true
+serde_json.workspace = true
+trading-core = { path = "../../shared/trading-core" }
+trading-errors = { path = "../../shared/trading-errors" }
+
+[lints]
+workspace = true

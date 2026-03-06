@@ -1,0 +1,5 @@
+{
+  "name": "ExceptionRecordV1",
+  "version": "v1",
+  "fields": ["exception_id", "policy_ref", "scope", "compensating_controls", "approver_roles", "expires_at", "review_cadence_days"]
+}

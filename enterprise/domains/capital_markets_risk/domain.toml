@@ -1,0 +1,4 @@
+version = "v1"
+domain = "capital_markets_risk"
+policy_owner = "Chief Compliance Officer"
+primary_service = "trading-risk-service"

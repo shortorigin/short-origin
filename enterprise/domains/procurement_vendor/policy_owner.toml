@@ -1,0 +1,4 @@
+version = "v1"
+policy_owner = "Chief Procurement Officer"
+approval_owner = "Chief Procurement Officer"
+control_owner = "CISO"

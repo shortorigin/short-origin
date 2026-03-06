@@ -1,0 +1,19 @@
+version = "v1"
+
+[[controls]]
+control_id = "CTRL-GOV-001"
+objective = "Require policy evaluation before every mutating workflow step."
+owner_role = "Chief Compliance Officer"
+checkpoint = "workflow_pre_dispatch"
+
+[[controls]]
+control_id = "CTRL-GOV-002"
+objective = "Require dual approval for tier2 and tier3 actions."
+owner_role = "Chief Compliance Officer"
+checkpoint = "approval_verification"
+
+[[controls]]
+control_id = "CTRL-AUD-001"
+objective = "Emit evidence manifests for every material decision and side effect."
+owner_role = "Head of Internal Audit"
+checkpoint = "evidence_capture"

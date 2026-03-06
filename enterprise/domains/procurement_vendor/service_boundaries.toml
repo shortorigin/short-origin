@@ -1,0 +1,4 @@
+version = "v1"
+primary_service = "procurement-service"
+approved_workflows = ["procurement", "vendor_onboarding"]
+owned_aggregates = ["vendor_record", "spend_approval"]

@@ -1,0 +1,17 @@
+[package]
+name = "trading-sim"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+version.workspace = true
+
+[dependencies]
+chrono.workspace = true
+contracts = { path = "../../schemas/crates/contracts" }
+serde.workspace = true
+serde_json.workspace = true
+trading-core = { path = "../trading-core" }
+trading-errors = { path = "../trading-errors" }
+
+[lints]
+workspace = true

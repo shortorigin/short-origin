@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="none">
+  <defs>
+    <pattern id="paper-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <rect width="40" height="40" fill="#f1ead5"/>
+      <path d="M40 0H0V40" fill="none" stroke="#d8cfb6" stroke-width="1.2"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="900" fill="url(#paper-grid)"/>
+  <path d="M120 0V900M520 0V900M920 0V900M1320 0V900" stroke="rgba(160,128,76,0.18)" stroke-width="2"/>
+</svg>

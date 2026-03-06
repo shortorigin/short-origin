@@ -1,0 +1,10 @@
+[alias]
+xtask = "run -p xtask --"
+ui-dev = "xtask ui dev"
+ui-build = "xtask ui build"
+tauri-dev = "xtask tauri dev"
+tauri-build = "xtask tauri build"
+components-build = "xtask components build"
+verify-fast = "xtask verify profile fast"
+verify-ui = "xtask verify profile ui"
+verify-full = "xtask verify profile full"

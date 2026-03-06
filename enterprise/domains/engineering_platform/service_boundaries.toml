@@ -1,0 +1,4 @@
+version = "v1"
+primary_service = "engineering-service"
+approved_workflows = ["release_approval"]
+owned_aggregates = ["release_window", "build_provenance"]

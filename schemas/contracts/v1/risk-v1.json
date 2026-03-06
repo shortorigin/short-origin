@@ -1,0 +1,5 @@
+{
+  "name": "RiskRecordV1",
+  "version": "v1",
+  "fields": ["risk_id", "source", "likelihood", "impact", "owner_role", "treatment", "accepted_until", "review_date"]
+}

@@ -1,0 +1,8 @@
+{
+  "handoff_id": "handoff::short-origin-process-contracts::research-to-requirements",
+  "objective": "Translate contract pattern research into a precise contract slice.",
+  "inputs_used": ["research-synthesis.json", "schemas/crates/contracts/src/lib.rs"],
+  "decisions_made": ["Process artifacts follow the existing schema registry style."],
+  "pending_actions": ["Define required fields and acceptance criteria."],
+  "verification_status": "passed"
+}

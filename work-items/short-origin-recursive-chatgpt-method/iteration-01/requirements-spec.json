@@ -1,0 +1,54 @@
+{
+  "work_item_id": "short-origin-recursive-chatgpt-method",
+  "parent_work_item_id": null,
+  "iteration": 1,
+  "affected_paths": [
+    "Cargo.toml",
+    "docs/process/",
+    "agents/procedures/",
+    "agents/README.md",
+    "schemas/contracts/v1/",
+    "schemas/crates/contracts/",
+    "schemas/crates/codegen/",
+    "shared/process-method/",
+    "testing/fixtures/process-method/",
+    ".github/",
+    "work-items/"
+  ],
+  "affected_modules": ["agents", "schemas", "shared", "docs", "testing", ".github"],
+  "policy_refs": [
+    "enterprise.policies.invariants",
+    "enterprise.policies.control_catalog"
+  ],
+  "acceptance_criteria": [
+    "The recursive method is documented and committed in repo artifacts.",
+    "The process validator enforces stage order, handoffs, module profile evidence, and changed-path coverage."
+  ],
+  "open_questions": [
+    {
+      "question": "Parent work item closes through child slices rather than direct code generation.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T16:15:00Z",
+  "objective": "Define the required artifact flow and enforcement model.",
+  "functional_requirements": [
+    "Every material change must emit committed work item artifacts.",
+    "Every iteration must preserve explicit stage inputs and outputs."
+  ],
+  "non_functional_requirements": [
+    "The process must scale across the full workspace without bypassing existing ownership boundaries.",
+    "CI must fail when stage artifacts or coverage evidence are incomplete."
+  ],
+  "out_of_scope": [
+    "Creating new runtime-governed agent manifests for implementation and validation roles in this first pass."
+  ],
+  "success_metrics": [
+    "A Rust validator can detect incomplete work items.",
+    "Prompt procedures match the machine-readable stage model."
+  ],
+  "assumptions": [
+    "Committed work items are acceptable repository state for engineering changes."
+  ]
+}

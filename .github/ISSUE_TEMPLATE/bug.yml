@@ -1,0 +1,47 @@
+name: Bug
+description: Report a defect, behavioral regression, or incorrect system outcome.
+title: "[Bug]: "
+labels:
+  - type:bug
+  - priority:high
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Briefly describe the bug.
+      placeholder: Add a short description of the defect.
+    validations:
+      required: true
+  - type: textarea
+    id: problem_statement
+    attributes:
+      label: Problem Statement
+      description: Describe the incorrect behavior, impact, and current failure mode.
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the expected fix or mitigation approach.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: List the concrete checks that will prove the bug is fixed.
+      placeholder: "- [ ] Criterion 1"
+    validations:
+      required: true
+  - type: textarea
+    id: technical_notes
+    attributes:
+      label: Technical Notes
+      description: Capture logs, failing tests, affected contracts, or rollback considerations.
+  - type: textarea
+    id: related_issues
+    attributes:
+      label: Related Issues
+      description: Link or reference related incidents, issues, or pull requests.

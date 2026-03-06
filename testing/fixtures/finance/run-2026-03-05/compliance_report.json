@@ -1,0 +1,61 @@
+{
+  "order_audit_records": [
+    {
+      "audit_id": "b381a802-9847-40a1-8c6e-794b7a2d258c",
+      "recorded_at": "2026-03-05T17:44:41.669725Z",
+      "order": {
+        "order_id": "f24860c8-66a1-4c8a-8312-e02068c9cca4",
+        "strategy_id": "trend_follower",
+        "symbol": {
+          "venue": "Coinbase",
+          "asset_class": "Crypto",
+          "base": "BTC",
+          "quote": "USD"
+        },
+        "venue": "Coinbase",
+        "side": "Buy",
+        "quantity": 0.5,
+        "limit_price": 100.0,
+        "order_type": "Limit",
+        "tif": "Gtc",
+        "submitted_at": "2026-03-05T17:44:41.669722Z"
+      },
+      "decision_trace": "risk approved + execution accepted"
+    }
+  ],
+  "limit_breach_records": [
+    {
+      "breach_id": "3bc86864-e633-49c7-8232-faee81bc8acf",
+      "detected_at": "2026-03-05T17:44:41.669728Z",
+      "control": "global_notional_limit",
+      "severity": "high",
+      "details": "order 100000000.00 > global 1000000.00"
+    }
+  ],
+  "best_execution_records": [
+    {
+      "record_id": "a5b37c75-955b-428d-9866-ac1b2592b90c",
+      "venue": "Coinbase",
+      "captured_at": "2026-03-05T17:44:41.669727Z",
+      "slippage_bps": 1.5,
+      "expected_price": 100.0,
+      "executed_price": 100.015
+    }
+  ],
+  "daily_control_attestation": {
+    "attestation_id": "46bc3d3e-b708-446f-816d-4fa1a4b8e19b",
+    "business_date": "2026-03-05",
+    "generated_at": "2026-03-05T17:44:41.669731Z",
+    "approved_models": [
+      "trend_follower:v1"
+    ],
+    "controls_checked": [
+      "best_execution",
+      "risk_limits",
+      "model_approval"
+    ],
+    "exceptions": [
+      "global_notional_limit: order 100000000.00 > global 1000000.00"
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+name: Governance
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+      - ready_for_review
+  merge_group:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Validate PR governance
+        if: github.event_name == 'pull_request'
+        run: cargo xtask github validate-pr --event-path "$GITHUB_EVENT_PATH" --config .github/governance.toml
+
+      - name: Skip governance validation outside pull requests
+        if: github.event_name != 'pull_request'
+        run: echo "Governance checks are enforced on pull_request events; merge_group and push runs stay green for stable required checks."

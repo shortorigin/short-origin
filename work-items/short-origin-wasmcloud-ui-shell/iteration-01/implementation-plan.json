@@ -1,0 +1,136 @@
+{
+  "work_item_id": "short-origin-wasmcloud-ui-shell",
+  "parent_work_item_id": null,
+  "iteration": 1,
+  "affected_paths": [
+    "AGENTS.md",
+    ".cargo/",
+    ".github/workflows/",
+    "Cargo.toml",
+    "docs/adr/",
+    "infrastructure/",
+    "platform/",
+    "schemas/",
+    "services/",
+    "shared/",
+    "ui/",
+    "workflows/",
+    "xtask/"
+  ],
+  "affected_modules": [
+    "platform",
+    "schemas",
+    "services",
+    "workflows",
+    "shared",
+    "ui",
+    "infrastructure"
+  ],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": [
+    "Backend deployment posture is expressed as wasmCloud on Wasmtime with deployable component metadata instead of native service binaries.",
+    "The OS shell subset is rehomed under ui/ and exposes only the governed release apps for this product profile.",
+    "SurrealDB access is centralized behind shared repository abstractions and UI data access stays on typed SDK/contracts.",
+    "Workspace tooling, CI, and process validation encode the new ui and wasmCloud-first rules."
+  ],
+  "open_questions": [
+    {
+      "question": "Nomad host/service topology can be refined further once real lattice rollout automation is introduced.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T18:15:00Z",
+  "objective": "Sequence the code, tooling, and documentation changes for the integrated architecture.",
+  "change_slices": [
+    "Rehome the shell-first OS subset into ui/ and trim the release registry to Control Center, Terminal, and Settings.",
+    "Add WIT, wasmCloud bindings, lattice config, typed SDK transport, and shared SurrealDB repositories.",
+    "Replace strategy sandbox trait-object loading with a Wasmtime-backed runtime path and keep in-memory execution feature-gated.",
+    "Add xtask, Cargo aliases, CI coverage, Nomad lattice manifests, and process-method ui evidence enforcement."
+  ],
+  "target_paths": [
+    "AGENTS.md",
+    ".cargo/",
+    ".github/workflows/",
+    "Cargo.toml",
+    "docs/adr/",
+    "infrastructure/",
+    "platform/",
+    "schemas/",
+    "services/",
+    "shared/",
+    "ui/",
+    "workflows/",
+    "xtask/"
+  ],
+  "test_scenarios": [
+    "Run targeted cargo check passes for the new platform, ui, workflow, and service crates.",
+    "Run process-method tests covering the new ui profile evidence requirements.",
+    "Build the browser/Tauri shell packages to confirm the rehomed ui workspace composes cleanly."
+  ],
+  "profile_evidence": [
+    {
+      "area": "platform.runtime_compatibility",
+      "notes": ["Wasmtime is the default strategy runtime and wasmCloud component metadata is versioned in platform/."]
+    },
+    {
+      "area": "schemas.compatibility_notes",
+      "notes": ["The new WIT and lattice metadata are additive v1 interfaces."]
+    },
+    {
+      "area": "schemas.fixture_updates",
+      "notes": ["Parity and smoke tests cover the generated binding and component metadata path."]
+    },
+    {
+      "area": "services.contract_refs",
+      "notes": ["Service component descriptors point back to canonical service boundaries and schema references."]
+    },
+    {
+      "area": "services.owned_aggregate_boundaries",
+      "notes": ["UI code does not bypass service-owned data or schema boundaries."]
+    },
+    {
+      "area": "workflows.failure_modes",
+      "notes": ["Workflow component descriptors keep orchestration failure handling within workflow crates."]
+    },
+    {
+      "area": "workflows.compensations",
+      "notes": ["Workflow boundaries remain explicit and compensating behavior stays in orchestration code."]
+    },
+    {
+      "area": "workflows.policy_gates",
+      "notes": ["The quant strategy promotion flow still routes approvals through existing policy-aware services."]
+    },
+    {
+      "area": "workflows.audit_outputs",
+      "notes": ["Workflow event and evidence emission remains contract-bound."]
+    },
+    {
+      "area": "shared.reuse_notes",
+      "notes": ["SurrealDB repositories, process-method validation, and xtask wiring reuse shared crates instead of copying logic into services or ui."]
+    },
+    {
+      "area": "shared.policy_leakage_review",
+      "notes": ["Shared crates remain generic and do not embed business policy branching."]
+    },
+    {
+      "area": "ui.host_boundary_compliance",
+      "notes": ["UI host concerns stay in ui/ and platform_host adapters; service/workflow crates do not own desktop logic."]
+    },
+    {
+      "area": "ui.dual_target_compatibility",
+      "notes": ["Browser preview and Tauri desktop builds are both retained in the task runner and CI flow."]
+    },
+    {
+      "area": "ui.typed_sdk_usage",
+      "notes": ["Control Center and runtime composition consume typed SDK dashboard snapshots instead of direct database clients."]
+    },
+    {
+      "area": "infrastructure.policy_leakage_review",
+      "notes": ["Nomad manifests deploy lattice support services and hosts, not raw business-service binaries."]
+    }
+  ],
+  "rollout_notes": [
+    "Land the shared runtime/schema/tooling changes before relying on the updated CI paths in new pull requests."
+  ]
+}

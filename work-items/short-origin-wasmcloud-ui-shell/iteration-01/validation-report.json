@@ -1,0 +1,133 @@
+{
+  "work_item_id": "short-origin-wasmcloud-ui-shell",
+  "parent_work_item_id": null,
+  "iteration": 1,
+  "affected_paths": [
+    "AGENTS.md",
+    ".cargo/",
+    ".github/workflows/",
+    "Cargo.toml",
+    "docs/adr/",
+    "infrastructure/",
+    "platform/",
+    "schemas/",
+    "services/",
+    "shared/",
+    "ui/",
+    "workflows/",
+    "xtask/"
+  ],
+  "affected_modules": [
+    "platform",
+    "schemas",
+    "services",
+    "workflows",
+    "shared",
+    "ui",
+    "infrastructure"
+  ],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": [
+    "Backend deployment posture is expressed as wasmCloud on Wasmtime with deployable component metadata instead of native service binaries.",
+    "The OS shell subset is rehomed under ui/ and exposes only the governed release apps for this product profile.",
+    "SurrealDB access is centralized behind shared repository abstractions and UI data access stays on typed SDK/contracts.",
+    "Workspace tooling, CI, and process validation encode the new ui and wasmCloud-first rules."
+  ],
+  "open_questions": [
+    {
+      "question": "Nomad host/service topology can be refined further once real lattice rollout automation is introduced.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T18:25:00Z",
+  "objective": "Validate the integrated wasmCloud-first ui shell slice.",
+  "checks_run": [
+    "cargo check -p sdk-rs -p surrealdb-access -p strategy-sandbox -p desktop_runtime -p desktop_app_contract -p desktop_app_control_center -p wasmcloud-bindings -p wasmcloud-smoke-tests -p treasury-disbursement -p finance-service -p quant-strategy-promotion",
+    "cargo check -p site -p desktop_tauri --all-features",
+    "cargo test -p process-method"
+  ],
+  "passed_checks": [
+    "Targeted platform, service, workflow, and ui integration crates compile together.",
+    "Browser/Tauri shell packages compose with the rehomed ui workspace.",
+    "process-method enforces the new ui profile evidence requirements."
+  ],
+  "failed_checks": [],
+  "findings": [],
+  "changed_paths_validated": [
+    "AGENTS.md",
+    ".cargo/config.toml",
+    ".github/workflows/rust-workspace.yml",
+    "infrastructure/nomad/jobs/control-plane.nomad.hcl",
+    "platform/runtime/strategy-sandbox/src/lib.rs",
+    "platform/sdk/sdk-rs/src/lib.rs",
+    "platform/wasmcloud/bindings/src/lib.rs",
+    "shared/process-method/src/lib.rs",
+    "shared/surrealdb-access/src/lib.rs",
+    "ui/README.md",
+    "ui/crates/desktop_runtime/src/apps.rs",
+    "ui/crates/desktop_tauri/tauri.conf.json"
+  ],
+  "profile_evidence": [
+    {
+      "area": "platform.runtime_compatibility",
+      "notes": ["Wasmtime-backed strategy loading and wasmCloud component metadata compile under the platform/runtime path."]
+    },
+    {
+      "area": "schemas.compatibility_notes",
+      "notes": ["WIT additions are versioned under schemas/wit/v1 without breaking existing Rust contracts."]
+    },
+    {
+      "area": "schemas.fixture_updates",
+      "notes": ["Binding parity tests and smoke tests cover the new schema-to-runtime path."]
+    },
+    {
+      "area": "services.contract_refs",
+      "notes": ["Finance service component metadata references canonical service boundaries and schema refs."]
+    },
+    {
+      "area": "services.owned_aggregate_boundaries",
+      "notes": ["Shared SurrealDB repositories keep data ownership out of ui/ and away from ad hoc callers."]
+    },
+    {
+      "area": "workflows.failure_modes",
+      "notes": ["Workflow adapters were added without bypassing workflow-owned orchestration paths."]
+    },
+    {
+      "area": "workflows.compensations",
+      "notes": ["Workflow runtime changes preserve compensation behavior inside workflow crates."]
+    },
+    {
+      "area": "workflows.policy_gates",
+      "notes": ["Policy-aware workflow/service interactions remain explicit in quant strategy promotion."]
+    },
+    {
+      "area": "workflows.audit_outputs",
+      "notes": ["Workflow evidence and event outputs continue through typed contracts."]
+    },
+    {
+      "area": "shared.reuse_notes",
+      "notes": ["New repository access, task runner, and validation logic reuse shared crates rather than duplicating code."]
+    },
+    {
+      "area": "shared.policy_leakage_review",
+      "notes": ["Shared crates added no business-domain policy branching."]
+    },
+    {
+      "area": "ui.host_boundary_compliance",
+      "notes": ["Host capabilities stay behind ui/platform_host and Tauri/web adapters."]
+    },
+    {
+      "area": "ui.dual_target_compatibility",
+      "notes": ["Both browser preview and Tauri desktop crates compile in the updated workspace."]
+    },
+    {
+      "area": "ui.typed_sdk_usage",
+      "notes": ["Control Center and runtime composition use sdk-rs platform snapshots instead of direct database clients."]
+    },
+    {
+      "area": "infrastructure.policy_leakage_review",
+      "notes": ["Nomad control-plane manifests no longer model raw service binaries for backend workloads."]
+    }
+  ]
+}

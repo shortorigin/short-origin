@@ -1,0 +1,4 @@
+version = "v1"
+primary_service = "compliance-service"
+approved_workflows = ["compliance_attestation", "policy_exception", "quant_strategy_promotion"]
+owned_aggregates = ["control_attestation", "compliance_checkpoint", "compliance_pack", "best_execution_report"]

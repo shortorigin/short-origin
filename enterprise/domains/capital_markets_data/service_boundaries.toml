@@ -1,0 +1,4 @@
+version = "v1"
+primary_service = "market-data-service"
+approved_workflows = ["quant_strategy_promotion"]
+owned_aggregates = ["market_dataset", "normalization_report"]

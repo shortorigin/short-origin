@@ -1,0 +1,24 @@
+{
+  "version": "v1",
+  "domains": [
+    { "domain": "strategy_governance", "policy_owner": "Institutional Council", "primary_service": "governance-service" },
+    { "domain": "finance_treasury", "policy_owner": "CFO", "primary_service": "finance-service" },
+    { "domain": "capital_markets_data", "policy_owner": "Chief Data Officer", "primary_service": "market-data-service" },
+    { "domain": "capital_markets_research", "policy_owner": "Institutional Council", "primary_service": "quant-research-service" },
+    { "domain": "capital_markets_execution", "policy_owner": "COO", "primary_service": "execution-service" },
+    { "domain": "capital_markets_portfolio", "policy_owner": "CFO", "primary_service": "portfolio-service" },
+    { "domain": "capital_markets_risk", "policy_owner": "Chief Compliance Officer", "primary_service": "trading-risk-service" },
+    { "domain": "legal", "policy_owner": "General Counsel", "primary_service": "legal-service" },
+    { "domain": "compliance", "policy_owner": "Chief Compliance Officer", "primary_service": "compliance-service" },
+    { "domain": "audit_assurance", "policy_owner": "Head of Internal Audit", "primary_service": "audit-service" },
+    { "domain": "operations", "policy_owner": "COO", "primary_service": "operations-service" },
+    { "domain": "engineering_platform", "policy_owner": "CTO", "primary_service": "engineering-service" },
+    { "domain": "infrastructure_it", "policy_owner": "Head of Infrastructure", "primary_service": "infrastructure-service" },
+    { "domain": "security", "policy_owner": "CISO", "primary_service": "security-service" },
+    { "domain": "sales_revenue", "policy_owner": "Chief Revenue Officer", "primary_service": "revenue-service" },
+    { "domain": "hr_talent", "policy_owner": "CHRO", "primary_service": "hr-service" },
+    { "domain": "procurement_vendor", "policy_owner": "Chief Procurement Officer", "primary_service": "procurement-service" },
+    { "domain": "data_knowledge", "policy_owner": "Chief Data Officer", "primary_service": "knowledge-service" },
+    { "domain": "resilience_continuity", "policy_owner": "Head of Resilience", "primary_service": "resilience-service" }
+  ]
+}

@@ -1,0 +1,47 @@
+name: Docs
+description: Request documentation updates, clarifications, or new guides.
+title: "[Docs]: "
+labels:
+  - type:docs
+  - priority:medium
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Briefly describe the documentation change.
+      placeholder: Add a short description of the documentation request.
+    validations:
+      required: true
+  - type: textarea
+    id: problem_statement
+    attributes:
+      label: Problem Statement
+      description: Describe the missing guidance, ambiguity, or outdated content.
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the expected documentation outcome.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: List the changes needed for the documentation to be complete.
+      placeholder: "- [ ] Criterion 1"
+    validations:
+      required: true
+  - type: textarea
+    id: technical_notes
+    attributes:
+      label: Technical Notes
+      description: Capture file targets, diagrams, code samples, or related product surfaces.
+  - type: textarea
+    id: related_issues
+    attributes:
+      label: Related Issues
+      description: Link or reference related issues, milestones, or pull requests.

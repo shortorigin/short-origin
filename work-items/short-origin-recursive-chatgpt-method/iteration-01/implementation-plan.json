@@ -1,0 +1,86 @@
+{
+  "work_item_id": "short-origin-recursive-chatgpt-method",
+  "parent_work_item_id": null,
+  "iteration": 1,
+  "affected_paths": [
+    "Cargo.toml",
+    "docs/process/",
+    "agents/procedures/",
+    "agents/README.md",
+    "schemas/contracts/v1/",
+    "schemas/crates/contracts/",
+    "schemas/crates/codegen/",
+    "shared/process-method/",
+    "testing/fixtures/process-method/",
+    ".github/",
+    "work-items/"
+  ],
+  "affected_modules": ["agents", "schemas", "shared", "docs", "testing", ".github"],
+  "policy_refs": [
+    "enterprise.policies.invariants",
+    "enterprise.policies.control_catalog"
+  ],
+  "acceptance_criteria": [
+    "The recursive method is documented and committed in repo artifacts.",
+    "The process validator enforces stage order, handoffs, module profile evidence, and changed-path coverage."
+  ],
+  "open_questions": [
+    {
+      "question": "Parent work item closes through child slices rather than direct code generation.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T16:45:00Z",
+  "objective": "Define the child slices required to implement the recursive method.",
+  "change_slices": [
+    "Add process contracts and embedding tests.",
+    "Publish the core playbook and prompt procedures.",
+    "Build the validator, fixtures, CI workflow, and PR template."
+  ],
+  "target_paths": [
+    "schemas/contracts/v1/",
+    "schemas/crates/contracts/",
+    "schemas/crates/codegen/",
+    "docs/process/",
+    "agents/procedures/",
+    "shared/process-method/",
+    "testing/fixtures/process-method/",
+    ".github/",
+    "work-items/"
+  ],
+  "test_scenarios": [
+    "Contract serialization and codegen embedding succeed.",
+    "Validator accepts valid split and leaf work items.",
+    "Validator rejects missing stages, skipped handoffs, and missing module profile evidence."
+  ],
+  "profile_evidence": [
+    {
+      "area": "agents.deterministic_io",
+      "notes": ["Prompt procedures emit explicit stage artifacts and handoffs."]
+    },
+    {
+      "area": "agents.eval_updates",
+      "notes": ["Agent guidance now references prompt procedures and validation responsibilities."]
+    },
+    {
+      "area": "schemas.compatibility_notes",
+      "notes": ["Process artifacts are additive v1 contracts."]
+    },
+    {
+      "area": "schemas.fixture_updates",
+      "notes": ["Schema embedding and fixture tests will be added alongside the contracts."]
+    },
+    {
+      "area": "shared.reuse_notes",
+      "notes": ["The validator lives in shared tooling for cross-workspace reuse."]
+    },
+    {
+      "area": "shared.policy_leakage_review",
+      "notes": ["The validator checks process conformance only and does not own domain policy logic."]
+    }
+  ],
+  "rollout_notes": [
+    "Ship the contracts and validator before requiring the workflow in CI."
+  ]
+}

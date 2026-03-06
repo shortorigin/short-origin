@@ -1,0 +1,27 @@
+[package]
+name = "site"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[[bin]]
+name = "site_app"
+path = "src/main.rs"
+test = false
+
+[features]
+default = ["csr"]
+csr = ["desktop_runtime/csr", "leptos/csr", "leptos_meta/csr", "leptos_router/csr"]
+desktop-tauri = ["desktop_runtime/desktop-tauri", "platform_host_web/desktop-host-tauri"]
+
+[dependencies]
+desktop_app_contract = { path = "../desktop_app_contract" }
+desktop_runtime = { path = "../desktop_runtime", default-features = false }
+leptos = { version = "0.6", default-features = false }
+leptos_meta = { version = "0.6", default-features = false }
+leptos_router = { version = "0.6", default-features = false }
+platform_host_web = { path = "../platform_host_web", default-features = false }
+web-sys = { version = "0.3", features = ["Window", "Location"] }
+console_error_panic_hook = "0.1"

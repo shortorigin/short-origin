@@ -1,0 +1,18 @@
+[package]
+name = "trading-core"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+version.workspace = true
+
+[dependencies]
+chrono.workspace = true
+contracts = { path = "../../schemas/crates/contracts" }
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+trading-errors = { path = "../trading-errors" }
+uuid.workspace = true
+
+[lints]
+workspace = true

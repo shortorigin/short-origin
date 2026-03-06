@@ -1,0 +1,39 @@
+{
+  "work_item_id": "short-origin-process-contracts",
+  "parent_work_item_id": "short-origin-recursive-chatgpt-method",
+  "iteration": 1,
+  "affected_paths": [
+    "schemas/contracts/v1/",
+    "schemas/crates/contracts/",
+    "schemas/crates/codegen/"
+  ],
+  "affected_modules": ["schemas"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": [
+    "All process artifact contracts exist in schemas/contracts/v1.",
+    "Rust process artifact mirrors round-trip through serde and appear in the embedded schema registry."
+  ],
+  "open_questions": [
+    {
+      "question": "Contract field sets stay additive and aligned with the validator.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T17:20:00Z",
+  "objective": "Design the process contracts and helper types.",
+  "design_summary": [
+    "Keep JSON contracts flat and explicit.",
+    "Reuse helper structs for traceability and profile evidence inside the Rust mirrors."
+  ],
+  "public_interface_changes": [
+    "Add eight process contracts to schemas/contracts/v1.",
+    "Expose process artifact structs in the contracts crate."
+  ],
+  "boundary_impacts": [
+    "Codegen embeds the additional contracts.",
+    "Contract tests must cover serde round trips."
+  ],
+  "decomposition_decision": "leaf",
+  "child_work_item_ids": []
+}

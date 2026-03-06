@@ -1,0 +1,66 @@
+{
+  "work_item_id": "short-origin-wasmcloud-ui-shell",
+  "parent_work_item_id": null,
+  "iteration": 1,
+  "affected_paths": [
+    "AGENTS.md",
+    ".cargo/",
+    ".github/workflows/",
+    "Cargo.toml",
+    "docs/adr/",
+    "infrastructure/",
+    "platform/",
+    "schemas/",
+    "services/",
+    "shared/",
+    "ui/",
+    "workflows/",
+    "xtask/"
+  ],
+  "affected_modules": [
+    "platform",
+    "schemas",
+    "services",
+    "workflows",
+    "shared",
+    "ui",
+    "infrastructure"
+  ],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": [
+    "Backend deployment posture is expressed as wasmCloud on Wasmtime with deployable component metadata instead of native service binaries.",
+    "The OS shell subset is rehomed under ui/ and exposes only the governed release apps for this product profile.",
+    "SurrealDB access is centralized behind shared repository abstractions and UI data access stays on typed SDK/contracts.",
+    "Workspace tooling, CI, and process validation encode the new ui and wasmCloud-first rules."
+  ],
+  "open_questions": [
+    {
+      "question": "Nomad host/service topology can be refined further once real lattice rollout automation is introduced.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T18:05:00Z",
+  "objective": "Translate the target architecture into repository-level requirements.",
+  "functional_requirements": [
+    "Add ui/ as the authoritative Leptos/Tauri module and rehome the shell-first OS subset into it.",
+    "Expose wasmCloud component metadata, lattice rollout configuration, and WIT definitions for deployable workloads.",
+    "Provide a typed platform SDK for UI commands, queries, and event streams plus a shared SurrealDB repository layer."
+  ],
+  "non_functional_requirements": [
+    "Preserve deterministic Wasmtime execution assumptions.",
+    "Keep contract boundaries versioned and additive-first.",
+    "Support browser/Tauri dual-target UI development without direct database coupling."
+  ],
+  "out_of_scope": [
+    "Full production lattice rollout automation beyond manifest-level integration.",
+    "Rehoming every sample OS app into the product release profile."
+  ],
+  "success_metrics": [
+    "Targeted Rust checks pass for platform, ui, workflow, and service integration crates.",
+    "Only Control Center, Terminal, and Settings remain in the shipped release registry."
+  ],
+  "assumptions": [
+    "../os is copied into ui/ rather than linked as a submodule or runtime dependency."
+  ]
+}

@@ -1,0 +1,11 @@
+version = "v1"
+
+[[exception_classes]]
+name = "time_bounded_policy_exception"
+requires_compensating_controls = true
+maximum_days = 30
+
+[[exception_classes]]
+name = "break_glass_continuity_exception"
+requires_compensating_controls = true
+maximum_days = 7

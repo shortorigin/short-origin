@@ -1,0 +1,4 @@
+version = "v1"
+domain = "legal"
+policy_owner = "General Counsel"
+primary_service = "legal-service"

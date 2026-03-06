@@ -1,0 +1,1 @@
+{ "version": "v1", "entities": ["environment_change", "access_grant"], "relationships": ["applies", "authorizes"] }

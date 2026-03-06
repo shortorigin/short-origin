@@ -1,0 +1,1 @@
+{ "version": "v1", "entities": ["access_decision", "security_incident"], "relationships": ["protects", "detects"] }

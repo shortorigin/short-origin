@@ -1,0 +1,4 @@
+role = "architect_operator"
+objective = "Propose architecture changes through governed workflows."
+classification_ceiling = "restricted"
+owner_role = "CTO"

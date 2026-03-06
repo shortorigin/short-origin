@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#1a2230"/>
+      <stop offset="1" stop-color="#425774"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <g opacity="0.2" fill="#ffd08a">
+    <circle cx="240" cy="280" r="58"/><circle cx="610" cy="210" r="74"/><circle cx="980" cy="320" r="66"/><circle cx="1280" cy="250" r="82"/>
+  </g>
+  <g stroke="rgba(255,255,255,0.6)" stroke-width="5" stroke-linecap="round">
+    <path d="M120 -40L60 120"><animate attributeName="d" dur="0.9s" repeatCount="indefinite" values="M120 -40L60 120;M150 -10L90 150;M120 -40L60 120"/></path>
+    <path d="M320 -10L260 150"><animate attributeName="d" dur="0.8s" repeatCount="indefinite" values="M320 -10L260 150;M350 20L290 180;M320 -10L260 150"/></path>
+    <path d="M520 -60L460 100"><animate attributeName="d" dur="0.85s" repeatCount="indefinite" values="M520 -60L460 100;M550 -30L490 130;M520 -60L460 100"/></path>
+    <path d="M760 -30L700 130"><animate attributeName="d" dur="0.82s" repeatCount="indefinite" values="M760 -30L700 130;M790 0L730 160;M760 -30L700 130"/></path>
+    <path d="M980 -50L920 110"><animate attributeName="d" dur="0.88s" repeatCount="indefinite" values="M980 -50L920 110;M1010 -20L950 140;M980 -50L920 110"/></path>
+    <path d="M1180 -20L1120 140"><animate attributeName="d" dur="0.78s" repeatCount="indefinite" values="M1180 -20L1120 140;M1210 10L1150 170;M1180 -20L1120 140"/></path>
+    <path d="M1400 -40L1340 120"><animate attributeName="d" dur="0.83s" repeatCount="indefinite" values="M1400 -40L1340 120;M1430 -10L1370 150;M1400 -40L1340 120"/></path>
+  </g>
+</svg>

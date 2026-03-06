@@ -1,0 +1,17 @@
+{
+  "work_item_id": "contracts-slice",
+  "parent_work_item_id": "root-method",
+  "iteration": 1,
+  "affected_paths": ["schemas/"],
+  "affected_modules": ["schemas"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": ["Child schema slice validates end to end."],
+  "open_questions": [{"question": "No blocking questions remain.", "severity": "low"}],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T12:50:00Z",
+  "batch_id": "batch::contracts-slice",
+  "summary": ["Update schemas."],
+  "target_paths": ["schemas/"],
+  "change_kinds": ["contract_update"],
+  "prerequisite_checks": ["cargo test -p contracts"]
+}

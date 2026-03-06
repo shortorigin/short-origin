@@ -1,0 +1,189 @@
+name: CI
+
+on:
+  pull_request:
+  merge_group:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      rust: ${{ steps.detect.outputs.rust }}
+      nomad: ${{ steps.detect.outputs.nomad }}
+      pulumi: ${{ steps.detect.outputs.pulumi }}
+      nomad_files: ${{ steps.detect.outputs.nomad_files }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed areas
+        id: detect
+        run: ./.github/scripts/detect_changes.sh
+
+  workspace:
+    name: Workspace validation
+    needs: changes
+    if: needs.changes.outputs.rust == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install UI and desktop build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            libxdo-dev
+
+      - name: Install Trunk
+        run: cargo install trunk --locked
+
+      - name: cargo fmt
+        run: cargo fmt --all --check
+
+      - name: cargo clippy
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+      - name: cargo test
+        run: cargo test --workspace --all-targets
+
+      - name: Component build and parity checks
+        run: cargo components-build
+
+      - name: WIT and repository smoke tests
+        run: cargo test -p wasmcloud-bindings -p wasmcloud-smoke-tests -p surrealdb-access
+
+      - name: Browser preview build
+        run: cargo xtask ui build --features desktop-tauri --dist target/trunk-ci-dist
+
+      - name: Tauri check
+        run: cargo check -p desktop_tauri --all-features
+
+      - name: Infrastructure posture validation
+        run: |
+          if rg -n 'driver\s*=\s*"raw_exec"' infrastructure/nomad/jobs; then
+            echo "raw_exec deployments are not allowed for workload services"
+            exit 1
+          fi
+
+  nomad:
+    name: Nomad validation
+    needs: changes
+    if: needs.changes.outputs.nomad == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate changed Nomad jobs
+        env:
+          NOMAD_FILES: ${{ needs.changes.outputs.nomad_files }}
+        run: |
+          mapfile -t files <<< "${NOMAD_FILES}"
+          if [[ "${#files[@]}" -eq 0 ]]; then
+            echo "No Nomad jobs changed."
+            exit 0
+          fi
+          for file in "${files[@]}"; do
+            [[ -z "${file}" ]] && continue
+            docker run --rm -v "${PWD}:/workspace" -w /workspace hashicorp/nomad:1.8.4 \
+              nomad job validate "${file}"
+          done
+
+  pulumi-preview:
+    name: Pulumi preview
+    needs: changes
+    if: needs.changes.outputs.pulumi == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        stack:
+          - dev
+          - stage
+          - prod
+    permissions:
+      contents: read
+      id-token: write
+    concurrency: pulumi-preview-${{ matrix.stack }}
+    defaults:
+      run:
+        working-directory: infrastructure/pulumi
+    env:
+      AWS_REGION: us-west-2
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      PULUMI_BACKEND_URL: s3://${{ secrets.PULUMI_STATE_BUCKET }}?region=us-west-2&awssdk=v2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: infrastructure/pulumi/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Pulumi workspace tests
+        run: npm test
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: us-west-2
+
+      - name: Install Pulumi CLI
+        uses: pulumi/setup-pulumi@v3
+
+      - name: Pulumi login
+        run: pulumi login "$PULUMI_BACKEND_URL"
+
+      - name: Preview stack
+        run: npm --workspace live run preview:${{ matrix.stack }}
+
+  pr-gate:
+    needs:
+      - workspace
+      - nomad
+      - pulumi-preview
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assert required jobs succeeded
+        env:
+          WORKSPACE_RESULT: ${{ needs.workspace.result }}
+          NOMAD_RESULT: ${{ needs.nomad.result }}
+          PULUMI_RESULT: ${{ needs.pulumi-preview.result }}
+        run: |
+          for result in "${WORKSPACE_RESULT}" "${NOMAD_RESULT}" "${PULUMI_RESULT}"; do
+            if [[ "${result}" != "success" && "${result}" != "skipped" ]]; then
+              echo "CI prerequisite failed with result ${result}"
+              exit 1
+            fi
+          done

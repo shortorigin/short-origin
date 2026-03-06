@@ -1,0 +1,8 @@
+version = "v1"
+checkpoints = [
+  "workflow_pre_dispatch",
+  "approval_verification",
+  "evidence_capture",
+  "release_approval",
+  "continuity_activation"
+]

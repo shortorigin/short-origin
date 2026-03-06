@@ -1,0 +1,148 @@
+name: Release Candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release-candidate tag in the form vX.Y.Z-rc.N
+        required: true
+        type: string
+      target_sha:
+        description: Full main-branch commit SHA to promote
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  id-token: write
+  packages: write
+
+jobs:
+  release-candidate:
+    runs-on: ubuntu-latest
+    environment: stage
+    concurrency: release-candidate
+    env:
+      AWS_REGION: us-west-2
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      GH_TOKEN: ${{ github.token }}
+      PULUMI_BACKEND_URL: s3://${{ secrets.PULUMI_STATE_BUCKET }}?region=us-west-2&awssdk=v2
+      RELEASE_TAG: ${{ inputs.version }}
+      TARGET_SHA: ${{ inputs.target_sha }}
+    steps:
+      - name: Validate inputs
+        run: |
+          if [[ ! "${RELEASE_TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+$ ]]; then
+            echo "version must match vX.Y.Z-rc.N"
+            exit 1
+          fi
+          if [[ ! "${TARGET_SHA}" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "target_sha must be a full 40-character commit SHA"
+            exit 1
+          fi
+
+      - name: Checkout target SHA
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.target_sha }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: infrastructure/pulumi/package-lock.json
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Setup ORAS
+        uses: oras-project/setup-oras@v1
+
+      - name: Login to GHCR
+        run: echo "${{ github.token }}" | oras login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Rebuild and verify target SHA
+        run: |
+          cargo fmt --all --check
+          cargo clippy --workspace --all-targets --all-features -- -D warnings
+          cargo test --workspace --all-targets
+          cargo components-build
+          cargo test -p wasmcloud-bindings -p wasmcloud-smoke-tests -p surrealdb-access
+
+      - name: Render component descriptors
+        run: cargo xtask delivery render-components --environment stage --tag "${RELEASE_TAG}" --output-dir target/delivery/components
+
+      - name: Publish release-candidate descriptors
+        id: publish
+        run: |
+          finance_digest="$(
+            ./.github/scripts/publish_component_descriptor.sh \
+              target/delivery/components/finance-service.json \
+              ghcr.io/shortorigin/finance-service \
+              "sha-${TARGET_SHA},${RELEASE_TAG}"
+          )"
+          treasury_digest="$(
+            ./.github/scripts/publish_component_descriptor.sh \
+              target/delivery/components/treasury-disbursement.json \
+              ghcr.io/shortorigin/treasury-disbursement \
+              "sha-${TARGET_SHA},${RELEASE_TAG}"
+          )"
+          echo "finance_ref=ghcr.io/shortorigin/finance-service:${RELEASE_TAG}" >> "${GITHUB_OUTPUT}"
+          echo "finance_digest=${finance_digest}" >> "${GITHUB_OUTPUT}"
+          echo "treasury_ref=ghcr.io/shortorigin/treasury-disbursement:${RELEASE_TAG}" >> "${GITHUB_OUTPUT}"
+          echo "treasury_digest=${treasury_digest}" >> "${GITHUB_OUTPUT}"
+
+      - name: Render stage manifest
+        run: |
+          cargo xtask delivery render-manifest \
+            --environment stage \
+            --finance-ref "${{ steps.publish.outputs.finance_ref }}" \
+            --finance-digest "${{ steps.publish.outputs.finance_digest }}" \
+            --treasury-ref "${{ steps.publish.outputs.treasury_ref }}" \
+            --treasury-digest "${{ steps.publish.outputs.treasury_digest }}" \
+            --output target/delivery/manifests/stage/lattice-config.json
+
+      - name: Install Pulumi dependencies
+        working-directory: infrastructure/pulumi
+        run: npm ci
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: us-west-2
+
+      - name: Install Pulumi CLI
+        uses: pulumi/setup-pulumi@v3
+
+      - name: Pulumi login
+        working-directory: infrastructure/pulumi
+        run: pulumi login "$PULUMI_BACKEND_URL"
+
+      - name: Deploy stage stack
+        working-directory: infrastructure/pulumi
+        run: npm --workspace live run up:stage
+
+      - name: Run post-deploy smoke tests
+        run: cargo test -p wasmcloud-smoke-tests
+
+      - name: Prepare release assets
+        run: |
+          cp target/delivery/manifests/stage/lattice-config.json target/delivery/stage-lattice-config.json
+          cp target/delivery/components/finance-service.json target/delivery/finance-service.component.json
+          cp target/delivery/components/treasury-disbursement.json target/delivery/treasury-disbursement.component.json
+
+      - name: Create prerelease
+        run: |
+          gh release create "${RELEASE_TAG}" \
+            --target "${TARGET_SHA}" \
+            --title "${RELEASE_TAG}" \
+            --prerelease \
+            --generate-notes \
+            target/delivery/stage-lattice-config.json \
+            target/delivery/finance-service.component.json \
+            target/delivery/treasury-disbursement.component.json

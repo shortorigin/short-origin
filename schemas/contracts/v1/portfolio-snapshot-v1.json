@@ -1,0 +1,5 @@
+{
+  "name": "PortfolioSnapshotV1",
+  "version": "v1",
+  "fields": ["as_of", "cash", "realized_pnl", "unrealized_pnl", "positions", "entries"]
+}

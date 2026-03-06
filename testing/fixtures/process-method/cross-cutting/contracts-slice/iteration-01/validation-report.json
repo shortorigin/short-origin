@@ -1,0 +1,22 @@
+{
+  "work_item_id": "contracts-slice",
+  "parent_work_item_id": "root-method",
+  "iteration": 1,
+  "affected_paths": ["schemas/"],
+  "affected_modules": ["schemas"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": ["Child schema slice validates end to end."],
+  "open_questions": [{"question": "No blocking questions remain.", "severity": "low"}],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T12:55:00Z",
+  "objective": "Validate the schema child.",
+  "checks_run": ["cargo test -p contracts"],
+  "passed_checks": ["schema validation passed"],
+  "failed_checks": [],
+  "findings": [],
+  "changed_paths_validated": ["schemas/contracts/v1/command-v1.json"],
+  "profile_evidence": [
+    {"area": "schemas.compatibility_notes", "notes": ["Verified additive schema changes."]},
+    {"area": "schemas.fixture_updates", "notes": ["Verified fixture updates."]}
+  ]
+}

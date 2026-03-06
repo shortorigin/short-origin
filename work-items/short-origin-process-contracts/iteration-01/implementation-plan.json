@@ -1,0 +1,52 @@
+{
+  "work_item_id": "short-origin-process-contracts",
+  "parent_work_item_id": "short-origin-recursive-chatgpt-method",
+  "iteration": 1,
+  "affected_paths": [
+    "schemas/contracts/v1/",
+    "schemas/crates/contracts/",
+    "schemas/crates/codegen/"
+  ],
+  "affected_modules": ["schemas"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": [
+    "All process artifact contracts exist in schemas/contracts/v1.",
+    "Rust process artifact mirrors round-trip through serde and appear in the embedded schema registry."
+  ],
+  "open_questions": [
+    {
+      "question": "Contract field sets stay additive and aligned with the validator.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T17:25:00Z",
+  "objective": "Plan the schema and test edits.",
+  "change_slices": [
+    "Create the eight JSON contract definitions.",
+    "Add helper enums and structs to the contracts crate.",
+    "Update codegen embedding and schema registry tests."
+  ],
+  "target_paths": [
+    "schemas/contracts/v1/",
+    "schemas/crates/contracts/",
+    "schemas/crates/codegen/"
+  ],
+  "test_scenarios": [
+    "Round-trip every process artifact via serde_json.",
+    "Confirm the embedded schema registry count and process contract presence."
+  ],
+  "profile_evidence": [
+    {
+      "area": "schemas.compatibility_notes",
+      "notes": ["All new contracts are additive v1 additions."]
+    },
+    {
+      "area": "schemas.fixture_updates",
+      "notes": ["Schema registry tests are updated to include the new contracts."]
+    }
+  ],
+  "rollout_notes": [
+    "Land the schema layer before requiring the validator in CI."
+  ]
+}

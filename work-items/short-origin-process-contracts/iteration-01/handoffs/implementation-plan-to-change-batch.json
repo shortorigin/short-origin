@@ -1,0 +1,8 @@
+{
+  "handoff_id": "handoff::short-origin-process-contracts::plan-to-change-batch",
+  "objective": "Generate the bounded contract batch.",
+  "inputs_used": ["implementation-plan.json", "architecture-design.json"],
+  "decisions_made": ["Acceptance criteria and target paths are fixed."],
+  "pending_actions": ["Apply the schema, Rust, and test changes."],
+  "verification_status": "passed"
+}

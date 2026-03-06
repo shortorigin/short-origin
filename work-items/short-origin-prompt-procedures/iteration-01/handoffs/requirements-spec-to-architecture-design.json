@@ -1,0 +1,8 @@
+{
+  "handoff_id": "handoff::short-origin-prompt-procedures::requirements-to-architecture",
+  "objective": "Map the documentation requirements into concrete doc locations.",
+  "inputs_used": ["requirements-spec.json", "research-synthesis.json"],
+  "decisions_made": ["The playbook lives in docs/process and procedures live in agents/procedures."],
+  "pending_actions": ["Define the file set and stage-to-procedure mapping."],
+  "verification_status": "passed"
+}

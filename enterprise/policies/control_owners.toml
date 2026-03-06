@@ -1,0 +1,13 @@
+version = "v1"
+
+[[owners]]
+scope = "policy_decision"
+owner_role = "Chief Compliance Officer"
+
+[[owners]]
+scope = "evidence_capture"
+owner_role = "Head of Internal Audit"
+
+[[owners]]
+scope = "runtime_identity"
+owner_role = "Head of Infrastructure"

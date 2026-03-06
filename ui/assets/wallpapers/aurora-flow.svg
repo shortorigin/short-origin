@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#07111f"/>
+      <stop offset="0.48" stop-color="#0f2440"/>
+      <stop offset="1" stop-color="#133249"/>
+    </linearGradient>
+    <linearGradient id="mist" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="rgba(255,255,255,0.16)"/>
+      <stop offset="1" stop-color="rgba(255,255,255,0)"/>
+    </linearGradient>
+    <filter id="blur-heavy"><feGaussianBlur stdDeviation="34"/></filter>
+    <filter id="blur-soft"><feGaussianBlur stdDeviation="18"/></filter>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect width="1600" height="900" fill="url(#mist)" opacity="0.28"/>
+
+  <g filter="url(#blur-heavy)" opacity="0.86">
+    <path d="M-220 170C40 -10 290 20 560 170s450 210 760 120 430-90 560 10v430c-230-110-390-120-690-32s-500 100-800-42S40 570-220 690Z" fill="#44f4ca">
+      <animate attributeName="d" dur="13s" repeatCount="indefinite"
+        values="M-220 170C40 -10 290 20 560 170s450 210 760 120 430-90 560 10v430c-230-110-390-120-690-32s-500 100-800-42S40 570-220 690Z;
+                M-220 220C90 30 320 10 610 140s470 190 730 90 450-40 610 70v430c-250-120-430-110-710-18s-490 86-760-38S70 610-220 730Z;
+                M-220 170C40 -10 290 20 560 170s450 210 760 120 430-90 560 10v430c-230-110-390-120-690-32s-500 100-800-42S40 570-220 690Z"/>
+    </path>
+    <path d="M-260 360C60 170 320 220 590 360s400 210 690 140 430-150 620-80v360c-220-80-420-70-700 20s-500 110-770 14S20 660-260 790Z" fill="#86ffd9" opacity="0.62">
+      <animate attributeName="d" dur="15s" repeatCount="indefinite"
+        values="M-260 360C60 170 320 220 590 360s400 210 690 140 430-150 620-80v360c-220-80-420-70-700 20s-500 110-770 14S20 660-260 790Z;
+                M-260 410C80 210 330 180 630 330s420 190 680 120 470-110 650-10v360c-260-100-450-60-720 24s-470 102-730 0S40 700-260 820Z;
+                M-260 360C60 170 320 220 590 360s400 210 690 140 430-150 620-80v360c-220-80-420-70-700 20s-500 110-770 14S20 660-260 790Z"/>
+    </path>
+  </g>
+
+  <g filter="url(#blur-soft)" opacity="0.72">
+    <path d="M-180 520C80 350 300 370 510 500s390 180 660 120 460-90 650 0v280c-220-70-410-50-690 30s-470 86-710 4S50 760-180 860Z" fill="#a473ff">
+      <animate attributeName="d" dur="17s" repeatCount="indefinite"
+        values="M-180 520C80 350 300 370 510 500s390 180 660 120 460-90 650 0v280c-220-70-410-50-690 30s-470 86-710 4S50 760-180 860Z;
+                M-180 560C120 390 320 340 560 470s410 160 650 100 470-40 700 40v280c-260-90-430-34-700 26s-460 88-690-6S40 790-180 880Z;
+                M-180 520C80 350 300 370 510 500s390 180 660 120 460-90 650 0v280c-220-70-410-50-690 30s-470 86-710 4S50 760-180 860Z"/>
+    </path>
+  </g>
+
+  <rect width="1600" height="900" fill="rgba(4,10,20,0.12)"/>
+</svg>

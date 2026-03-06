@@ -1,0 +1,16 @@
+version = "v1"
+
+[[escalations]]
+from = "domain_owner"
+to = "control_owner"
+trigger = "workflow_timeout"
+
+[[escalations]]
+from = "control_owner"
+to = "executive_owner"
+trigger = "policy_denial"
+
+[[escalations]]
+from = "executive_owner"
+to = "institutional_council"
+trigger = "unresolved_tier3_decision"

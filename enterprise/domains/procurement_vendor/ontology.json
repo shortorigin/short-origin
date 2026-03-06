@@ -1,0 +1,1 @@
+{ "version": "v1", "entities": ["vendor_record", "spend_approval"], "relationships": ["vendors", "approves"] }

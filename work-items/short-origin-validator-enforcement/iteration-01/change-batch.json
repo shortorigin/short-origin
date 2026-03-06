@@ -1,0 +1,48 @@
+{
+  "work_item_id": "short-origin-validator-enforcement",
+  "parent_work_item_id": "short-origin-recursive-chatgpt-method",
+  "iteration": 1,
+  "affected_paths": [
+    "Cargo.toml",
+    "shared/process-method/",
+    "testing/fixtures/process-method/",
+    ".github/",
+    "work-items/"
+  ],
+  "affected_modules": ["shared", "testing", ".github"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": [
+    "A Rust validator enforces stage presence, handoffs, profile evidence, parent/child links, and changed-path coverage.",
+    "CI runs the validator separately from the Rust workspace quality gate."
+  ],
+  "open_questions": [
+    {
+      "question": "Changed-path coverage ignores work-items/ because those artifacts are process metadata rather than target implementation paths.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T17:30:00Z",
+  "batch_id": "batch::short-origin-validator-enforcement::01",
+  "summary": [
+    "Implement the process-method crate and CLI.",
+    "Add fixtures and validator tests.",
+    "Add the dedicated process GitHub Actions workflow and PR template."
+  ],
+  "target_paths": [
+    "Cargo.toml",
+    "shared/process-method/",
+    "testing/fixtures/process-method/",
+    ".github/",
+    "work-items/"
+  ],
+  "change_kinds": [
+    "tooling_addition",
+    "fixture_addition",
+    "ci_update"
+  ],
+  "prerequisite_checks": [
+    "cargo test -p process-method",
+    "cargo run -p process-method -- validate --repo-root . --work-items-root work-items"
+  ]
+}

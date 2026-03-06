@@ -1,0 +1,19 @@
+.desktop-shell[data-skin="classic-95"] {
+  --sys-color-desktop: #008080;
+  --sys-color-surface: #d4d0c8;
+  --sys-color-surface-muted: #c6c1b6;
+  --sys-color-surface-inset: #ffffff;
+  --sys-color-border: #808080;
+  --sys-color-border-strong: #3a3a3a;
+  --sys-color-text-primary: #111111;
+  --sys-color-text-secondary: #414141;
+  --sys-color-accent: #000080;
+  --sys-color-accent-strong: #00005c;
+  --sys-color-accent-muted: rgba(0, 0, 128, 0.14);
+  --sys-font-sans: Tahoma, "Segoe UI", sans-serif;
+  --sys-radius-1: 2px;
+  --sys-radius-2: 2px;
+  --sys-radius-3: 2px;
+  --sys-shadow-raised: none;
+  --sys-shadow-overlay: 0 8px 24px rgba(0, 0, 0, 0.22);
+}

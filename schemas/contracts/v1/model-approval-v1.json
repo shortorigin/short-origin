@@ -1,0 +1,5 @@
+{
+  "name": "ModelApprovalV1",
+  "version": "v1",
+  "fields": ["model_id", "version", "approved_by", "status", "notes"]
+}

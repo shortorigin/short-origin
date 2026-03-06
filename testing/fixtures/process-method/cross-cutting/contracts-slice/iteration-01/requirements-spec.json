@@ -1,0 +1,18 @@
+{
+  "work_item_id": "contracts-slice",
+  "parent_work_item_id": "root-method",
+  "iteration": 1,
+  "affected_paths": ["schemas/"],
+  "affected_modules": ["schemas"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": ["Child schema slice validates end to end."],
+  "open_questions": [{"question": "No blocking questions remain.", "severity": "low"}],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T12:35:00Z",
+  "objective": "Specify the schema child.",
+  "functional_requirements": ["Emit the required process schema updates."],
+  "non_functional_requirements": ["Stay additive."],
+  "out_of_scope": ["Cross-module design."],
+  "success_metrics": ["Validator accepts the child slice."],
+  "assumptions": ["The parent already handled cross-cutting decomposition."]
+}

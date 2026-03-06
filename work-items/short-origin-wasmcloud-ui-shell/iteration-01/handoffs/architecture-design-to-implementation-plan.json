@@ -1,0 +1,8 @@
+{
+  "handoff_id": "handoff::short-origin-wasmcloud-ui-shell::architecture-to-plan",
+  "objective": "Sequence the runtime, ui, schema, and infrastructure changes.",
+  "inputs_used": ["architecture-design.json", "Cargo.toml", "infrastructure/nomad/jobs/"],
+  "decisions_made": ["The integration can land as one leaf work item with explicit profile evidence across platform, ui, shared, and infrastructure."],
+  "pending_actions": ["Define change slices, validation commands, and rollout notes."],
+  "verification_status": "passed"
+}

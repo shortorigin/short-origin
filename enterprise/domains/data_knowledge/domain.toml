@@ -1,0 +1,4 @@
+version = "v1"
+domain = "data_knowledge"
+policy_owner = "Chief Data Officer"
+primary_service = "knowledge-service"

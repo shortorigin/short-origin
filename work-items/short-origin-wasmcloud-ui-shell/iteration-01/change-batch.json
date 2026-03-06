@@ -1,0 +1,78 @@
+{
+  "work_item_id": "short-origin-wasmcloud-ui-shell",
+  "parent_work_item_id": null,
+  "iteration": 1,
+  "affected_paths": [
+    "AGENTS.md",
+    ".cargo/",
+    ".github/workflows/",
+    "Cargo.toml",
+    "docs/adr/",
+    "infrastructure/",
+    "platform/",
+    "schemas/",
+    "services/",
+    "shared/",
+    "ui/",
+    "workflows/",
+    "xtask/"
+  ],
+  "affected_modules": [
+    "platform",
+    "schemas",
+    "services",
+    "workflows",
+    "shared",
+    "ui",
+    "infrastructure"
+  ],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": [
+    "Backend deployment posture is expressed as wasmCloud on Wasmtime with deployable component metadata instead of native service binaries.",
+    "The OS shell subset is rehomed under ui/ and exposes only the governed release apps for this product profile.",
+    "SurrealDB access is centralized behind shared repository abstractions and UI data access stays on typed SDK/contracts.",
+    "Workspace tooling, CI, and process validation encode the new ui and wasmCloud-first rules."
+  ],
+  "open_questions": [
+    {
+      "question": "Nomad host/service topology can be refined further once real lattice rollout automation is introduced.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T18:20:00Z",
+  "batch_id": "batch::short-origin-wasmcloud-ui-shell::01",
+  "summary": [
+    "Add ui workspace crates, platform SDK/runtime updates, and wasmCloud component metadata.",
+    "Introduce the shared SurrealDB repository layer and process-method ui evidence enforcement.",
+    "Wire xtask, CI, and Nomad manifests to the new wasmCloud-first deployment posture."
+  ],
+  "target_paths": [
+    "AGENTS.md",
+    ".cargo/",
+    ".github/workflows/",
+    "Cargo.toml",
+    "docs/adr/",
+    "infrastructure/",
+    "platform/",
+    "schemas/",
+    "services/",
+    "shared/",
+    "ui/",
+    "workflows/",
+    "xtask/"
+  ],
+  "change_kinds": [
+    "workspace_rehome",
+    "runtime_adapter_update",
+    "sdk_expansion",
+    "schema_addition",
+    "ci_update",
+    "infrastructure_manifest_update"
+  ],
+  "prerequisite_checks": [
+    "cargo check -p sdk-rs -p surrealdb-access -p strategy-sandbox -p desktop_runtime -p desktop_app_contract -p desktop_app_control_center -p wasmcloud-bindings -p wasmcloud-smoke-tests -p treasury-disbursement -p finance-service -p quant-strategy-promotion",
+    "cargo check -p site -p desktop_tauri --all-features",
+    "cargo test -p process-method"
+  ]
+}

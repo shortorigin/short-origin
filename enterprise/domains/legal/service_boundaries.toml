@@ -1,0 +1,4 @@
+version = "v1"
+primary_service = "legal-service"
+approved_workflows = ["contract_lifecycle"]
+owned_aggregates = ["legal_agreement", "legal_hold"]

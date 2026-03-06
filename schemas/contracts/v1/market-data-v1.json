@@ -1,0 +1,5 @@
+{
+  "name": "MarketDataV1",
+  "version": "v1",
+  "fields": ["dataset_id", "dataset_name", "venue", "event_count", "start_time", "end_time", "events"]
+}

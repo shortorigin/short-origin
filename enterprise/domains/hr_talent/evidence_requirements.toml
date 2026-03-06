@@ -1,0 +1,2 @@
+version = "v1"
+required_evidence = ["hiring_approval", "compensation_approval", "personnel_acknowledgment"]

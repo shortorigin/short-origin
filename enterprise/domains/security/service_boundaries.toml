@@ -1,0 +1,4 @@
+version = "v1"
+primary_service = "security-service"
+approved_workflows = ["access_review", "incident_response"]
+owned_aggregates = ["access_decision", "security_incident"]

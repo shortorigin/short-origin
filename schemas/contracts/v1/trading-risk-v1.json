@@ -1,0 +1,5 @@
+{
+  "name": "TradingRiskV1",
+  "version": "v1",
+  "fields": ["approved", "reason", "gross_exposure", "net_exposure", "open_orders", "kill_switch_armed", "max_order_notional", "max_gross_exposure", "max_open_orders"]
+}

@@ -1,0 +1,4 @@
+version = "v1"
+domain = "infrastructure_it"
+policy_owner = "Head of Infrastructure"
+primary_service = "infrastructure-service"

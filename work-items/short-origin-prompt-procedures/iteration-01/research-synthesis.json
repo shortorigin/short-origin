@@ -1,0 +1,39 @@
+{
+  "work_item_id": "short-origin-prompt-procedures",
+  "parent_work_item_id": "short-origin-recursive-chatgpt-method",
+  "iteration": 1,
+  "affected_paths": [
+    "docs/process/",
+    "agents/procedures/",
+    "agents/README.md"
+  ],
+  "affected_modules": ["agents", "docs"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": [
+    "The recursive playbook defines the common loop, stage outputs, recursion rules, and verification gates.",
+    "Each role procedure maps to a specific stage artifact and handoff."
+  ],
+  "open_questions": [
+    {
+      "question": "Prompt procedures remain documentation in this first pass rather than runtime agent manifests.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T17:10:00Z",
+  "objective": "Review current agent guidance and missing process docs.",
+  "research_inputs": [
+    "agents/README.md",
+    "AGENTS.md",
+    "docs/adr/0001-sovereign-institutional-architecture.md"
+  ],
+  "source_refs": ["schemas/contracts/v1/agent-handoff-v1.json"],
+  "findings": [
+    "Agents already describe deterministic outputs and handoffs, but the stage-by-stage prompt method is not documented.",
+    "A single playbook plus role procedures can align ChatGPT usage with the validator contracts."
+  ],
+  "constraints": [
+    "Prompt procedures must stay consistent with the committed stage artifact names."
+  ],
+  "decomposition_signals": []
+}

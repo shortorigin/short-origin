@@ -1,0 +1,8 @@
+{
+  "handoff_id": "handoff::short-origin-wasmcloud-ui-shell::plan-to-change-batch",
+  "objective": "Translate the plan into executable code and manifest changes.",
+  "inputs_used": ["implementation-plan.json", "ui/", "platform/", "shared/", "infrastructure/nomad/"],
+  "decisions_made": ["Rehome the shell, add typed SDK/data/runtime layers, and wire CI/tooling in the same batch."],
+  "pending_actions": ["Apply the code changes and run the targeted verification commands."],
+  "verification_status": "passed"
+}

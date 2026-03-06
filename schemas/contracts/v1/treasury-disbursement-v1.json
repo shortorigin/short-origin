@@ -1,0 +1,5 @@
+{
+  "name": "TreasuryDisbursementV1",
+  "version": "v1",
+  "fields": ["ledger_ref", "amount_minor", "currency", "beneficiary", "justification", "approved_by_roles"]
+}

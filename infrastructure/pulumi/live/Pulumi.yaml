@@ -1,0 +1,4 @@
+name: short-origin
+runtime: nodejs
+description: Live infrastructure stacks for short origin on AWS + Cloudflare.
+main: src/index.ts

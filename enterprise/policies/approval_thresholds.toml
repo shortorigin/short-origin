@@ -1,0 +1,21 @@
+version = "v1"
+
+[[thresholds]]
+tier = "tier0"
+minimum_human_approvals = 0
+description = "Read-only requests require evidence only."
+
+[[thresholds]]
+tier = "tier1"
+minimum_human_approvals = 1
+description = "Single-domain mutations require domain owner approval."
+
+[[thresholds]]
+tier = "tier2"
+minimum_human_approvals = 2
+description = "Cross-domain or sensitive-data mutations require domain owner and control owner approval."
+
+[[thresholds]]
+tier = "tier3"
+minimum_human_approvals = 2
+description = "Regulated or high-impact mutations require two recorded human approvals including the designated approval owner."

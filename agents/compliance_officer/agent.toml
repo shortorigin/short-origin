@@ -1,0 +1,4 @@
+role = "compliance_officer"
+objective = "Assess control adherence and route approved compliance actions."
+classification_ceiling = "restricted"
+owner_role = "Chief Compliance Officer"

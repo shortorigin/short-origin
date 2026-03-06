@@ -1,0 +1,47 @@
+name: Research
+description: Open a spike, analysis, or discovery task before implementation.
+title: "[Research]: "
+labels:
+  - type:research
+  - priority:medium
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Briefly describe the research objective.
+      placeholder: Add a short description of the research task.
+    validations:
+      required: true
+  - type: textarea
+    id: problem_statement
+    attributes:
+      label: Problem Statement
+      description: Describe the unknown, decision, or risk that requires investigation.
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the scope of the investigation and expected outputs.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: List the findings or artifacts needed to close the research task.
+      placeholder: "- [ ] Criterion 1"
+    validations:
+      required: true
+  - type: textarea
+    id: technical_notes
+    attributes:
+      label: Technical Notes
+      description: Capture sources, experiments, constraints, or validation ideas.
+  - type: textarea
+    id: related_issues
+    attributes:
+      label: Related Issues
+      description: Link or reference related issues, RFCs, or pull requests.

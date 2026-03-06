@@ -1,0 +1,4 @@
+version = "v1"
+primary_service = "portfolio-service"
+approved_workflows = ["quant_strategy_promotion"]
+owned_aggregates = ["portfolio_snapshot", "allocation_policy"]

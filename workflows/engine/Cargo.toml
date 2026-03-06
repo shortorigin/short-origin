@@ -1,0 +1,13 @@
+[package]
+name = "workflow-engine"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+version.workspace = true
+
+[dependencies]
+contracts = { path = "../../schemas/crates/contracts" }
+orchestrator = { path = "../../platform/runtime/orchestrator" }
+
+[lints]
+workspace = true

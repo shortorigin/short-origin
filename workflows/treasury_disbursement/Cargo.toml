@@ -1,0 +1,26 @@
+[package]
+name = "treasury-disbursement"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+version.workspace = true
+
+[dependencies]
+approval-service = { path = "../../services/approval-service" }
+contracts = { path = "../../schemas/crates/contracts" }
+evidence-sdk = { path = "../../shared/evidence-sdk" }
+finance-service = { path = "../../services/finance-service" }
+orchestrator = { path = "../../platform/runtime/orchestrator" }
+policy-sdk = { path = "../../shared/policy-sdk" }
+policy-service = { path = "../../services/policy-service" }
+enforcement = { path = "../../platform/runtime/enforcement" }
+error-model = { path = "../../shared/error-model" }
+wasmcloud-bindings = { path = "../../platform/wasmcloud/bindings" }
+
+[dev-dependencies]
+chrono.workspace = true
+evidence-service = { path = "../../services/evidence-service" }
+identity = { path = "../../shared/identity" }
+
+[lints]
+workspace = true

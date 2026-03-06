@@ -1,0 +1,2 @@
+version = "v1"
+required_evidence = ["runbook", "operational_decision", "incident_record"]

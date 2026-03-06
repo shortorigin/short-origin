@@ -1,0 +1,83 @@
+schema_version = 1
+
+[[wallpapers]]
+wallpaper_id = "teal-solid"
+display_name = "Solid Teal"
+note = "Classic single-color desktop fill"
+media_kind = "svg"
+primary_path = "teal-solid.svg"
+featured = false
+
+[[wallpapers]]
+wallpaper_id = "teal-grid"
+display_name = "Teal Grid"
+note = "Subtle tiled grid on teal"
+media_kind = "svg"
+primary_path = "teal-grid.svg"
+featured = false
+
+[[wallpapers]]
+wallpaper_id = "woven-steel"
+display_name = "Woven Steel"
+note = "Crosshatch weave pattern"
+media_kind = "svg"
+primary_path = "woven-steel.svg"
+featured = false
+
+[[wallpapers]]
+wallpaper_id = "cloud-bands"
+display_name = "Cloud Bands"
+note = "Soft sky bands and clouds"
+media_kind = "svg"
+primary_path = "cloud-bands.svg"
+featured = true
+
+[[wallpapers]]
+wallpaper_id = "green-hills"
+display_name = "Green Hills"
+note = "Rolling hills and blue sky"
+media_kind = "svg"
+primary_path = "green-hills.svg"
+featured = true
+
+[[wallpapers]]
+wallpaper_id = "sunset-lake"
+display_name = "Sunset Lake"
+note = "Warm dusk landscape scene"
+media_kind = "svg"
+primary_path = "sunset-lake.svg"
+featured = true
+
+[[wallpapers]]
+wallpaper_id = "paper-grid"
+display_name = "Paper Grid"
+note = "Warm drafting grid texture"
+media_kind = "svg"
+primary_path = "paper-grid.svg"
+featured = true
+
+[[wallpapers]]
+wallpaper_id = "city-lights"
+display_name = "City Lights"
+note = "Night skyline with glowing windows"
+media_kind = "svg"
+primary_path = "city-lights.svg"
+featured = false
+
+[[wallpapers]]
+wallpaper_id = "aurora-flow"
+display_name = "Aurora Flow"
+note = "Animated gradient ribbons drifting overhead"
+media_kind = "animated-image"
+primary_path = "aurora-flow.svg"
+poster_path = "aurora-flow-poster.svg"
+featured = true
+
+[[wallpapers]]
+wallpaper_id = "rain-window"
+display_name = "Rain Window"
+note = "Animated rain over diffused city lights"
+media_kind = "animated-image"
+primary_path = "rain-window.svg"
+poster_path = "rain-window-poster.svg"
+featured = true

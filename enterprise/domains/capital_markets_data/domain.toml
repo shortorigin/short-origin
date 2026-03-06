@@ -1,0 +1,4 @@
+version = "v1"
+domain = "capital_markets_data"
+policy_owner = "Chief Data Officer"
+primary_service = "market-data-service"

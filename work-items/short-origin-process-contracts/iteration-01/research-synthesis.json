@@ -1,0 +1,40 @@
+{
+  "work_item_id": "short-origin-process-contracts",
+  "parent_work_item_id": "short-origin-recursive-chatgpt-method",
+  "iteration": 1,
+  "affected_paths": [
+    "schemas/contracts/v1/",
+    "schemas/crates/contracts/",
+    "schemas/crates/codegen/"
+  ],
+  "affected_modules": ["schemas"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": [
+    "All process artifact contracts exist in schemas/contracts/v1.",
+    "Rust process artifact mirrors round-trip through serde and appear in the embedded schema registry."
+  ],
+  "open_questions": [
+    {
+      "question": "Contract field sets stay additive and aligned with the validator.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T17:10:00Z",
+  "objective": "Review existing contract and codegen patterns.",
+  "research_inputs": [
+    "schemas/contracts/v1/agent-handoff-v1.json",
+    "schemas/crates/contracts/src/lib.rs",
+    "schemas/crates/codegen/src/lib.rs"
+  ],
+  "source_refs": ["schemas/crates/codegen/tests/schema_registry.rs"],
+  "findings": [
+    "Contract schemas use a flat name/version/fields format.",
+    "The contracts crate mirrors schemas as Rust structs."
+  ],
+  "constraints": [
+    "New process contracts must remain additive.",
+    "Schema embedding tests must be updated with the new count."
+  ],
+  "decomposition_signals": []
+}

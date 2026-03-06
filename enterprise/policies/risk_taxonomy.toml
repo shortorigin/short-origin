@@ -1,0 +1,4 @@
+version = "v1"
+likelihood_scale = ["low", "medium", "high"]
+impact_scale = ["moderate", "major", "critical"]
+treatment_options = ["mitigate", "transfer", "accept", "avoid"]

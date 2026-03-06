@@ -1,0 +1,4 @@
+version = "v1"
+primary_service = "resilience-service"
+approved_workflows = ["continuity_activation", "disaster_recovery_test"]
+owned_aggregates = ["continuity_plan", "exercise_record"]

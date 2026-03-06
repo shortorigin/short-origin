@@ -1,0 +1,4 @@
+version = "v1"
+primary_service = "execution-service"
+approved_workflows = ["quant_strategy_promotion"]
+owned_aggregates = ["order_record", "execution_session", "fill_record"]

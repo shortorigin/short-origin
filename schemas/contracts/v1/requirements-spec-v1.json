@@ -1,0 +1,22 @@
+{
+  "name": "RequirementsSpecV1",
+  "version": "v1",
+  "fields": [
+    "work_item_id",
+    "parent_work_item_id",
+    "iteration",
+    "affected_paths",
+    "affected_modules",
+    "policy_refs",
+    "acceptance_criteria",
+    "open_questions",
+    "verification_status",
+    "completed_at",
+    "objective",
+    "functional_requirements",
+    "non_functional_requirements",
+    "out_of_scope",
+    "success_metrics",
+    "assumptions"
+  ]
+}

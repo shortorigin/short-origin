@@ -1,0 +1,5 @@
+{
+  "name": "ExperimentRankedV1",
+  "version": "v1",
+  "fields": ["rank", "result"]
+}

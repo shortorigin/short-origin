@@ -1,0 +1,4 @@
+version = "v1"
+domain = "capital_markets_research"
+policy_owner = "Institutional Council"
+primary_service = "quant-research-service"

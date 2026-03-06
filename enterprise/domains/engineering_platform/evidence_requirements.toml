@@ -1,0 +1,2 @@
+version = "v1"
+required_evidence = ["release_approval", "build_provenance", "test_evidence"]

@@ -1,0 +1,11 @@
+version = "v1"
+
+[[delegations]]
+role = "Institutional Council"
+delegated_to = "DomainOwner"
+scope = "tier1_single_domain_changes"
+
+[[delegations]]
+role = "Chief Compliance Officer"
+delegated_to = "Head of Internal Audit"
+scope = "control_testing_attestation"

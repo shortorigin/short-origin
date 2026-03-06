@@ -1,0 +1,2 @@
+version = "v1"
+required_evidence = ["portfolio_snapshot", "allocation_policy"]

@@ -1,0 +1,18 @@
+{
+  "work_item_id": "root-method",
+  "parent_work_item_id": null,
+  "iteration": 1,
+  "affected_paths": ["enterprise/", "schemas/", "services/", "workflows/", "platform/", "agents/"],
+  "affected_modules": ["enterprise", "schemas", "services", "workflows", "platform", "agents"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": ["Cross-cutting work item splits cleanly into child slices."],
+  "open_questions": [{"question": "Child slices carry implementation.", "severity": "low"}],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T12:05:00Z",
+  "objective": "Specify the parent fixture.",
+  "functional_requirements": ["Capture cross-cutting scope and child work item needs."],
+  "non_functional_requirements": ["Keep leaf implementation out of the parent."],
+  "out_of_scope": ["Direct code generation in the parent."],
+  "success_metrics": ["The parent validates without change-batch.json."],
+  "assumptions": ["Child work items execute code changes."]
+}

@@ -1,0 +1,8 @@
+{
+  "handoff_id": "handoff::short-origin-prompt-procedures::plan-to-change-batch",
+  "objective": "Write the playbook and prompt procedure batch.",
+  "inputs_used": ["implementation-plan.json", "architecture-design.json"],
+  "decisions_made": ["The target files and outputs are fixed."],
+  "pending_actions": ["Author the docs and update agent guidance."],
+  "verification_status": "passed"
+}

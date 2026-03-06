@@ -1,0 +1,4 @@
+version = "v1"
+domain = "resilience_continuity"
+policy_owner = "Head of Resilience"
+primary_service = "resilience-service"

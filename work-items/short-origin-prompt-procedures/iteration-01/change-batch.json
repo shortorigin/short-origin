@@ -1,0 +1,42 @@
+{
+  "work_item_id": "short-origin-prompt-procedures",
+  "parent_work_item_id": "short-origin-recursive-chatgpt-method",
+  "iteration": 1,
+  "affected_paths": [
+    "docs/process/",
+    "agents/procedures/",
+    "agents/README.md"
+  ],
+  "affected_modules": ["agents", "docs"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": [
+    "The recursive playbook defines the common loop, stage outputs, recursion rules, and verification gates.",
+    "Each role procedure maps to a specific stage artifact and handoff."
+  ],
+  "open_questions": [
+    {
+      "question": "Prompt procedures remain documentation in this first pass rather than runtime agent manifests.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T17:30:00Z",
+  "batch_id": "batch::short-origin-prompt-procedures::01",
+  "summary": [
+    "Add the core methodology playbook.",
+    "Add the role-specific prompt procedures.",
+    "Update agent guidance to reference the new docs."
+  ],
+  "target_paths": [
+    "docs/process/",
+    "agents/procedures/",
+    "agents/README.md"
+  ],
+  "change_kinds": [
+    "documentation_addition",
+    "guidance_update"
+  ],
+  "prerequisite_checks": [
+    "cargo run -p process-method -- validate --repo-root . --work-items-root work-items"
+  ]
+}

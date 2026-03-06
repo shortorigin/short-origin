@@ -1,0 +1,18 @@
+{
+  "work_item_id": "contracts-slice",
+  "parent_work_item_id": "root-method",
+  "iteration": 1,
+  "affected_paths": ["schemas/"],
+  "affected_modules": ["schemas"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": ["Child schema slice validates end to end."],
+  "open_questions": [{"question": "No blocking questions remain.", "severity": "low"}],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T12:40:00Z",
+  "objective": "Design the schema child.",
+  "design_summary": ["Leaf child remains within schemas."],
+  "public_interface_changes": ["Additive schema changes only."],
+  "boundary_impacts": ["Child affects shared contracts."],
+  "decomposition_decision": "leaf",
+  "child_work_item_ids": []
+}

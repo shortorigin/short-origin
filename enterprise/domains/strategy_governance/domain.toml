@@ -1,0 +1,4 @@
+version = "v1"
+domain = "strategy_governance"
+policy_owner = "Institutional Council"
+primary_service = "governance-service"

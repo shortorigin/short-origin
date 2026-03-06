@@ -1,0 +1,5 @@
+{
+  "name": "OrderSubmittedV1",
+  "version": "v1",
+  "fields": ["order"]
+}

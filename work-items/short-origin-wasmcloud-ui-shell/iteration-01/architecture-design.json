@@ -1,0 +1,62 @@
+{
+  "work_item_id": "short-origin-wasmcloud-ui-shell",
+  "parent_work_item_id": null,
+  "iteration": 1,
+  "affected_paths": [
+    "AGENTS.md",
+    ".cargo/",
+    ".github/workflows/",
+    "Cargo.toml",
+    "docs/adr/",
+    "infrastructure/",
+    "platform/",
+    "schemas/",
+    "services/",
+    "shared/",
+    "ui/",
+    "workflows/",
+    "xtask/"
+  ],
+  "affected_modules": [
+    "platform",
+    "schemas",
+    "services",
+    "workflows",
+    "shared",
+    "ui",
+    "infrastructure"
+  ],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": [
+    "Backend deployment posture is expressed as wasmCloud on Wasmtime with deployable component metadata instead of native service binaries.",
+    "The OS shell subset is rehomed under ui/ and exposes only the governed release apps for this product profile.",
+    "SurrealDB access is centralized behind shared repository abstractions and UI data access stays on typed SDK/contracts.",
+    "Workspace tooling, CI, and process validation encode the new ui and wasmCloud-first rules."
+  ],
+  "open_questions": [
+    {
+      "question": "Nomad host/service topology can be refined further once real lattice rollout automation is introduced.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T18:10:00Z",
+  "objective": "Define the runtime, data, and UI boundaries for the integrated architecture.",
+  "design_summary": [
+    "Treat services/workflows as pure Rust business crates with adjacent wasmCloud component descriptors.",
+    "Make ui/ the only owner of Leptos/Tauri models and drive governed data through platform/sdk snapshots and commands.",
+    "Centralize SurrealDB access in shared/surrealdb-access and use Wasmtime as the default strategy runtime."
+  ],
+  "public_interface_changes": [
+    "Add schemas/wit/v1 plus generated wasmCloud binding constants and lattice configuration shapes.",
+    "Expand platform/sdk with typed UI dashboard, command, query, and event transport contracts.",
+    "Expose Control Center as the new release-visible status surface inside ui/."
+  ],
+  "boundary_impacts": [
+    "services/ and workflows/ now surface adjacent deployable component metadata.",
+    "Nomad manifests pivot from raw service binaries to lattice support services and hosts.",
+    "process-method now enforces explicit ui profile evidence."
+  ],
+  "decomposition_decision": "leaf",
+  "child_work_item_ids": []
+}

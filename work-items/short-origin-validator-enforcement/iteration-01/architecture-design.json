@@ -1,0 +1,40 @@
+{
+  "work_item_id": "short-origin-validator-enforcement",
+  "parent_work_item_id": "short-origin-recursive-chatgpt-method",
+  "iteration": 1,
+  "affected_paths": [
+    "Cargo.toml",
+    "shared/process-method/",
+    "testing/fixtures/process-method/",
+    ".github/",
+    "work-items/"
+  ],
+  "affected_modules": ["shared", "testing", ".github"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": [
+    "A Rust validator enforces stage presence, handoffs, profile evidence, parent/child links, and changed-path coverage.",
+    "CI runs the validator separately from the Rust workspace quality gate."
+  ],
+  "open_questions": [
+    {
+      "question": "Changed-path coverage ignores work-items/ because those artifacts are process metadata rather than target implementation paths.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T17:20:00Z",
+  "objective": "Design the validator and enforcement path.",
+  "design_summary": [
+    "A shared Rust crate loads work-item directories and validates stage rules.",
+    "CI invokes the validator with git-derived changed paths."
+  ],
+  "public_interface_changes": [
+    "Add a process-method binary crate to the workspace."
+  ],
+  "boundary_impacts": [
+    "Testing fixtures exercise the validator without mutating runtime code.",
+    "PR review now expects work item ids and verification summaries."
+  ],
+  "decomposition_decision": "leaf",
+  "child_work_item_ids": []
+}

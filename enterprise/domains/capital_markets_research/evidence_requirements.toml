@@ -1,0 +1,2 @@
+version = "v1"
+required_evidence = ["experiment_result", "research_summary"]

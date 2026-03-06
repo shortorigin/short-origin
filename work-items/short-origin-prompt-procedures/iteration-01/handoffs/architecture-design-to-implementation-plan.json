@@ -1,0 +1,8 @@
+{
+  "handoff_id": "handoff::short-origin-prompt-procedures::architecture-to-plan",
+  "objective": "Turn the doc architecture into a bounded writing plan.",
+  "inputs_used": ["architecture-design.json", "requirements-spec.json"],
+  "decisions_made": ["The slice is leaf-sized and limited to docs and guidance."],
+  "pending_actions": ["List the exact files and coverage checks."],
+  "verification_status": "passed"
+}

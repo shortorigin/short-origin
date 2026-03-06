@@ -1,0 +1,8 @@
+{
+  "handoff_id": "handoff::short-origin-validator-enforcement::requirements-to-architecture",
+  "objective": "Map enforcement requirements to a tooling design.",
+  "inputs_used": ["requirements-spec.json", "research-synthesis.json"],
+  "decisions_made": ["The validator will live in shared tooling and run in CI."],
+  "pending_actions": ["Design loading, validation, and CLI behavior."],
+  "verification_status": "passed"
+}

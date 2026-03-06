@@ -1,0 +1,25 @@
+{
+  "name": "SurrealDbRecordTypesV1",
+  "version": "v1",
+  "records": [
+    "actor_record",
+    "decision_record",
+    "approval_record",
+    "exception_record",
+    "risk_record",
+    "workflow_execution_record",
+    "event_record",
+    "knowledge_record",
+    "evidence_manifest_record",
+    "treasury_disbursement_record",
+    "market_dataset_record",
+    "experiment_result_record",
+    "order_record",
+    "fill_record",
+    "portfolio_snapshot_record",
+    "trading_risk_snapshot_record",
+    "compliance_report_record",
+    "model_approval_record",
+    "promotion_recommendation_record"
+  ]
+}

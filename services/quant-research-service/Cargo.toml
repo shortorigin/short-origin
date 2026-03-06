@@ -1,0 +1,20 @@
+[package]
+name = "quant-research-service"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+version.workspace = true
+
+[dependencies]
+contracts = { path = "../../schemas/crates/contracts" }
+error-model = { path = "../../shared/error-model" }
+serde_json.workspace = true
+trading-core = { path = "../../shared/trading-core" }
+trading-errors = { path = "../../shared/trading-errors" }
+trading-sim = { path = "../../shared/trading-sim" }
+
+[dev-dependencies]
+chrono.workspace = true
+
+[lints]
+workspace = true

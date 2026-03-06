@@ -1,0 +1,8 @@
+{
+  "handoff_id": "handoff::short-origin-process-contracts::requirements-to-architecture",
+  "objective": "Map the contract requirements to concrete schema and Rust boundaries.",
+  "inputs_used": ["requirements-spec.json", "research-synthesis.json"],
+  "decisions_made": ["The slice remains fully within schemas."],
+  "pending_actions": ["Design helper types and embedding updates."],
+  "verification_status": "passed"
+}

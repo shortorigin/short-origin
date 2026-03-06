@@ -1,0 +1,4 @@
+version = "v1"
+domain = "hr_talent"
+policy_owner = "CHRO"
+primary_service = "hr-service"

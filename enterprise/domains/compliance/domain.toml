@@ -1,0 +1,4 @@
+version = "v1"
+domain = "compliance"
+policy_owner = "Chief Compliance Officer"
+primary_service = "compliance-service"

@@ -1,0 +1,1 @@
+{ "version": "v1", "entities": ["knowledge_record", "retention_policy"], "relationships": ["classifies", "retains"] }

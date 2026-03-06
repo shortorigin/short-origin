@@ -1,0 +1,22 @@
+[package]
+name = "surrealdb-access"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+version.workspace = true
+
+[dependencies]
+contracts = { path = "../../schemas/crates/contracts" }
+error-model = { path = "../error-model" }
+events = { path = "../../schemas/crates/events" }
+serde.workspace = true
+serde_json.workspace = true
+surrealdb = { version = "2.2.1", default-features = false, features = ["kv-mem"] }
+surrealdb-model = { path = "../../schemas/crates/surrealdb-model" }
+
+[dev-dependencies]
+identity = { path = "../identity" }
+tokio = { version = "1.48.0", features = ["macros", "rt-multi-thread"] }
+
+[lints]
+workspace = true

@@ -1,0 +1,8 @@
+{
+  "handoff_id": "handoff::short-origin-recursive-chatgpt-method::research-to-requirements",
+  "objective": "Carry grounded repo findings into explicit requirements.",
+  "inputs_used": ["research-synthesis.json", "AGENTS.md", "docs/adr/0001-sovereign-institutional-architecture.md"],
+  "decisions_made": ["Machine-readable artifacts are mandatory.", "The loop recurses across scopes."],
+  "pending_actions": ["Translate findings into explicit success criteria and scope boundaries."],
+  "verification_status": "passed"
+}

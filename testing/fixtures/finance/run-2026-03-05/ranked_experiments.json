@@ -1,0 +1,122 @@
+[
+  {
+    "config_hash": "0aebba7ef434c55ca41832cb48bc2205af6f96523b5c2ac97fb0cd8e49ea082b",
+    "summary": {
+      "total_return": 0.004522404962733706,
+      "sharpe": 3.0154738337528055,
+      "max_drawdown": 0.0017516357883278968,
+      "turnover": 0.02298032248971094
+    },
+    "metadata": {
+      "trade_count": 235
+    }
+  },
+  {
+    "config_hash": "ecd0d8498e9afb03743cc4a6bc60b0aae7d3a7a1ac45f5c3ff5420188617f05c",
+    "summary": {
+      "total_return": 0.004351067894571958,
+      "sharpe": 2.9206761777235837,
+      "max_drawdown": 0.002266474874519323,
+      "turnover": 0.02277465244827244
+    },
+    "metadata": {
+      "trade_count": 233
+    }
+  },
+  {
+    "config_hash": "73163ba5952e0ca7aa7bef9346aaf82da0988697ff1083cb3eee6907f20828d8",
+    "summary": {
+      "total_return": 0.004260324484909983,
+      "sharpe": 2.8608840003855334,
+      "max_drawdown": 0.002349677276030946,
+      "turnover": 0.022672398821315404
+    },
+    "metadata": {
+      "trade_count": 232
+    }
+  },
+  {
+    "config_hash": "8cef00d3c00b8757e5407d19a87779b841a40b53b0a0977fe6260d72d57f6898",
+    "summary": {
+      "total_return": 0.0042252997457625785,
+      "sharpe": 2.8365826483625374,
+      "max_drawdown": 0.0019560345140257514,
+      "turnover": 0.02287726136946809
+    },
+    "metadata": {
+      "trade_count": 234
+    }
+  },
+  {
+    "config_hash": "6f41ca346af9c9168eb2655d489a615c4ba5263cfab95132bd67c56e93a8e02a",
+    "summary": {
+      "total_return": 0.0033878895524415142,
+      "sharpe": 2.280159514733711,
+      "max_drawdown": 0.002899469933317016,
+      "turnover": 0.022570039212234754
+    },
+    "metadata": {
+      "trade_count": 231
+    }
+  },
+  {
+    "config_hash": "121eb01ae28dbee525737d3cacd0249619a132348191c3abacb07e82bcc56449",
+    "summary": {
+      "total_return": 0.0030718470749322435,
+      "sharpe": 2.0356189092256924,
+      "max_drawdown": 0.0019422504685490955,
+      "turnover": 0.02308380205865852
+    },
+    "metadata": {
+      "trade_count": 236
+    }
+  },
+  {
+    "config_hash": "701bacfbab229f719b3225bf39d955fc304ad72a0e6267a9f36168e917eb12d2",
+    "summary": {
+      "total_return": 0.0029607252638073067,
+      "sharpe": 2.0063687497868097,
+      "max_drawdown": 0.003076136631877032,
+      "turnover": 0.022365500475863487
+    },
+    "metadata": {
+      "trade_count": 229
+    }
+  },
+  {
+    "config_hash": "b1a0d81e47a82b6bb3563cc4b00acdd625232e26e02da90c9f8d9d11a37e01f5",
+    "summary": {
+      "total_return": 0.0029001654560003587,
+      "sharpe": 1.9554626324362752,
+      "max_drawdown": 0.0032687480517732265,
+      "turnover": 0.022467928255434696
+    },
+    "metadata": {
+      "trade_count": 230
+    }
+  },
+  {
+    "config_hash": "b57f23ca82e7218aa53fd7da3784cb9f4f43c043271b400903bc4424e9860d8a",
+    "summary": {
+      "total_return": 0.0027606903756580703,
+      "sharpe": 1.8813366609341076,
+      "max_drawdown": 0.0030688331793716425,
+      "turnover": 0.022161950871841647
+    },
+    "metadata": {
+      "trade_count": 227
+    }
+  },
+  {
+    "config_hash": "3cebf7f3c1253607f186e879f05fd3ab876942e949131e224f254dfd93245862",
+    "summary": {
+      "total_return": 0.0026569748074749544,
+      "sharpe": 1.807659601078432,
+      "max_drawdown": 0.0030653577724000384,
+      "turnover": 0.02226359334457658
+    },
+    "metadata": {
+      "trade_count": 228
+    }
+  }
+]

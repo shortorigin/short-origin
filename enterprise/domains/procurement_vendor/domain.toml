@@ -1,0 +1,4 @@
+version = "v1"
+domain = "procurement_vendor"
+policy_owner = "Chief Procurement Officer"
+primary_service = "procurement-service"

@@ -1,0 +1,16 @@
+{
+  "work_item_id": "schema-only",
+  "parent_work_item_id": null,
+  "iteration": 1,
+  "affected_paths": ["schemas/"],
+  "affected_modules": ["schemas"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": ["Single-module schema work item validates end to end."],
+  "open_questions": [{"question": "No blocking questions remain.", "severity": "low"}],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T14:30:00Z",
+  "decision": "close",
+  "improvements": ["Fixture is valid."],
+  "residual_risks": [],
+  "next_work_item_ids": []
+}

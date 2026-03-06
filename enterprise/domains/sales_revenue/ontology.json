@@ -1,0 +1,1 @@
+{ "version": "v1", "entities": ["pricing_decision", "revenue_record"], "relationships": ["prices", "recognizes"] }

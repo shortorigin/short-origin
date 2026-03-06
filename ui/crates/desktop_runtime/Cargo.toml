@@ -1,0 +1,46 @@
+[package]
+name = "desktop_runtime"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = ["csr"]
+csr = [
+  "leptos/csr",
+  "desktop_app_contract/csr",
+  "desktop_app_control_center/csr",
+  "desktop_app_terminal/csr",
+  "desktop_app_settings/csr",
+]
+desktop-tauri = ["csr"]
+
+[dependencies]
+desktop_app_contract = { path = "../desktop_app_contract", default-features = false }
+desktop_app_control_center = { path = "../apps/control_center", default-features = false }
+desktop_app_terminal = { path = "../apps/terminal", default-features = false }
+desktop_app_settings = { path = "../apps/settings", default-features = false }
+futures = "0.3"
+js-sys = "0.3"
+leptos = { version = "0.6", default-features = false }
+nu-ansi-term = { version = "0.50.3", default-features = false }
+nu-protocol = { version = "0.110.0", default-features = false }
+nu-table = { version = "0.110.0", default-features = false }
+platform_host = { path = "../platform_host" }
+sdk-rs = { path = "../../../platform/sdk/sdk-rs" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+system_ui = { path = "../system_ui", default-features = false }
+system_shell = { path = "../system_shell" }
+system_shell_contract = { path = "../system_shell_contract" }
+tabled = { version = "0.20", default-features = false, features = ["ansi"] }
+thiserror = "1"
+wasm-bindgen = "0.2"
+web-sys = { version = "0.3", features = ["Document", "Element", "HtmlElement", "KeyboardEvent", "MouseEvent", "PointerEvent", "Storage", "Window"] }
+
+[dev-dependencies]
+pretty_assertions = "1"
+
+[build-dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"

@@ -1,0 +1,22 @@
+.desktop-shell[data-skin="modern-adaptive"] {
+  --sys-color-canvas: #0c1117;
+  --sys-color-desktop: #101b2e;
+  --sys-color-surface: #18212d;
+  --sys-color-surface-muted: #121924;
+  --sys-color-surface-inset: #0f141c;
+  --sys-color-surface-overlay: rgba(17, 23, 32, 0.9);
+  --sys-color-border: rgba(255, 255, 255, 0.1);
+  --sys-color-border-strong: rgba(255, 255, 255, 0.2);
+  --sys-color-text-primary: #eef3fb;
+  --sys-color-text-secondary: #aeb9c9;
+  --sys-color-text-inverse: #f8fbff;
+  --sys-color-accent: #61b4ff;
+  --sys-color-accent-strong: #378fdd;
+  --sys-color-accent-muted: rgba(97, 180, 255, 0.14);
+  --sys-color-focus: #9bd2ff;
+  --sys-shadow-raised: 0 14px 36px rgba(0, 0, 0, 0.34);
+  --sys-shadow-overlay: 0 24px 64px rgba(0, 0, 0, 0.44);
+  --sys-radius-1: 10px;
+  --sys-radius-2: 14px;
+  --sys-radius-3: 20px;
+}

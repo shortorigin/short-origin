@@ -1,0 +1,4 @@
+version = "v1"
+primary_service = "audit-service"
+approved_workflows = ["control_testing", "evidence_review"]
+owned_aggregates = ["audit_finding", "evidence_manifest"]

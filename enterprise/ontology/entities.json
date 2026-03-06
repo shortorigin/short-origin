@@ -1,0 +1,22 @@
+{
+  "version": "v1",
+  "entities": [
+    { "name": "policy", "domain": "strategy_governance" },
+    { "name": "control", "domain": "compliance" },
+    { "name": "approval_request", "domain": "strategy_governance" },
+    { "name": "approval_decision", "domain": "strategy_governance" },
+    { "name": "promotion_recommendation", "domain": "strategy_governance" },
+    { "name": "risk_record", "domain": "compliance" },
+    { "name": "compliance_pack", "domain": "compliance" },
+    { "name": "evidence_manifest", "domain": "audit_assurance" },
+    { "name": "workflow_execution", "domain": "operations" },
+    { "name": "treasury_ledger", "domain": "finance_treasury" },
+    { "name": "market_dataset", "domain": "capital_markets_data" },
+    { "name": "experiment_result", "domain": "capital_markets_research" },
+    { "name": "execution_session", "domain": "capital_markets_execution" },
+    { "name": "portfolio_snapshot", "domain": "capital_markets_portfolio" },
+    { "name": "trading_risk_state", "domain": "capital_markets_risk" },
+    { "name": "knowledge_record", "domain": "data_knowledge" },
+    { "name": "continuity_plan", "domain": "resilience_continuity" }
+  ]
+}

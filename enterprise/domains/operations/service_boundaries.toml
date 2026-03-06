@@ -1,0 +1,4 @@
+version = "v1"
+primary_service = "operations-service"
+approved_workflows = ["incident_response", "change_management"]
+owned_aggregates = ["incident_record", "runbook"]

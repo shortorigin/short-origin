@@ -1,0 +1,16 @@
+[package]
+name = "events"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+version.workspace = true
+
+[dependencies]
+chrono.workspace = true
+contracts = { path = "../contracts" }
+identity = { path = "../../../shared/identity" }
+serde.workspace = true
+uuid.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,4082 @@
+[
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:00:00Z",
+      "close_time": "2026-03-01T00:01:00Z",
+      "open": 103.17814919630655,
+      "high": 103.27390585345506,
+      "low": 102.61521497406335,
+      "close": 102.76766719102064,
+      "volume": 4332.692503020288
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:01:00Z",
+      "close_time": "2026-03-01T00:02:00Z",
+      "open": 102.76766719102064,
+      "high": 102.8734441311297,
+      "low": 102.24019299112568,
+      "close": 102.32698205852628,
+      "volume": 8480.61384185988
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:02:00Z",
+      "close_time": "2026-03-01T00:03:00Z",
+      "open": 102.32698205852628,
+      "high": 102.75831395142664,
+      "low": 102.29483556283694,
+      "close": 102.71618312909756,
+      "volume": 3094.8063849917758
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:03:00Z",
+      "close_time": "2026-03-01T00:04:00Z",
+      "open": 102.71618312909756,
+      "high": 103.16722661144333,
+      "low": 102.61118774851147,
+      "close": 103.14205892372927,
+      "volume": 1237.6945055037177
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:04:00Z",
+      "close_time": "2026-03-01T00:05:00Z",
+      "open": 103.14205892372927,
+      "high": 103.32538670030566,
+      "low": 103.10537668405522,
+      "close": 103.26223432534219,
+      "volume": 1769.2188706147708
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:05:00Z",
+      "close_time": "2026-03-01T00:06:00Z",
+      "open": 103.26223432534219,
+      "high": 103.4087646873284,
+      "low": 103.08290096516542,
+      "close": 103.10550172459726,
+      "volume": 4693.133798499568
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:06:00Z",
+      "close_time": "2026-03-01T00:07:00Z",
+      "open": 103.10550172459726,
+      "high": 103.2176465180101,
+      "low": 102.4437849777979,
+      "close": 102.59148391731671,
+      "volume": 5237.171304235555
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:07:00Z",
+      "close_time": "2026-03-01T00:08:00Z",
+      "open": 102.59148391731671,
+      "high": 102.64525493715311,
+      "low": 102.25479663782473,
+      "close": 102.26742513921667,
+      "volume": 8091.484770160821
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:08:00Z",
+      "close_time": "2026-03-01T00:09:00Z",
+      "open": 102.26742513921667,
+      "high": 102.63709119422792,
+      "low": 102.1266140929561,
+      "close": 102.49015111452952,
+      "volume": 8034.418639014322
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:09:00Z",
+      "close_time": "2026-03-01T00:10:00Z",
+      "open": 102.49015111452952,
+      "high": 102.60705796160342,
+      "low": 102.065674316274,
+      "close": 102.1840119135317,
+      "volume": 3630.672283329137
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:10:00Z",
+      "close_time": "2026-03-01T00:11:00Z",
+      "open": 102.1840119135317,
+      "high": 102.48241616833108,
+      "low": 102.08400651249322,
+      "close": 102.4178535066953,
+      "volume": 3938.871555352318
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:11:00Z",
+      "close_time": "2026-03-01T00:12:00Z",
+      "open": 102.4178535066953,
+      "high": 102.4728039188897,
+      "low": 101.87844656822149,
+      "close": 101.95234270248734,
+      "volume": 3801.1370706507937
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:12:00Z",
+      "close_time": "2026-03-01T00:13:00Z",
+      "open": 101.95234270248734,
+      "high": 101.99137052647332,
+      "low": 101.60298634321998,
+      "close": 101.62701240584549,
+      "volume": 8129.210554335396
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:13:00Z",
+      "close_time": "2026-03-01T00:14:00Z",
+      "open": 101.62701240584549,
+      "high": 101.6275756142995,
+      "low": 101.4748596030036,
+      "close": 101.5860906618971,
+      "volume": 3838.8628722698218
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:14:00Z",
+      "close_time": "2026-03-01T00:15:00Z",
+      "open": 101.5860906618971,
+      "high": 101.86901470784294,
+      "low": 101.5757777083787,
+      "close": 101.76469784344305,
+      "volume": 4976.253926908573
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:15:00Z",
+      "close_time": "2026-03-01T00:16:00Z",
+      "open": 101.76469784344305,
+      "high": 101.79833975405285,
+      "low": 101.43593423207872,
+      "close": 101.57236966512052,
+      "volume": 4842.469290759266
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:16:00Z",
+      "close_time": "2026-03-01T00:17:00Z",
+      "open": 101.57236966512052,
+      "high": 101.69540504338165,
+      "low": 101.4944096513658,
+      "close": 101.62539164950913,
+      "volume": 8290.440684755024
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:17:00Z",
+      "close_time": "2026-03-01T00:18:00Z",
+      "open": 101.62539164950913,
+      "high": 101.74403494834365,
+      "low": 101.55963310715036,
+      "close": 101.57694415397276,
+      "volume": 5452.160996981052
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:18:00Z",
+      "close_time": "2026-03-01T00:19:00Z",
+      "open": 101.57694415397276,
+      "high": 101.7476476703657,
+      "low": 101.48115654745493,
+      "close": 101.71034841568961,
+      "volume": 1982.3044126965037
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:19:00Z",
+      "close_time": "2026-03-01T00:20:00Z",
+      "open": 101.71034841568961,
+      "high": 102.13047968456739,
+      "low": 101.64727308966141,
+      "close": 102.02129103472568,
+      "volume": 5350.5549548760755
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:20:00Z",
+      "close_time": "2026-03-01T00:21:00Z",
+      "open": 102.02129103472568,
+      "high": 102.31368675322926,
+      "low": 101.9885684725779,
+      "close": 102.2697562484011,
+      "volume": 8317.755714760515
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:21:00Z",
+      "close_time": "2026-03-01T00:22:00Z",
+      "open": 102.2697562484011,
+      "high": 102.29046446156475,
+      "low": 101.82726375514473,
+      "close": 101.90773215525095,
+      "volume": 4548.664301762157
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:22:00Z",
+      "close_time": "2026-03-01T00:23:00Z",
+      "open": 101.90773215525095,
+      "high": 102.24811100095631,
+      "low": 101.87356673126239,
+      "close": 102.17836480172093,
+      "volume": 5139.7300395171105
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:23:00Z",
+      "close_time": "2026-03-01T00:24:00Z",
+      "open": 102.17836480172093,
+      "high": 102.48831120594974,
+      "low": 102.09430252914571,
+      "close": 102.38384797744459,
+      "volume": 8132.858647308382
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:24:00Z",
+      "close_time": "2026-03-01T00:25:00Z",
+      "open": 102.38384797744459,
+      "high": 102.42713280416021,
+      "low": 102.03422220786275,
+      "close": 102.13000939561539,
+      "volume": 3233.0010355590834
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:25:00Z",
+      "close_time": "2026-03-01T00:26:00Z",
+      "open": 102.13000939561539,
+      "high": 102.38369434561461,
+      "low": 102.06239709832985,
+      "close": 102.32206888436131,
+      "volume": 2002.6363063260833
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:26:00Z",
+      "close_time": "2026-03-01T00:27:00Z",
+      "open": 102.32206888436131,
+      "high": 102.58729202959671,
+      "low": 102.24891264509235,
+      "close": 102.4785029375351,
+      "volume": 5276.234703534808
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:27:00Z",
+      "close_time": "2026-03-01T00:28:00Z",
+      "open": 102.4785029375351,
+      "high": 102.77851749213399,
+      "low": 102.47175520968774,
+      "close": 102.73983215791388,
+      "volume": 3936.5506016592108
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:28:00Z",
+      "close_time": "2026-03-01T00:29:00Z",
+      "open": 102.73983215791388,
+      "high": 103.06241604005729,
+      "low": 102.60406743556585,
+      "close": 103.05216906609259,
+      "volume": 8854.2275612602
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:29:00Z",
+      "close_time": "2026-03-01T00:30:00Z",
+      "open": 103.05216906609259,
+      "high": 103.09146198055389,
+      "low": 102.71119210392138,
+      "close": 102.73492263525105,
+      "volume": 6307.558499069371
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:30:00Z",
+      "close_time": "2026-03-01T00:31:00Z",
+      "open": 102.73492263525105,
+      "high": 102.82821174996715,
+      "low": 102.68992745167073,
+      "close": 102.69383795742782,
+      "volume": 6298.139141109545
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:31:00Z",
+      "close_time": "2026-03-01T00:32:00Z",
+      "open": 102.69383795742782,
+      "high": 103.02878393234091,
+      "low": 102.56537458868908,
+      "close": 103.00622112605373,
+      "volume": 7805.492390067062
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:32:00Z",
+      "close_time": "2026-03-01T00:33:00Z",
+      "open": 103.00622112605373,
+      "high": 103.28808028949653,
+      "low": 102.9211277207334,
+      "close": 103.18250829301903,
+      "volume": 2218.477799373609
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:33:00Z",
+      "close_time": "2026-03-01T00:34:00Z",
+      "open": 103.18250829301903,
+      "high": 103.25378571651602,
+      "low": 102.99272683400281,
+      "close": 103.080236964117,
+      "volume": 4297.474518561109
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:34:00Z",
+      "close_time": "2026-03-01T00:35:00Z",
+      "open": 103.080236964117,
+      "high": 103.60608186084158,
+      "low": 103.02698482719671,
+      "close": 103.59014408992044,
+      "volume": 3293.6090227289246
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:35:00Z",
+      "close_time": "2026-03-01T00:36:00Z",
+      "open": 103.59014408992044,
+      "high": 103.59595511418637,
+      "low": 103.11949565565116,
+      "close": 103.23580454116671,
+      "volume": 3658.140224712476
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:36:00Z",
+      "close_time": "2026-03-01T00:37:00Z",
+      "open": 103.23580454116671,
+      "high": 103.34452887717369,
+      "low": 102.7039868978566,
+      "close": 102.72423201615082,
+      "volume": 1433.1747006043518
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:37:00Z",
+      "close_time": "2026-03-01T00:38:00Z",
+      "open": 102.72423201615082,
+      "high": 102.81787569075813,
+      "low": 102.22625167190428,
+      "close": 102.23616380327398,
+      "volume": 3633.367438250044
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:38:00Z",
+      "close_time": "2026-03-01T00:39:00Z",
+      "open": 102.23616380327398,
+      "high": 102.64918963546701,
+      "low": 102.09841591689222,
+      "close": 102.49794285942902,
+      "volume": 9020.669955007734
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:39:00Z",
+      "close_time": "2026-03-01T00:40:00Z",
+      "open": 102.49794285942902,
+      "high": 102.49850717632305,
+      "low": 102.07097914198417,
+      "close": 102.1138676494434,
+      "volume": 8066.562371577786
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:40:00Z",
+      "close_time": "2026-03-01T00:41:00Z",
+      "open": 102.1138676494434,
+      "high": 102.25991028448856,
+      "low": 101.70603160760858,
+      "close": 101.70744661064388,
+      "volume": 1506.8939821405042
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:41:00Z",
+      "close_time": "2026-03-01T00:42:00Z",
+      "open": 101.70744661064388,
+      "high": 101.82106531579436,
+      "low": 101.54805736682025,
+      "close": 101.58111000119438,
+      "volume": 7541.471618319044
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:42:00Z",
+      "close_time": "2026-03-01T00:43:00Z",
+      "open": 101.58111000119438,
+      "high": 101.58331560518202,
+      "low": 101.3678037120759,
+      "close": 101.45455853613754,
+      "volume": 2673.0235108635165
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:43:00Z",
+      "close_time": "2026-03-01T00:44:00Z",
+      "open": 101.45455853613754,
+      "high": 101.74068980854244,
+      "low": 101.32694760189683,
+      "close": 101.62438689161488,
+      "volume": 2182.4236077404607
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:44:00Z",
+      "close_time": "2026-03-01T00:45:00Z",
+      "open": 101.62438689161488,
+      "high": 101.88144309038532,
+      "low": 101.48679245407068,
+      "close": 101.85423190855906,
+      "volume": 7445.98925354265
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:45:00Z",
+      "close_time": "2026-03-01T00:46:00Z",
+      "open": 101.85423190855906,
+      "high": 102.48708662059673,
+      "low": 101.80803348171638,
+      "close": 102.34793649869734,
+      "volume": 9434.0979472406
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:46:00Z",
+      "close_time": "2026-03-01T00:47:00Z",
+      "open": 102.34793649869734,
+      "high": 102.65415056171777,
+      "low": 102.22403012537232,
+      "close": 102.50318552878967,
+      "volume": 3598.2774551257294
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:47:00Z",
+      "close_time": "2026-03-01T00:48:00Z",
+      "open": 102.50318552878967,
+      "high": 102.90744537478004,
+      "low": 102.44391085462752,
+      "close": 102.77602397306049,
+      "volume": 8890.939637983616
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:48:00Z",
+      "close_time": "2026-03-01T00:49:00Z",
+      "open": 102.77602397306049,
+      "high": 102.90245336223323,
+      "low": 102.24371126332102,
+      "close": 102.3904720630291,
+      "volume": 2030.4292161368357
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:49:00Z",
+      "close_time": "2026-03-01T00:50:00Z",
+      "open": 102.3904720630291,
+      "high": 102.83512965761001,
+      "low": 102.38159384807322,
+      "close": 102.82784826326343,
+      "volume": 1307.6059238361233
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:50:00Z",
+      "close_time": "2026-03-01T00:51:00Z",
+      "open": 102.82784826326343,
+      "high": 102.85908217016143,
+      "low": 102.6971453936953,
+      "close": 102.8542955140393,
+      "volume": 4489.799996726368
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:51:00Z",
+      "close_time": "2026-03-01T00:52:00Z",
+      "open": 102.8542955140393,
+      "high": 102.98928432963704,
+      "low": 102.7150588662554,
+      "close": 102.96370762553624,
+      "volume": 3680.1646444488815
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:52:00Z",
+      "close_time": "2026-03-01T00:53:00Z",
+      "open": 102.96370762553624,
+      "high": 103.05042332374244,
+      "low": 102.82813629665338,
+      "close": 102.94562867059048,
+      "volume": 9935.807912204127
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:53:00Z",
+      "close_time": "2026-03-01T00:54:00Z",
+      "open": 102.94562867059048,
+      "high": 102.99642847971067,
+      "low": 102.3713866604686,
+      "close": 102.46818563613337,
+      "volume": 195.1666252646887
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:54:00Z",
+      "close_time": "2026-03-01T00:55:00Z",
+      "open": 102.46818563613337,
+      "high": 102.48341247760766,
+      "low": 101.98639774985527,
+      "close": 102.08938046879157,
+      "volume": 6490.663050576595
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:55:00Z",
+      "close_time": "2026-03-01T00:56:00Z",
+      "open": 102.08938046879157,
+      "high": 102.14652740691862,
+      "low": 101.8488232486612,
+      "close": 101.91669486967614,
+      "volume": 5337.135276300008
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:56:00Z",
+      "close_time": "2026-03-01T00:57:00Z",
+      "open": 101.91669486967614,
+      "high": 102.15635615642216,
+      "low": 101.7825152328649,
+      "close": 102.09345497132172,
+      "volume": 8626.442287091522
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:57:00Z",
+      "close_time": "2026-03-01T00:58:00Z",
+      "open": 102.09345497132172,
+      "high": 102.22925479970631,
+      "low": 101.56022706991112,
+      "close": 101.67243405437215,
+      "volume": 1690.7634058102692
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:58:00Z",
+      "close_time": "2026-03-01T00:59:00Z",
+      "open": 101.67243405437215,
+      "high": 101.76354315178878,
+      "low": 101.14502262152855,
+      "close": 101.22950704810953,
+      "volume": 6654.398088464255
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T00:59:00Z",
+      "close_time": "2026-03-01T01:00:00Z",
+      "open": 101.22950704810953,
+      "high": 101.23295517835786,
+      "low": 100.76261634446301,
+      "close": 100.81199546829173,
+      "volume": 2302.8006519020146
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:00:00Z",
+      "close_time": "2026-03-01T01:01:00Z",
+      "open": 100.81199546829173,
+      "high": 100.87617880753108,
+      "low": 100.24082418205536,
+      "close": 100.36718055385036,
+      "volume": 9457.30583955683
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:01:00Z",
+      "close_time": "2026-03-01T01:02:00Z",
+      "open": 100.36718055385036,
+      "high": 100.68753101020252,
+      "low": 100.27107254367384,
+      "close": 100.67463563313702,
+      "volume": 8761.446323599788
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:02:00Z",
+      "close_time": "2026-03-01T01:03:00Z",
+      "open": 100.67463563313702,
+      "high": 100.70197843289918,
+      "low": 100.11716312664153,
+      "close": 100.2049588007213,
+      "volume": 3663.6806919492983
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:03:00Z",
+      "close_time": "2026-03-01T01:04:00Z",
+      "open": 100.2049588007213,
+      "high": 100.32285327942394,
+      "low": 99.86225861855229,
+      "close": 99.97437475615463,
+      "volume": 6198.203700202235
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:04:00Z",
+      "close_time": "2026-03-01T01:05:00Z",
+      "open": 99.97437475615463,
+      "high": 100.19002154093089,
+      "low": 99.87042421026132,
+      "close": 100.07692029419651,
+      "volume": 6536.7706854831895
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:05:00Z",
+      "close_time": "2026-03-01T01:06:00Z",
+      "open": 100.07692029419651,
+      "high": 100.22491609678,
+      "low": 99.79118284622263,
+      "close": 99.87698622542258,
+      "volume": 9282.930702785057
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:06:00Z",
+      "close_time": "2026-03-01T01:07:00Z",
+      "open": 99.87698622542258,
+      "high": 100.09429529252479,
+      "low": 99.73161401508099,
+      "close": 100.07957683062943,
+      "volume": 2350.0336059045076
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:07:00Z",
+      "close_time": "2026-03-01T01:08:00Z",
+      "open": 100.07957683062943,
+      "high": 100.08010604984945,
+      "low": 99.61919383983694,
+      "close": 99.64256536385413,
+      "volume": 6705.62594385116
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:08:00Z",
+      "close_time": "2026-03-01T01:09:00Z",
+      "open": 99.64256536385413,
+      "high": 99.78585169626251,
+      "low": 99.22614046644618,
+      "close": 99.3382097885965,
+      "volume": 2872.8968402067135
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:09:00Z",
+      "close_time": "2026-03-01T01:10:00Z",
+      "open": 99.3382097885965,
+      "high": 99.39025039772496,
+      "low": 98.99057313511463,
+      "close": 99.09742265890642,
+      "volume": 1800.591450282768
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:10:00Z",
+      "close_time": "2026-03-01T01:11:00Z",
+      "open": 99.09742265890642,
+      "high": 99.39901715219969,
+      "low": 98.98921340690848,
+      "close": 99.26636771138483,
+      "volume": 6257.202102694952
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:11:00Z",
+      "close_time": "2026-03-01T01:12:00Z",
+      "open": 99.26636771138483,
+      "high": 99.35461188991641,
+      "low": 98.70576129600995,
+      "close": 98.82550080040926,
+      "volume": 2359.219621287877
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:12:00Z",
+      "close_time": "2026-03-01T01:13:00Z",
+      "open": 98.82550080040926,
+      "high": 99.07984495382874,
+      "low": 98.81145465839062,
+      "close": 98.97909551108816,
+      "volume": 4833.873931618408
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:13:00Z",
+      "close_time": "2026-03-01T01:14:00Z",
+      "open": 98.97909551108816,
+      "high": 99.05470838211974,
+      "low": 98.8250603301116,
+      "close": 98.8548076000585,
+      "volume": 3602.5897135753667
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:14:00Z",
+      "close_time": "2026-03-01T01:15:00Z",
+      "open": 98.8548076000585,
+      "high": 98.86900384342636,
+      "low": 98.45114101531725,
+      "close": 98.4946139829233,
+      "volume": 7219.2510865990735
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:15:00Z",
+      "close_time": "2026-03-01T01:16:00Z",
+      "open": 98.4946139829233,
+      "high": 98.5237826913965,
+      "low": 98.19001659933086,
+      "close": 98.3214136031227,
+      "volume": 5133.354730307089
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:16:00Z",
+      "close_time": "2026-03-01T01:17:00Z",
+      "open": 98.3214136031227,
+      "high": 98.42285533023029,
+      "low": 97.77557572128651,
+      "close": 97.89959326033839,
+      "volume": 3971.713317504573
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:17:00Z",
+      "close_time": "2026-03-01T01:18:00Z",
+      "open": 97.89959326033839,
+      "high": 98.27783185606323,
+      "low": 97.85356628872074,
+      "close": 98.22994803876006,
+      "volume": 4813.133596963706
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:18:00Z",
+      "close_time": "2026-03-01T01:19:00Z",
+      "open": 98.22994803876006,
+      "high": 98.54362537267467,
+      "low": 98.13625036240488,
+      "close": 98.48104152579477,
+      "volume": 9603.696928380488
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:19:00Z",
+      "close_time": "2026-03-01T01:20:00Z",
+      "open": 98.48104152579477,
+      "high": 98.51676851265292,
+      "low": 98.21538184196027,
+      "close": 98.2312742290352,
+      "volume": 7594.899340962371
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:20:00Z",
+      "close_time": "2026-03-01T01:21:00Z",
+      "open": 98.2312742290352,
+      "high": 98.24089383218157,
+      "low": 97.74981659558003,
+      "close": 97.84005400063903,
+      "volume": 8430.889505856667
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:21:00Z",
+      "close_time": "2026-03-01T01:22:00Z",
+      "open": 97.84005400063903,
+      "high": 97.91354390086451,
+      "low": 97.72605318282201,
+      "close": 97.84253161755919,
+      "volume": 9474.314316504579
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:22:00Z",
+      "close_time": "2026-03-01T01:23:00Z",
+      "open": 97.84253161755919,
+      "high": 97.98550898146053,
+      "low": 97.8068074245416,
+      "close": 97.95999144925155,
+      "volume": 1506.70851676532
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:23:00Z",
+      "close_time": "2026-03-01T01:24:00Z",
+      "open": 97.95999144925155,
+      "high": 98.58194126443033,
+      "low": 97.86476471229376,
+      "close": 98.44609377058904,
+      "volume": 311.3564699922568
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:24:00Z",
+      "close_time": "2026-03-01T01:25:00Z",
+      "open": 98.44609377058904,
+      "high": 98.88492443738204,
+      "low": 98.32253421019968,
+      "close": 98.83290160635342,
+      "volume": 183.1047142141217
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:25:00Z",
+      "close_time": "2026-03-01T01:26:00Z",
+      "open": 98.83290160635342,
+      "high": 99.02872514977992,
+      "low": 98.81540367089461,
+      "close": 98.89278961161143,
+      "volume": 2550.213416491343
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:26:00Z",
+      "close_time": "2026-03-01T01:27:00Z",
+      "open": 98.89278961161143,
+      "high": 99.03084370902364,
+      "low": 98.79976810300136,
+      "close": 98.92211613235669,
+      "volume": 1449.227868943294
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:27:00Z",
+      "close_time": "2026-03-01T01:28:00Z",
+      "open": 98.92211613235669,
+      "high": 99.0584370267808,
+      "low": 98.61126981708152,
+      "close": 98.61714479870395,
+      "volume": 6454.119372393529
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:28:00Z",
+      "close_time": "2026-03-01T01:29:00Z",
+      "open": 98.61714479870395,
+      "high": 98.7413132515341,
+      "low": 98.26478534370949,
+      "close": 98.3831879411215,
+      "volume": 5675.995334418243
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:29:00Z",
+      "close_time": "2026-03-01T01:30:00Z",
+      "open": 98.3831879411215,
+      "high": 98.44333713801541,
+      "low": 98.09916795066222,
+      "close": 98.17004366151188,
+      "volume": 5350.217119891038
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:30:00Z",
+      "close_time": "2026-03-01T01:31:00Z",
+      "open": 98.17004366151188,
+      "high": 98.54541220150459,
+      "low": 98.02514267387085,
+      "close": 98.51863257837161,
+      "volume": 2836.630170391269
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:31:00Z",
+      "close_time": "2026-03-01T01:32:00Z",
+      "open": 98.51863257837161,
+      "high": 98.58792134074446,
+      "low": 97.98418168443048,
+      "close": 98.07324013407386,
+      "volume": 4030.8759472456986
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:32:00Z",
+      "close_time": "2026-03-01T01:33:00Z",
+      "open": 98.07324013407386,
+      "high": 98.34509409529082,
+      "low": 97.93725449029057,
+      "close": 98.24005451450714,
+      "volume": 9346.094260023094
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:33:00Z",
+      "close_time": "2026-03-01T01:34:00Z",
+      "open": 98.24005451450714,
+      "high": 98.25791543006702,
+      "low": 97.91495634808298,
+      "close": 98.02435650396762,
+      "volume": 3448.6369933564492
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:34:00Z",
+      "close_time": "2026-03-01T01:35:00Z",
+      "open": 98.02435650396762,
+      "high": 98.16971242227615,
+      "low": 97.59489934148903,
+      "close": 97.63959284831014,
+      "volume": 4334.293605635142
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:35:00Z",
+      "close_time": "2026-03-01T01:36:00Z",
+      "open": 97.63959284831014,
+      "high": 98.00024027963084,
+      "low": 97.53946505210138,
+      "close": 97.96873880563595,
+      "volume": 2204.1891079605994
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:36:00Z",
+      "close_time": "2026-03-01T01:37:00Z",
+      "open": 97.96873880563595,
+      "high": 98.27764464337415,
+      "low": 97.88674277076026,
+      "close": 98.24186303097147,
+      "volume": 3333.405786932511
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:37:00Z",
+      "close_time": "2026-03-01T01:38:00Z",
+      "open": 98.24186303097147,
+      "high": 98.5211081242193,
+      "low": 98.09832767232486,
+      "close": 98.47766772557797,
+      "volume": 858.3329745286685
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:38:00Z",
+      "close_time": "2026-03-01T01:39:00Z",
+      "open": 98.47766772557797,
+      "high": 98.91490733038142,
+      "low": 98.41195655543255,
+      "close": 98.79791864632246,
+      "volume": 6219.118039375099
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:39:00Z",
+      "close_time": "2026-03-01T01:40:00Z",
+      "open": 98.79791864632246,
+      "high": 98.91500649583085,
+      "low": 98.60366487794022,
+      "close": 98.62567030242245,
+      "volume": 8542.499335537626
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:40:00Z",
+      "close_time": "2026-03-01T01:41:00Z",
+      "open": 98.62567030242245,
+      "high": 98.74733309587316,
+      "low": 98.40242226931662,
+      "close": 98.44452433254983,
+      "volume": 2626.87480578762
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:41:00Z",
+      "close_time": "2026-03-01T01:42:00Z",
+      "open": 98.44452433254983,
+      "high": 98.91270354727399,
+      "low": 98.33321514927034,
+      "close": 98.78618482511212,
+      "volume": 3897.137287426059
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:42:00Z",
+      "close_time": "2026-03-01T01:43:00Z",
+      "open": 98.78618482511212,
+      "high": 98.9740833437809,
+      "low": 98.70025087348539,
+      "close": 98.91296234578905,
+      "volume": 695.6696689811731
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:43:00Z",
+      "close_time": "2026-03-01T01:44:00Z",
+      "open": 98.91296234578905,
+      "high": 99.03043722032902,
+      "low": 98.46765906028588,
+      "close": 98.47359790681675,
+      "volume": 6519.024596420214
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:44:00Z",
+      "close_time": "2026-03-01T01:45:00Z",
+      "open": 98.47359790681675,
+      "high": 98.54964110736582,
+      "low": 98.2734039293054,
+      "close": 98.41380374722071,
+      "volume": 7466.25324482451
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:45:00Z",
+      "close_time": "2026-03-01T01:46:00Z",
+      "open": 98.41380374722071,
+      "high": 98.56121897462339,
+      "low": 98.28311151197065,
+      "close": 98.539714143296,
+      "volume": 2177.4624514236734
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:46:00Z",
+      "close_time": "2026-03-01T01:47:00Z",
+      "open": 98.539714143296,
+      "high": 98.70374694425941,
+      "low": 98.4125240861183,
+      "close": 98.59884380786275,
+      "volume": 3841.7693321047927
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:47:00Z",
+      "close_time": "2026-03-01T01:48:00Z",
+      "open": 98.59884380786275,
+      "high": 98.61453174561426,
+      "low": 98.438108113412,
+      "close": 98.5563259914505,
+      "volume": 2684.904595493001
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:48:00Z",
+      "close_time": "2026-03-01T01:49:00Z",
+      "open": 98.5563259914505,
+      "high": 98.58346774746751,
+      "low": 98.15086293955619,
+      "close": 98.28615114778594,
+      "volume": 3489.88333816203
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:49:00Z",
+      "close_time": "2026-03-01T01:50:00Z",
+      "open": 98.28615114778594,
+      "high": 98.40515747848696,
+      "low": 97.82113119192095,
+      "close": 97.91687964556698,
+      "volume": 3153.9391333205485
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:50:00Z",
+      "close_time": "2026-03-01T01:51:00Z",
+      "open": 97.91687964556698,
+      "high": 98.04258740143807,
+      "low": 97.46584240170404,
+      "close": 97.53587120874117,
+      "volume": 332.6847349353241
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:51:00Z",
+      "close_time": "2026-03-01T01:52:00Z",
+      "open": 97.53587120874117,
+      "high": 97.6038508746428,
+      "low": 97.07900090421529,
+      "close": 97.15765536897364,
+      "volume": 5030.514494199984
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:52:00Z",
+      "close_time": "2026-03-01T01:53:00Z",
+      "open": 97.15765536897364,
+      "high": 97.26103492793399,
+      "low": 97.03115826247083,
+      "close": 97.07120489414744,
+      "volume": 4755.9356355072205
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:53:00Z",
+      "close_time": "2026-03-01T01:54:00Z",
+      "open": 97.07120489414744,
+      "high": 97.1205739720028,
+      "low": 97.04308852098976,
+      "close": 97.07854795806391,
+      "volume": 1793.751050693471
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:54:00Z",
+      "close_time": "2026-03-01T01:55:00Z",
+      "open": 97.07854795806391,
+      "high": 97.2318786749839,
+      "low": 96.93632079817064,
+      "close": 97.18601456068942,
+      "volume": 5109.999027306835
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:55:00Z",
+      "close_time": "2026-03-01T01:56:00Z",
+      "open": 97.18601456068942,
+      "high": 97.27322099667815,
+      "low": 97.05960903986048,
+      "close": 97.14538434227703,
+      "volume": 3507.8065848854053
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:56:00Z",
+      "close_time": "2026-03-01T01:57:00Z",
+      "open": 97.14538434227703,
+      "high": 97.26995370909584,
+      "low": 96.72762964763584,
+      "close": 96.73584178406992,
+      "volume": 3099.46631874372
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:57:00Z",
+      "close_time": "2026-03-01T01:58:00Z",
+      "open": 96.73584178406992,
+      "high": 97.11574498400354,
+      "low": 96.62986149601178,
+      "close": 97.11031542988415,
+      "volume": 6800.205989278789
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:58:00Z",
+      "close_time": "2026-03-01T01:59:00Z",
+      "open": 97.11031542988415,
+      "high": 97.1946265167273,
+      "low": 97.07962225931247,
+      "close": 97.17686368993424,
+      "volume": 85.12290211404604
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T01:59:00Z",
+      "close_time": "2026-03-01T02:00:00Z",
+      "open": 97.17686368993424,
+      "high": 97.25343874657547,
+      "low": 96.92444653913402,
+      "close": 97.02618480163078,
+      "volume": 3458.305229343275
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:00:00Z",
+      "close_time": "2026-03-01T02:01:00Z",
+      "open": 97.02618480163078,
+      "high": 97.51012558189892,
+      "low": 96.96702399515196,
+      "close": 97.50113819850631,
+      "volume": 993.3577819819574
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:01:00Z",
+      "close_time": "2026-03-01T02:02:00Z",
+      "open": 97.50113819850631,
+      "high": 97.60487552056834,
+      "low": 97.20015351703877,
+      "close": 97.21096669212417,
+      "volume": 4312.059503144
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:02:00Z",
+      "close_time": "2026-03-01T02:03:00Z",
+      "open": 97.21096669212417,
+      "high": 97.3272910219797,
+      "low": 96.77795874394123,
+      "close": 96.81594266973832,
+      "volume": 7823.351905496789
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:03:00Z",
+      "close_time": "2026-03-01T02:04:00Z",
+      "open": 96.81594266973832,
+      "high": 96.94472330468034,
+      "low": 96.32755749801818,
+      "close": 96.4572072956341,
+      "volume": 9693.992964747678
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:04:00Z",
+      "close_time": "2026-03-01T02:05:00Z",
+      "open": 96.4572072956341,
+      "high": 96.69363029973397,
+      "low": 96.3427020546319,
+      "close": 96.5525259545676,
+      "volume": 4670.826006268586
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:05:00Z",
+      "close_time": "2026-03-01T02:06:00Z",
+      "open": 96.5525259545676,
+      "high": 96.63624611629903,
+      "low": 96.117052988137,
+      "close": 96.14789450304286,
+      "volume": 6840.888594884421
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:06:00Z",
+      "close_time": "2026-03-01T02:07:00Z",
+      "open": 96.14789450304286,
+      "high": 96.4630550071497,
+      "low": 96.02347277816362,
+      "close": 96.41789633391538,
+      "volume": 2049.5789070723404
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:07:00Z",
+      "close_time": "2026-03-01T02:08:00Z",
+      "open": 96.41789633391538,
+      "high": 96.53287260925488,
+      "low": 96.3182329386375,
+      "close": 96.52152957877884,
+      "volume": 7796.91186742393
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:08:00Z",
+      "close_time": "2026-03-01T02:09:00Z",
+      "open": 96.52152957877884,
+      "high": 96.59558249452482,
+      "low": 96.13719973674931,
+      "close": 96.18083553200333,
+      "volume": 764.6558782144311
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:09:00Z",
+      "close_time": "2026-03-01T02:10:00Z",
+      "open": 96.18083553200333,
+      "high": 96.26957368012,
+      "low": 95.59287670736988,
+      "close": 95.72217422106147,
+      "volume": 5351.182759262937
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:10:00Z",
+      "close_time": "2026-03-01T02:11:00Z",
+      "open": 95.72217422106147,
+      "high": 95.84140670437553,
+      "low": 95.51225779310548,
+      "close": 95.65234408817008,
+      "volume": 9712.030416336269
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:11:00Z",
+      "close_time": "2026-03-01T02:12:00Z",
+      "open": 95.65234408817008,
+      "high": 95.84025847550303,
+      "low": 95.5152181957329,
+      "close": 95.75716765782288,
+      "volume": 555.3547863722124
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:12:00Z",
+      "close_time": "2026-03-01T02:13:00Z",
+      "open": 95.75716765782288,
+      "high": 95.9866750733758,
+      "low": 95.64725180756838,
+      "close": 95.84335312429936,
+      "volume": 2545.404544780301
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:13:00Z",
+      "close_time": "2026-03-01T02:14:00Z",
+      "open": 95.84335312429936,
+      "high": 96.15269799240565,
+      "low": 95.73822615222497,
+      "close": 96.11477940569542,
+      "volume": 3088.6808274584946
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:14:00Z",
+      "close_time": "2026-03-01T02:15:00Z",
+      "open": 96.11477940569542,
+      "high": 96.19590374694528,
+      "low": 95.67338440002895,
+      "close": 95.80109338016007,
+      "volume": 3107.499337007584
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:15:00Z",
+      "close_time": "2026-03-01T02:16:00Z",
+      "open": 95.80109338016007,
+      "high": 95.96859306650626,
+      "low": 95.6680079578119,
+      "close": 95.8552169603562,
+      "volume": 1962.7820026728082
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:16:00Z",
+      "close_time": "2026-03-01T02:17:00Z",
+      "open": 95.8552169603562,
+      "high": 95.99799400368846,
+      "low": 95.4040957195629,
+      "close": 95.54721462230668,
+      "volume": 7842.667800836195
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:17:00Z",
+      "close_time": "2026-03-01T02:18:00Z",
+      "open": 95.54721462230668,
+      "high": 95.6393451044422,
+      "low": 95.46519216233422,
+      "close": 95.48290828984135,
+      "volume": 4157.465091672053
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:18:00Z",
+      "close_time": "2026-03-01T02:19:00Z",
+      "open": 95.48290828984135,
+      "high": 95.48442667597044,
+      "low": 95.02282105269214,
+      "close": 95.12820727010084,
+      "volume": 357.1849568455525
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:19:00Z",
+      "close_time": "2026-03-01T02:20:00Z",
+      "open": 95.12820727010084,
+      "high": 95.34724341846875,
+      "low": 95.09444186416917,
+      "close": 95.30229546560207,
+      "volume": 8934.79427946669
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:20:00Z",
+      "close_time": "2026-03-01T02:21:00Z",
+      "open": 95.30229546560207,
+      "high": 95.79285341167706,
+      "low": 95.24166747311581,
+      "close": 95.77819927191835,
+      "volume": 5857.609142606873
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:21:00Z",
+      "close_time": "2026-03-01T02:22:00Z",
+      "open": 95.77819927191835,
+      "high": 95.87224909181094,
+      "low": 95.29385508975946,
+      "close": 95.3971498929433,
+      "volume": 8713.171781074008
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:22:00Z",
+      "close_time": "2026-03-01T02:23:00Z",
+      "open": 95.3971498929433,
+      "high": 95.41903901884754,
+      "low": 94.893528710145,
+      "close": 95.00844632770921,
+      "volume": 1744.2869977413498
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:23:00Z",
+      "close_time": "2026-03-01T02:24:00Z",
+      "open": 95.00844632770921,
+      "high": 95.08428170544849,
+      "low": 94.91050814744484,
+      "close": 94.98216442954622,
+      "volume": 5440.245978697907
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:24:00Z",
+      "close_time": "2026-03-01T02:25:00Z",
+      "open": 94.98216442954622,
+      "high": 95.31322603424137,
+      "low": 94.9326455953184,
+      "close": 95.23673316298151,
+      "volume": 5934.1088776689285
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:25:00Z",
+      "close_time": "2026-03-01T02:26:00Z",
+      "open": 95.23673316298151,
+      "high": 95.61327843394939,
+      "low": 95.22848876689753,
+      "close": 95.57311541154256,
+      "volume": 9061.785218792242
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:26:00Z",
+      "close_time": "2026-03-01T02:27:00Z",
+      "open": 95.57311541154256,
+      "high": 95.70717842374269,
+      "low": 95.45254020674899,
+      "close": 95.58769030471545,
+      "volume": 6001.360521089357
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:27:00Z",
+      "close_time": "2026-03-01T02:28:00Z",
+      "open": 95.58769030471545,
+      "high": 95.84857966436543,
+      "low": 95.45686517478362,
+      "close": 95.7139400820942,
+      "volume": 8566.668014486771
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:28:00Z",
+      "close_time": "2026-03-01T02:29:00Z",
+      "open": 95.7139400820942,
+      "high": 95.83116646822498,
+      "low": 95.6509770387784,
+      "close": 95.70542639916987,
+      "volume": 9313.159848680752
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:29:00Z",
+      "close_time": "2026-03-01T02:30:00Z",
+      "open": 95.70542639916987,
+      "high": 95.76826663422331,
+      "low": 95.69987843129452,
+      "close": 95.74020184961134,
+      "volume": 3276.288229656011
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:30:00Z",
+      "close_time": "2026-03-01T02:31:00Z",
+      "open": 95.74020184961134,
+      "high": 95.7551773411219,
+      "low": 95.24247596067606,
+      "close": 95.29494037210507,
+      "volume": 3694.806451822951
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:31:00Z",
+      "close_time": "2026-03-01T02:32:00Z",
+      "open": 95.29494037210507,
+      "high": 95.77361068119112,
+      "low": 95.15439576304422,
+      "close": 95.74304992592315,
+      "volume": 1295.8367667597554
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:32:00Z",
+      "close_time": "2026-03-01T02:33:00Z",
+      "open": 95.74304992592315,
+      "high": 96.15905202138337,
+      "low": 95.63537599820758,
+      "close": 96.05990816138511,
+      "volume": 3220.402080172038
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:33:00Z",
+      "close_time": "2026-03-01T02:34:00Z",
+      "open": 96.05990816138511,
+      "high": 96.08914047489829,
+      "low": 95.69763901683814,
+      "close": 95.80354210645021,
+      "volume": 9862.467743432484
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:34:00Z",
+      "close_time": "2026-03-01T02:35:00Z",
+      "open": 95.80354210645021,
+      "high": 95.84419589709603,
+      "low": 95.6766103810212,
+      "close": 95.81840498949191,
+      "volume": 9661.352124348427
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:35:00Z",
+      "close_time": "2026-03-01T02:36:00Z",
+      "open": 95.81840498949191,
+      "high": 96.36619444659159,
+      "low": 95.77875087092835,
+      "close": 96.23314129704617,
+      "volume": 2795.0593980418885
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:36:00Z",
+      "close_time": "2026-03-01T02:37:00Z",
+      "open": 96.23314129704617,
+      "high": 96.3141657749379,
+      "low": 96.0837873814971,
+      "close": 96.09609597336429,
+      "volume": 9441.237287559938
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:37:00Z",
+      "close_time": "2026-03-01T02:38:00Z",
+      "open": 96.09609597336429,
+      "high": 96.2130263890237,
+      "low": 95.64708464398086,
+      "close": 95.70079906374734,
+      "volume": 5152.363080538082
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:38:00Z",
+      "close_time": "2026-03-01T02:39:00Z",
+      "open": 95.70079906374734,
+      "high": 95.87404813222116,
+      "low": 95.59308194918233,
+      "close": 95.7678453181733,
+      "volume": 9077.037786789164
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:39:00Z",
+      "close_time": "2026-03-01T02:40:00Z",
+      "open": 95.7678453181733,
+      "high": 95.90202437407197,
+      "low": 95.46885515989675,
+      "close": 95.46992731342903,
+      "volume": 3481.719118964196
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:40:00Z",
+      "close_time": "2026-03-01T02:41:00Z",
+      "open": 95.46992731342903,
+      "high": 95.85665939405929,
+      "low": 95.41682449828492,
+      "close": 95.77984050572962,
+      "volume": 9083.045742603332
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:41:00Z",
+      "close_time": "2026-03-01T02:42:00Z",
+      "open": 95.77984050572962,
+      "high": 96.04766590205456,
+      "low": 95.66762927286163,
+      "close": 95.90537503980974,
+      "volume": 865.5818176051464
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:42:00Z",
+      "close_time": "2026-03-01T02:43:00Z",
+      "open": 95.90537503980974,
+      "high": 96.15750855309882,
+      "low": 95.76509471115003,
+      "close": 96.12435713971988,
+      "volume": 3332.0247485553173
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:43:00Z",
+      "close_time": "2026-03-01T02:44:00Z",
+      "open": 96.12435713971988,
+      "high": 96.14676113692308,
+      "low": 95.54592353520633,
+      "close": 95.68662886505625,
+      "volume": 83.62640343481849
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:44:00Z",
+      "close_time": "2026-03-01T02:45:00Z",
+      "open": 95.68662886505625,
+      "high": 95.82472645070455,
+      "low": 95.65709498014083,
+      "close": 95.78499971773813,
+      "volume": 2237.183243087333
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:45:00Z",
+      "close_time": "2026-03-01T02:46:00Z",
+      "open": 95.78499971773813,
+      "high": 95.86088068045675,
+      "low": 95.67471584471967,
+      "close": 95.71454847157759,
+      "volume": 1136.3685177919976
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:46:00Z",
+      "close_time": "2026-03-01T02:47:00Z",
+      "open": 95.71454847157759,
+      "high": 95.82449658426113,
+      "low": 95.32995767702202,
+      "close": 95.40430927693757,
+      "volume": 2773.562712917923
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:47:00Z",
+      "close_time": "2026-03-01T02:48:00Z",
+      "open": 95.40430927693757,
+      "high": 95.7742474287237,
+      "low": 95.33923987505545,
+      "close": 95.7613920155189,
+      "volume": 5844.139623445258
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:48:00Z",
+      "close_time": "2026-03-01T02:49:00Z",
+      "open": 95.7613920155189,
+      "high": 95.82697518880013,
+      "low": 95.47496369000099,
+      "close": 95.57825218173872,
+      "volume": 1518.346029591566
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:49:00Z",
+      "close_time": "2026-03-01T02:50:00Z",
+      "open": 95.57825218173872,
+      "high": 95.66215193049636,
+      "low": 95.48652108802278,
+      "close": 95.56962939413842,
+      "volume": 8082.332622530905
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:50:00Z",
+      "close_time": "2026-03-01T02:51:00Z",
+      "open": 95.56962939413842,
+      "high": 95.62581656014329,
+      "low": 95.43984051410234,
+      "close": 95.49828770086916,
+      "volume": 4277.633192492444
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:51:00Z",
+      "close_time": "2026-03-01T02:52:00Z",
+      "open": 95.49828770086916,
+      "high": 95.57831545126335,
+      "low": 95.08182302611661,
+      "close": 95.10764364153758,
+      "volume": 1281.956659450009
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:52:00Z",
+      "close_time": "2026-03-01T02:53:00Z",
+      "open": 95.10764364153758,
+      "high": 95.13869227959722,
+      "low": 94.85321463132657,
+      "close": 94.91524176371192,
+      "volume": 8310.132162398671
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:53:00Z",
+      "close_time": "2026-03-01T02:54:00Z",
+      "open": 94.91524176371192,
+      "high": 95.31493195437913,
+      "low": 94.80218549776765,
+      "close": 95.25358980184453,
+      "volume": 1542.2468007538691
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:54:00Z",
+      "close_time": "2026-03-01T02:55:00Z",
+      "open": 95.25358980184453,
+      "high": 95.7038973291847,
+      "low": 95.1154048227718,
+      "close": 95.59213124686465,
+      "volume": 6027.374929106365
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:55:00Z",
+      "close_time": "2026-03-01T02:56:00Z",
+      "open": 95.59213124686465,
+      "high": 95.71811552289081,
+      "low": 95.52490973604198,
+      "close": 95.6917633110933,
+      "volume": 3738.089226308812
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:56:00Z",
+      "close_time": "2026-03-01T02:57:00Z",
+      "open": 95.6917633110933,
+      "high": 95.7220428992214,
+      "low": 95.68017366653588,
+      "close": 95.71874690734163,
+      "volume": 2885.7081091980754
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:57:00Z",
+      "close_time": "2026-03-01T02:58:00Z",
+      "open": 95.71874690734163,
+      "high": 95.74216109501394,
+      "low": 95.59610166024069,
+      "close": 95.64503558464641,
+      "volume": 976.8078113138184
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:58:00Z",
+      "close_time": "2026-03-01T02:59:00Z",
+      "open": 95.64503558464641,
+      "high": 95.7216862384199,
+      "low": 95.40936592951007,
+      "close": 95.47147475805914,
+      "volume": 1024.6169522455107
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T02:59:00Z",
+      "close_time": "2026-03-01T03:00:00Z",
+      "open": 95.47147475805914,
+      "high": 95.86308557791266,
+      "low": 95.32944397364516,
+      "close": 95.86143363879981,
+      "volume": 608.2538253835339
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:00:00Z",
+      "close_time": "2026-03-01T03:01:00Z",
+      "open": 95.86143363879981,
+      "high": 95.9708216812864,
+      "low": 95.28336488407675,
+      "close": 95.40295396121832,
+      "volume": 8015.416101556911
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:01:00Z",
+      "close_time": "2026-03-01T03:02:00Z",
+      "open": 95.40295396121832,
+      "high": 95.703787252369,
+      "low": 95.39303406953427,
+      "close": 95.59183585988418,
+      "volume": 6901.981287002902
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:02:00Z",
+      "close_time": "2026-03-01T03:03:00Z",
+      "open": 95.59183585988418,
+      "high": 95.60872098077925,
+      "low": 95.07776396811863,
+      "close": 95.16476150475215,
+      "volume": 9395.331773938442
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:03:00Z",
+      "close_time": "2026-03-01T03:04:00Z",
+      "open": 95.16476150475215,
+      "high": 95.19874937290983,
+      "low": 94.74294325897468,
+      "close": 94.87025304871406,
+      "volume": 3768.232531706459
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:04:00Z",
+      "close_time": "2026-03-01T03:05:00Z",
+      "open": 94.87025304871406,
+      "high": 95.36126802831342,
+      "low": 94.85636300429826,
+      "close": 95.26544948918487,
+      "volume": 7949.273166457706
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:05:00Z",
+      "close_time": "2026-03-01T03:06:00Z",
+      "open": 95.26544948918487,
+      "high": 95.36903298954984,
+      "low": 94.74286326514127,
+      "close": 94.8402494561079,
+      "volume": 5755.877976707246
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:06:00Z",
+      "close_time": "2026-03-01T03:07:00Z",
+      "open": 94.8402494561079,
+      "high": 94.87945688775481,
+      "low": 94.58913275188289,
+      "close": 94.59982235029734,
+      "volume": 9554.705213548828
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:07:00Z",
+      "close_time": "2026-03-01T03:08:00Z",
+      "open": 94.59982235029734,
+      "high": 94.80306542862964,
+      "low": 94.47629990922371,
+      "close": 94.76749428272753,
+      "volume": 2241.052679969051
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:08:00Z",
+      "close_time": "2026-03-01T03:09:00Z",
+      "open": 94.76749428272753,
+      "high": 94.85944623704978,
+      "low": 94.49856488442526,
+      "close": 94.50367508585845,
+      "volume": 6843.834509375878
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:09:00Z",
+      "close_time": "2026-03-01T03:10:00Z",
+      "open": 94.50367508585845,
+      "high": 94.56645876820474,
+      "low": 94.27127407200668,
+      "close": 94.38031563926108,
+      "volume": 3752.4398379328786
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:10:00Z",
+      "close_time": "2026-03-01T03:11:00Z",
+      "open": 94.38031563926108,
+      "high": 94.59733997208089,
+      "low": 94.37699227249468,
+      "close": 94.49648045081675,
+      "volume": 3171.796724799187
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:11:00Z",
+      "close_time": "2026-03-01T03:12:00Z",
+      "open": 94.49648045081675,
+      "high": 94.57233191206771,
+      "low": 94.24896009334685,
+      "close": 94.32749612064075,
+      "volume": 129.46339915363853
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:12:00Z",
+      "close_time": "2026-03-01T03:13:00Z",
+      "open": 94.32749612064075,
+      "high": 94.40816834750957,
+      "low": 94.26571391008005,
+      "close": 94.40551082118056,
+      "volume": 7484.931865298742
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:13:00Z",
+      "close_time": "2026-03-01T03:14:00Z",
+      "open": 94.40551082118056,
+      "high": 94.49642168101761,
+      "low": 94.04975333779117,
+      "close": 94.18984333945646,
+      "volume": 1383.4802798253793
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:14:00Z",
+      "close_time": "2026-03-01T03:15:00Z",
+      "open": 94.18984333945646,
+      "high": 94.30877789479528,
+      "low": 93.7244665900281,
+      "close": 93.83773233811795,
+      "volume": 2121.4705496149404
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:15:00Z",
+      "close_time": "2026-03-01T03:16:00Z",
+      "open": 93.83773233811795,
+      "high": 93.86037806870767,
+      "low": 93.67382870260008,
+      "close": 93.74081200718474,
+      "volume": 6889.7026928201585
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:16:00Z",
+      "close_time": "2026-03-01T03:17:00Z",
+      "open": 93.74081200718474,
+      "high": 93.84703798790918,
+      "low": 93.36750548185944,
+      "close": 93.42421871271449,
+      "volume": 3361.8005951477016
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:17:00Z",
+      "close_time": "2026-03-01T03:18:00Z",
+      "open": 93.42421871271449,
+      "high": 93.6268489022679,
+      "low": 93.41315373789332,
+      "close": 93.51251178390382,
+      "volume": 7983.422649643344
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:18:00Z",
+      "close_time": "2026-03-01T03:19:00Z",
+      "open": 93.51251178390382,
+      "high": 93.78123690001603,
+      "low": 93.44973001585016,
+      "close": 93.71127180168104,
+      "volume": 9921.22905615024
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:19:00Z",
+      "close_time": "2026-03-01T03:20:00Z",
+      "open": 93.71127180168104,
+      "high": 93.90976072810166,
+      "low": 93.62329067108769,
+      "close": 93.88025677753744,
+      "volume": 3280.6647779121745
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:20:00Z",
+      "close_time": "2026-03-01T03:21:00Z",
+      "open": 93.88025677753744,
+      "high": 94.36354678437232,
+      "low": 93.80788045880333,
+      "close": 94.29259192868939,
+      "volume": 9659.869416898466
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:21:00Z",
+      "close_time": "2026-03-01T03:22:00Z",
+      "open": 94.29259192868939,
+      "high": 94.53743294744895,
+      "low": 94.2711006761471,
+      "close": 94.43818588548707,
+      "volume": 5713.148314415835
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:22:00Z",
+      "close_time": "2026-03-01T03:23:00Z",
+      "open": 94.43818588548707,
+      "high": 94.54947241806114,
+      "low": 94.11904680593938,
+      "close": 94.16799660509365,
+      "volume": 5746.427262216186
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:23:00Z",
+      "close_time": "2026-03-01T03:24:00Z",
+      "open": 94.16799660509365,
+      "high": 94.31752644745175,
+      "low": 94.07585608708993,
+      "close": 94.22692764908435,
+      "volume": 1515.6786035400814
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:24:00Z",
+      "close_time": "2026-03-01T03:25:00Z",
+      "open": 94.22692764908435,
+      "high": 94.2292745829725,
+      "low": 93.81499845761165,
+      "close": 93.94493108132853,
+      "volume": 6735.801300602421
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:25:00Z",
+      "close_time": "2026-03-01T03:26:00Z",
+      "open": 93.94493108132853,
+      "high": 94.05774879294908,
+      "low": 93.83064765045097,
+      "close": 93.98689626699654,
+      "volume": 5968.331152441502
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:26:00Z",
+      "close_time": "2026-03-01T03:27:00Z",
+      "open": 93.98689626699654,
+      "high": 93.99690562663788,
+      "low": 93.59672477682982,
+      "close": 93.66447807876857,
+      "volume": 718.008028846864
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:27:00Z",
+      "close_time": "2026-03-01T03:28:00Z",
+      "open": 93.66447807876857,
+      "high": 94.11549188027614,
+      "low": 93.65583387011796,
+      "close": 94.03148042444529,
+      "volume": 4920.6151109903985
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:28:00Z",
+      "close_time": "2026-03-01T03:29:00Z",
+      "open": 94.03148042444529,
+      "high": 94.4149963326921,
+      "low": 93.9040408654204,
+      "close": 94.35817381288908,
+      "volume": 5466.881540357209
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:29:00Z",
+      "close_time": "2026-03-01T03:30:00Z",
+      "open": 94.35817381288908,
+      "high": 94.83043119651154,
+      "low": 94.34744516909812,
+      "close": 94.79426091717103,
+      "volume": 8800.592456720704
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:30:00Z",
+      "close_time": "2026-03-01T03:31:00Z",
+      "open": 94.79426091717103,
+      "high": 94.91409540889039,
+      "low": 94.6642377320164,
+      "close": 94.80517188806022,
+      "volume": 3633.440301815557
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:31:00Z",
+      "close_time": "2026-03-01T03:32:00Z",
+      "open": 94.80517188806022,
+      "high": 94.9765050083238,
+      "low": 94.73376823875599,
+      "close": 94.97179390860734,
+      "volume": 9355.11550558258
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:32:00Z",
+      "close_time": "2026-03-01T03:33:00Z",
+      "open": 94.97179390860734,
+      "high": 95.16234573070666,
+      "low": 94.83212584848205,
+      "close": 95.09890474072219,
+      "volume": 5969.828241732856
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:33:00Z",
+      "close_time": "2026-03-01T03:34:00Z",
+      "open": 95.09890474072219,
+      "high": 95.20916603763975,
+      "low": 94.72613048198652,
+      "close": 94.77365834420333,
+      "volume": 3470.802223825409
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:34:00Z",
+      "close_time": "2026-03-01T03:35:00Z",
+      "open": 94.77365834420333,
+      "high": 94.91176779369823,
+      "low": 94.64437062248365,
+      "close": 94.83143908212047,
+      "volume": 8032.604319872727
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:35:00Z",
+      "close_time": "2026-03-01T03:36:00Z",
+      "open": 94.83143908212047,
+      "high": 94.92569176719877,
+      "low": 94.71237299629388,
+      "close": 94.83181602803738,
+      "volume": 1981.8171343594727
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:36:00Z",
+      "close_time": "2026-03-01T03:37:00Z",
+      "open": 94.83181602803738,
+      "high": 94.99599427390073,
+      "low": 94.74011728819153,
+      "close": 94.93838128311108,
+      "volume": 2082.81230545652
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:37:00Z",
+      "close_time": "2026-03-01T03:38:00Z",
+      "open": 94.93838128311108,
+      "high": 95.01374382709557,
+      "low": 94.7723470199907,
+      "close": 94.88260507094894,
+      "volume": 118.32471665558279
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:38:00Z",
+      "close_time": "2026-03-01T03:39:00Z",
+      "open": 94.88260507094894,
+      "high": 95.35721185055326,
+      "low": 94.74675344066422,
+      "close": 95.224502046615,
+      "volume": 1513.4466577510534
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:39:00Z",
+      "close_time": "2026-03-01T03:40:00Z",
+      "open": 95.224502046615,
+      "high": 95.71622850124537,
+      "low": 95.1241332146937,
+      "close": 95.64674407870824,
+      "volume": 7494.935265239647
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:40:00Z",
+      "close_time": "2026-03-01T03:41:00Z",
+      "open": 95.64674407870824,
+      "high": 96.10407170422457,
+      "low": 95.6153836131008,
+      "close": 96.04950153959385,
+      "volume": 5646.1609543609065
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:41:00Z",
+      "close_time": "2026-03-01T03:42:00Z",
+      "open": 96.04950153959385,
+      "high": 96.19221079945807,
+      "low": 95.65809077816037,
+      "close": 95.71680011468236,
+      "volume": 9961.292342803752
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:42:00Z",
+      "close_time": "2026-03-01T03:43:00Z",
+      "open": 95.71680011468236,
+      "high": 95.95160753009239,
+      "low": 95.64183324959735,
+      "close": 95.92469124019613,
+      "volume": 877.7786583452636
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:43:00Z",
+      "close_time": "2026-03-01T03:44:00Z",
+      "open": 95.92469124019613,
+      "high": 96.06814514433772,
+      "low": 95.87908073708994,
+      "close": 95.90381436523175,
+      "volume": 367.13173919793826
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:44:00Z",
+      "close_time": "2026-03-01T03:45:00Z",
+      "open": 95.90381436523175,
+      "high": 96.1186206516999,
+      "low": 95.8515736537697,
+      "close": 95.97905800877727,
+      "volume": 7053.807114797044
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:45:00Z",
+      "close_time": "2026-03-01T03:46:00Z",
+      "open": 95.97905800877727,
+      "high": 96.00982413348514,
+      "low": 95.712784605698,
+      "close": 95.7924594616071,
+      "volume": 1137.7600018147862
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:46:00Z",
+      "close_time": "2026-03-01T03:47:00Z",
+      "open": 95.7924594616071,
+      "high": 95.92534178440629,
+      "low": 95.54067788839305,
+      "close": 95.61164300961492,
+      "volume": 9488.81729662466
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:47:00Z",
+      "close_time": "2026-03-01T03:48:00Z",
+      "open": 95.61164300961492,
+      "high": 95.71292937704406,
+      "low": 95.36546917006265,
+      "close": 95.47307543113745,
+      "volume": 8305.31507628453
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:48:00Z",
+      "close_time": "2026-03-01T03:49:00Z",
+      "open": 95.47307543113745,
+      "high": 96.03922090588101,
+      "low": 95.35715017480456,
+      "close": 95.94668873554357,
+      "volume": 6196.210589591608
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:49:00Z",
+      "close_time": "2026-03-01T03:50:00Z",
+      "open": 95.94668873554357,
+      "high": 96.14378136413768,
+      "low": 95.82032708098752,
+      "close": 96.10569754712932,
+      "volume": 7023.239727688315
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:50:00Z",
+      "close_time": "2026-03-01T03:51:00Z",
+      "open": 96.10569754712932,
+      "high": 96.48639964206934,
+      "low": 96.00728072672435,
+      "close": 96.39712689693208,
+      "volume": 3159.0280684224376
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:51:00Z",
+      "close_time": "2026-03-01T03:52:00Z",
+      "open": 96.39712689693208,
+      "high": 96.44505383594205,
+      "low": 96.17503237827607,
+      "close": 96.28738956684879,
+      "volume": 7029.353134050273
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:52:00Z",
+      "close_time": "2026-03-01T03:53:00Z",
+      "open": 96.28738956684879,
+      "high": 96.3148028902861,
+      "low": 96.16773411569852,
+      "close": 96.30670282580311,
+      "volume": 7808.054720056118
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:53:00Z",
+      "close_time": "2026-03-01T03:54:00Z",
+      "open": 96.30670282580311,
+      "high": 96.31274858337353,
+      "low": 95.94618096398618,
+      "close": 96.07037137031458,
+      "volume": 2452.359693769226
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:54:00Z",
+      "close_time": "2026-03-01T03:55:00Z",
+      "open": 96.07037137031458,
+      "high": 96.1088751579861,
+      "low": 95.82748321400949,
+      "close": 95.96033512434403,
+      "volume": 8811.240118231624
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:55:00Z",
+      "close_time": "2026-03-01T03:56:00Z",
+      "open": 95.96033512434403,
+      "high": 96.31171151598548,
+      "low": 95.86136899555662,
+      "close": 96.21242944902042,
+      "volume": 8406.598271502695
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:56:00Z",
+      "close_time": "2026-03-01T03:57:00Z",
+      "open": 96.21242944902042,
+      "high": 96.27515786201597,
+      "low": 96.10577530437284,
+      "close": 96.1478432196936,
+      "volume": 6690.768017093595
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:57:00Z",
+      "close_time": "2026-03-01T03:58:00Z",
+      "open": 96.1478432196936,
+      "high": 96.49190106129866,
+      "low": 96.14592365141793,
+      "close": 96.41372236688947,
+      "volume": 7380.003939210517
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:58:00Z",
+      "close_time": "2026-03-01T03:59:00Z",
+      "open": 96.41372236688947,
+      "high": 96.5522026907241,
+      "low": 96.27700579694404,
+      "close": 96.35547161606037,
+      "volume": 2089.8605816733834
+    }
+  },
+  {
+    "Bar": {
+      "symbol": {
+        "venue": "Coinbase",
+        "asset_class": "Crypto",
+        "base": "BTC",
+        "quote": "USD"
+      },
+      "open_time": "2026-03-01T03:59:00Z",
+      "close_time": "2026-03-01T04:00:00Z",
+      "open": 96.35547161606037,
+      "high": 96.36474929484643,
+      "low": 95.8740574114329,
+      "close": 95.98879962840257,
+      "volume": 8174.898655136086
+    }
+  }
+]

@@ -1,0 +1,17 @@
+[package]
+name = "execution-service"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+version.workspace = true
+
+[dependencies]
+contracts = { path = "../../schemas/crates/contracts" }
+error-model = { path = "../../shared/error-model" }
+events = { path = "../../schemas/crates/events" }
+serde.workspace = true
+trading-core = { path = "../../shared/trading-core" }
+trading-errors = { path = "../../shared/trading-errors" }
+
+[lints]
+workspace = true

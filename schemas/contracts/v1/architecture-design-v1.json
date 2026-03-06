@@ -1,0 +1,22 @@
+{
+  "name": "ArchitectureDesignV1",
+  "version": "v1",
+  "fields": [
+    "work_item_id",
+    "parent_work_item_id",
+    "iteration",
+    "affected_paths",
+    "affected_modules",
+    "policy_refs",
+    "acceptance_criteria",
+    "open_questions",
+    "verification_status",
+    "completed_at",
+    "objective",
+    "design_summary",
+    "public_interface_changes",
+    "boundary_impacts",
+    "decomposition_decision",
+    "child_work_item_ids"
+  ]
+}

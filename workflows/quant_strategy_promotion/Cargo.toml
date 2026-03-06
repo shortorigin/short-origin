@@ -1,0 +1,38 @@
+[package]
+name = "quant-strategy-promotion"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+version.workspace = true
+
+[dependencies]
+approval-service = { path = "../../services/approval-service" }
+chrono.workspace = true
+compliance-service = { path = "../../services/compliance-service" }
+contracts = { path = "../../schemas/crates/contracts" }
+enforcement = { path = "../../platform/runtime/enforcement" }
+error-model = { path = "../../shared/error-model" }
+evidence-service = { path = "../../services/evidence-service" }
+evidence-sdk = { path = "../../shared/evidence-sdk" }
+execution-service = { path = "../../services/execution-service" }
+governance-service = { path = "../../services/governance-service" }
+market-data-service = { path = "../../services/market-data-service" }
+orchestrator = { path = "../../platform/runtime/orchestrator" }
+policy-sdk = { path = "../../shared/policy-sdk" }
+policy-service = { path = "../../services/policy-service" }
+portfolio-service = { path = "../../services/portfolio-service" }
+quant-research-service = { path = "../../services/quant-research-service" }
+serde.workspace = true
+serde_json.workspace = true
+strategy-sandbox = { path = "../../platform/runtime/strategy-sandbox" }
+trading-core = { path = "../../shared/trading-core" }
+trading-risk-service = { path = "../../services/trading-risk-service" }
+trading-sim = { path = "../../shared/trading-sim" }
+
+[dev-dependencies]
+compliance-attestation = { path = "../compliance_attestation" }
+identity = { path = "../../shared/identity" }
+strategy-review = { path = "../strategy_review" }
+
+[lints]
+workspace = true

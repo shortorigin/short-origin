@@ -1,0 +1,10 @@
+{
+  "title": "FinanceAnalystOutput",
+  "type": "object",
+  "required": ["objective", "requested_workflow", "policy_refs"],
+  "properties": {
+    "objective": { "type": "string" },
+    "requested_workflow": { "type": "string" },
+    "policy_refs": { "type": "array", "items": { "type": "string" } }
+  }
+}

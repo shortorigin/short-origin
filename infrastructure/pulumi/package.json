@@ -1,0 +1,20 @@
+{
+  "name": "short-origin-pulumi-workspace",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "bootstrap-state",
+    "live"
+  ],
+  "scripts": {
+    "bootstrap:preview": "npm --workspace bootstrap-state run preview",
+    "bootstrap:up": "npm --workspace bootstrap-state run up",
+    "live:preview:dev": "npm --workspace live run preview:dev",
+    "live:preview:stage": "npm --workspace live run preview:stage",
+    "live:preview:prod": "npm --workspace live run preview:prod",
+    "live:up:dev": "npm --workspace live run up:dev",
+    "live:up:stage": "npm --workspace live run up:stage",
+    "live:up:prod": "npm --workspace live run up:prod",
+    "test": "npm --workspace live run test"
+  }
+}

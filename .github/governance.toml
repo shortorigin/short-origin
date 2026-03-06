@@ -1,0 +1,99 @@
+version = 1
+
+[organization]
+login = "shortorigin"
+governance_repository = ".github"
+governance_repository_description = "Canonical Short Origin GitHub governance, issue forms, pull request templates, and community health files."
+
+[repository_defaults]
+default_branch = "main"
+branch_name_pattern = "^(feature|fix|infra|docs|refactor|research)/[0-9]+-[a-z0-9-]+$"
+pr_title_pattern = "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|test)\\([a-z0-9][a-z0-9_-]*\\): [a-z0-9].+$"
+required_status_checks = ["Governance / validate", "CI / pr-gate", "Security / security-gate"]
+required_approving_review_count = 1
+dismiss_stale_reviews_on_push = true
+require_code_owner_review = true
+required_review_thread_resolution = true
+allow_auto_merge = true
+allow_squash_merge = true
+allow_merge_commit = false
+allow_rebase_merge = false
+delete_branch_on_merge = true
+
+[project]
+title = "Engineering Flow"
+short_description = "Organization-wide GitHub-native Scrumban board for issue-driven delivery and release milestones."
+status_field_name = "Status"
+status_options = ["Backlog", "Ready", "In Progress", "PR Open", "Review", "Done"]
+repository_views = ["short-origin"]
+milestone_views = ["v0.1 - MVP", "v0.2 - Core Platform", "v0.3 - Beta", "v1.0 - Production"]
+
+[[repositories]]
+name = "short-origin"
+link_to_project = true
+
+[[labels]]
+name = "type:feature"
+color = "0E8A16"
+description = "New feature delivery."
+
+[[labels]]
+name = "type:bug"
+color = "D73A4A"
+description = "Defect or regression."
+
+[[labels]]
+name = "type:refactor"
+color = "5319E7"
+description = "Internal design or structure improvement."
+
+[[labels]]
+name = "type:docs"
+color = "0075CA"
+description = "Documentation work."
+
+[[labels]]
+name = "type:infra"
+color = "0052CC"
+description = "Infrastructure, CI/CD, or platform configuration."
+
+[[labels]]
+name = "type:research"
+color = "FBCA04"
+description = "Investigation, spike, or discovery work."
+
+[[labels]]
+name = "priority:low"
+color = "C2E0C6"
+description = "Low urgency."
+
+[[labels]]
+name = "priority:medium"
+color = "FBCA04"
+description = "Default delivery priority."
+
+[[labels]]
+name = "priority:high"
+color = "D93F0B"
+description = "High urgency and near-term delivery."
+
+[[labels]]
+name = "priority:critical"
+color = "B60205"
+description = "Production-impacting or blocking work."
+
+[[milestones]]
+title = "v0.1 - MVP"
+description = "Minimum viable platform release."
+
+[[milestones]]
+title = "v0.2 - Core Platform"
+description = "Core platform capabilities and reusable runtime surfaces."
+
+[[milestones]]
+title = "v0.3 - Beta"
+description = "Beta stabilization and external-user readiness."
+
+[[milestones]]
+title = "v1.0 - Production"
+description = "Production release with governed delivery workflows."

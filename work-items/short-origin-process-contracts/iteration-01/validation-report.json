@@ -1,0 +1,50 @@
+{
+  "work_item_id": "short-origin-process-contracts",
+  "parent_work_item_id": "short-origin-recursive-chatgpt-method",
+  "iteration": 1,
+  "affected_paths": [
+    "schemas/contracts/v1/",
+    "schemas/crates/contracts/",
+    "schemas/crates/codegen/"
+  ],
+  "affected_modules": ["schemas"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": [
+    "All process artifact contracts exist in schemas/contracts/v1.",
+    "Rust process artifact mirrors round-trip through serde and appear in the embedded schema registry."
+  ],
+  "open_questions": [
+    {
+      "question": "Contract field sets stay additive and aligned with the validator.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T17:35:00Z",
+  "objective": "Confirm the contract slice.",
+  "checks_run": [
+    "cargo test -p contracts",
+    "cargo test -p codegen"
+  ],
+  "passed_checks": [
+    "process artifacts round-trip through serde_json",
+    "schema registry embeds the new contract documents"
+  ],
+  "failed_checks": [],
+  "findings": [],
+  "changed_paths_validated": [
+    "schemas/contracts/v1/work-item-v1.json",
+    "schemas/crates/contracts/tests/process_artifacts.rs",
+    "schemas/crates/codegen/tests/schema_registry.rs"
+  ],
+  "profile_evidence": [
+    {
+      "area": "schemas.compatibility_notes",
+      "notes": ["The schema additions are additive and versioned as v1."]
+    },
+    {
+      "area": "schemas.fixture_updates",
+      "notes": ["Contract and codegen tests now exercise the new schemas."]
+    }
+  ]
+}

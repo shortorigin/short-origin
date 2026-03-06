@@ -1,0 +1,18 @@
+{
+  "work_item_id": "root-method",
+  "parent_work_item_id": null,
+  "iteration": 1,
+  "affected_paths": ["enterprise/", "schemas/", "services/", "workflows/", "platform/", "agents/"],
+  "affected_modules": ["enterprise", "schemas", "services", "workflows", "platform", "agents"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": ["Cross-cutting work item splits cleanly into child slices."],
+  "open_questions": [{"question": "Child slices carry implementation.", "severity": "low"}],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T12:00:00Z",
+  "objective": "Ground the cross-cutting fixture.",
+  "research_inputs": ["enterprise/", "schemas/", "services/"],
+  "source_refs": ["docs/adr/0001-sovereign-institutional-architecture.md"],
+  "findings": ["This initiative requires a parent work item."],
+  "constraints": ["Mutation boundaries stay authoritative."],
+  "decomposition_signals": ["Multiple authoritative module types are touched."]
+}

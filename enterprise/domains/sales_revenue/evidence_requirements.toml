@@ -1,0 +1,2 @@
+version = "v1"
+required_evidence = ["pricing_approval", "revenue_recognition", "contract_alignment"]

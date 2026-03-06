@@ -1,0 +1,5 @@
+{
+  "name": "AgentHandoffV1",
+  "version": "v1",
+  "fields": ["handoff_id", "objective", "inputs_used", "decisions_made", "pending_actions", "verification_status"]
+}

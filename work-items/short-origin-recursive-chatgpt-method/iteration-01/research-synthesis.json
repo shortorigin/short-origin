@@ -1,0 +1,59 @@
+{
+  "work_item_id": "short-origin-recursive-chatgpt-method",
+  "parent_work_item_id": null,
+  "iteration": 1,
+  "affected_paths": [
+    "Cargo.toml",
+    "docs/process/",
+    "agents/procedures/",
+    "agents/README.md",
+    "schemas/contracts/v1/",
+    "schemas/crates/contracts/",
+    "schemas/crates/codegen/",
+    "shared/process-method/",
+    "testing/fixtures/process-method/",
+    ".github/",
+    "work-items/"
+  ],
+  "affected_modules": ["agents", "schemas", "shared", "docs", "testing", ".github"],
+  "policy_refs": [
+    "enterprise.policies.invariants",
+    "enterprise.policies.control_catalog"
+  ],
+  "acceptance_criteria": [
+    "The recursive method is documented and committed in repo artifacts.",
+    "The process validator enforces stage order, handoffs, module profile evidence, and changed-path coverage."
+  ],
+  "open_questions": [
+    {
+      "question": "Parent work item closes through child slices rather than direct code generation.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T16:00:00Z",
+  "objective": "Ground the process in existing workspace boundaries and governance rules.",
+  "research_inputs": [
+    "AGENTS.md",
+    "docs/adr/0001-sovereign-institutional-architecture.md",
+    "agents/README.md",
+    "schemas/README.md",
+    "workflows/README.md"
+  ],
+  "source_refs": [
+    "enterprise/policies/invariants.toml",
+    "schemas/contracts/v1/agent-handoff-v1.json",
+    ".github/workflows/rust-workspace.yml"
+  ],
+  "findings": [
+    "The repo already centers contracts, workflows, and governed agent handoffs.",
+    "A machine-readable process layer can reuse AgentHandoffV1 and the existing schema embedding pattern."
+  ],
+  "constraints": [
+    "Mutation paths must stay workflow-gated.",
+    "Public contract changes must remain additive-first."
+  ],
+  "decomposition_signals": [
+    "The initiative touches schemas, agents, shared tooling, docs, testing, and CI."
+  ]
+}

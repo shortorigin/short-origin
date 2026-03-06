@@ -1,0 +1,1 @@
+{"default":{"identifier":"default","description":"Default desktop shell capability set.","local":true,"windows":["main"],"permissions":["core:default","opener:default","notification:default"]}}

@@ -1,0 +1,47 @@
+{
+  "work_item_id": "short-origin-recursive-chatgpt-method",
+  "parent_work_item_id": null,
+  "iteration": 1,
+  "affected_paths": [
+    "Cargo.toml",
+    "docs/process/",
+    "agents/procedures/",
+    "agents/README.md",
+    "schemas/contracts/v1/",
+    "schemas/crates/contracts/",
+    "schemas/crates/codegen/",
+    "shared/process-method/",
+    "testing/fixtures/process-method/",
+    ".github/",
+    "work-items/"
+  ],
+  "affected_modules": ["agents", "schemas", "shared", "docs", "testing", ".github"],
+  "policy_refs": [
+    "enterprise.policies.invariants",
+    "enterprise.policies.control_catalog"
+  ],
+  "acceptance_criteria": [
+    "The recursive method is documented and committed in repo artifacts.",
+    "The process validator enforces stage order, handoffs, module profile evidence, and changed-path coverage."
+  ],
+  "open_questions": [
+    {
+      "question": "Parent work item closes through child slices rather than direct code generation.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T17:00:00Z",
+  "decision": "split",
+  "improvements": [
+    "Child work items separate contract changes, prompt procedures, and enforcement tooling."
+  ],
+  "residual_risks": [
+    "Future module profiles may add additional evidence keys."
+  ],
+  "next_work_item_ids": [
+    "short-origin-process-contracts",
+    "short-origin-prompt-procedures",
+    "short-origin-validator-enforcement"
+  ]
+}

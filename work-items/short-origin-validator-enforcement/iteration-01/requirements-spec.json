@@ -1,0 +1,42 @@
+{
+  "work_item_id": "short-origin-validator-enforcement",
+  "parent_work_item_id": "short-origin-recursive-chatgpt-method",
+  "iteration": 1,
+  "affected_paths": [
+    "Cargo.toml",
+    "shared/process-method/",
+    "testing/fixtures/process-method/",
+    ".github/",
+    "work-items/"
+  ],
+  "affected_modules": ["shared", "testing", ".github"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": [
+    "A Rust validator enforces stage presence, handoffs, profile evidence, parent/child links, and changed-path coverage.",
+    "CI runs the validator separately from the Rust workspace quality gate."
+  ],
+  "open_questions": [
+    {
+      "question": "Changed-path coverage ignores work-items/ because those artifacts are process metadata rather than target implementation paths.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T17:15:00Z",
+  "objective": "Specify the enforcement slice.",
+  "functional_requirements": [
+    "Add a reusable process validation library and CLI.",
+    "Add valid fixtures and negative validator tests.",
+    "Add CI workflow and PR template enforcement."
+  ],
+  "non_functional_requirements": [
+    "Validator failures must be specific enough to fix quickly.",
+    "CI must run before relying on the Rust workspace workflow alone."
+  ],
+  "out_of_scope": ["Dynamic policy evaluation beyond process artifact validation."],
+  "success_metrics": [
+    "Validator tests cover the required failure modes.",
+    "The dedicated CI workflow runs the validator command."
+  ],
+  "assumptions": ["A shared CLI crate is acceptable for repository-wide tooling."]
+}

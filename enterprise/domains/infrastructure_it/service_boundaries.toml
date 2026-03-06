@@ -1,0 +1,4 @@
+version = "v1"
+primary_service = "infrastructure-service"
+approved_workflows = ["environment_change", "access_review"]
+owned_aggregates = ["environment_change", "access_grant"]

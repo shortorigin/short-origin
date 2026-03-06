@@ -1,0 +1,44 @@
+{
+  "work_item_id": "short-origin-process-contracts",
+  "parent_work_item_id": "short-origin-recursive-chatgpt-method",
+  "iteration": 1,
+  "affected_paths": [
+    "schemas/contracts/v1/",
+    "schemas/crates/contracts/",
+    "schemas/crates/codegen/"
+  ],
+  "affected_modules": ["schemas"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": [
+    "All process artifact contracts exist in schemas/contracts/v1.",
+    "Rust process artifact mirrors round-trip through serde and appear in the embedded schema registry."
+  ],
+  "open_questions": [
+    {
+      "question": "Contract field sets stay additive and aligned with the validator.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T17:30:00Z",
+  "batch_id": "batch::short-origin-process-contracts::01",
+  "summary": [
+    "Add JSON contracts for each process artifact.",
+    "Implement Rust mirrors and helper types.",
+    "Update codegen embedding tests."
+  ],
+  "target_paths": [
+    "schemas/contracts/v1/",
+    "schemas/crates/contracts/",
+    "schemas/crates/codegen/"
+  ],
+  "change_kinds": [
+    "contract_addition",
+    "rust_type_addition",
+    "test_update"
+  ],
+  "prerequisite_checks": [
+    "cargo test -p contracts",
+    "cargo test -p codegen"
+  ]
+}

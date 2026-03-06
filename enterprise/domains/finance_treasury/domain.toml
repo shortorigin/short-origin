@@ -1,0 +1,4 @@
+version = "v1"
+domain = "finance_treasury"
+policy_owner = "CFO"
+primary_service = "finance-service"

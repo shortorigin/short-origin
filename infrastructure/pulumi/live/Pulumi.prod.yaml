@@ -1,0 +1,18 @@
+config:
+  aws:region: us-west-2
+  short-origin:env: prod
+  short-origin:vpcCidr: 10.50.0.0/16
+  short-origin:publicSubnetCidr: 10.50.1.0/24
+  short-origin:privateSubnetCidr: 10.50.10.0/24
+  short-origin:instanceType: m7gd.medium
+  short-origin:rootDomain: example.com
+  short-origin:subdomain: api
+  short-origin:cloudflareAccountId: CHANGE_ME_ACCOUNT_ID
+  short-origin:cloudflareZoneId: CHANGE_ME_ZONE_ID
+  short-origin:tunnelName: short-origin-prod
+  short-origin:servicePort: "8080"
+  short-origin:ssmPathPrefix: /short-origin
+  short-origin:wasmcloudVersion: 1.2.1
+  short-origin:surrealdbVersion: 2.2.1
+  short-origin:tunnelSecret: CHANGE_ME_BASE64_32_BYTE_SECRET
+  short-origin:surrealdbRootPassword: CHANGE_ME_PROD_DB_PASSWORD

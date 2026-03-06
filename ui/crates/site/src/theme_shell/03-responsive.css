@@ -1,0 +1,31 @@
+@media (max-width: 960px) {
+  [data-ui-kind="split-layout"] {
+    grid-template-columns: 1fr;
+  }
+
+  [data-ui-kind="taskbar"] {
+    grid-template-columns: 1fr;
+  }
+
+  [data-ui-kind="taskbar-section"][data-ui-slot="running"] {
+    order: 3;
+  }
+}
+
+@media (max-width: 720px) {
+  [data-ui-kind="desktop-icon-grid"] {
+    position: static;
+    width: auto;
+    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+    padding: var(--sys-space-3);
+  }
+
+  [data-ui-kind="desktop-backdrop"] {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  [data-ui-slot="keypad"] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

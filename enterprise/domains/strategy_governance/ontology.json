@@ -1,0 +1,1 @@
+{ "version": "v1", "entities": ["governance_decision", "institutional_invariant"], "relationships": ["governs", "delegates"] }

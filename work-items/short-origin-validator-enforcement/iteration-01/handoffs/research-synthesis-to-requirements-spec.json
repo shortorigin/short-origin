@@ -1,0 +1,8 @@
+{
+  "handoff_id": "handoff::short-origin-validator-enforcement::research-to-requirements",
+  "objective": "Turn CI and tooling research into validator requirements.",
+  "inputs_used": ["research-synthesis.json", ".github/workflows/rust-workspace.yml"],
+  "decisions_made": ["Process conformance needs its own reusable Rust validator."],
+  "pending_actions": ["Define validator behavior and failure modes."],
+  "verification_status": "passed"
+}

@@ -1,0 +1,6 @@
+version = "v1"
+ssl_mode = "strict"
+always_use_https = true
+minimum_tls_version = "1.2"
+waf_rule = "managed_challenge_non_standard_methods"
+access_policy = "oidc_for_operator_paths"

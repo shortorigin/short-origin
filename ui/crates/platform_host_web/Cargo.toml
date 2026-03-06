@@ -1,0 +1,22 @@
+[package]
+name = "platform_host_web"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = []
+desktop-host-stub = []
+desktop-host-tauri = []
+
+[dependencies]
+futures = "0.3"
+js-sys = "0.3"
+platform_host = { path = "../platform_host" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde-wasm-bindgen = "0.6"
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+web-sys = { version = "0.3", features = ["Blob", "Document", "Event", "File", "FileList", "FileReader", "HtmlElement", "HtmlInputElement", "Notification", "ProgressEvent", "Storage", "Url", "Window"] }
+
+[dev-dependencies]

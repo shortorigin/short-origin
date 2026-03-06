@@ -1,0 +1,47 @@
+name: Infrastructure
+description: Propose CI/CD, deployment, hosting, or environment changes.
+title: "[Infra]: "
+labels:
+  - type:infra
+  - priority:medium
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Briefly describe the infrastructure change.
+      placeholder: Add a short description of the infrastructure request.
+    validations:
+      required: true
+  - type: textarea
+    id: problem_statement
+    attributes:
+      label: Problem Statement
+      description: Describe the operational gap, reliability issue, or delivery need.
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the intended environment, CI/CD, or platform change.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: List the observable conditions that must hold after rollout.
+      placeholder: "- [ ] Criterion 1"
+    validations:
+      required: true
+  - type: textarea
+    id: technical_notes
+    attributes:
+      label: Technical Notes
+      description: Capture rollout steps, rollback plans, secrets, provider dependencies, or runtime constraints.
+  - type: textarea
+    id: related_issues
+    attributes:
+      label: Related Issues
+      description: Link or reference related incidents, issues, or pull requests.

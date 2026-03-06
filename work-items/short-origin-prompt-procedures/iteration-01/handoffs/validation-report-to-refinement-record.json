@@ -1,0 +1,8 @@
+{
+  "handoff_id": "handoff::short-origin-prompt-procedures::validation-to-refinement",
+  "objective": "Close the documentation slice after validation.",
+  "inputs_used": ["validation-report.json", "change-batch.json"],
+  "decisions_made": ["The playbook and procedures satisfy the acceptance criteria."],
+  "pending_actions": ["Record closure and residual risk notes."],
+  "verification_status": "passed"
+}

@@ -1,0 +1,5 @@
+{
+  "name": "SignalGeneratedV1",
+  "version": "v1",
+  "fields": ["strategy_id", "signal"]
+}

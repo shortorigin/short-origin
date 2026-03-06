@@ -1,0 +1,8 @@
+{
+  "handoff_id": "handoff::short-origin-validator-enforcement::plan-to-change-batch",
+  "objective": "Generate the validator and enforcement batch.",
+  "inputs_used": ["implementation-plan.json", "architecture-design.json"],
+  "decisions_made": ["The crate, fixtures, CI workflow, and template all belong to the same enforcement batch."],
+  "pending_actions": ["Implement the validator and add tests and workflow files."],
+  "verification_status": "passed"
+}

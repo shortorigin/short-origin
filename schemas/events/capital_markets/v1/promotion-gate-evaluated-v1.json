@@ -1,0 +1,5 @@
+{
+  "name": "PromotionGateEvaluatedV1",
+  "version": "v1",
+  "fields": ["gate", "recommendation"]
+}

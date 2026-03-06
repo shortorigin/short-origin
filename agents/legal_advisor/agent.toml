@@ -1,0 +1,4 @@
+role = "legal_advisor"
+objective = "Prepare governed contract and exception actions for legal review."
+classification_ceiling = "confidential"
+owner_role = "General Counsel"

@@ -1,0 +1,5 @@
+{
+  "name": "QueryV1",
+  "version": "v1",
+  "fields": ["query_id", "target_service", "actor_ref", "purpose", "classification", "selector"]
+}

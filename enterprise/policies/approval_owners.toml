@@ -1,0 +1,13 @@
+version = "v1"
+
+[[owners]]
+scope = "treasury_disbursement"
+owner_role = "CFO"
+
+[[owners]]
+scope = "production_infrastructure_change"
+owner_role = "Head of Infrastructure"
+
+[[owners]]
+scope = "policy_exception"
+owner_role = "Chief Compliance Officer"

@@ -1,0 +1,37 @@
+{
+  "work_item_id": "short-origin-prompt-procedures",
+  "parent_work_item_id": "short-origin-recursive-chatgpt-method",
+  "iteration": 1,
+  "affected_paths": [
+    "docs/process/",
+    "agents/procedures/",
+    "agents/README.md"
+  ],
+  "affected_modules": ["agents", "docs"],
+  "policy_refs": ["enterprise.policies.invariants"],
+  "acceptance_criteria": [
+    "The recursive playbook defines the common loop, stage outputs, recursion rules, and verification gates.",
+    "Each role procedure maps to a specific stage artifact and handoff."
+  ],
+  "open_questions": [
+    {
+      "question": "Prompt procedures remain documentation in this first pass rather than runtime agent manifests.",
+      "severity": "low"
+    }
+  ],
+  "verification_status": "passed",
+  "completed_at": "2026-03-05T17:20:00Z",
+  "objective": "Map the process method into docs and agent guidance.",
+  "design_summary": [
+    "The shared playbook lives under docs/process.",
+    "Role procedures live under agents/procedures and follow the same stage model as the validator."
+  ],
+  "public_interface_changes": [
+    "Document the repository-standard recursive loop and required stage artifacts."
+  ],
+  "boundary_impacts": [
+    "Agents gain explicit procedure docs without changing runtime manifests."
+  ],
+  "decomposition_decision": "leaf",
+  "child_work_item_ids": []
+}

@@ -1,0 +1,15 @@
+[package]
+name = "wasmcloud-bindings"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+version.workspace = true
+
+[dependencies]
+serde.workspace = true
+
+[dev-dependencies]
+wit-parser = "0.245.1"
+
+[lints]
+workspace = true
