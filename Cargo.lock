@@ -7106,6 +7106,7 @@ dependencies = [
  "leptos_router",
  "platform_host_web",
  "wasm-bindgen",
+ "wasm-bindgen-futures",
  "web-sys",
 ]
 

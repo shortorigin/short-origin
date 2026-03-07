@@ -3,8 +3,12 @@ mod github;
 mod ui_hardening;
 
 use std::env;
+use std::io::{Read, Write};
+use std::net::TcpStream;
 use std::path::{Path, PathBuf};
-use std::process::{Command, ExitStatus};
+use std::process::{Child, Command, ExitStatus};
+use std::thread;
+use std::time::{Duration, Instant};
 
 const UI_PACKAGES: &[&str] = &[
     "desktop_app_contract",
@@ -38,6 +42,8 @@ const CORE_EXCLUDED_PACKAGES: &[&str] = &[
     "desktop_app_terminal",
     "wasmcloud-smoke-tests",
 ];
+
+const UI_PREVIEW_SMOKE_PORT: u16 = 8095;
 
 fn main() {
     if let Err(error) = run() {
@@ -189,6 +195,8 @@ fn run_verify(args: Vec<String>) -> Result<(), String> {
                 &workspace_root,
                 &package_command_with_packages(&["test", "--all-targets"], UI_PACKAGES, &[]),
             )?;
+            verify_ui_browser_manifest_hygiene(&workspace_root)?;
+            run_ui_preview_smoke(&workspace_root)?;
             run_ui(vec![
                 "build".to_string(),
                 "--features".to_string(),
@@ -353,6 +361,147 @@ fn cargo(workspace_root: &Path, args: &[&str]) -> Result<(), String> {
     run_command(&mut command)
 }
 
+fn run_ui_preview_smoke(workspace_root: &Path) -> Result<(), String> {
+    cargo(
+        workspace_root,
+        &[
+            "build",
+            "--target",
+            "wasm32-unknown-unknown",
+            "--manifest-path",
+            "ui/crates/site/Cargo.toml",
+            "--bin",
+            "site_app",
+        ],
+    )?;
+
+    run_ui(vec![
+        "build".to_string(),
+        "--dist".to_string(),
+        "target/trunk-preview-dist".to_string(),
+    ])?;
+
+    let site_dir = workspace_root.join("ui/crates/site");
+    let mut command = Command::new("trunk");
+    command.current_dir(&site_dir);
+    command.arg("serve");
+    command.arg("index.html");
+    command.arg("--no-autoreload");
+    command.arg("--port");
+    command.arg(UI_PREVIEW_SMOKE_PORT.to_string());
+    sanitize_trunk_environment(&mut command);
+
+    let mut child = command
+        .spawn()
+        .map_err(|error| format!("failed to start preview smoke server: {error}"))?;
+
+    let smoke_result =
+        wait_for_http_ready(&mut child, UI_PREVIEW_SMOKE_PORT, Duration::from_secs(30));
+    terminate_child(&mut child)?;
+    smoke_result
+}
+
+fn wait_for_http_ready(child: &mut Child, port: u16, timeout: Duration) -> Result<(), String> {
+    let deadline = Instant::now() + timeout;
+    while Instant::now() < deadline {
+        if let Some(status) = child
+            .try_wait()
+            .map_err(|error| format!("failed to poll preview smoke server: {error}"))?
+        {
+            return Err(format!(
+                "preview smoke server exited before responding with status {status}"
+            ));
+        }
+
+        match probe_http_root(port) {
+            Ok(()) => return Ok(()),
+            Err(_) => thread::sleep(Duration::from_millis(250)),
+        }
+    }
+
+    Err(format!(
+        "preview smoke server did not respond on http://127.0.0.1:{port}/ within {}s",
+        timeout.as_secs()
+    ))
+}
+
+fn probe_http_root(port: u16) -> Result<(), String> {
+    let mut stream = TcpStream::connect(("127.0.0.1", port))
+        .map_err(|error| format!("failed to connect to preview smoke server: {error}"))?;
+    stream
+        .set_read_timeout(Some(Duration::from_secs(2)))
+        .map_err(|error| format!("failed to configure preview smoke read timeout: {error}"))?;
+    stream
+        .set_write_timeout(Some(Duration::from_secs(2)))
+        .map_err(|error| format!("failed to configure preview smoke write timeout: {error}"))?;
+    stream
+        .write_all(b"GET / HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n")
+        .map_err(|error| format!("failed to send preview smoke request: {error}"))?;
+
+    let mut response = String::new();
+    stream
+        .read_to_string(&mut response)
+        .map_err(|error| format!("failed to read preview smoke response: {error}"))?;
+    if response.starts_with("HTTP/1.1 200") || response.starts_with("HTTP/1.0 200") {
+        Ok(())
+    } else {
+        Err(format!(
+            "preview smoke server returned unexpected response: {}",
+            response.lines().next().unwrap_or("<empty>")
+        ))
+    }
+}
+
+fn terminate_child(child: &mut Child) -> Result<(), String> {
+    match child.try_wait() {
+        Ok(Some(_)) => Ok(()),
+        Ok(None) => {
+            child
+                .kill()
+                .map_err(|error| format!("failed to stop preview smoke server: {error}"))?;
+            child
+                .wait()
+                .map_err(|error| format!("failed to reap preview smoke server: {error}"))?;
+            Ok(())
+        }
+        Err(error) => Err(format!(
+            "failed to poll preview smoke server during shutdown: {error}"
+        )),
+    }
+}
+
+fn verify_ui_browser_manifest_hygiene(workspace_root: &Path) -> Result<(), String> {
+    let site_manifest = std::fs::read_to_string(workspace_root.join("ui/crates/site/Cargo.toml"))
+        .map_err(|error| format!("failed to read site manifest: {error}"))?;
+    if !site_manifest.contains("js-sys") {
+        return Err(
+            "site manifest must declare a direct `js-sys` dependency for reflective browser APIs"
+                .to_string(),
+        );
+    }
+
+    let persistence_source = std::fs::read_to_string(
+        workspace_root.join("ui/crates/platform_host_web/src/persistence.rs"),
+    )
+    .map_err(|error| format!("failed to read platform_host_web persistence source: {error}"))?;
+    if persistence_source.contains(".storage()") {
+        return Err(
+            "platform_host_web persistence probe must not depend on typed `Navigator.storage()` bindings"
+                .to_string(),
+        );
+    }
+    if !persistence_source
+        .contains("Reflect::get(window.navigator().as_ref(), &\"storage\".into())")
+    {
+        return Err(
+            "platform_host_web persistence probe must use reflective `navigator.storage` access"
+                .to_string(),
+        );
+    }
+
+    Ok(())
+}
+
 fn normalize_dist_arg(workspace_root: &Path, args: &mut [String]) {
     let mut index = 0usize;
     while index < args.len() {
@@ -376,8 +525,14 @@ fn drop_no_open_arg(args: &mut Vec<String>) {
 }
 
 fn sanitize_trunk_environment(command: &mut Command) {
-    if matches!(env::var("NO_COLOR").as_deref(), Ok("1")) {
-        command.env("NO_COLOR", "true");
+    if env::var_os("NO_COLOR").is_some() {
+        command.env_remove("NO_COLOR");
+    }
+    for key in env::vars_os().map(|(key, _)| key) {
+        let key = key.to_string_lossy();
+        if key.starts_with("CARGO_") && key != "CARGO_HOME" {
+            command.env_remove(key.as_ref());
+        }
     }
 }
 
@@ -437,10 +592,27 @@ fn help() -> String {
 mod tests {
     use super::{
         args_include_lattice, drop_no_open_arg, normalize_dist_arg, prepend_get_hosts,
-        sanitize_trunk_environment,
+        probe_http_root, sanitize_trunk_environment, verify_ui_browser_manifest_hygiene,
     };
+    use std::fs;
+    use std::io::{Read, Write};
+    use std::net::TcpListener;
     use std::path::Path;
     use std::process::Command;
+    use std::thread;
+
+    fn unique_temp_dir(label: &str) -> std::path::PathBuf {
+        let base = std::env::temp_dir().join(format!(
+            "xtask-{label}-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("clock drift")
+                .as_nanos()
+        ));
+        fs::create_dir_all(&base).expect("create temp dir");
+        base
+    }
 
     #[test]
     fn normalize_dist_arg_absolutizes_split_flag_value() {
@@ -470,7 +642,7 @@ mod tests {
     }
 
     #[test]
-    fn sanitize_trunk_environment_normalizes_no_color_value() {
+    fn sanitize_trunk_environment_removes_no_color() {
         let original = std::env::var_os("NO_COLOR");
         std::env::set_var("NO_COLOR", "1");
 
@@ -481,7 +653,7 @@ mod tests {
             .get_envs()
             .find(|(key, _)| *key == "NO_COLOR")
             .and_then(|(_, value)| value);
-        assert_eq!(no_color, Some("true".as_ref()));
+        assert_eq!(no_color, None);
 
         if let Some(value) = original {
             std::env::set_var("NO_COLOR", value);
@@ -503,5 +675,59 @@ mod tests {
         assert!(args_include_lattice(&["--lattice=dev".to_string()]));
         assert!(args_include_lattice(&["-x".to_string()]));
         assert!(!args_include_lattice(&["--detached".to_string()]));
+    }
+
+    #[test]
+    fn probe_http_root_accepts_http_200() {
+        let listener = TcpListener::bind(("127.0.0.1", 0)).expect("bind listener");
+        let port = listener.local_addr().expect("local addr").port();
+        let server = thread::spawn(move || {
+            let (mut stream, _) = listener.accept().expect("accept");
+            let mut request = [0u8; 128];
+            let _ = stream.read(&mut request);
+            stream
+                .write_all(b"HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n")
+                .expect("write response");
+        });
+
+        probe_http_root(port).expect("probe should succeed");
+        server.join().expect("join server");
+    }
+
+    #[test]
+    fn verify_ui_browser_manifest_hygiene_accepts_expected_files() {
+        let root = unique_temp_dir("ui-browser-hygiene-pass");
+        let site_dir = root.join("ui/crates/site");
+        let host_dir = root.join("ui/crates/platform_host_web/src");
+        fs::create_dir_all(&site_dir).expect("create site dir");
+        fs::create_dir_all(&host_dir).expect("create host dir");
+        fs::write(site_dir.join("Cargo.toml"), "js-sys = \"0.3\"\n").expect("write site manifest");
+        fs::write(
+            host_dir.join("persistence.rs"),
+            "let _ = js_sys::Reflect::get(window.navigator().as_ref(), &\"storage\".into());\n",
+        )
+        .expect("write persistence source");
+
+        verify_ui_browser_manifest_hygiene(&root).expect("hygiene should pass");
+        fs::remove_dir_all(root).expect("cleanup temp dir");
+    }
+
+    #[test]
+    fn verify_ui_browser_manifest_hygiene_rejects_typed_storage_binding() {
+        let root = unique_temp_dir("ui-browser-hygiene-fail");
+        let site_dir = root.join("ui/crates/site");
+        let host_dir = root.join("ui/crates/platform_host_web/src");
+        fs::create_dir_all(&site_dir).expect("create site dir");
+        fs::create_dir_all(&host_dir).expect("create host dir");
+        fs::write(site_dir.join("Cargo.toml"), "js-sys = \"0.3\"\n").expect("write site manifest");
+        fs::write(
+            host_dir.join("persistence.rs"),
+            "window.navigator().storage();\n",
+        )
+        .expect("write persistence source");
+
+        let error = verify_ui_browser_manifest_hygiene(&root).expect_err("hygiene should fail");
+        assert!(error.contains("Navigator.storage"));
+        fs::remove_dir_all(root).expect("cleanup temp dir");
     }
 }

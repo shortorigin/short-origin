@@ -22,11 +22,14 @@ pub fn opfs_supported() -> bool {
         let Some(window) = web_sys::window() else {
             return false;
         };
-        js_sys::Reflect::get(
-            window.navigator().storage().as_ref(),
-            &"getDirectory".into(),
-        )
-        .is_ok()
+        let Ok(storage) = js_sys::Reflect::get(window.navigator().as_ref(), &"storage".into())
+        else {
+            return false;
+        };
+        if storage.is_undefined() || storage.is_null() {
+            return false;
+        }
+        js_sys::Reflect::get(&storage, &"getDirectory".into()).is_ok()
     }
 
     #[cfg(not(target_arch = "wasm32"))]

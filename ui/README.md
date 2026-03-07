@@ -66,14 +66,13 @@ Run from the repository root:
 ```bash
 cargo ui-dev
 cargo ui-build
-cargo ui-harden
+cargo verify-ui
 cargo check -p desktop_runtime
 cargo check -p site
 cargo check -p desktop_tauri
 ```
 
-`cargo ui-dev` is the preferred browser/WASM preview workflow. `cargo ui-build` drives the corresponding build pipeline. Use the crate-level `cargo check` commands to validate focused changes in the shared runtime, browser entrypoint, and desktop host.
-`cargo ui-harden` performs the hardened release verification path: it cleans the workspace, runs two clean Trunk release builds into `build/wasm-hardening/`, compares the full deployable artifact graph, independently validates emitted SRI digests, and runs browser smoke validation when Node and Playwright browsers are available.
+`cargo ui-dev` is the preferred browser/WASM preview workflow. `cargo ui-build` drives the corresponding build pipeline. `cargo verify-ui` now exercises the preview toolchain with a real `site_app` wasm build, Trunk packaging, and a localhost smoke probe so wasm-only browser regressions are caught before merge. Use the crate-level `cargo check` commands for focused iteration in the shared runtime, browser entrypoint, and desktop host.
 
 ## Integration Patterns
 All UI-to-platform integration must flow through typed contracts.
