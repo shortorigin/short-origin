@@ -1,56 +1,51 @@
-//! Shared UI primitive library for shell and built-in system applications.
+//! Shared UI package for the Origin desktop shell.
 //!
-//! The crate owns reusable Leptos primitives, a centralized icon API, and the
-//! stable `data-ui-*` DOM contract consumed by the desktop shell CSS layers.
-//! Apps should compose these primitives instead of emitting ad hoc control
-//! markup or reusing legacy `.app-*` class contracts directly.
+//! The public architecture is organized as:
 //!
-//! Theme CSS remaps shared `--sys-*` tokens around these primitives, while docs validation checks
-//! that app/runtime crates consume the shared API instead of recreating raw primitive markup.
+//! - [`tokens`] for machine-generated design tokens
+//! - [`primitives`] for low-level layout, typography, and shell regions
+//! - [`components`] for approved reusable application and shell components
 
 #![warn(missing_docs, rustdoc::broken_intra_doc_links)]
+#![allow(missing_docs)]
 
 mod icon;
-mod primitives;
+#[path = "primitives/mod.rs"]
+mod legacy_primitives;
+mod origin_components;
+mod origin_primitives;
+mod origin_tokens;
 
-pub use icon::{Icon, IconName, IconSize};
-pub use primitives::{
-    AppShell, Badge, Button, ButtonShape, ButtonSize, ButtonVariant, Card, CheckboxField,
-    CircularProgress, ClockButton, Cluster, ColorField, CompletionItem, CompletionList, DataTable,
-    DesktopBackdrop, DesktopIconButton, DesktopIconGrid, DesktopRoot, DesktopWindowLayer,
-    DisclosurePanel, Elevation, ElevationLayer, EmptyState, FieldGroup, FieldVariant, Grid,
-    Heading, IconButton, InspectorGrid, KnobDial, LauncherMenu, LayoutAlign, LayoutGap,
-    LayoutJustify, LayoutPadding, ListSurface, MenuBar, MenuItem, MenuSeparator, MenuSurface,
-    Modal, OptionCard, Pane, PaneHeader, Panel, PreviewFrame, ProgressBar, ProgressVariant,
-    RangeField, ResizeHandle, SegmentedControl, SegmentedControlOption, SelectField, SplitLayout,
-    Stack, StatusBar, StatusBarItem, StepFlow, StepFlowActions, StepFlowHeader, StepFlowStep,
-    StepStatus, Surface, SurfaceVariant, Switch, Tab, TabList, Taskbar, TaskbarButton,
-    TaskbarOverflowButton, TaskbarSection, TerminalLine, TerminalPrompt, TerminalSurface,
-    TerminalTranscript, Text, TextArea, TextField, TextRole, TextTone, ToggleRow, ToolBar,
-    TrayButton, TrayList, Tree, TreeItem, WindowBody, WindowControlButton, WindowControls,
-    WindowFrame, WindowTitle, WindowTitleBar,
-};
+pub mod components {
+    pub use crate::origin_components::*;
+}
+
+pub mod primitives {
+    pub use crate::origin_primitives::*;
+}
+
+pub mod tokens {
+    pub use crate::origin_tokens::*;
+}
 
 /// Convenience imports for application crates consuming the shared primitive set.
 ///
 /// Prefer importing from this module in app crates so primitive usage stays consistent and review
 /// diffs do not churn on long individual import lists.
 pub mod prelude {
-    pub use crate::{
-        AppShell, Badge, Button, ButtonShape, ButtonSize, ButtonVariant, Card, CheckboxField,
-        CircularProgress, ClockButton, Cluster, ColorField, CompletionItem, CompletionList,
-        DataTable, DesktopBackdrop, DesktopIconButton, DesktopIconGrid, DesktopRoot,
-        DesktopWindowLayer, DisclosurePanel, Elevation, ElevationLayer, EmptyState, FieldGroup,
-        FieldVariant, Grid, Heading, Icon, IconButton, IconName, IconSize, InspectorGrid, KnobDial,
-        LauncherMenu, LayoutAlign, LayoutGap, LayoutJustify, LayoutPadding, ListSurface, MenuBar,
-        MenuItem, MenuSeparator, MenuSurface, Modal, OptionCard, Pane, PaneHeader, Panel,
-        PreviewFrame, ProgressBar, ProgressVariant, RangeField, ResizeHandle, SegmentedControl,
-        SegmentedControlOption, SelectField, SplitLayout, Stack, StatusBar, StatusBarItem,
-        StepFlow, StepFlowActions, StepFlowHeader, StepFlowStep, StepStatus, Surface,
-        SurfaceVariant, Switch, Tab, TabList, Taskbar, TaskbarButton, TaskbarOverflowButton,
-        TaskbarSection, TerminalLine, TerminalPrompt, TerminalSurface, TerminalTranscript, Text,
-        TextArea, TextField, TextRole, TextTone, ToggleRow, ToolBar, TrayButton, TrayList, Tree,
-        TreeItem, WindowBody, WindowControlButton, WindowControls, WindowFrame, WindowTitle,
+    pub use crate::components::{
+        AppShell, Button, DisclosurePanel, IconButton, StatusBar, StatusBarItem, StepFlow,
+        StepFlowActions, StepFlowHeader, StepFlowStep, ToggleRow, WindowControls, WindowFrame,
         WindowTitleBar,
     };
+    pub use crate::legacy_primitives::StepStatus;
+    pub use crate::primitives::{
+        ButtonShape, ButtonSize, ButtonVariant, Center, CheckboxField, Cluster, Elevation,
+        FieldVariant, Grid, Heading, Icon, IconName, IconSize, Inline, Inset, Layer, LayoutAlign,
+        LayoutGap, LayoutJustify, LayoutPadding, ListSurface, Panel, ResizeHandleRegion, Stack,
+        Surface, SurfaceVariant, TerminalLine, TerminalPrompt, TerminalSurface,
+        TerminalTranscript, Text, TextField, TextRole, TextTone, TitlebarRegion, Viewport,
+        WindowBody, WindowControlButton, WindowSurface, WindowTitle,
+    };
+    pub use crate::tokens::baseline_style_id;
 }

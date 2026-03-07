@@ -1,0 +1,122 @@
+[color]
+canvas = "#081018"
+desktop = "#0b1726"
+surface = "#101c2b"
+surface-muted = "#162436"
+surface-elevated = "#1c2c40"
+surface-overlay = "rgba(8, 16, 24, 0.86)"
+border-subtle = "rgba(158, 177, 199, 0.18)"
+border-strong = "rgba(177, 194, 214, 0.42)"
+text-primary = "#edf4ff"
+text-secondary = "#a1b4c9"
+text-inverse = "#06111d"
+accent = "#60b2ff"
+accent-strong = "#8dd0ff"
+focus = "#8dd0ff"
+success = "#4ed0a8"
+warning = "#f0ba5b"
+danger = "#f27c7c"
+selection = "rgba(96, 178, 255, 0.18)"
+
+[spacing]
+0 = "0"
+1 = "4px"
+2 = "8px"
+3 = "12px"
+4 = "16px"
+5 = "20px"
+6 = "24px"
+7 = "32px"
+8 = "40px"
+control-x = "14px"
+control-y = "9px"
+panel = "20px"
+
+[typography.family]
+sans = "\"IBM Plex Sans\", \"Segoe UI\", sans-serif"
+mono = "\"IBM Plex Mono\", \"SFMono-Regular\", monospace"
+
+[typography.size]
+caption = "12px"
+body-sm = "13px"
+body = "14px"
+body-lg = "16px"
+title-sm = "14px"
+title = "18px"
+title-lg = "22px"
+
+[typography.weight]
+regular = "400"
+medium = "500"
+semibold = "600"
+
+[typography.line_height]
+tight = "1.1"
+body = "1.4"
+relaxed = "1.6"
+
+[radius]
+none = "0"
+sm = "8px"
+md = "12px"
+lg = "18px"
+xl = "24px"
+round = "999px"
+
+[shadow]
+panel = "0 18px 40px rgba(0, 0, 0, 0.28)"
+window = "0 24px 64px rgba(0, 0, 0, 0.34)"
+overlay = "0 28px 88px rgba(0, 0, 0, 0.44)"
+inset = "inset 0 1px 0 rgba(255, 255, 255, 0.05)"
+
+[border.width]
+hairline = "1px"
+standard = "1px"
+strong = "2px"
+
+[opacity]
+disabled = "0.5"
+overlay = "0.9"
+
+[z_index]
+wallpaper = "0"
+desktop = "10"
+windows = "40"
+overlay = "80"
+menu = "100"
+modal = "120"
+taskbar = "140"
+
+[motion.duration]
+fast = "120ms"
+standard = "180ms"
+slow = "260ms"
+
+[motion.easing]
+standard = "cubic-bezier(0.2, 0.8, 0.2, 1)"
+emphasized = "cubic-bezier(0.2, 0.9, 0.2, 1)"
+
+[icon]
+sm = "16px"
+md = "20px"
+lg = "24px"
+desktop = "52px"
+
+[shell.taskbar]
+height = "52px"
+button-height = "36px"
+clock-width = "104px"
+
+[shell.titlebar]
+height = "42px"
+button-size = "32px"
+
+[shell.window_chrome]
+min-width = "320px"
+min-height = "220px"
+desktop-padding = "16px"
+
+[shell.resize_handle]
+edge = "10px"
+corner = "14px"
+hit-outset = "6px"

@@ -493,14 +493,6 @@ fn normalize_session_path(cwd: &str, input: &str) -> String {
     normalize_virtual_path(&format!("{}/{}", cwd.trim_end_matches('/'), input))
 }
 
-fn parse_bool_flag(raw: &str) -> Result<bool, ShellError> {
-    match raw {
-        "on" | "true" | "1" => Ok(true),
-        "off" | "false" | "0" => Ok(false),
-        _ => Err(usage_error(format!("expected on/off, got `{raw}`"))),
-    }
-}
-
 fn parse_window_id(raw: &str) -> Result<WindowId, ShellError> {
     raw.parse::<u64>()
         .map(WindowId)

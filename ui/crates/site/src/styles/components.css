@@ -1,0 +1,53 @@
+[data-ui-kind="toolbar"],
+[data-ui-kind="statusbar"] {
+  display: flex;
+  align-items: center;
+  gap: var(--origin-space-2);
+  padding: var(--origin-space-2) var(--origin-space-4);
+}
+
+[data-ui-kind="statusbar"] {
+  border-top: var(--origin-border-width-standard) solid var(--origin-color-border-subtle);
+  color: var(--origin-color-text-secondary);
+}
+
+[data-ui-kind="menu-surface"] {
+  min-width: 220px;
+  padding: var(--origin-space-2);
+  box-shadow: var(--origin-shadow-overlay);
+}
+
+[data-ui-slot="menu-item"] {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+[data-ui-kind="taskbar"] {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--origin-space-3);
+  padding: 0 var(--origin-space-3);
+  min-height: var(--origin-shell-taskbar-height);
+  border-top: var(--origin-border-width-standard) solid var(--origin-color-border-subtle);
+  background: color-mix(in srgb, var(--origin-color-surface-elevated) 88%, rgba(255, 255, 255, 0.04));
+  backdrop-filter: blur(16px);
+}
+
+[data-ui-kind="taskbar-section"],
+[data-ui-kind="tray-list"] {
+  display: flex;
+  align-items: center;
+  gap: var(--origin-space-2);
+}
+
+[data-ui-slot="taskbar-button"],
+[data-ui-slot="tray-button"],
+[data-ui-slot="clock-button"],
+[data-ui-slot="taskbar-overflow-button"] {
+  min-height: var(--origin-shell-taskbar-button-height);
+}
+
+[data-ui-slot="clock-button"] {
+  min-width: var(--origin-shell-taskbar-clock-width);
+}

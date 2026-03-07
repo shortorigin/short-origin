@@ -9,7 +9,6 @@ mod config;
 mod data;
 mod filesystem;
 mod inspect;
-mod theme;
 mod windows;
 
 pub(super) fn builtin_registrations(runtime: DesktopRuntimeContext) -> Vec<AppCommandRegistration> {
@@ -23,7 +22,6 @@ pub(super) fn builtin_registrations(runtime: DesktopRuntimeContext) -> Vec<AppCo
     ]);
     registrations.extend(apps::registrations(runtime.clone()));
     registrations.extend(windows::registrations(runtime.clone()));
-    registrations.extend(theme::registrations(runtime.clone()));
     registrations.extend(inspect::registrations(runtime.clone()));
     registrations.extend(filesystem::registrations(runtime.clone()));
     registrations.extend(data::registrations());

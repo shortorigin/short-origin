@@ -2,7 +2,8 @@ use super::*;
 use crate::wallpaper;
 use leptos::ev::MouseEvent;
 use platform_host::{WallpaperConfig, WallpaperMediaKind, WallpaperSelection};
-use system_ui::{ButtonVariant, Icon, IconName, IconSize, MenuItem, MenuSeparator, MenuSurface};
+use system_ui::components::{MenuItem, MenuSeparator, MenuSurface};
+use system_ui::primitives::{ButtonVariant, Icon, IconName, IconSize};
 
 #[component]
 pub(super) fn DesktopContextMenu(

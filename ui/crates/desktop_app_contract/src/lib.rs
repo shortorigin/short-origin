@@ -354,11 +354,6 @@ pub enum AppCommand {
         /// Optional reply target.
         reply_to: Option<String>,
     },
-    /// Set the active desktop skin preset.
-    SetDesktopSkin {
-        /// Stable desktop skin id (for example `modern-adaptive`).
-        skin_id: String,
-    },
     /// Preview a wallpaper configuration without committing it.
     PreviewWallpaper {
         /// Wallpaper preview configuration.
@@ -702,8 +697,6 @@ impl CacheHostService {
 /// Theme service for shell appearance/accessibility actions.
 pub struct ThemeService {
     sender: Callback<AppCommand>,
-    /// Current shell skin id.
-    pub skin_id: ReadSignal<String>,
     /// Current high-contrast flag.
     pub high_contrast: ReadSignal<bool>,
     /// Current reduced-motion flag.
@@ -711,13 +704,6 @@ pub struct ThemeService {
 }
 
 impl ThemeService {
-    /// Requests shell skin change by id.
-    pub fn set_skin(&self, skin_id: impl Into<String>) {
-        self.sender.call(AppCommand::SetDesktopSkin {
-            skin_id: skin_id.into(),
-        });
-    }
-
     /// Requests high contrast toggle.
     pub fn set_high_contrast(&self, enabled: bool) {
         self.sender
@@ -1253,7 +1239,6 @@ impl AppServices {
         prefs: Rc<dyn PrefsStore>,
         explorer: Rc<dyn ExplorerFsService>,
         cache: Rc<dyn ContentCache>,
-        theme_skin_id: ReadSignal<String>,
         theme_high_contrast: ReadSignal<bool>,
         theme_reduced_motion: ReadSignal<bool>,
         wallpaper_current: ReadSignal<WallpaperConfig>,
@@ -1276,7 +1261,6 @@ impl AppServices {
             cache: CacheHostService::new(cache),
             theme: ThemeService {
                 sender,
-                skin_id: theme_skin_id,
                 high_contrast: theme_high_contrast,
                 reduced_motion: theme_reduced_motion,
             },
@@ -1374,7 +1358,7 @@ mod tests {
 
     #[test]
     fn application_id_requires_dotted_namespaces() {
-        assert!(ApplicationId::new("system.calculator").is_ok());
+        assert!(ApplicationId::new("system.control-center").is_ok());
         assert!(ApplicationId::new("system.settings").is_ok());
         assert!(ApplicationId::new("calculator").is_err());
         assert!(ApplicationId::new("System.calc").is_err());

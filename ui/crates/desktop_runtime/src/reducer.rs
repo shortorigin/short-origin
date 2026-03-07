@@ -12,7 +12,7 @@ use thiserror::Error;
 
 use crate::apps;
 use crate::model::{
-    DeepLinkOpenTarget, DeepLinkState, DesktopSkin, DesktopSnapshot, DesktopState, DesktopTheme,
+    DeepLinkOpenTarget, DeepLinkState, DesktopSnapshot, DesktopState, DesktopTheme,
     InteractionState, OpenWindowRequest, PointerPosition, ResizeEdge, ResizeSession, WindowId,
     WindowRecord, WindowRect, DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH,
 };
@@ -20,7 +20,6 @@ use crate::window_manager::{
     focus_window_internal, normalize_window_stack, resize_rect, snap_window_to_viewport_edge,
     MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH,
 };
-use appearance::desktop_skin_from_id;
 
 #[derive(Debug, Clone, PartialEq)]
 /// Actions accepted by [`reduce_desktop`] to mutate [`DesktopState`].
@@ -126,11 +125,6 @@ pub enum DesktopAction {
         window_id: WindowId,
         /// App command payload.
         command: AppCommand,
-    },
-    /// Set the active desktop skin preset.
-    SetSkin {
-        /// New typed skin id.
-        skin: DesktopSkin,
     },
     /// Replace the committed desktop wallpaper configuration.
     SetCurrentWallpaper {
@@ -482,9 +476,6 @@ pub fn reduce_desktop(
             emit_focus_transition(previously_focused, Some(window_id), state, &mut effects);
             effects.push(RuntimeEffect::PersistLayout);
             effects.push(RuntimeEffect::FocusWindowInput(window_id));
-            if apps::is_dialup_application_id(&req.app_id) && state.theme.audio_enabled {
-                effects.push(RuntimeEffect::PlaySound("dialup-open"));
-            }
         }
         DesktopAction::CloseWindow { window_id } => {
             let was_focused = state.focused_window_id() == Some(window_id);
@@ -858,13 +849,6 @@ pub fn reduce_desktop(
                         });
                     }
                 }
-                AppCommand::SetDesktopSkin { skin_id } => {
-                    if let Some(skin) = desktop_skin_from_id(&skin_id) {
-                        let nested =
-                            reduce_desktop(state, interaction, DesktopAction::SetSkin { skin })?;
-                        effects.extend(nested);
-                    }
-                }
                 AppCommand::PreviewWallpaper { config } => {
                     let nested = reduce_desktop(
                         state,
@@ -1041,8 +1025,7 @@ pub fn reduce_desktop(
         DesktopAction::BootHydrationComplete => {
             state.boot_hydrated = true;
         }
-        DesktopAction::SetSkin { .. }
-        | DesktopAction::SetCurrentWallpaper { .. }
+        DesktopAction::SetCurrentWallpaper { .. }
         | DesktopAction::PreviewWallpaper { .. }
         | DesktopAction::ApplyWallpaperPreview
         | DesktopAction::ClearWallpaperPreview
@@ -1068,17 +1051,17 @@ pub fn build_open_request_from_deeplink(target: DeepLinkOpenTarget) -> OpenWindo
     match target {
         DeepLinkOpenTarget::App(app_id) => OpenWindowRequest::new(app_id),
         DeepLinkOpenTarget::NotesSlug(slug) => {
-            let mut req = OpenWindowRequest::new(ApplicationId::trusted("system.notepad"));
-            req.title = Some(format!("Note - {slug}"));
+            let mut req = OpenWindowRequest::new(apps::settings_application_id());
+            req.title = Some(format!("Settings - Notes {slug}"));
             req.persist_key = Some(format!("notes:{slug}"));
-            req.launch_params = json!({ "slug": slug });
+            req.launch_params = json!({ "section": "personalize", "note_slug": slug });
             req
         }
         DeepLinkOpenTarget::ProjectSlug(slug) => {
-            let mut req = OpenWindowRequest::new(ApplicationId::trusted("system.explorer"));
+            let mut req = OpenWindowRequest::new(ApplicationId::trusted("system.control-center"));
             req.title = Some(format!("Project - {slug}"));
             req.persist_key = Some(format!("projects:{slug}"));
-            req.launch_params = json!({ "project_slug": slug });
+            req.launch_params = json!({ "section": "overview", "project_slug": slug });
             req
         }
     }
@@ -1170,9 +1153,9 @@ fn command_required_capability(command: &AppCommand) -> Option<AppCapability> {
         AppCommand::Subscribe { .. }
         | AppCommand::Unsubscribe { .. }
         | AppCommand::PublishEvent { .. } => Some(AppCapability::Ipc),
-        AppCommand::SetDesktopSkin { .. }
-        | AppCommand::SetDesktopHighContrast { .. }
-        | AppCommand::SetDesktopReducedMotion { .. } => Some(AppCapability::Theme),
+        AppCommand::SetDesktopHighContrast { .. } | AppCommand::SetDesktopReducedMotion { .. } => {
+            Some(AppCapability::Theme)
+        }
         AppCommand::PreviewWallpaper { .. }
         | AppCommand::ApplyWallpaperPreview
         | AppCommand::SetCurrentWallpaper { .. }
@@ -1228,12 +1211,12 @@ mod tests {
         let first = open(
             &mut state,
             &mut interaction,
-            ApplicationId::trusted("system.explorer"),
+            ApplicationId::trusted("system.control-center"),
         );
         let second = open(
             &mut state,
             &mut interaction,
-            ApplicationId::trusted("system.notepad"),
+            ApplicationId::trusted("system.settings"),
         );
 
         assert_eq!(state.focused_window_id(), Some(second));
@@ -1251,7 +1234,7 @@ mod tests {
         let win = open(
             &mut state,
             &mut interaction,
-            ApplicationId::trusted("system.explorer"),
+            ApplicationId::trusted("system.control-center"),
         );
         reduce_desktop(
             &mut state,
@@ -1283,7 +1266,7 @@ mod tests {
         let win = open(
             &mut state,
             &mut interaction,
-            ApplicationId::trusted("system.explorer"),
+            ApplicationId::trusted("system.control-center"),
         );
         reduce_desktop(
             &mut state,
@@ -1343,7 +1326,7 @@ mod tests {
     }
 
     #[test]
-    fn activate_app_reuses_existing_window_for_single_instance_compat_apps() {
+    fn activate_app_reuses_existing_window_for_single_instance_apps() {
         let mut state = DesktopState::default();
         let mut interaction = InteractionState::default();
 
@@ -1351,33 +1334,32 @@ mod tests {
             &mut state,
             &mut interaction,
             DesktopAction::ActivateApp {
-                app_id: ApplicationId::trusted("system.explorer"),
+                app_id: ApplicationId::trusted("system.control-center"),
                 viewport: None,
             },
         )
-        .expect("activate explorer first");
+        .expect("activate control center first");
         reduce_desktop(
             &mut state,
             &mut interaction,
             DesktopAction::ActivateApp {
-                app_id: ApplicationId::trusted("system.explorer"),
+                app_id: ApplicationId::trusted("system.control-center"),
                 viewport: None,
             },
         )
-        .expect("activate explorer second");
+        .expect("activate control center second");
 
         assert_eq!(state.windows.len(), 1);
         assert!(state
             .windows
             .iter()
-            .all(|w| w.app_id == ApplicationId::trusted("system.explorer")));
+            .all(|w| w.app_id == ApplicationId::trusted("system.control-center")));
     }
 
     #[test]
     fn activate_settings_uses_default_open_request_without_theme_launch_params() {
         let mut state = DesktopState::default();
         let mut interaction = InteractionState::default();
-        state.theme.skin = DesktopSkin::ClassicXp;
         state.theme.high_contrast = true;
         state.theme.reduced_motion = true;
 
@@ -1402,12 +1384,12 @@ mod tests {
         let first = open(
             &mut state,
             &mut interaction,
-            ApplicationId::trusted("system.explorer"),
+            ApplicationId::trusted("system.control-center"),
         );
         let second = open(
             &mut state,
             &mut interaction,
-            ApplicationId::trusted("system.calculator"),
+            ApplicationId::trusted("system.settings"),
         );
         let before = state.windows.clone();
 
@@ -1475,7 +1457,7 @@ mod tests {
         let win = open(
             &mut state,
             &mut interaction,
-            ApplicationId::trusted("system.explorer"),
+            ApplicationId::trusted("system.control-center"),
         );
         reduce_desktop(
             &mut state,
@@ -1574,24 +1556,6 @@ mod tests {
     }
 
     #[test]
-    fn set_skin_updates_theme_and_persists() {
-        let mut state = DesktopState::default();
-        let mut interaction = InteractionState::default();
-
-        let effects = reduce_desktop(
-            &mut state,
-            &mut interaction,
-            DesktopAction::SetSkin {
-                skin: DesktopSkin::Classic95,
-            },
-        )
-        .expect("set skin");
-
-        assert_eq!(state.theme.skin, DesktopSkin::Classic95);
-        assert_eq!(effects, vec![RuntimeEffect::PersistTheme]);
-    }
-
-    #[test]
     fn preview_and_apply_wallpaper_are_independent_of_theme() {
         let mut state = DesktopState::default();
         let mut interaction = InteractionState::default();
@@ -1613,7 +1577,6 @@ mod tests {
         .expect("preview wallpaper");
         assert!(effects.is_empty());
         assert_eq!(state.wallpaper_preview, Some(next.clone()));
-        assert_eq!(state.theme.skin, DesktopSkin::SoftNeumorphic);
 
         let effects = reduce_desktop(
             &mut state,
@@ -1624,7 +1587,6 @@ mod tests {
         assert_eq!(state.wallpaper, next);
         assert!(state.wallpaper_preview.is_none());
         assert_eq!(effects, vec![RuntimeEffect::PersistWallpaper]);
-        assert_eq!(state.theme.skin, DesktopSkin::SoftNeumorphic);
     }
 
     #[test]
@@ -1657,7 +1619,7 @@ mod tests {
         let window_id = open(
             &mut state,
             &mut interaction,
-            ApplicationId::trusted("system.explorer"),
+            ApplicationId::trusted("system.control-center"),
         );
         let payload = serde_json::json!({ "cwd": "/Projects" });
 
@@ -1685,7 +1647,7 @@ mod tests {
         let window_id = open(
             &mut state,
             &mut interaction,
-            ApplicationId::trusted("system.notepad"),
+            ApplicationId::trusted("system.settings"),
         );
 
         let effects = reduce_desktop(
@@ -1709,10 +1671,10 @@ mod tests {
     fn minimize_applies_suspend_policy() {
         let mut state = DesktopState::default();
         let mut interaction = InteractionState::default();
-        let explorer = open(
+        let control_center = open(
             &mut state,
             &mut interaction,
-            ApplicationId::trusted("system.explorer"),
+            ApplicationId::trusted("system.control-center"),
         );
         let terminal = open(
             &mut state,
@@ -1720,19 +1682,23 @@ mod tests {
             ApplicationId::trusted("system.terminal"),
         );
 
-        let explorer_effects = reduce_desktop(
+        let control_center_effects = reduce_desktop(
             &mut state,
             &mut interaction,
             DesktopAction::MinimizeWindow {
-                window_id: explorer,
+                window_id: control_center,
             },
         )
-        .expect("minimize explorer");
-        let explorer_window = state.windows.iter().find(|w| w.id == explorer).unwrap();
-        assert!(explorer_window.suspended);
+        .expect("minimize control center");
+        let control_center_window = state
+            .windows
+            .iter()
+            .find(|w| w.id == control_center)
+            .unwrap();
+        assert!(control_center_window.suspended);
         assert!(
-            explorer_effects.contains(&RuntimeEffect::DispatchLifecycle {
-                window_id: explorer,
+            control_center_effects.contains(&RuntimeEffect::DispatchLifecycle {
+                window_id: control_center,
                 event: AppLifecycleEvent::Suspended,
             })
         );
@@ -1762,12 +1728,12 @@ mod tests {
         let _first = open(
             &mut state,
             &mut interaction,
-            ApplicationId::trusted("system.explorer"),
+            ApplicationId::trusted("system.control-center"),
         );
         let second = open(
             &mut state,
             &mut interaction,
-            ApplicationId::trusted("system.notepad"),
+            ApplicationId::trusted("system.settings"),
         );
 
         let effects = reduce_desktop(

@@ -145,69 +145,25 @@ pub struct WindowRecord {
     pub last_lifecycle_event: Option<String>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
-/// Typed desktop skin variants rendered by the shell root `data-skin` attribute.
-pub enum DesktopSkin {
-    /// Soft neumorphic skin with restrained depth cues and adaptive light/dark parity.
-    #[serde(rename = "soft-neumorphic")]
-    #[default]
-    SoftNeumorphic,
-    /// Modern adaptive skin with dark-first token language and light/dark remapping.
-    #[serde(rename = "modern-adaptive")]
-    ModernAdaptive,
-    /// Classic XP-inspired nostalgic skin.
-    #[serde(rename = "classic-xp")]
-    ClassicXp,
-    /// Classic Windows 95-inspired nostalgic skin.
-    #[serde(rename = "classic-95")]
-    Classic95,
-}
-
-impl DesktopSkin {
-    /// Stable CSS skin id exposed on the shell root `data-skin` attribute.
-    pub const fn css_id(&self) -> &'static str {
-        match self {
-            Self::SoftNeumorphic => "soft-neumorphic",
-            Self::ModernAdaptive => "modern-adaptive",
-            Self::ClassicXp => "classic-xp",
-            Self::Classic95 => "classic-95",
-        }
-    }
-
-    /// Human-readable label used by UI skin pickers.
-    pub const fn label(&self) -> &'static str {
-        match self {
-            Self::SoftNeumorphic => "Soft Neumorphic",
-            Self::ModernAdaptive => "Modern Adaptive",
-            Self::ClassicXp => "Classic XP",
-            Self::Classic95 => "Classic 95",
-        }
-    }
-
-    /// Stable ordered list of selectable shell skins.
-    pub const ALL: [Self; 4] = [
-        Self::SoftNeumorphic,
-        Self::ModernAdaptive,
-        Self::ClassicXp,
-        Self::Classic95,
-    ];
-}
+/// Fixed baseline shell style id for inspection and app-service parity.
+pub const BASELINE_STYLE_ID: &str = "origin-baseline";
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
 /// User-configurable desktop theme preferences.
 pub struct DesktopTheme {
-    /// Typed skin preset rendered as the shell root `data-skin`.
-    ///
-    /// This defaults to [`DesktopSkin::SoftNeumorphic`] for fresh state and legacy persisted
-    /// payloads that omitted the typed `skin` field.
-    #[serde(default)]
-    pub skin: DesktopSkin,
     /// Whether high contrast rendering is enabled.
+    #[serde(default)]
     pub high_contrast: bool,
     /// Whether reduced motion rendering is enabled.
+    #[serde(default)]
     pub reduced_motion: bool,
     /// Whether desktop sound effects are enabled.
+    #[serde(default = "default_audio_enabled")]
     pub audio_enabled: bool,
+}
+
+const fn default_audio_enabled() -> bool {
+    true
 }
 
 /// Current committed desktop wallpaper configuration.
@@ -388,8 +344,8 @@ impl OpenWindowRequest {
     /// ```rust
     /// use desktop_runtime::{ApplicationId, OpenWindowRequest};
     ///
-    /// let request = OpenWindowRequest::new(ApplicationId::trusted("system.explorer"));
-    /// assert_eq!(request.app_id, ApplicationId::trusted("system.explorer"));
+    /// let request = OpenWindowRequest::new(ApplicationId::trusted("system.control-center"));
+    /// assert_eq!(request.app_id, ApplicationId::trusted("system.control-center"));
     /// assert!(request.rect.is_none());
     /// ```
     pub fn new(app_id: impl Into<ApplicationId>) -> Self {
@@ -507,8 +463,8 @@ mod tests {
             },
             "windows": [{
                 "id": 7,
-                "app_id": "Explorer",
-                "title": "Explorer",
+                "app_id": "system.control-center",
+                "title": "Control Center",
                 "icon_id": "folder",
                 "rect": { "x": 10, "y": 20, "w": 640, "h": 480 },
                 "restore_rect": null,
@@ -539,7 +495,7 @@ mod tests {
     }
 
     #[test]
-    fn legacy_theme_name_defaults_skin_to_soft_neumorphic() {
+    fn legacy_theme_name_ignores_removed_skin_field() {
         let payload = serde_json::json!({
             "high_contrast": true,
             "reduced_motion": true,
@@ -549,22 +505,19 @@ mod tests {
 
         let theme: DesktopTheme =
             serde_json::from_value(payload).expect("legacy theme payload should deserialize");
-        assert_eq!(theme.skin, DesktopSkin::SoftNeumorphic);
         assert!(theme.high_contrast);
         assert!(theme.reduced_motion);
     }
 
     #[test]
-    fn desktop_theme_roundtrip_preserves_skin() {
+    fn desktop_theme_roundtrip_preserves_accessibility_flags() {
         let theme = DesktopTheme {
-            skin: DesktopSkin::ClassicXp,
             high_contrast: false,
             reduced_motion: true,
             audio_enabled: true,
         };
         let encoded = serde_json::to_value(&theme).expect("serialize theme");
         let decoded: DesktopTheme = serde_json::from_value(encoded).expect("deserialize theme");
-        assert_eq!(decoded.skin, DesktopSkin::ClassicXp);
         assert!(decoded.reduced_motion);
         assert!(decoded.audio_enabled);
     }
@@ -577,9 +530,9 @@ mod tests {
             windows: vec![
                 WindowRecord {
                     id: WindowId(4),
-                    app_id: ApplicationId::trusted("system.explorer"),
-                    title: "Explorer".to_string(),
-                    icon_id: "folder".to_string(),
+                    app_id: ApplicationId::trusted("system.control-center"),
+                    title: "Control Center".to_string(),
+                    icon_id: "home".to_string(),
                     rect: WindowRect::default(),
                     restore_rect: None,
                     z_index: 1,

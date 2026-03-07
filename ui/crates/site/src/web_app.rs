@@ -14,15 +14,12 @@ use leptos_router::*;
 use platform_host_web::build_host_services;
 
 const DESKTOP_THEME_CSS: &str = concat!(
-    include_str!("theme_shell/00-foundations.css"),
-    include_str!("theme_shell/01-primitives.css"),
-    include_str!("theme_shell/02-shell-layout.css"),
-    include_str!("theme_shell/03-responsive.css"),
-    include_str!("theme_shell/04-accessibility-motion.css"),
-    include_str!("theme_shell/10-theme-xp.css"),
-    include_str!("theme_shell/20-theme-legacy95.css"),
-    include_str!("theme_shell/30-theme-modern-adaptive.css"),
-    include_str!("theme_shell/34-theme-soft-neumorphic.css"),
+    include_str!("generated/tokens.css"),
+    include_str!("generated/tailwind.css"),
+    include_str!("styles/primitives.css"),
+    include_str!("styles/components.css"),
+    include_str!("styles/shell.css"),
+    include_str!("styles/a11y.css"),
 );
 
 #[component]
@@ -225,12 +222,13 @@ mod tests {
 
     #[test]
     fn parses_hash_query_style_open_targets() {
-        let parsed = parse_deep_link_from_parts("", "#open=projects:alpha&open=system.dialup");
+        let parsed =
+            parse_deep_link_from_parts("", "#open=projects:alpha&open=system.control-center");
         assert_eq!(
             parsed.open,
             vec![
                 DeepLinkOpenTarget::ProjectSlug("alpha".to_string()),
-                DeepLinkOpenTarget::App(ApplicationId::trusted("system.dialup")),
+                DeepLinkOpenTarget::App(ApplicationId::trusted("system.control-center")),
             ]
         );
     }
@@ -247,11 +245,11 @@ mod tests {
     #[test]
     fn supports_comma_separated_query_targets() {
         let parsed =
-            parse_deep_link_from_parts("?open=system.explorer,system.terminal,projects:beta", "");
+            parse_deep_link_from_parts("?open=system.settings,system.terminal,projects:beta", "");
         assert_eq!(
             parsed.open,
             vec![
-                DeepLinkOpenTarget::App(ApplicationId::trusted("system.explorer")),
+                DeepLinkOpenTarget::App(ApplicationId::trusted("system.settings")),
                 DeepLinkOpenTarget::App(ApplicationId::trusted("system.terminal")),
                 DeepLinkOpenTarget::ProjectSlug("beta".to_string()),
             ]

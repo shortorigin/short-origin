@@ -1,0 +1,5 @@
+error[E0432]: unresolved import `system_ui::prelude::Badge`
+ --> tests/ui/prelude_rejects_badge.rs:1:5
+  |
+1 | use system_ui::prelude::Badge;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^ no `Badge` in `prelude`

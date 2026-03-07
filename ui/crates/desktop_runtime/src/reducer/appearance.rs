@@ -5,20 +5,10 @@ use platform_host::{
 };
 
 use crate::{
-    model::{DesktopSkin, DesktopState},
+    model::DesktopState,
     reducer::{DesktopAction, ReducerError, RuntimeEffect},
     wallpaper,
 };
-
-pub(super) fn desktop_skin_from_id(skin_id: &str) -> Option<DesktopSkin> {
-    match skin_id.trim() {
-        "soft-neumorphic" => Some(DesktopSkin::SoftNeumorphic),
-        "modern-adaptive" => Some(DesktopSkin::ModernAdaptive),
-        "classic-xp" => Some(DesktopSkin::ClassicXp),
-        "classic-95" => Some(DesktopSkin::Classic95),
-        _ => None,
-    }
-}
 
 pub(super) fn reduce_appearance_action(
     state: &mut DesktopState,
@@ -26,10 +16,6 @@ pub(super) fn reduce_appearance_action(
     effects: &mut Vec<RuntimeEffect>,
 ) -> Result<bool, ReducerError> {
     match action {
-        DesktopAction::SetSkin { skin } => {
-            state.theme.skin = *skin;
-            effects.push(RuntimeEffect::PersistTheme);
-        }
         DesktopAction::SetCurrentWallpaper { config } => {
             state.wallpaper = validate_wallpaper_config(state, config)?;
             state.wallpaper_preview = None;

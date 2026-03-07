@@ -34,10 +34,10 @@ use crate::{
     runtime_context::open_system_settings,
     wallpaper,
 };
-use system_ui::{
-    DesktopBackdrop, DesktopIconButton, DesktopIconGrid, DesktopWindowLayer, Icon, IconName,
-    IconSize,
+use system_ui::components::{
+    DesktopBackdrop, DesktopIcon, DesktopIconGrid, DesktopWindowLayer,
 };
+use system_ui::primitives::{Icon, IconName, IconSize};
 
 const TASKBAR_HEIGHT_PX: i32 = 38;
 #[cfg(target_arch = "wasm32")]
@@ -314,9 +314,6 @@ pub fn DesktopShell() -> impl IntoView {
         desktop_context_menu.set(None);
         set_start_button_e2e_state(None, false);
 
-        if let Some(skin) = config.skin {
-            runtime.dispatch_action(DesktopAction::SetSkin { skin });
-        }
         if let Some(enabled) = config.high_contrast {
             runtime.dispatch_action(DesktopAction::SetHighContrast { enabled });
         }
@@ -362,9 +359,9 @@ pub fn DesktopShell() -> impl IntoView {
             }
             BrowserE2eScene::UiShowcaseControls => {
                 runtime.dispatch_action(DesktopAction::OpenWindow(browser_e2e_window_request(
-                    ApplicationId::trusted("system.ui-showcase"),
+                    ApplicationId::trusted("system.control-center"),
                     runtime,
-                    Value::Null,
+                    json!({ "section": "guidance" }),
                 )));
             }
             BrowserE2eScene::TerminalDefault => {
@@ -414,7 +411,7 @@ pub fn DesktopShell() -> impl IntoView {
             BrowserE2eScene::UiShowcaseControls => desktop
                 .windows
                 .iter()
-                .any(|window| window.app_id == ApplicationId::trusted("system.ui-showcase")),
+                .any(|window| window.app_id == ApplicationId::trusted("system.control-center")),
             BrowserE2eScene::TerminalDefault => desktop
                 .windows
                 .iter()
@@ -445,7 +442,6 @@ pub fn DesktopShell() -> impl IntoView {
                     .as_ref()
                     .map(|_| browser_e2e_ready.get().to_string())
             }
-            data-skin=move || state.get().theme.skin.css_id()
             data-high-contrast=move || state.get().theme.high_contrast.to_string()
             data-reduced-motion=move || state.get().theme.reduced_motion.to_string()
             on:click=move |_| {
@@ -485,7 +481,7 @@ pub fn DesktopShell() -> impl IntoView {
                             let app_icon = app_icon_name(&app_id);
                             let desktop_icon_label = app.desktop_icon_label;
                             view! {
-                                <DesktopIconButton
+                                <DesktopIcon
                                     on_click=Callback::new(move |_| {
                                         runtime.dispatch_action(DesktopAction::ActivateApp {
                                             app_id: app_id.clone(),
@@ -497,7 +493,7 @@ pub fn DesktopShell() -> impl IntoView {
                                         <Icon icon=app_icon size=IconSize::Lg />
                                     </span>
                                     <span>{desktop_icon_label}</span>
-                                </DesktopIconButton>
+                                </DesktopIcon>
                             }
                         }}
                     </For>
@@ -927,10 +923,7 @@ fn clamp_taskbar_popup_position(
 fn build_taskbar_tray_widgets(state: &DesktopState) -> Vec<TaskbarTrayWidget> {
     let total_windows = state.windows.len();
     let minimized_windows = state.windows.iter().filter(|win| win.minimized).count();
-    let dialup_online = state
-        .windows
-        .iter()
-        .any(|win| apps::is_dialup_application_id(&win.app_id) && !win.minimized);
+    let dialup_online = false;
 
     vec![
         TaskbarTrayWidget {

@@ -9,7 +9,7 @@ use system_shell_contract::{
     CommandDataShape, CommandOutputShape, StructuredField, StructuredScalar, StructuredValue,
 };
 
-use crate::components::DesktopRuntimeContext;
+use crate::{components::DesktopRuntimeContext, model::BASELINE_STYLE_ID};
 
 pub(super) fn registrations(runtime: DesktopRuntimeContext) -> Vec<AppCommandRegistration> {
     vec![
@@ -40,7 +40,7 @@ fn inspect_runtime_registration(runtime: DesktopRuntimeContext) -> AppCommandReg
                     output: super::super::record_data(vec![
                         super::super::int_field("windows", desktop.windows.len() as i64),
                         super::super::bool_field("start_menu_open", desktop.start_menu_open),
-                        super::super::string_field("skin", desktop.theme.skin.css_id()),
+                        super::super::string_field("style", BASELINE_STYLE_ID),
                         super::super::bool_field("high_contrast", desktop.theme.high_contrast),
                         super::super::bool_field("reduced_motion", desktop.theme.reduced_motion),
                         super::super::int_field(

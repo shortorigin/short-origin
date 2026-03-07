@@ -16,11 +16,15 @@ use platform_host::CapabilityStatus;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use system_shell_contract::{
-    CommandNotice, CompletionItem, CompletionRequest, DisplayPreference, ExecutionId, ShellRequest,
-    ShellStreamEvent, StructuredData, StructuredRecord, StructuredScalar, StructuredTable,
-    StructuredValue,
+    CommandNotice, CompletionItem as ShellCompletionItem, CompletionRequest, DisplayPreference,
+    ExecutionId, ShellRequest, ShellStreamEvent, StructuredData, StructuredRecord,
+    StructuredScalar, StructuredTable, StructuredValue,
 };
-use system_ui::prelude::*;
+use system_ui::components::AppShell;
+use system_ui::primitives::{
+    CompletionItem as CompletionOption, CompletionList, DataTable, ListSurface, TerminalLine, TerminalPrompt,
+    TerminalSurface, TerminalTranscript, TextField, TextTone,
+};
 
 const MAX_TERMINAL_ENTRIES: usize = 200;
 const AUTO_FOLLOW_THRESHOLD_PX: i32 = 32;
@@ -338,7 +342,7 @@ pub fn TerminalApp(
     let cwd = create_rw_signal(launch_cwd.clone());
     let input = create_rw_signal(String::new());
     let transcript = create_rw_signal(default_terminal_transcript());
-    let suggestions = create_rw_signal(Vec::<CompletionItem>::new());
+    let suggestions = create_rw_signal(Vec::<ShellCompletionItem>::new());
     let history_cursor = create_rw_signal::<Option<usize>>(None);
     let active_execution = create_rw_signal::<Option<PersistedExecutionState>>(None);
     let processed_events = create_rw_signal(0usize);
@@ -624,14 +628,14 @@ pub fn TerminalApp(
                 <Show when=move || !suggestions.get().is_empty() fallback=|| ()>
                     <CompletionList role="listbox" aria_label="Completions">
                         <For each=move || suggestions.get() key=|item| item.value.clone() let:item>
-                            <CompletionItem
+                            <CompletionOption
                                 on_click=Callback::new(move |_| {
                                     input.set(format!("{} ", item.value));
                                     suggestions.set(Vec::new());
                                 })
                             >
                                 {item.label}
-                            </CompletionItem>
+                            </CompletionOption>
                         </For>
                     </CompletionList>
                 </Show>

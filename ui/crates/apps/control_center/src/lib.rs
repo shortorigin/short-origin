@@ -7,7 +7,11 @@ use leptos::*;
 use sdk_rs::UiDashboardSnapshotV1;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use system_ui::prelude::*;
+use system_ui::components::{AppShell, Button, StatusBar, StatusBarItem, Toolbar};
+use system_ui::primitives::{
+    ButtonVariant, Elevation, Grid, Heading, LayoutGap, ListSurface, Panel, Stack, Surface,
+    SurfaceVariant, Text, TextRole, TextTone,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 enum ControlCenterSection {
@@ -86,7 +90,7 @@ pub fn ControlCenterApp(
 
     view! {
         <AppShell>
-            <ToolBar aria_label="Control Center sections">
+            <Toolbar aria_label="Control Center sections">
                 {[
                     ControlCenterSection::Overview,
                     ControlCenterSection::Host,
@@ -108,7 +112,7 @@ pub fn ControlCenterApp(
                     }
                 })
                 .collect_view()}
-            </ToolBar>
+            </Toolbar>
 
             <Panel variant=SurfaceVariant::Standard>
                 <Stack gap=LayoutGap::Md>
@@ -248,8 +252,8 @@ fn GuidanceSection() -> impl IntoView {
                 <Text>"Tauri is the release runtime. Browser/WASM remains useful for preview and parity checks."</Text>
             </div>
             <div>
-                <Text role=TextRole::Label>"Legacy app ids"</Text>
-                <Text>"Removed sample apps resolve to compatibility placeholders so older deep links stay non-destructive."</Text>
+                <Text role=TextRole::Label>"Managed shell surfaces"</Text>
+                <Text>"The shell baseline is limited to Control Center, Terminal, and Settings. Launcher and taskbar state come from manifest-driven runtime registration only."</Text>
             </div>
         </ListSurface>
     }

@@ -1,0 +1,148 @@
+.site-root {
+  min-height: 100vh;
+}
+
+.desktop-shell,
+[data-ui-kind="viewport"] {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) var(--origin-shell-taskbar-height);
+  background:
+    radial-gradient(circle at 20% 18%, rgba(96, 178, 255, 0.16), transparent 26%),
+    radial-gradient(circle at 82% 18%, rgba(78, 208, 168, 0.12), transparent 28%),
+    linear-gradient(180deg, #0e1c2c, var(--origin-color-desktop));
+}
+
+[data-ui-kind="desktop-backdrop"] {
+  position: relative;
+  overflow: hidden;
+}
+
+[data-ui-kind="wallpaper-layer"],
+[data-ui-slot="dismiss-layer"],
+[data-ui-kind="desktop-window-layer"] {
+  position: absolute;
+  inset: 0;
+}
+
+[data-ui-kind="wallpaper-layer"] {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+[data-ui-slot="dismiss-layer"] {
+  z-index: var(--origin-z-desktop);
+}
+
+[data-ui-kind="desktop-icon-grid"] {
+  position: absolute;
+  top: var(--origin-space-4);
+  left: var(--origin-space-4);
+  z-index: calc(var(--origin-z-desktop) + 1);
+  display: grid;
+  gap: var(--origin-space-3);
+  width: 112px;
+}
+
+[data-ui-kind="desktop-icon-button"] {
+  display: grid;
+  justify-items: center;
+  gap: var(--origin-space-2);
+  width: 100%;
+  min-height: 92px;
+  padding: var(--origin-space-2);
+  border: 0;
+  border-radius: var(--origin-radius-md);
+  background: transparent;
+  color: var(--origin-color-text-primary);
+}
+
+[data-ui-kind="desktop-icon-button"] > span:first-child {
+  width: var(--origin-icon-desktop);
+  height: var(--origin-icon-desktop);
+  display: grid;
+  place-items: center;
+  border-radius: var(--origin-radius-md);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02));
+  border: var(--origin-border-width-standard) solid rgba(255, 255, 255, 0.08);
+  box-shadow: var(--origin-shadow-panel);
+}
+
+[data-ui-kind="desktop-window-layer"] {
+  pointer-events: none;
+  z-index: var(--origin-z-windows);
+}
+
+[data-ui-kind="window-surface"],
+[data-ui-kind="window-frame"] {
+  position: absolute;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-width: var(--origin-shell-window-chrome-min-width);
+  min-height: var(--origin-shell-window-chrome-min-height);
+  overflow: hidden;
+  pointer-events: auto;
+  border-radius: var(--origin-radius-lg);
+  border: var(--origin-border-width-standard) solid var(--origin-color-border-strong);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 100%), var(--origin-color-surface);
+  box-shadow: var(--origin-shadow-window);
+}
+
+[data-ui-kind="window-surface"][data-ui-focused="true"],
+[data-ui-kind="window-frame"][data-ui-focused="true"] {
+  border-color: rgba(96, 178, 255, 0.52);
+}
+
+[data-ui-kind="titlebar-region"],
+[data-ui-kind="window-titlebar"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--origin-space-3);
+  min-height: var(--origin-shell-titlebar-height);
+  padding: 0 var(--origin-space-3);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01));
+  border-bottom: var(--origin-border-width-standard) solid var(--origin-color-border-subtle);
+}
+
+[data-ui-kind="window-title"],
+[data-ui-kind="window-controls"] {
+  display: flex;
+  align-items: center;
+  gap: var(--origin-space-2);
+}
+
+[data-ui-kind="window-body"] {
+  min-height: 0;
+  background: var(--origin-color-surface);
+}
+
+[data-ui-kind="resize-handle-region"],
+[data-ui-kind="resize-handle"] {
+  position: absolute;
+}
+
+[data-ui-kind="menu-surface"] {
+  position: absolute;
+  z-index: var(--origin-z-menu);
+}
+
+[data-ui-slot="launcher-menu"] {
+  left: var(--origin-space-3);
+  bottom: calc(var(--origin-shell-taskbar-height) + var(--origin-space-2));
+}
+
+@media (max-width: 720px) {
+  [data-ui-kind="desktop-icon-grid"] {
+    position: static;
+    width: auto;
+    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+    padding: var(--origin-space-4);
+  }
+
+  [data-ui-kind="taskbar"] {
+    grid-template-columns: 1fr;
+    padding-block: var(--origin-space-2);
+  }
+}

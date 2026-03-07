@@ -1,7 +1,5 @@
 //! Desktop app registry metadata and app-content mounting helpers.
 
-mod placeholders;
-
 use std::sync::OnceLock;
 
 use crate::model::{OpenWindowRequest, DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH};
@@ -12,16 +10,11 @@ use desktop_app_control_center::ControlCenterApp;
 use desktop_app_settings::SettingsApp;
 use desktop_app_terminal::TerminalApp;
 use leptos::*;
-use system_ui::IconName;
+use system_ui::primitives::IconName;
 
 const APP_ID_CONTROL_CENTER: &str = "system.control-center";
 const APP_ID_TERMINAL: &str = "system.terminal";
 const APP_ID_SETTINGS: &str = "system.settings";
-const APP_ID_CALCULATOR: &str = "system.calculator";
-const APP_ID_EXPLORER: &str = "system.explorer";
-const APP_ID_NOTEPAD: &str = "system.notepad";
-const APP_ID_UI_SHOWCASE: &str = "system.ui-showcase";
-const APP_ID_DIALUP: &str = "system.dialup";
 
 #[derive(Debug, Clone, Copy)]
 struct GeneratedAppManifestMetadata {
@@ -38,22 +31,6 @@ include!(concat!(env!("OUT_DIR"), "/app_catalog_generated.rs"));
 
 fn builtin_app_id(raw: &'static str) -> ApplicationId {
     ApplicationId::trusted(raw)
-}
-
-fn compatibility_metadata(
-    display_name: &'static str,
-    requested_capabilities: &'static [AppCapability],
-    window_defaults: (i32, i32),
-) -> GeneratedAppManifestMetadata {
-    GeneratedAppManifestMetadata {
-        display_name,
-        requested_capabilities,
-        single_instance: true,
-        suspend_policy: SuspendPolicy::OnMinimize,
-        show_in_launcher: false,
-        show_on_desktop: false,
-        window_defaults,
-    }
 }
 
 /// Returns the generated manifest catalog payload used for build-time discovery validation.
@@ -123,56 +100,6 @@ fn build_app_registry() -> Vec<AppDescriptor> {
             SYSTEM_SETTINGS_MANIFEST,
             AppModule::new(mount_settings_app),
         ),
-        build_app_descriptor(
-            APP_ID_CALCULATOR,
-            "Calculator",
-            compatibility_metadata(
-                "Calculator",
-                &[AppCapability::Window, AppCapability::State],
-                (420, 520),
-            ),
-            AppModule::new(placeholders::mount_calculator_placeholder_app),
-        ),
-        build_app_descriptor(
-            APP_ID_EXPLORER,
-            "Explorer",
-            compatibility_metadata(
-                "Explorer",
-                &[
-                    AppCapability::Window,
-                    AppCapability::State,
-                    AppCapability::Commands,
-                ],
-                (720, 540),
-            ),
-            AppModule::new(placeholders::mount_explorer_placeholder_app),
-        ),
-        build_app_descriptor(
-            APP_ID_NOTEPAD,
-            "Notes",
-            compatibility_metadata(
-                "Notepad",
-                &[AppCapability::Window, AppCapability::State],
-                (640, 480),
-            ),
-            AppModule::new(placeholders::mount_notepad_placeholder_app),
-        ),
-        build_app_descriptor(
-            APP_ID_UI_SHOWCASE,
-            "UI Showcase",
-            compatibility_metadata(
-                "UI Showcase",
-                &[AppCapability::Window, AppCapability::Theme],
-                (900, 680),
-            ),
-            AppModule::new(placeholders::mount_ui_showcase_placeholder_app),
-        ),
-        build_app_descriptor(
-            APP_ID_DIALUP,
-            "Dial-up",
-            compatibility_metadata("Dial-up", &[AppCapability::Window], (460, 320)),
-            AppModule::new(placeholders::mount_dialup_placeholder_app),
-        ),
     ]
 }
 
@@ -186,11 +113,6 @@ const LEGACY_BUILTIN_APP_ID_MAPPINGS: &[(&str, &str)] = &[
     ("Control Center", APP_ID_CONTROL_CENTER),
     ("Terminal", APP_ID_TERMINAL),
     ("Settings", APP_ID_SETTINGS),
-    ("Calculator", APP_ID_CALCULATOR),
-    ("Explorer", APP_ID_EXPLORER),
-    ("Notepad", APP_ID_NOTEPAD),
-    ("UI Showcase", APP_ID_UI_SHOWCASE),
-    ("Dialup", APP_ID_DIALUP),
 ];
 
 /// Returns the static app registry used by the desktop shell.
@@ -273,11 +195,6 @@ pub fn app_icon_id_by_id(app_id: &ApplicationId) -> &'static str {
         APP_ID_CONTROL_CENTER => "home",
         APP_ID_TERMINAL => "terminal",
         APP_ID_SETTINGS => "settings",
-        APP_ID_CALCULATOR => "calculator",
-        APP_ID_EXPLORER => "folder",
-        APP_ID_NOTEPAD => "notepad",
-        APP_ID_UI_SHOWCASE => "window",
-        APP_ID_DIALUP => "modem",
         _ => "window",
     }
 }
@@ -288,11 +205,6 @@ pub fn app_icon_name_by_id(app_id: &ApplicationId) -> IconName {
         APP_ID_CONTROL_CENTER => IconName::Home,
         APP_ID_TERMINAL => IconName::Terminal,
         APP_ID_SETTINGS => IconName::Settings,
-        APP_ID_CALCULATOR => IconName::Calculator,
-        APP_ID_EXPLORER => IconName::ExplorerFolder,
-        APP_ID_NOTEPAD => IconName::DocumentText,
-        APP_ID_UI_SHOWCASE => IconName::WindowMultiple,
-        APP_ID_DIALUP => IconName::Connect,
         _ => IconName::WindowMultiple,
     }
 }
@@ -300,11 +212,6 @@ pub fn app_icon_name_by_id(app_id: &ApplicationId) -> IconName {
 /// Returns the canonical system settings application id.
 pub fn settings_application_id() -> ApplicationId {
     builtin_app_id(APP_ID_SETTINGS)
-}
-
-/// Returns whether `app_id` refers to the legacy dial-up compatibility app.
-pub fn is_dialup_application_id(app_id: &ApplicationId) -> bool {
-    app_id.as_str() == APP_ID_DIALUP
 }
 
 /// Returns the canonical pinned taskbar application ids in display order.
@@ -368,11 +275,6 @@ fn default_window_rect_for_app(
                 0.82,
                 0.82,
             ),
-            APP_ID_EXPLORER => (720, 540, 0.92, 0.92, 0.80, 0.78),
-            APP_ID_NOTEPAD => (640, 480, 0.88, 0.88, 0.74, 0.74),
-            APP_ID_CALCULATOR => (420, 520, 0.78, 0.86, 0.56, 0.74),
-            APP_ID_UI_SHOWCASE => (900, 680, 0.92, 0.92, 0.88, 0.88),
-            APP_ID_DIALUP => (460, 320, 0.66, 0.68, 0.48, 0.50),
             _ => (
                 DEFAULT_WINDOW_WIDTH,
                 DEFAULT_WINDOW_HEIGHT,

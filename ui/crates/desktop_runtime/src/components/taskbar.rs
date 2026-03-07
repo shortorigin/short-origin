@@ -1,11 +1,11 @@
 use super::*;
 use leptos::ev::MouseEvent;
-use system_ui::{
-    ClockButton as SystemClockButton, Icon, IconName, IconSize, Taskbar as SystemTaskbar,
+use system_ui::components::{
+    ClockButton as SystemClockButton, SystemTray as SystemTrayList, Taskbar as SystemTaskbar,
     TaskbarButton as SystemTaskbarButton, TaskbarOverflowButton as SystemTaskbarOverflowButton,
     TaskbarSection as SystemTaskbarSection, TrayButton as SystemTrayButton,
-    TrayList as SystemTrayList,
 };
+use system_ui::primitives::{Icon, IconName, IconSize};
 
 #[component]
 pub(super) fn Taskbar() -> impl IntoView {

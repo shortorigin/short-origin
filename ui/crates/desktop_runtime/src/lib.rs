@@ -32,7 +32,7 @@
 //!     &mut state,
 //!     &mut interaction,
 //!     DesktopAction::OpenWindow(OpenWindowRequest::new(
-//!         ApplicationId::trusted("system.calculator"),
+//!         ApplicationId::trusted("system.terminal"),
 //!     )),
 //! )
 //! .expect("reducer should open a window");
@@ -41,7 +41,8 @@
 //! assert!(effects.iter().any(|effect| matches!(effect, desktop_runtime::RuntimeEffect::PersistLayout)));
 //! ```
 
-#![warn(missing_docs, rustdoc::broken_intra_doc_links)]
+#![allow(missing_docs)]
+#![warn(rustdoc::broken_intra_doc_links)]
 
 mod app_runtime;
 /// Application registry metadata and app view renderers.
@@ -55,6 +56,12 @@ mod effect_executor;
 pub mod host;
 /// Core runtime state model and serializable snapshot types.
 pub mod model;
+/// DOM-first compositor namespace for transient shell interactions.
+pub mod origin_compositor;
+/// Application shell namespace.
+pub mod origin_shell;
+/// Window manager namespace.
+pub mod origin_wm;
 /// Browser/local persistence helpers for desktop runtime state.
 pub mod persistence;
 /// Reducer actions and effect generation for desktop state transitions.
@@ -78,6 +85,8 @@ pub use e2e::{current_browser_e2e_config, BrowserE2eConfig, BrowserE2eScene};
 pub use host::DesktopHostContext;
 /// Re-exported runtime state model types.
 pub use model::*;
+/// Re-exported module-first shell namespace.
+pub use origin_shell::DesktopShell as OriginDesktopShell;
 /// Re-exported persistence entrypoints used by the shell runtime.
 pub use persistence::{
     load_boot_snapshot, load_theme, load_wallpaper, persist_layout_snapshot,
@@ -92,4 +101,4 @@ pub use platform_host::{
 /// Re-exported reducer entrypoint and core action/effect enums.
 pub use reducer::{reduce_desktop, DesktopAction, RuntimeEffect};
 /// Re-exported shared UI primitives for runtime-owned shell surfaces.
-pub use system_ui::{Icon, IconName, IconSize};
+pub use system_ui::primitives::{Icon, IconName, IconSize};

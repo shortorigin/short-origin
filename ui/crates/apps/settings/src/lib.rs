@@ -16,7 +16,16 @@ use platform_host::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use system_ui::prelude::*;
+use system_ui::components::{
+    AppShell, Button, DisclosurePanel, StatusBar, StatusBarItem, StepFlow, StepFlowActions,
+    StepFlowHeader, StepFlowStep, StepStatus, ToggleRow, Toolbar,
+};
+use system_ui::primitives::{
+    ButtonVariant, CheckboxField, Cluster, Elevation, Grid, Heading, LayoutGap, LayoutJustify,
+    Panel, Stack, Surface, SurfaceVariant, Text, TextField, TextRole, TextTone,
+};
+
+const BASELINE_STYLE_ID: &str = "origin-baseline";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 enum SettingsSection {
@@ -69,36 +78,6 @@ impl Default for SettingsAppState {
         }
     }
 }
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct SkinPreset {
-    id: &'static str,
-    label: &'static str,
-    note: &'static str,
-}
-
-const SKIN_PRESETS: [SkinPreset; 4] = [
-    SkinPreset {
-        id: "soft-neumorphic",
-        label: "Soft Neumorphic",
-        note: "Disciplined low-contrast shell depth with tactile surfaces.",
-    },
-    SkinPreset {
-        id: "modern-adaptive",
-        label: "Modern Adaptive",
-        note: "Fluent-inspired surfaces with restrained motion and sharper hierarchy.",
-    },
-    SkinPreset {
-        id: "classic-xp",
-        label: "Classic XP",
-        note: "Glossy nostalgic shell styling with stronger contrast edges.",
-    },
-    SkinPreset {
-        id: "classic-95",
-        label: "Classic 95",
-        note: "Retro square geometry with compact chrome and minimal depth.",
-    },
-];
 
 fn wallpaper_step_status(active: WallpaperFlowStep, step: WallpaperFlowStep) -> StepStatus {
     match (active, step) {
@@ -183,10 +162,6 @@ pub fn SettingsApp(
                         .any(|tag| tag.to_ascii_lowercase().contains(&query))
             })
             .collect::<Vec<_>>()
-    });
-    let theme_skin_id = Signal::derive({
-        let services = services.clone();
-        move || services.theme.skin_id.get()
     });
     let theme_high_contrast = Signal::derive({
         let services = services.clone();
@@ -290,7 +265,7 @@ pub fn SettingsApp(
 
     view! {
         <AppShell>
-            <MenuBar role="tablist" aria_label="Settings sections">
+            <Toolbar role="tablist" aria_label="Settings sections">
                 <For
                     each=move || {
                         [
@@ -313,7 +288,7 @@ pub fn SettingsApp(
                         {section.label()}
                     </Button>
                 </For>
-            </MenuBar>
+            </Toolbar>
 
             <Show when=move || settings_state.get().active_section == SettingsSection::Personalize fallback=|| ()>
                 <Surface
@@ -666,31 +641,24 @@ pub fn SettingsApp(
                 >
                     <Stack gap=LayoutGap::Lg>
                         <Panel variant=SurfaceVariant::Standard>
-                            <Heading role=TextRole::Title>"Choose a shell skin"</Heading>
+                            <Heading role=TextRole::Title>"Shell baseline"</Heading>
                             <Text tone=TextTone::Secondary>
-                                "Use the curated shell presets below. Advanced tuning stays tucked away unless you need it."
+                                "The shell now ships one token-driven baseline. Accessibility controls remain available without branching the visual system."
                             </Text>
-                            <div>
-                                <For
-                                    each=move || SKIN_PRESETS.into_iter()
-                                    key=|preset| preset.id
-                                    let:preset
-                                >
-                                    <Button
-                                        variant=ButtonVariant::Quiet
-                                        selected=Signal::derive(move || theme_skin_id.get() == preset.id)
-                                        on_click=Callback::new(move |_| services.theme.set_skin(preset.id))
-                                    >
-                                        <span>{preset.label}</span>
-                                        <span>{preset.note}</span>
-                                    </Button>
-                                </For>
-                            </div>
+                            <Surface variant=SurfaceVariant::Inset elevation=Elevation::Inset>
+                                <Stack gap=LayoutGap::Sm>
+                                    <Text role=TextRole::Label>"Baseline style id"</Text>
+                                    <Text>{BASELINE_STYLE_ID}</Text>
+                                    <Text tone=TextTone::Secondary>
+                                        "Theme switching is intentionally removed from the mainline shell. Use wallpaper, high contrast, and reduced motion to tune the environment."
+                                    </Text>
+                                </Stack>
+                            </Surface>
                         </Panel>
 
                         <DisclosurePanel
                             title="Advanced appearance details"
-                            description="Keep the shell calm by default. Open this only when you need to inspect the current skin state."
+                            description="Keep the shell calm by default. Open this only when you need to inspect the current baseline style state."
                             expanded=Signal::derive(move || settings_state.get().appearance_advanced_open)
                             on_toggle=Callback::new(move |_| {
                                 settings_state.update(|state| {
@@ -699,8 +667,8 @@ pub fn SettingsApp(
                             })
                         >
                             <Cluster>
-                                <Text role=TextRole::Label>"Active skin"</Text>
-                                <Text>{move || theme_skin_id.get()}</Text>
+                                <Text role=TextRole::Label>"Active style"</Text>
+                                <Text>{BASELINE_STYLE_ID}</Text>
                             </Cluster>
                         </DisclosurePanel>
                     </Stack>
@@ -751,7 +719,7 @@ pub fn SettingsApp(
             </Show>
 
             <StatusBar>
-                <StatusBarItem>{move || format!("Skin: {}", theme_skin_id.get())}</StatusBarItem>
+                <StatusBarItem>{format!("Style: {BASELINE_STYLE_ID}")}</StatusBarItem>
                 <StatusBarItem>
                     {move || {
                         let config = active_wallpaper.get();

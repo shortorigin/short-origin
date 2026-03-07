@@ -3,7 +3,7 @@
 use leptos::ev::{FocusEvent, KeyboardEvent, MouseEvent};
 use leptos::*;
 
-use crate::{Icon, IconName, IconSize};
+use crate::icon::{Icon, IconName, IconSize};
 
 mod controls;
 mod data_display;
@@ -12,22 +12,28 @@ mod navigation;
 mod overlays;
 mod shell;
 
+#[allow(unused_imports)]
 pub use controls::{
     Button, CheckboxField, CircularProgress, ColorField, CompletionItem, CompletionList,
     FieldGroup, IconButton, KnobDial, ProgressBar, RangeField, SegmentedControl,
     SegmentedControlOption, SelectField, Switch, TextArea, TextField, ToggleRow,
 };
+#[allow(unused_imports)]
 pub use data_display::{
     Badge, Card, DataTable, ElevationLayer, EmptyState, Heading, InspectorGrid, ListSurface,
     OptionCard, Pane, PaneHeader, Panel, PreviewFrame, StatusBarItem, Surface, TerminalLine,
     TerminalPrompt, TerminalSurface, TerminalTranscript, Text, Tree, TreeItem,
 };
+#[allow(unused_imports)]
 pub use layout::{Cluster, Grid, SplitLayout, Stack};
+#[allow(unused_imports)]
 pub use navigation::{
     DisclosurePanel, LauncherMenu, MenuBar, StatusBar, StepFlow, StepFlowActions, StepFlowHeader,
     StepFlowStep, Tab, TabList, ToolBar,
 };
+#[allow(unused_imports)]
 pub use overlays::{MenuItem, MenuSeparator, MenuSurface, Modal};
+#[allow(unused_imports)]
 pub use shell::{
     AppShell, ClockButton, DesktopBackdrop, DesktopIconButton, DesktopIconGrid, DesktopRoot,
     DesktopWindowLayer, ResizeHandle, Taskbar, TaskbarButton, TaskbarOverflowButton,

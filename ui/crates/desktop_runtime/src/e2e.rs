@@ -3,8 +3,6 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::model::DesktopSkin;
-
 /// Canonical browser E2E scenes supported by the deterministic UI validation workflow.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -71,8 +69,6 @@ impl BrowserE2eScene {
 pub struct BrowserE2eConfig {
     /// Requested canonical scene.
     pub scene: BrowserE2eScene,
-    /// Optional skin override.
-    pub skin: Option<DesktopSkin>,
     /// Optional high-contrast override.
     pub high_contrast: Option<bool>,
     /// Optional reduced-motion override.
@@ -89,21 +85,9 @@ fn parse_bool(raw: &str) -> Option<bool> {
 }
 
 #[cfg(any(test, target_arch = "wasm32"))]
-fn parse_skin(raw: &str) -> Option<DesktopSkin> {
-    match raw.trim() {
-        "soft-neumorphic" => Some(DesktopSkin::SoftNeumorphic),
-        "modern-adaptive" => Some(DesktopSkin::ModernAdaptive),
-        "classic-xp" => Some(DesktopSkin::ClassicXp),
-        "classic-95" => Some(DesktopSkin::Classic95),
-        _ => None,
-    }
-}
-
-#[cfg(any(test, target_arch = "wasm32"))]
 /// Parses browser E2E configuration from a query string.
 pub fn parse_browser_e2e_from_query(query: &str) -> Option<BrowserE2eConfig> {
     let mut scene = None;
-    let mut skin = None;
     let mut high_contrast = None;
     let mut reduced_motion = None;
 
@@ -117,9 +101,6 @@ pub fn parse_browser_e2e_from_query(query: &str) -> Option<BrowserE2eConfig> {
             "e2e-scene" => {
                 scene = BrowserE2eScene::parse(value);
             }
-            "e2e-skin" => {
-                skin = parse_skin(value);
-            }
             "e2e-high-contrast" => {
                 high_contrast = parse_bool(value);
             }
@@ -132,7 +113,6 @@ pub fn parse_browser_e2e_from_query(query: &str) -> Option<BrowserE2eConfig> {
 
     scene.map(|scene| BrowserE2eConfig {
         scene,
-        skin,
         high_contrast,
         reduced_motion,
     })
@@ -161,11 +141,10 @@ mod tests {
     #[test]
     fn parses_browser_e2e_scene_and_theme_overrides() {
         let parsed = parse_browser_e2e_from_query(
-            "?e2e-scene=settings-appearance&e2e-skin=soft-neumorphic&e2e-high-contrast=false&e2e-reduced-motion=true",
+            "?e2e-scene=settings-appearance&e2e-high-contrast=false&e2e-reduced-motion=true",
         )
         .expect("config");
         assert_eq!(parsed.scene, BrowserE2eScene::SettingsAppearance);
-        assert_eq!(parsed.skin, Some(DesktopSkin::SoftNeumorphic));
         assert_eq!(parsed.high_contrast, Some(false));
         assert_eq!(parsed.reduced_motion, Some(true));
     }

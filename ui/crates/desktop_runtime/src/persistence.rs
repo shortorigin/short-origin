@@ -28,8 +28,6 @@ pub struct AppPolicyOverlay {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 struct LegacyThemePayload {
-    #[serde(default)]
-    skin: crate::model::DesktopSkin,
     wallpaper_id: String,
     high_contrast: bool,
     reduced_motion: bool,
@@ -187,7 +185,6 @@ pub async fn load_theme(host: &DesktopHostContext) -> Option<DesktopTheme> {
     match load_pref_with(host.prefs_store().as_ref(), THEME_KEY).await {
         Ok(Some(theme)) => Some(theme),
         Ok(None) => load_legacy_theme(host).await.map(|legacy| DesktopTheme {
-            skin: legacy.skin,
             high_contrast: legacy.high_contrast,
             reduced_motion: legacy.reduced_motion,
             audio_enabled: legacy.audio_enabled,
