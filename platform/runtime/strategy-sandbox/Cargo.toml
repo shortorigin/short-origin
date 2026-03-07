@@ -16,7 +16,7 @@ serde.workspace = true
 serde_json.workspace = true
 trading-core = { path = "../../../shared/trading-core" }
 trading-errors = { path = "../../../shared/trading-errors" }
-wasmtime = { version = "30.0.2", default-features = false, features = ["cranelift", "runtime", "std"] }
+wasmtime = { version = "36.0.6", default-features = false, features = ["cranelift", "runtime", "std"] }
 wat = "1.245.1"
 
 [dev-dependencies]
