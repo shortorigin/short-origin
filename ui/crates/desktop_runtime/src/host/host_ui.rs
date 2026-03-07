@@ -10,6 +10,7 @@ use crate::{
     model::WindowRect,
     reducer::{build_open_request_from_deeplink, DesktopAction},
 };
+use system_ui::tokens::SHELL_TASKBAR_HEIGHT_PX;
 
 pub(super) fn open_deep_link(
     runtime: DesktopRuntimeContext,
@@ -20,7 +21,12 @@ pub(super) fn open_deep_link(
             crate::model::DeepLinkOpenTarget::App(app_id) => {
                 runtime.dispatch_action(DesktopAction::ActivateApp {
                     app_id,
-                    viewport: Some(runtime.host.get_value().desktop_viewport_rect(38)),
+                    viewport: Some(
+                        runtime
+                            .host
+                            .get_value()
+                            .desktop_viewport_rect(SHELL_TASKBAR_HEIGHT_PX),
+                    ),
                 });
             }
             target => {

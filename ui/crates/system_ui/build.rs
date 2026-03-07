@@ -27,6 +27,7 @@ struct TypographyTokens {
     size: BTreeMap<String, String>,
     weight: BTreeMap<String, String>,
     line_height: BTreeMap<String, String>,
+    letter_spacing: BTreeMap<String, String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -113,6 +114,11 @@ fn main() {
         "TYPE_LINE_HEIGHT",
         &tokens.typography.line_height,
     );
+    push_const_block(
+        &mut rust,
+        "TYPE_LETTER_SPACING",
+        &tokens.typography.letter_spacing,
+    );
     push_const_block(&mut rust, "BORDER_WIDTH", &tokens.border.width);
     push_const_block(&mut rust, "MOTION_DURATION", &tokens.motion.duration);
     push_const_block(&mut rust, "MOTION_EASING", &tokens.motion.easing);
@@ -145,6 +151,11 @@ fn main() {
     push_css_vars(&mut css, "type-size", &tokens.typography.size);
     push_css_vars(&mut css, "type-weight", &tokens.typography.weight);
     push_css_vars(&mut css, "type-line-height", &tokens.typography.line_height);
+    push_css_vars(
+        &mut css,
+        "type-letter-spacing",
+        &tokens.typography.letter_spacing,
+    );
     push_css_vars(&mut css, "border-width", &tokens.border.width);
     push_css_vars(&mut css, "motion-duration", &tokens.motion.duration);
     push_css_vars(&mut css, "motion-easing", &tokens.motion.easing);
@@ -154,10 +165,10 @@ fn main() {
     push_css_vars(&mut css, "shell-resize-handle", &tokens.shell.resize_handle);
     css.push_str("}\n");
     css.push_str(
-        "\n:root[data-high-contrast=\"true\"] {\n  --origin-color-surface: #ffffff;\n  --origin-color-surface-muted: #f4f4f4;\n  --origin-color-surface-elevated: #ffffff;\n  --origin-color-text-primary: #000000;\n  --origin-color-text-secondary: #202020;\n  --origin-color-border-strong: #000000;\n  --origin-color-border-subtle: #444444;\n  --origin-color-accent: #0038ff;\n  --origin-shadow-window: none;\n  --origin-shadow-overlay: none;\n}\n",
+        "\n:root[data-high-contrast=\"true\"],\n.desktop-shell[data-high-contrast=\"true\"] {\n  --origin-color-canvas: #ffffff;\n  --origin-color-desktop: #f5f5f5;\n  --origin-color-surface: #ffffff;\n  --origin-color-surface-muted: #f1f1f1;\n  --origin-color-surface-elevated: #ffffff;\n  --origin-color-surface-inset: #ffffff;\n  --origin-color-surface-overlay: rgba(255, 255, 255, 0.96);\n  --origin-color-surface-interactive: #ffffff;\n  --origin-color-surface-hover: #dfe8ff;\n  --origin-color-surface-pressed: #d0dcff;\n  --origin-color-surface-selected: #dce6ff;\n  --origin-color-text-primary: #000000;\n  --origin-color-text-secondary: #202020;\n  --origin-color-text-muted: #3a3a3a;\n  --origin-color-text-inverse: #ffffff;\n  --origin-color-border-strong: #000000;\n  --origin-color-border-subtle: #4d4d4d;\n  --origin-color-border-focus: #000000;\n  --origin-color-border-selected: #0038ff;\n  --origin-color-accent: #0038ff;\n  --origin-color-accent-strong: #001f8f;\n  --origin-color-focus: #000000;\n  --origin-color-selection: rgba(0, 56, 255, 0.2);\n  --origin-shadow-panel: none;\n  --origin-shadow-window: none;\n  --origin-shadow-overlay: none;\n  --origin-shadow-pressed: none;\n  --origin-shadow-focus-ring: 0 0 0 3px rgba(0, 56, 255, 0.22);\n}\n",
     );
     css.push_str(
-        "\n:root[data-reduced-motion=\"true\"] {\n  --origin-motion-duration-fast: 0ms;\n  --origin-motion-duration-standard: 0ms;\n  --origin-motion-duration-slow: 0ms;\n}\n",
+        "\n:root[data-reduced-motion=\"true\"],\n.desktop-shell[data-reduced-motion=\"true\"] {\n  --origin-motion-duration-fast: 0ms;\n  --origin-motion-duration-standard: 0ms;\n  --origin-motion-duration-slow: 0ms;\n}\n",
     );
 
     let site_dir = manifest_dir.parent().expect("ui/crates").join("site");

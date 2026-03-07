@@ -27,11 +27,12 @@ use system_shell_contract::{
     StructuredRecord, StructuredScalar, StructuredSchema, StructuredSchemaField, StructuredTable,
     StructuredValue,
 };
+use system_ui::tokens::SHELL_TASKBAR_HEIGHT_PX;
 use tabled::grid::records::vec_records::Text;
 
 use crate::{apps, components::DesktopRuntimeContext, model::WindowId, reducer::DesktopAction};
 
-const TASKBAR_HEIGHT_PX: i32 = 38;
+const TASKBAR_HEIGHT_PX: i32 = SHELL_TASKBAR_HEIGHT_PX;
 const TABLE_RENDER_WIDTH: usize = 120;
 
 /// Builds a command service for one mounted window/app.

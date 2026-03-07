@@ -36,8 +36,9 @@ use crate::{
 };
 use system_ui::components::{DesktopBackdrop, DesktopIcon, DesktopIconGrid, DesktopWindowLayer};
 use system_ui::primitives::{Icon, IconName, IconSize};
+use system_ui::tokens::SHELL_TASKBAR_HEIGHT_PX;
 
-const TASKBAR_HEIGHT_PX: i32 = 38;
+const TASKBAR_HEIGHT_PX: i32 = SHELL_TASKBAR_HEIGHT_PX;
 #[cfg(target_arch = "wasm32")]
 const E2E_START_BUTTON_ATTR: &str = "data-e2e-state";
 
@@ -541,14 +542,14 @@ impl TaskbarClockSnapshot {
         #[cfg(target_arch = "wasm32")]
         {
             let date = js_sys::Date::new_0();
-            return Self {
+            Self {
                 year: date.get_full_year(),
                 month: date.get_month() + 1,
                 day: date.get_date(),
                 hour: date.get_hours(),
                 minute: date.get_minutes(),
                 second: date.get_seconds(),
-            };
+            }
         }
 
         #[cfg(not(target_arch = "wasm32"))]

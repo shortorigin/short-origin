@@ -23,6 +23,7 @@ pub struct TypographyTokens {
     pub size: BTreeMap<String, String>,
     pub weight: BTreeMap<String, String>,
     pub line_height: BTreeMap<String, String>,
+    pub letter_spacing: BTreeMap<String, String>,
 }
 
 #[derive(Debug, Deserialize)]

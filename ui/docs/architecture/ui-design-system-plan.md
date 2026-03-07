@@ -8,7 +8,7 @@
 ## Visual Token Model
 - Dark system-oriented canvas and desktop surfaces.
 - High-contrast text and accent tokens.
-- Shared spacing, radius, elevation, and focus tokens remain centralized in `theme_shell/00-foundations.css`.
+- Shared spacing, radius, elevation, and focus tokens remain centralized in `ui/crates/system_ui/tokens/tokens.toml` and its generated outputs.
 
 ## Component Vocabulary
 - `system_ui` primitives remain the source of truth for buttons, menus, fields, taskbar, tray, window frame, panels, and layout primitives.
