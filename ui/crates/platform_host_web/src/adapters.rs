@@ -1,5 +1,11 @@
 use std::rc::Rc;
 
+use crate::{
+    TauriAppStateStore, TauriContentCache, TauriExplorerFsService, TauriExternalUrlService,
+    TauriNotificationService, TauriPrefsStore, WebAppStateStore, WebContentCache,
+    WebExplorerFsService, WebExternalUrlService, WebNotificationService, WebPrefsStore,
+    WebWallpaperAssetService,
+};
 use platform_host::{
     AppStateEnvelope, AppStateStore, AppStateStoreFuture, ContentCache, ContentCacheFuture,
     ExplorerBackendStatus, ExplorerFileReadResult, ExplorerFsFuture, ExplorerFsService,
@@ -12,12 +18,6 @@ use platform_host::{
     WallpaperAssetRecord, WallpaperAssetService, WallpaperCollection,
     WallpaperCollectionDeleteResult, WallpaperImportRequest, WallpaperImportResult,
     WallpaperLibrarySnapshot, WallpaperSelection,
-};
-use crate::{
-    TauriAppStateStore, TauriContentCache, TauriExplorerFsService, TauriExternalUrlService,
-    TauriNotificationService, TauriPrefsStore, WebAppStateStore, WebContentCache,
-    WebExplorerFsService, WebExternalUrlService, WebNotificationService, WebPrefsStore,
-    WebWallpaperAssetService,
 };
 
 /// Returns the compile-time selected host strategy for the active build.
@@ -299,8 +299,7 @@ pub enum PrefsStoreAdapter {
     DesktopStub(NoopPrefsStore),
 }
 
-impl PrefsStoreAdapter {
-}
+impl PrefsStoreAdapter {}
 
 impl PrefsStore for PrefsStoreAdapter {
     fn load_pref<'a>(

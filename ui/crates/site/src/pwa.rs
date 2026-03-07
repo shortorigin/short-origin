@@ -56,10 +56,7 @@ pub fn register_service_worker() {
             return;
         };
         let sw_path = public_asset_path(&base_path, SERVICE_WORKER_ASSET);
-        let _ = register_fn.call1(
-            &service_worker,
-            &wasm_bindgen::JsValue::from_str(&sw_path),
-        );
+        let _ = register_fn.call1(&service_worker, &wasm_bindgen::JsValue::from_str(&sw_path));
     }
 }
 
@@ -74,7 +71,10 @@ mod tests {
 
     #[test]
     fn joins_assets_under_trunk_public_path() {
-        assert_eq!(public_asset_path("/preview/ui/", "sw.js"), "/preview/ui/sw.js");
+        assert_eq!(
+            public_asset_path("/preview/ui/", "sw.js"),
+            "/preview/ui/sw.js"
+        );
     }
 
     #[test]

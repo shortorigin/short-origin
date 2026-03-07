@@ -62,10 +62,16 @@ pub fn run(args: Vec<String>) -> Result<(), String> {
     let workspace_root = super::workspace_root()?;
     let output_path = parse_output_path(&workspace_root, &args);
     let base_dir = workspace_root.join(BUILD_ROOT);
-    fs::create_dir_all(&base_dir).map_err(|error| format!("failed to create `{}`: {error}", base_dir.display()))?;
+    fs::create_dir_all(&base_dir)
+        .map_err(|error| format!("failed to create `{}`: {error}", base_dir.display()))?;
 
     let report = verify(&workspace_root, &base_dir)?;
-    fs::write(&output_path, &report).map_err(|error| format!("failed to write report `{}`: {error}", output_path.display()))?;
+    fs::write(&output_path, &report).map_err(|error| {
+        format!(
+            "failed to write report `{}`: {error}",
+            output_path.display()
+        )
+    })?;
     println!("{report}");
     Ok(())
 }
@@ -115,11 +121,23 @@ fn verify(workspace_root: &Path, base_dir: &Path) -> Result<String, String> {
     let dependency_audit = collect_dependency_audit(workspace_root, &logs_dir)?;
 
     clean_workspace(workspace_root, &logs_dir, "clean-1", &cargo_target_dir)?;
-    build_release(workspace_root, &logs_dir, "build-a", &build_a_dir, &cargo_target_dir)?;
+    build_release(
+        workspace_root,
+        &logs_dir,
+        "build-a",
+        &build_a_dir,
+        &cargo_target_dir,
+    )?;
     let build_a = inspect_build(workspace_root, &build_a_dir, &logs_dir, "build-a")?;
 
     clean_workspace(workspace_root, &logs_dir, "clean-2", &cargo_target_dir)?;
-    build_release(workspace_root, &logs_dir, "build-b", &build_b_dir, &cargo_target_dir)?;
+    build_release(
+        workspace_root,
+        &logs_dir,
+        "build-b",
+        &build_b_dir,
+        &cargo_target_dir,
+    )?;
     let build_b = inspect_build(workspace_root, &build_b_dir, &logs_dir, "build-b")?;
 
     let reproducibility = compare_builds(&build_a, &build_b);
@@ -138,17 +156,44 @@ fn verify(workspace_root: &Path, base_dir: &Path) -> Result<String, String> {
 }
 
 fn collect_tool_versions(workspace_root: &Path, logs_dir: &Path) -> Result<ToolVersions, String> {
-    let rustc = run_logged_command(logs_dir, "tool-rustc", workspace_root, command("rustc", ["--version"]))?;
-    let cargo = run_logged_command(logs_dir, "tool-cargo", workspace_root, command("cargo", ["--version"]))?;
-    let trunk = run_logged_command(logs_dir, "tool-trunk", workspace_root, command("trunk", ["--version"]))?;
+    let rustc = run_logged_command(
+        logs_dir,
+        "tool-rustc",
+        workspace_root,
+        command("rustc", ["--version"]),
+    )?;
+    let cargo = run_logged_command(
+        logs_dir,
+        "tool-cargo",
+        workspace_root,
+        command("cargo", ["--version"]),
+    )?;
+    let trunk = run_logged_command(
+        logs_dir,
+        "tool-trunk",
+        workspace_root,
+        command("trunk", ["--version"]),
+    )?;
     let rustup_targets = run_logged_command(
         logs_dir,
         "tool-rustup-targets",
         workspace_root,
         command("rustup", ["target", "list", "--installed"]),
     )?;
-    let wasm_bindgen = run_optional_command(logs_dir, "tool-wasm-bindgen", workspace_root, "wasm-bindgen", ["--version"])?;
-    let wasm_opt = run_optional_command(logs_dir, "tool-wasm-opt", workspace_root, "wasm-opt", ["--version"])?;
+    let wasm_bindgen = run_optional_command(
+        logs_dir,
+        "tool-wasm-bindgen",
+        workspace_root,
+        "wasm-bindgen",
+        ["--version"],
+    )?;
+    let wasm_opt = run_optional_command(
+        logs_dir,
+        "tool-wasm-opt",
+        workspace_root,
+        "wasm-opt",
+        ["--version"],
+    )?;
 
     Ok(ToolVersions {
         rustc: rustc.stdout_trimmed(),
@@ -194,7 +239,10 @@ fn collect_config_audit(workspace_root: &Path) -> Result<ConfigAudit, String> {
     })
 }
 
-fn collect_dependency_audit(workspace_root: &Path, logs_dir: &Path) -> Result<DependencyAudit, String> {
+fn collect_dependency_audit(
+    workspace_root: &Path,
+    logs_dir: &Path,
+) -> Result<DependencyAudit, String> {
     let cargo_lock = fs::read_to_string(workspace_root.join("Cargo.lock"))
         .map_err(|error| format!("failed to read `Cargo.lock`: {error}"))?;
     let mut versions: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
@@ -258,7 +306,8 @@ fn clean_workspace(
     let _ignored = fs::remove_dir_all(workspace_root.join("target/trunk-tauri-dist"));
     let _ignored = fs::remove_dir_all(workspace_root.join("target/trunk-tauri-dev"));
     let _ignored = fs::remove_dir_all(workspace_root.join("ui/crates/site/.trunk"));
-    fs::create_dir_all(&build_root).map_err(|error| format!("failed to create `{}`: {error}", build_root.display()))?;
+    fs::create_dir_all(&build_root)
+        .map_err(|error| format!("failed to create `{}`: {error}", build_root.display()))?;
     let mut command = command("cargo", ["clean"]);
     command.env("CARGO_TARGET_DIR", cargo_target_dir);
     run_logged_command(logs_dir, label, workspace_root, command)?;
@@ -306,7 +355,10 @@ fn inspect_build(
         logs_dir,
         &format!("{label}-tree"),
         workspace_root,
-        command("find", [dist_dir.display().to_string().as_str(), "-type", "f"]),
+        command(
+            "find",
+            [dist_dir.display().to_string().as_str(), "-type", "f"],
+        ),
     )?;
 
     Ok(BuildInspection {
@@ -376,7 +428,8 @@ fn run_browser_validation(
     dist_dir: &Path,
     logs_dir: &Path,
 ) -> Result<BrowserValidation, String> {
-    let node_check = run_optional_command(logs_dir, "tool-node", workspace_root, "node", ["--version"])?;
+    let node_check =
+        run_optional_command(logs_dir, "tool-node", workspace_root, "node", ["--version"])?;
     let Some(node_version) = node_check else {
         return Ok(BrowserValidation {
             node_version: None,
@@ -404,7 +457,10 @@ fn run_browser_validation(
         return Ok(BrowserValidation {
             node_version: Some(node_version),
             available: false,
-            reason: Some(format!("browser smoke script `{}` is missing", script_path.display())),
+            reason: Some(format!(
+                "browser smoke script `{}` is missing",
+                script_path.display()
+            )),
             browsers: Vec::new(),
         });
     }
@@ -412,7 +468,13 @@ fn run_browser_validation(
     let port = reserve_port()?;
     let mut server = Command::new(python_program)
         .current_dir(dist_dir)
-        .args(["-m", "http.server", &port.to_string(), "--bind", "127.0.0.1"])
+        .args([
+            "-m",
+            "http.server",
+            &port.to_string(),
+            "--bind",
+            "127.0.0.1",
+        ])
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .spawn()
@@ -437,8 +499,12 @@ fn run_browser_validation(
     }
 
     browser_result?;
-    let raw = fs::read_to_string(&browser_output_path)
-        .map_err(|error| format!("failed to read browser validation output `{}`: {error}", browser_output_path.display()))?;
+    let raw = fs::read_to_string(&browser_output_path).map_err(|error| {
+        format!(
+            "failed to read browser validation output `{}`: {error}",
+            browser_output_path.display()
+        )
+    })?;
     let parsed: BrowserScriptOutput = serde_json::from_str(&raw)
         .map_err(|error| format!("failed to parse browser validation output: {error}"))?;
 
@@ -762,11 +828,18 @@ fn build_actions(findings: &[Finding]) -> Vec<Action> {
             defect: finding.evidence.clone(),
             root_cause: finding.impact.clone(),
             corrective_action: if finding.status == "FAIL" {
-                format!("Remediate `{}` until the verification procedure reports `PASS`.", finding.title)
+                format!(
+                    "Remediate `{}` until the verification procedure reports `PASS`.",
+                    finding.title
+                )
             } else {
-                format!("Keep `{}` under the canonical verification procedure.", finding.title)
+                format!(
+                    "Keep `{}` under the canonical verification procedure.",
+                    finding.title
+                )
             },
-            verification: "Run `cargo xtask ui-hardening` and review the matching report section.".to_string(),
+            verification: "Run `cargo xtask ui-hardening` and review the matching report section."
+                .to_string(),
             expected: if finding.status == "FAIL" {
                 "Report item changes to `PASS` with no residual blocker.".to_string()
             } else {
@@ -1110,7 +1183,13 @@ fn collect_artifacts_recursive(
             let sha256 = format!("{:x}", hasher.finalize());
             let relative_path = path
                 .strip_prefix(root)
-                .map_err(|error| format!("failed to strip prefix `{}` from `{}`: {error}", root.display(), path.display()))?
+                .map_err(|error| {
+                    format!(
+                        "failed to strip prefix `{}` from `{}`: {error}",
+                        root.display(),
+                        path.display()
+                    )
+                })?
                 .to_string_lossy()
                 .replace('\\', "/");
             files.push(ArtifactDigest {
@@ -1134,7 +1213,9 @@ fn parse_sri_assets(html: &str) -> Vec<SRIAsset> {
             tag_type: captures["tag"].to_string(),
             asset_path: captures["path"].to_string(),
             integrity: captures["integrity"].to_string(),
-            crossorigin: captures.name("crossorigin").map(|value| value.as_str().to_string()),
+            crossorigin: captures
+                .name("crossorigin")
+                .map(|value| value.as_str().to_string()),
         })
         .collect()
 }
@@ -1149,8 +1230,12 @@ fn verify_sri_assets(dist_dir: &Path, assets: &[SRIAsset]) -> Result<Vec<SRIResu
                 .ok_or_else(|| format!("invalid integrity value `{}`", asset.integrity))?;
             let relative_path = asset.asset_path.trim_start_matches('/');
             let file_path = dist_dir.join(relative_path);
-            let bytes = fs::read(&file_path)
-                .map_err(|error| format!("failed to read integrity target `{}`: {error}", file_path.display()))?;
+            let bytes = fs::read(&file_path).map_err(|error| {
+                format!(
+                    "failed to read integrity target `{}`: {error}",
+                    file_path.display()
+                )
+            })?;
             let actual_digest = match algorithm {
                 "sha384" => base64::engine::general_purpose::STANDARD.encode(Sha384::digest(bytes)),
                 "sha256" => base64::engine::general_purpose::STANDARD.encode(Sha256::digest(bytes)),
@@ -1244,7 +1329,8 @@ fn service_worker_hardened(service_worker: &str) -> bool {
 
 fn reset_dir(path: &Path) -> Result<(), String> {
     let _ignored = fs::remove_dir_all(path);
-    fs::create_dir_all(path).map_err(|error| format!("failed to create `{}`: {error}", path.display()))
+    fs::create_dir_all(path)
+        .map_err(|error| format!("failed to create `{}`: {error}", path.display()))
 }
 
 fn run_optional_command<const N: usize>(
@@ -1323,7 +1409,9 @@ fn wait_for_http_server(port: u16) -> Result<(), String> {
         thread::sleep(Duration::from_millis(250));
     }
 
-    Err(format!("static file server on port {port} did not become ready"))
+    Err(format!(
+        "static file server on port {port} did not become ready"
+    ))
 }
 
 fn http_server_ready(port: u16) -> bool {

@@ -107,9 +107,8 @@ fn BrowserShellSync() -> impl IntoView {
             let runtime = _runtime.clone();
             let host = host.clone();
 
-            let callback =
-                Closure::<dyn FnMut(web_sys::MessageEvent)>::wrap(Box::new(
-                    move |event: web_sys::MessageEvent| {
+            let callback = Closure::<dyn FnMut(web_sys::MessageEvent)>::wrap(Box::new(
+                move |event: web_sys::MessageEvent| {
                     let Some(message) = event.data().as_string() else {
                         return;
                     };
@@ -148,8 +147,8 @@ fn BrowserShellSync() -> impl IntoView {
                         }
                         _ => {}
                     }
-                    },
-                ));
+                },
+            ));
 
             channel.set_onmessage(Some(callback.as_ref().unchecked_ref()));
 

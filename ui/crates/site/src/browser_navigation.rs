@@ -202,8 +202,11 @@ mod tests {
 
     #[test]
     fn supports_comma_separated_query_targets() {
-        let parsed =
-            detect_browser_route("/", "?open=system.settings,system.terminal,projects:beta", "");
+        let parsed = detect_browser_route(
+            "/",
+            "?open=system.settings,system.terminal,projects:beta",
+            "",
+        );
         assert_eq!(
             parsed,
             BrowserRoute::Shell(Some(DeepLinkState {
