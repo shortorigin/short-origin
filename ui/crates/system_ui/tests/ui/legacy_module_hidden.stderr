@@ -1,0 +1,5 @@
+error[E0432]: unresolved import `system_ui::legacy_primitives`
+ --> tests/ui/legacy_module_hidden.rs:1:16
+  |
+1 | use system_ui::legacy_primitives::StepStatus;
+  |                ^^^^^^^^^^^^^^^^^ could not find `legacy_primitives` in `system_ui`

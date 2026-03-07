@@ -1,48 +1,7 @@
-//! Shared structural, shell, overlay, data-display, control, and layout primitives.
+//! Shared non-legacy UI style enums and helper utilities.
 
-use leptos::ev::{FocusEvent, KeyboardEvent, MouseEvent};
-use leptos::*;
-
-use crate::icon::{Icon, IconName, IconSize};
-
-mod controls;
-mod data_display;
-mod layout;
-mod navigation;
-mod overlays;
-mod shell;
-
-#[allow(unused_imports)]
-pub use controls::{
-    Button, CheckboxField, CircularProgress, ColorField, CompletionItem, CompletionList,
-    FieldGroup, IconButton, KnobDial, ProgressBar, RangeField, SegmentedControl,
-    SegmentedControlOption, SelectField, Switch, TextArea, TextField, ToggleRow,
-};
-#[allow(unused_imports)]
-pub use data_display::{
-    Badge, Card, DataTable, ElevationLayer, EmptyState, Heading, InspectorGrid, ListSurface,
-    OptionCard, Pane, PaneHeader, Panel, PreviewFrame, StatusBarItem, Surface, TerminalLine,
-    TerminalPrompt, TerminalSurface, TerminalTranscript, Text, Tree, TreeItem,
-};
-#[allow(unused_imports)]
-pub use layout::{Cluster, Grid, SplitLayout, Stack};
-#[allow(unused_imports)]
-pub use navigation::{
-    DisclosurePanel, LauncherMenu, MenuBar, StatusBar, StepFlow, StepFlowActions, StepFlowHeader,
-    StepFlowStep, Tab, TabList, ToolBar,
-};
-#[allow(unused_imports)]
-pub use overlays::{MenuItem, MenuSeparator, MenuSurface, Modal};
-#[allow(unused_imports)]
-pub use shell::{
-    AppShell, ClockButton, DesktopBackdrop, DesktopIconButton, DesktopIconGrid, DesktopRoot,
-    DesktopWindowLayer, ResizeHandle, Taskbar, TaskbarButton, TaskbarOverflowButton,
-    TaskbarSection, TrayButton, TrayList, WindowBody, WindowControlButton, WindowControls,
-    WindowFrame, WindowTitle, WindowTitleBar,
-};
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 /// Semantic surface variants for structural primitives.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum SurfaceVariant {
     /// Primary surface.
     #[default]
@@ -63,8 +22,8 @@ impl SurfaceVariant {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 /// Semantic elevation levels for shared primitives.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum Elevation {
     /// Flat surface.
     #[default]
@@ -91,8 +50,8 @@ impl Elevation {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 /// Shared button variants.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum ButtonVariant {
     /// Standard action button.
     #[default]
@@ -128,8 +87,8 @@ impl ButtonVariant {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 /// Shared button shape tokens.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum ButtonShape {
     /// Standard rounded rectangle.
     #[default]
@@ -150,8 +109,8 @@ impl ButtonShape {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 /// Shared button sizing tokens.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum ButtonSize {
     /// Dense button.
     Sm,
@@ -172,8 +131,8 @@ impl ButtonSize {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 /// Shared input-field variants.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum FieldVariant {
     /// Standard input.
     #[default]
@@ -191,8 +150,8 @@ impl FieldVariant {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 /// Shared text roles.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum TextRole {
     /// Body text.
     #[default]
@@ -219,8 +178,8 @@ impl TextRole {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 /// Shared text tone.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum TextTone {
     /// Primary text.
     #[default]
@@ -250,16 +209,8 @@ impl TextTone {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-/// Shared progress variants.
-pub enum ProgressVariant {
-    /// Standard progress indicator.
-    #[default]
-    Standard,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 /// Shared layout gap tokens.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum LayoutGap {
     /// No gap.
     None,
@@ -283,8 +234,8 @@ impl LayoutGap {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 /// Shared layout padding tokens.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum LayoutPadding {
     /// No padding.
     None,
@@ -308,8 +259,8 @@ impl LayoutPadding {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 /// Shared layout alignment tokens.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum LayoutAlign {
     /// Stretch/fill alignment.
     #[default]
@@ -333,8 +284,8 @@ impl LayoutAlign {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 /// Shared layout justification tokens.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum LayoutJustify {
     /// Start justification.
     #[default]
@@ -354,30 +305,6 @@ impl LayoutJustify {
             Self::Center => "center",
             Self::Between => "between",
             Self::End => "end",
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-/// Shared guided-step status tokens.
-pub enum StepStatus {
-    /// Current active step.
-    Current,
-    /// Completed prior step.
-    Complete,
-    /// Pending future step.
-    Pending,
-    /// Step has a validation error.
-    Error,
-}
-
-impl StepStatus {
-    pub(crate) fn token(self) -> &'static str {
-        match self {
-            Self::Current => "current",
-            Self::Complete => "complete",
-            Self::Pending => "pending",
-            Self::Error => "error",
         }
     }
 }

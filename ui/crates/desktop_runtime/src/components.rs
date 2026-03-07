@@ -34,9 +34,7 @@ use crate::{
     runtime_context::open_system_settings,
     wallpaper,
 };
-use system_ui::components::{
-    DesktopBackdrop, DesktopIcon, DesktopIconGrid, DesktopWindowLayer,
-};
+use system_ui::components::{DesktopBackdrop, DesktopIcon, DesktopIconGrid, DesktopWindowLayer};
 use system_ui::primitives::{Icon, IconName, IconSize};
 
 const TASKBAR_HEIGHT_PX: i32 = 38;

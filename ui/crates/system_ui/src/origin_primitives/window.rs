@@ -1,6 +1,6 @@
 use leptos::*;
 
-use crate::legacy_primitives::{bool_token, merge_layout_class};
+use crate::foundation::{bool_token, merge_layout_class, ButtonSize, ButtonVariant};
 
 #[component]
 pub fn WindowSurface(
@@ -132,8 +132,8 @@ pub fn WindowControlButton(
             aria_label=aria_label
             title=title
             disabled=disabled
-            variant=crate::legacy_primitives::ButtonVariant::Quiet
-            size=crate::legacy_primitives::ButtonSize::Sm
+            variant=ButtonVariant::Quiet
+            size=ButtonSize::Sm
             ui_slot="window-control"
             on_pointerdown=Callback::new(move |ev| {
                 if let Some(on_pointerdown) = on_pointerdown.as_ref() {

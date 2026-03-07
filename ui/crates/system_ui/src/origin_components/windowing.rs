@@ -1,6 +1,6 @@
 use leptos::*;
 
-use crate::legacy_primitives::{bool_token, merge_layout_class};
+use crate::foundation::{bool_token, merge_layout_class};
 
 #[component]
 pub fn WindowFrame(

@@ -22,8 +22,8 @@ use system_shell_contract::{
 };
 use system_ui::components::AppShell;
 use system_ui::primitives::{
-    CompletionItem as CompletionOption, CompletionList, DataTable, ListSurface, TerminalLine, TerminalPrompt,
-    TerminalSurface, TerminalTranscript, TextField, TextTone,
+    CompletionItem as CompletionOption, CompletionList, DataTable, ListSurface, TerminalLine,
+    TerminalPrompt, TerminalSurface, TerminalTranscript, TextField, TextTone,
 };
 
 const MAX_TERMINAL_ENTRIES: usize = 200;

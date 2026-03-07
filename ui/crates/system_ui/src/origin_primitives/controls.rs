@@ -1,8 +1,8 @@
+use leptos::ev::{FocusEvent, KeyboardEvent};
 use leptos::html;
 use leptos::*;
-use leptos::ev::{FocusEvent, KeyboardEvent};
 
-use crate::legacy_primitives::{bool_token, merge_layout_class, FieldVariant};
+use crate::foundation::{bool_token, merge_layout_class, FieldVariant};
 
 #[component]
 pub fn TextField(

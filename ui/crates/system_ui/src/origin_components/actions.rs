@@ -1,9 +1,7 @@
-use leptos::*;
 use leptos::ev::KeyboardEvent;
+use leptos::*;
 
-use crate::legacy_primitives::{
-    bool_token, merge_layout_class, ButtonShape, ButtonSize, ButtonVariant,
-};
+use crate::foundation::{bool_token, merge_layout_class, ButtonShape, ButtonSize, ButtonVariant};
 use crate::origin_primitives::{Icon, IconName, IconSize};
 
 #[component]

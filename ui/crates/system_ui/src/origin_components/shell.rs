@@ -1,7 +1,7 @@
-use leptos::*;
 use leptos::ev::KeyboardEvent;
+use leptos::*;
 
-use crate::legacy_primitives::{merge_layout_class, ButtonVariant};
+use crate::foundation::{merge_layout_class, ButtonVariant};
 
 #[component]
 pub fn AppShell(

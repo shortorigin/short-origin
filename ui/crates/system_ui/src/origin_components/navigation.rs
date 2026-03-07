@@ -1,7 +1,9 @@
-use leptos::*;
 use leptos::ev::KeyboardEvent;
+use leptos::*;
 
-use crate::legacy_primitives::{bool_token, merge_layout_class, ButtonVariant, LayoutGap, LayoutJustify, LayoutPadding};
+use crate::foundation::{
+    bool_token, merge_layout_class, ButtonVariant, LayoutGap, LayoutJustify, LayoutPadding,
+};
 
 #[component]
 pub fn Toolbar(
@@ -258,7 +260,7 @@ pub fn StepFlowStep(
     #[prop(optional)] layout_class: Option<&'static str>,
     title: &'static str,
     #[prop(optional)] description: Option<&'static str>,
-    #[prop(into)] status: MaybeSignal<crate::legacy_primitives::StepStatus>,
+    #[prop(into)] status: MaybeSignal<StepStatus>,
     children: Children,
 ) -> impl IntoView {
     view! {
@@ -278,6 +280,25 @@ pub fn StepFlowStep(
             </div>
             <div data-ui-slot="body">{children()}</div>
         </section>
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StepStatus {
+    Current,
+    Complete,
+    Pending,
+    Error,
+}
+
+impl StepStatus {
+    pub(crate) fn token(self) -> &'static str {
+        match self {
+            Self::Current => "current",
+            Self::Complete => "complete",
+            Self::Pending => "pending",
+            Self::Error => "error",
+        }
     }
 }
 
