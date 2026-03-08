@@ -1,14 +1,41 @@
 # Contributing
 
-## Workflow
+## GitHub Workflow Protocol
 
-All material changes are issue-driven.
+All material changes are issue-driven and must follow the same GitHub workflow:
 
-1. Open or refine a GitHub issue using the repository issue forms.
-2. Move the issue onto the organization Project in the correct `Status` column.
-3. Create a short-lived branch named `feature/<issue-id>-description`, `fix/<issue-id>-description`, `infra/<issue-id>-description`, `docs/<issue-id>-description`, `refactor/<issue-id>-description`, or `research/<issue-id>-description`.
-4. Keep the change set small enough to review and merge quickly.
-5. Open a pull request that links the issue, describes the technical changes, and includes a testing strategy.
+1. Create or refine a same-repository GitHub issue before writing code.
+2. Ensure the issue captures:
+   - the change, defect, or enhancement being proposed,
+   - enough background and scope for another contributor to understand the request,
+   - explicit acceptance criteria,
+   - supporting technical notes, constraints, and related links where needed.
+3. Move the issue onto the organization Project in the correct `Status` column.
+4. Create a dedicated short-lived branch from the latest `main`.
+5. Name the branch with the issue identifier using:
+   - `feature/<issue-id>-description`
+   - `fix/<issue-id>-description`
+   - `infra/<issue-id>-description`
+   - `docs/<issue-id>-description`
+   - `refactor/<issue-id>-description`
+   - `research/<issue-id>-description`
+6. Implement the change on that issue branch and keep the change set small enough to review and merge quickly.
+7. Open a pull request targeting `main` that:
+   - references the originating issue,
+   - explains the technical change,
+   - documents the testing strategy,
+   - includes a closing directive such as `Closes #<issue-id>`.
+8. Merge only after review and required checks pass so GitHub automatically closes the linked issue.
+
+Example commands:
+
+```bash
+gh issue create
+git switch main
+git pull --ff-only
+git switch -c fix/123-runtime-error-contract
+gh pr create --fill
+```
 
 ## Pull Request Requirements
 
@@ -19,6 +46,7 @@ All material changes are issue-driven.
 - Required checks must pass before merge.
 - At least one reviewer approval is required before merge.
 - Squash merge is the default merge strategy.
+- Keep the `Closes #<issue-id>` directive in the PR body through merge so the issue closes automatically.
 
 ## Labels and Milestones
 

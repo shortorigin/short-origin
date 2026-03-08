@@ -11,6 +11,7 @@ This repository uses a GitHub-native Scrumban workflow built around issues, pull
 3. Every merge flows through a reviewed pull request.
 4. Required checks must pass before merge.
 5. Work stays visible on the organization Project board.
+6. Every pull request must retain a GitHub issue closing directive so merge closes the originating issue automatically.
 
 ## Flow
 
@@ -44,6 +45,13 @@ Every issue should capture:
 - Technical Notes
 - Related Issues
 
+Issue creation protocol:
+
+1. Create the issue before starting implementation.
+2. Confirm the issue title is specific enough to support branch and PR naming.
+3. Record enough context that another contributor can execute the change without private side-channel knowledge.
+4. Keep acceptance criteria concrete and testable.
+
 ## Branching and Commits
 
 Short-lived trunk-based branches are required:
@@ -54,6 +62,13 @@ Short-lived trunk-based branches are required:
 - `docs/<issue-id>-description`
 - `refactor/<issue-id>-description`
 - `research/<issue-id>-description`
+
+Branch protocol:
+
+1. Branch from the latest `main`.
+2. Include the GitHub issue identifier in the branch name.
+3. Use one primary issue per branch.
+4. Delete the branch after merge.
 
 PR titles and squash-merge commit messages must use conventional commits:
 
@@ -74,6 +89,7 @@ Every PR must include:
 - technical changes
 - testing strategy
 - deployment impact
+- a closing directive in the PR body such as `Closes #123`
 - repository-native language with no leaked Codex, OpenAI, ChatGPT, or other assistant/vendor branding unless required for an external reference or legal attribution
 
 Merge policy:
@@ -84,6 +100,7 @@ Merge policy:
 - dismiss stale approvals when new commits are pushed
 - code owner review: required
 - auto-merge: enabled as the fallback path when merge queue is unavailable
+- merging the PR closes the linked issue through the PR closing directive
 
 ## CI/CD Baseline
 

@@ -8,6 +8,17 @@ This repository is the pilot adopter for the `shortorigin` GitHub-native Scrumba
 - Issue forms: [`.github/ISSUE_TEMPLATE`](/Users/justinshort/short%20origin/.github/ISSUE_TEMPLATE)
 - PR template: [`.github/PULL_REQUEST_TEMPLATE.md`](/Users/justinshort/short%20origin/.github/PULL_REQUEST_TEMPLATE.md)
 - Development policy: [DEVELOPMENT_MODEL.md](/Users/justinshort/short%20origin/DEVELOPMENT_MODEL.md)
+- Contributor workflow: [CONTRIBUTING.md](/Users/justinshort/short%20origin/CONTRIBUTING.md)
+
+## Required GitHub Workflow Protocol
+
+Every material repository change follows the same GitHub lifecycle:
+
+1. Create a GitHub issue with context, scope, and acceptance criteria.
+2. Create a dedicated issue branch from `main` named `<type>/<issue-id>-<summary>`.
+3. Implement the change on that branch.
+4. Open a pull request that references the issue and includes `Closes #<issue-id>` in the body.
+5. Merge only after review and required checks pass so GitHub closes the linked issue automatically.
 
 ## Bootstrap Commands
 
