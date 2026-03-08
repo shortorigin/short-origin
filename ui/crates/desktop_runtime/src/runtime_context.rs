@@ -12,7 +12,7 @@ use crate::{
     app_runtime::{sync_runtime_sessions, AppRuntimeState},
     apps, effect_executor,
     host::DesktopHostContext,
-    model::{DesktopState, InteractionState},
+    model::{DeepLinkState, DesktopState, InteractionState},
     reducer::{reduce_desktop, DesktopAction, RuntimeEffect},
     shell,
 };
@@ -45,11 +45,14 @@ impl DesktopRuntimeContext {
     }
 }
 
-fn install_runtime_orchestration(runtime: DesktopRuntimeContext) {
+fn install_runtime_orchestration(
+    runtime: DesktopRuntimeContext,
+    initial_deep_link: Option<DeepLinkState>,
+) {
     runtime
         .host
         .get_value()
-        .install_boot_hydration(runtime.dispatch);
+        .install_boot_hydration(runtime.dispatch, initial_deep_link);
     std::mem::forget(shell::register_builtin_commands(runtime));
     effect_executor::install(runtime);
 }
@@ -59,6 +62,8 @@ fn install_runtime_orchestration(runtime: DesktopRuntimeContext) {
 pub fn DesktopProvider(
     /// Injected browser or desktop host bundle assembled by the entry layer.
     host_services: HostServices,
+    /// URL intent captured by the browser entrypoint before runtime boot begins.
+    initial_deep_link: Option<DeepLinkState>,
     children: Children,
 ) -> impl IntoView {
     let host = store_value(DesktopHostContext::new(host_services));
@@ -125,7 +130,7 @@ pub fn DesktopProvider(
 
     provide_context(runtime.clone());
 
-    install_runtime_orchestration(runtime);
+    install_runtime_orchestration(runtime, initial_deep_link);
 
     children().into_view()
 }

@@ -122,6 +122,7 @@ async function main() {
   const browserTargets = [
     ["chromium", playwright.chromium],
     ["firefox", playwright.firefox],
+    ["webkit", playwright.webkit],
   ];
   const browsers = [];
   for (const [name, browserType] of browserTargets) {

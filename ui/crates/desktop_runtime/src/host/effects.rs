@@ -12,9 +12,6 @@ pub(super) fn run_runtime_effect(
     effect: RuntimeEffect,
 ) {
     match effect {
-        RuntimeEffect::ParseAndOpenDeepLink(deep_link) => {
-            host_ui::open_deep_link(runtime, deep_link)
-        }
         RuntimeEffect::PersistLayout => persistence_effects::persist_layout(host, runtime),
         RuntimeEffect::PersistTheme => persistence_effects::persist_theme(host, runtime),
         RuntimeEffect::PersistWallpaper => persistence_effects::persist_wallpaper(host, runtime),

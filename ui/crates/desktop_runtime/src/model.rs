@@ -215,6 +215,15 @@ pub struct DesktopState {
     /// App ids elevated by the runtime policy overlay for this session.
     #[serde(skip)]
     pub privileged_app_ids: BTreeSet<String>,
+    /// Last applied durable/sync revision for layout state.
+    #[serde(skip)]
+    pub layout_revision: Option<u64>,
+    /// Last applied durable/sync revision for theme state.
+    #[serde(skip)]
+    pub theme_revision: Option<u64>,
+    /// Last applied durable/sync revision for wallpaper state.
+    #[serde(skip)]
+    pub wallpaper_revision: Option<u64>,
 }
 
 impl Default for DesktopState {
@@ -235,6 +244,9 @@ impl Default for DesktopState {
             app_shared_state: BTreeMap::new(),
             boot_hydrated: false,
             privileged_app_ids: BTreeSet::new(),
+            layout_revision: None,
+            theme_revision: None,
+            wallpaper_revision: None,
         }
     }
 }
@@ -262,7 +274,7 @@ impl DesktopState {
     pub fn from_snapshot(snapshot: DesktopSnapshot) -> Self {
         let mut state = Self::default();
         state.preferences = snapshot.preferences;
-        state.windows = snapshot.windows;
+        state.windows = normalize_restored_windows(snapshot.windows);
         state.terminal_history = snapshot.terminal_history;
         state.app_shared_state = snapshot.app_shared_state;
         state.boot_hydrated = false;
@@ -273,8 +285,59 @@ impl DesktopState {
             .max()
             .unwrap_or(0)
             .saturating_add(1);
+        state.active_modal = restored_active_modal(&state.windows);
         state
     }
+}
+
+fn normalize_restored_windows(mut windows: Vec<WindowRecord>) -> Vec<WindowRecord> {
+    let ids = windows
+        .iter()
+        .map(|window| window.id)
+        .collect::<BTreeSet<_>>();
+    windows.retain(|window| {
+        window
+            .flags
+            .modal_parent
+            .is_none_or(|parent_id| ids.contains(&parent_id))
+    });
+
+    let active_modal = windows
+        .iter()
+        .filter(|window| window.flags.modal_parent.is_some())
+        .max_by_key(|window| (window.z_index, window.id))
+        .map(|window| window.id);
+    windows.retain(|window| window.flags.modal_parent.is_none() || Some(window.id) == active_modal);
+
+    let focused = if let Some(modal_id) = active_modal {
+        Some(modal_id)
+    } else {
+        windows
+            .iter()
+            .filter(|window| window.is_focused)
+            .max_by_key(|window| (window.z_index, window.id))
+            .map(|window| window.id)
+            .or_else(|| {
+                windows
+                    .iter()
+                    .filter(|window| !window.minimized)
+                    .max_by_key(|window| (window.z_index, window.id))
+                    .map(|window| window.id)
+            })
+    };
+
+    for window in &mut windows {
+        window.is_focused = Some(window.id) == focused;
+    }
+
+    windows
+}
+
+fn restored_active_modal(windows: &[WindowRecord]) -> Option<WindowId> {
+    windows
+        .iter()
+        .find(|window| window.flags.modal_parent.is_some())
+        .map(|window| window.id)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -591,5 +654,114 @@ mod tests {
             windows[0].get("last_lifecycle_event").is_none(),
             "snapshot should not persist runtime lifecycle markers"
         );
+    }
+
+    #[test]
+    fn from_snapshot_drops_orphaned_modal_children() {
+        let state = DesktopState::from_snapshot(DesktopSnapshot {
+            schema_version: DESKTOP_LAYOUT_SCHEMA_VERSION,
+            preferences: DesktopPreferences::default(),
+            windows: vec![
+                WindowRecord {
+                    id: WindowId(1),
+                    app_id: ApplicationId::trusted("system.settings"),
+                    title: "Parent".to_string(),
+                    icon_id: "settings".to_string(),
+                    rect: WindowRect::default(),
+                    restore_rect: None,
+                    z_index: 1,
+                    is_focused: true,
+                    minimized: false,
+                    maximized: false,
+                    suspended: false,
+                    flags: WindowFlags::default(),
+                    persist_key: None,
+                    app_state: Value::Null,
+                    launch_params: Value::Null,
+                    last_lifecycle_event: None,
+                },
+                WindowRecord {
+                    id: WindowId(2),
+                    app_id: ApplicationId::trusted("system.settings"),
+                    title: "Orphan".to_string(),
+                    icon_id: "settings".to_string(),
+                    rect: WindowRect::default(),
+                    restore_rect: None,
+                    z_index: 2,
+                    is_focused: false,
+                    minimized: false,
+                    maximized: false,
+                    suspended: false,
+                    flags: WindowFlags {
+                        modal_parent: Some(WindowId(99)),
+                        ..WindowFlags::default()
+                    },
+                    persist_key: None,
+                    app_state: Value::Null,
+                    launch_params: Value::Null,
+                    last_lifecycle_event: None,
+                },
+            ],
+            terminal_history: Vec::new(),
+            app_shared_state: BTreeMap::new(),
+        });
+
+        assert_eq!(state.windows.len(), 1);
+        assert_eq!(state.active_modal, None);
+        assert_eq!(state.focused_window_id(), Some(WindowId(1)));
+    }
+
+    #[test]
+    fn from_snapshot_promotes_single_valid_modal_child_to_active_modal() {
+        let state = DesktopState::from_snapshot(DesktopSnapshot {
+            schema_version: DESKTOP_LAYOUT_SCHEMA_VERSION,
+            preferences: DesktopPreferences::default(),
+            windows: vec![
+                WindowRecord {
+                    id: WindowId(1),
+                    app_id: ApplicationId::trusted("system.settings"),
+                    title: "Parent".to_string(),
+                    icon_id: "settings".to_string(),
+                    rect: WindowRect::default(),
+                    restore_rect: None,
+                    z_index: 1,
+                    is_focused: true,
+                    minimized: false,
+                    maximized: false,
+                    suspended: false,
+                    flags: WindowFlags::default(),
+                    persist_key: None,
+                    app_state: Value::Null,
+                    launch_params: Value::Null,
+                    last_lifecycle_event: None,
+                },
+                WindowRecord {
+                    id: WindowId(2),
+                    app_id: ApplicationId::trusted("system.settings"),
+                    title: "Modal".to_string(),
+                    icon_id: "settings".to_string(),
+                    rect: WindowRect::default(),
+                    restore_rect: None,
+                    z_index: 2,
+                    is_focused: false,
+                    minimized: false,
+                    maximized: false,
+                    suspended: false,
+                    flags: WindowFlags {
+                        modal_parent: Some(WindowId(1)),
+                        ..WindowFlags::default()
+                    },
+                    persist_key: None,
+                    app_state: Value::Null,
+                    launch_params: Value::Null,
+                    last_lifecycle_event: None,
+                },
+            ],
+            terminal_history: Vec::new(),
+            app_shared_state: BTreeMap::new(),
+        });
+
+        assert_eq!(state.active_modal, Some(WindowId(2)));
+        assert_eq!(state.focused_window_id(), Some(WindowId(2)));
     }
 }

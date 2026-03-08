@@ -32,7 +32,7 @@
 //!     &mut state,
 //!     &mut interaction,
 //!     DesktopAction::OpenWindow(OpenWindowRequest::new(
-//!         ApplicationId::trusted("system.calculator"),
+//!         ApplicationId::trusted("system.settings"),
 //!     )),
 //! )
 //! .expect("reducer should open a window");
@@ -80,8 +80,9 @@ pub use host::DesktopHostContext;
 pub use model::*;
 /// Re-exported persistence entrypoints used by the shell runtime.
 pub use persistence::{
-    load_boot_snapshot, load_durable_boot_snapshot, load_theme, load_wallpaper,
-    persist_layout_snapshot, persist_terminal_history, persist_theme, persist_wallpaper,
+    load_boot_snapshot, load_durable_boot_snapshot, load_durable_boot_snapshot_record, load_theme,
+    load_wallpaper, persist_layout_snapshot, persist_terminal_history, persist_theme,
+    persist_wallpaper, DurableDesktopSnapshot,
 };
 /// Re-exported wallpaper contracts owned by the host boundary.
 pub use platform_host::{
@@ -90,6 +91,6 @@ pub use platform_host::{
     WallpaperMediaKind, WallpaperPosition, WallpaperSelection, WallpaperSourceKind,
 };
 /// Re-exported reducer entrypoint and core action/effect enums.
-pub use reducer::{reduce_desktop, DesktopAction, HydrationMode, RuntimeEffect};
+pub use reducer::{reduce_desktop, DesktopAction, HydrationMode, RuntimeEffect, SyncDomain};
 /// Re-exported shared UI primitives for runtime-owned shell surfaces.
 pub use system_ui::prelude::{Icon, IconName, IconSize};

@@ -34,12 +34,35 @@ pub(super) fn reduce_appearance_action(
         DesktopAction::ClearWallpaperPreview => {
             state.wallpaper_preview = None;
         }
-        DesktopAction::HydrateTheme { theme } => {
+        DesktopAction::HydrateTheme { theme, revision } => {
+            if revision.is_some_and(|incoming| {
+                state
+                    .theme_revision
+                    .is_some_and(|current| incoming <= current)
+            }) {
+                return Ok(true);
+            }
             state.theme = theme.clone();
+            if let Some(revision) = revision {
+                state.theme_revision = Some(*revision);
+            }
         }
-        DesktopAction::HydrateWallpaper { wallpaper } => {
+        DesktopAction::HydrateWallpaper {
+            wallpaper,
+            revision,
+        } => {
+            if revision.is_some_and(|incoming| {
+                state
+                    .wallpaper_revision
+                    .is_some_and(|current| incoming <= current)
+            }) {
+                return Ok(true);
+            }
             state.wallpaper = canonicalize_wallpaper_config(wallpaper.clone());
             state.wallpaper_preview = None;
+            if let Some(revision) = revision {
+                state.wallpaper_revision = Some(*revision);
+            }
         }
         DesktopAction::WallpaperLibraryLoaded { snapshot } => {
             state.wallpaper_library = wallpaper::merged_wallpaper_library(snapshot);

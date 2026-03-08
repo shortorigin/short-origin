@@ -20,7 +20,10 @@ use platform_host::{
 };
 
 use crate::{
-    model::WindowRect, persistence, reducer::DesktopAction, runtime_context::DesktopRuntimeContext,
+    model::{DeepLinkState, WindowRect},
+    persistence,
+    reducer::DesktopAction,
+    runtime_context::DesktopRuntimeContext,
 };
 
 #[derive(Clone)]
@@ -107,12 +110,12 @@ impl DesktopHostContext {
 
     /// Installs boot hydration/migration side effects for the desktop provider.
     ///
-    /// This preserves the current boot sequence:
-    /// 1. hydrate from compatibility snapshot first (if present)
-    /// 2. asynchronously hydrate from durable storage if present
-    /// 3. otherwise migrate the legacy snapshot into durable storage
-    pub fn install_boot_hydration(&self, dispatch: Callback<DesktopAction>) {
-        boot::install_boot_hydration(self.clone(), dispatch);
+    pub fn install_boot_hydration(
+        &self,
+        dispatch: Callback<DesktopAction>,
+        initial_deep_link: Option<DeepLinkState>,
+    ) {
+        boot::install_boot_hydration(self.clone(), dispatch, initial_deep_link);
     }
 
     /// Executes a single [`crate::RuntimeEffect`] emitted by the reducer.

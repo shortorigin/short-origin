@@ -8,6 +8,10 @@ use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
 use platform_host_web::build_host_services;
+#[cfg(target_arch = "wasm32")]
+use platform_host_web::{
+    decode_shell_sync_event, shell_sync_sender_id, should_apply_shell_sync_event, ShellSyncKind,
+};
 
 use crate::browser_navigation::{current_browser_route, BrowserRoute};
 
@@ -57,11 +61,15 @@ pub fn SiteApp() -> impl IntoView {
 /// Default route that mounts the desktop runtime provider and shell.
 pub fn DesktopEntry() -> impl IntoView {
     let host_services = build_host_services();
+    let initial_deep_link = match current_browser_route() {
+        Some(BrowserRoute::Shell(Some(deep_link))) if !deep_link.open.is_empty() => Some(deep_link),
+        _ => None,
+    };
     if let Some(browser_e2e) = current_browser_e2e_config() {
         provide_context::<BrowserE2eConfig>(browser_e2e);
     }
     view! {
-        <DesktopProvider host_services>
+        <DesktopProvider host_services initial_deep_link=initial_deep_link>
             <DesktopUrlBoot />
             <BrowserRuntimeEnhancements />
             <BrowserShellSync />
@@ -75,6 +83,9 @@ fn DesktopUrlBoot() -> impl IntoView {
     let runtime = use_desktop_runtime();
 
     create_effect(move |_| {
+        if !runtime.state.get().boot_hydrated {
+            return;
+        }
         if let Some(BrowserRoute::Shell(Some(deep_link))) = current_browser_route() {
             if !deep_link.open.is_empty() {
                 runtime.dispatch_action(DesktopAction::ApplyDeepLink { deep_link });
@@ -96,7 +107,8 @@ fn BrowserRuntimeEnhancements() -> impl IntoView {
 
 #[component]
 fn BrowserShellSync() -> impl IntoView {
-    let _runtime = use_desktop_runtime();
+    #[cfg(target_arch = "wasm32")]
+    let runtime = use_desktop_runtime();
 
     #[cfg(target_arch = "wasm32")]
     {
@@ -105,7 +117,7 @@ fn BrowserShellSync() -> impl IntoView {
         };
         use wasm_bindgen::{closure::Closure, JsCast};
 
-        let host = _runtime.host.get_value();
+        let host = runtime.host.get_value();
         create_effect(move |_| {
             if !platform_host_web::broadcast_channel_supported() {
                 return;
@@ -114,37 +126,69 @@ fn BrowserShellSync() -> impl IntoView {
             let Ok(channel) = web_sys::BroadcastChannel::new("origin-os-shell-sync") else {
                 return;
             };
-            let runtime = _runtime.clone();
+            let runtime = runtime.clone();
             let host = host.clone();
+            let sender_id = shell_sync_sender_id();
 
             let callback = Closure::<dyn FnMut(web_sys::MessageEvent)>::wrap(Box::new(
                 move |event: web_sys::MessageEvent| {
                     let Some(message) = event.data().as_string() else {
                         return;
                     };
+                    let Some(sync_event) = decode_shell_sync_event(&message) else {
+                        return;
+                    };
+                    if !runtime.state.get_untracked().boot_hydrated {
+                        return;
+                    }
 
-                    match message.as_str() {
-                        "theme-changed" => {
+                    match sync_event.kind {
+                        ShellSyncKind::Theme => {
+                            if !should_apply_shell_sync_event(
+                                &sync_event,
+                                &sender_id,
+                                runtime.state.get_untracked().theme_revision,
+                            ) {
+                                return;
+                            }
                             let runtime = runtime.clone();
                             let host = host.clone();
                             leptos::spawn_local(async move {
                                 if let Some(theme) = load_theme(&host).await {
-                                    runtime.dispatch_action(DesktopAction::HydrateTheme { theme });
+                                    runtime.dispatch_action(DesktopAction::HydrateTheme {
+                                        theme,
+                                        revision: Some(sync_event.revision),
+                                    });
                                 }
                             });
                         }
-                        "wallpaper-changed" => {
+                        ShellSyncKind::Wallpaper => {
+                            if !should_apply_shell_sync_event(
+                                &sync_event,
+                                &sender_id,
+                                runtime.state.get_untracked().wallpaper_revision,
+                            ) {
+                                return;
+                            }
                             let runtime = runtime.clone();
                             let host = host.clone();
                             leptos::spawn_local(async move {
                                 if let Some(wallpaper) = load_wallpaper(&host).await {
                                     runtime.dispatch_action(DesktopAction::HydrateWallpaper {
                                         wallpaper,
+                                        revision: Some(sync_event.revision),
                                     });
                                 }
                             });
                         }
-                        "layout-changed" => {
+                        ShellSyncKind::Layout => {
+                            if !should_apply_shell_sync_event(
+                                &sync_event,
+                                &sender_id,
+                                runtime.state.get_untracked().layout_revision,
+                            ) {
+                                return;
+                            }
                             let runtime = runtime.clone();
                             let host = host.clone();
                             leptos::spawn_local(async move {
@@ -152,11 +196,11 @@ fn BrowserShellSync() -> impl IntoView {
                                     runtime.dispatch_action(DesktopAction::HydrateSnapshot {
                                         snapshot,
                                         mode: HydrationMode::SyncRefresh,
+                                        revision: Some(sync_event.revision),
                                     });
                                 }
                             });
                         }
-                        _ => {}
                     }
                 },
             ));
