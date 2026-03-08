@@ -2,11 +2,10 @@
 
 use crate::host::DesktopHostContext;
 use crate::model::{DesktopPreferences, DesktopSnapshot, DesktopState, DesktopTheme};
-#[cfg(test)]
 use platform_host::build_app_state_envelope;
 use platform_host::{
-    load_app_state_with_migration, load_pref_with, migrate_envelope_payload, save_app_state_with,
-    save_pref_with, AppStateEnvelope, WallpaperConfig, WallpaperSelection, DESKTOP_STATE_NAMESPACE,
+    load_pref_with, migrate_envelope_payload, save_pref_with, AppStateEnvelope, WallpaperConfig,
+    WallpaperSelection, DESKTOP_STATE_NAMESPACE,
 };
 use serde::{Deserialize, Serialize};
 
@@ -24,6 +23,15 @@ pub const APP_POLICY_KEY: &str = "system.app_policy.v1";
 pub struct AppPolicyOverlay {
     /// App ids treated as privileged by shell policy.
     pub privileged_app_ids: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// Typed durable desktop snapshot with the applied app-state revision.
+pub struct DurableDesktopSnapshot {
+    /// Decoded desktop snapshot payload.
+    pub snapshot: DesktopSnapshot,
+    /// Monotonic durable app-state revision.
+    pub revision: u64,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -114,18 +122,32 @@ pub async fn load_boot_snapshot(_host: &DesktopHostContext) -> Option<DesktopSna
 /// Loads the durable boot snapshot from the configured [`platform_host::AppStateStore`]
 /// implementation (IndexedDB-backed in the browser host).
 pub async fn load_durable_boot_snapshot(host: &DesktopHostContext) -> Option<DesktopSnapshot> {
+    load_durable_boot_snapshot_record(host)
+        .await
+        .map(|record| record.snapshot)
+}
+
+/// Loads the durable boot snapshot together with its authoritative app-state revision.
+pub async fn load_durable_boot_snapshot_record(
+    host: &DesktopHostContext,
+) -> Option<DurableDesktopSnapshot> {
     let store = host.app_state_store();
-    match load_app_state_with_migration(
-        store.as_ref(),
-        DESKTOP_STATE_NAMESPACE,
-        crate::model::DESKTOP_LAYOUT_SCHEMA_VERSION,
-        migrate_desktop_snapshot,
-    )
-    .await
-    {
-        Ok(snapshot) => snapshot,
+    let envelope = match store.load_app_state_envelope(DESKTOP_STATE_NAMESPACE).await {
+        Ok(envelope) => envelope,
         Err(err) => {
             leptos::logging::warn!("durable boot snapshot load failed: {err}");
+            return None;
+        }
+    }?;
+
+    match decode_desktop_snapshot_envelope(&envelope) {
+        Ok(Some(snapshot)) => Some(DurableDesktopSnapshot {
+            snapshot,
+            revision: envelope.updated_at_unix_ms,
+        }),
+        Ok(None) => None,
+        Err(err) => {
+            leptos::logging::warn!("durable boot snapshot decode failed: {err}");
             None
         }
     }
@@ -148,15 +170,27 @@ pub async fn persist_durable_layout_snapshot(
     host: &DesktopHostContext,
     state: &DesktopState,
 ) -> Result<(), String> {
-    let snapshot = state.snapshot();
-    let store = host.app_state_store();
-    save_app_state_with(
-        store.as_ref(),
+    let envelope = build_durable_layout_envelope(state)?;
+    save_durable_layout_envelope(host, &envelope).await
+}
+
+/// Builds a durable desktop layout envelope and stamps it with a monotonic revision.
+pub fn build_durable_layout_envelope(state: &DesktopState) -> Result<AppStateEnvelope, String> {
+    build_app_state_envelope(
         DESKTOP_STATE_NAMESPACE,
         crate::model::DESKTOP_LAYOUT_SCHEMA_VERSION,
-        &snapshot,
+        &state.snapshot(),
     )
-    .await
+}
+
+/// Persists a durable desktop layout envelope through the configured app-state store.
+pub async fn save_durable_layout_envelope(
+    host: &DesktopHostContext,
+    envelope: &AppStateEnvelope,
+) -> Result<(), String> {
+    host.app_state_store()
+        .save_app_state_envelope(envelope)
+        .await
 }
 
 /// Persists compatibility layout state.
@@ -282,9 +316,23 @@ fn local_storage() -> Option<web_sys::Storage> {
     web_sys::window()?.local_storage().ok().flatten()
 }
 
+fn decode_desktop_snapshot_envelope(
+    envelope: &AppStateEnvelope,
+) -> Result<Option<DesktopSnapshot>, String> {
+    if envelope.schema_version == crate::model::DESKTOP_LAYOUT_SCHEMA_VERSION {
+        migrate_envelope_payload(envelope).map(Some)
+    } else if envelope.schema_version > crate::model::DESKTOP_LAYOUT_SCHEMA_VERSION {
+        Ok(None)
+    } else {
+        migrate_desktop_snapshot(envelope.schema_version, envelope)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use futures::executor::block_on;
+    use platform_host::{AppStateStore, MemoryAppStateStore};
 
     #[test]
     fn desktop_namespace_migration_supports_schema_zero() {
@@ -312,5 +360,31 @@ mod tests {
 
         let legacy_only = resolve_restore_preferences(None, Some(&legacy));
         assert!(!legacy_only.restore_on_boot);
+    }
+
+    #[test]
+    fn durable_snapshot_record_preserves_revision() {
+        let store = MemoryAppStateStore::default();
+        let state = DesktopState::default();
+        let envelope =
+            build_durable_layout_envelope(&state).expect("durable desktop envelope should build");
+        let revision = envelope.updated_at_unix_ms;
+        block_on(store.save_app_state_envelope(&envelope)).expect("save envelope");
+        let host = crate::host::DesktopHostContext::new(platform_host::HostServices {
+            app_state: std::rc::Rc::new(store),
+            prefs: std::rc::Rc::new(platform_host::NoopPrefsStore),
+            explorer: std::rc::Rc::new(platform_host::NoopExplorerFsService),
+            cache: std::rc::Rc::new(platform_host::NoopContentCache),
+            external_urls: std::rc::Rc::new(platform_host::NoopExternalUrlService),
+            notifications: std::rc::Rc::new(platform_host::NoopNotificationService),
+            wallpaper: std::rc::Rc::new(platform_host::NoopWallpaperAssetService),
+            terminal_process: None,
+            capabilities: platform_host::HostCapabilities::browser(),
+            host_strategy: platform_host::HostStrategy::Browser,
+        });
+
+        let loaded = block_on(load_durable_boot_snapshot_record(&host)).expect("durable snapshot");
+        assert_eq!(loaded.revision, revision);
+        assert_eq!(loaded.snapshot, state.snapshot());
     }
 }

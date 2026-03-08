@@ -1,38 +1,78 @@
 use leptos::{logging, spawn_local, SignalGetUntracked};
-use platform_host::save_pref_with;
-use platform_host_web::{publish_shell_sync_event, ShellSyncEvent};
+use platform_host::{next_monotonic_timestamp_ms, save_pref_with};
+use platform_host_web::{publish_shell_sync_event, ShellSyncEvent, ShellSyncKind};
 
-use crate::{components::DesktopRuntimeContext, host::DesktopHostContext, persistence};
+use crate::{
+    components::DesktopRuntimeContext,
+    host::DesktopHostContext,
+    persistence,
+    reducer::{DesktopAction, SyncDomain},
+};
 
 pub(super) fn persist_layout(host: DesktopHostContext, runtime: DesktopRuntimeContext) {
     let snapshot_state = runtime.state.get_untracked();
     if let Err(err) = persistence::persist_layout_snapshot(&snapshot_state) {
         logging::warn!("persist layout failed: {err}");
     }
-    host.persist_durable_snapshot(snapshot_state, "layout");
-    publish_shell_sync_event(ShellSyncEvent::LayoutChanged);
+    match persistence::build_durable_layout_envelope(&snapshot_state) {
+        Ok(envelope) => {
+            let revision = envelope.updated_at_unix_ms;
+            runtime.dispatch_action(DesktopAction::RecordAppliedRevision {
+                domain: SyncDomain::Layout,
+                revision,
+            });
+            let async_host = host.clone();
+            spawn_local(async move {
+                if let Err(err) =
+                    persistence::save_durable_layout_envelope(&async_host, &envelope).await
+                {
+                    logging::warn!("persist durable layout failed: {err}");
+                    return;
+                }
+                publish_shell_sync_event(&ShellSyncEvent::new(ShellSyncKind::Layout, revision));
+            });
+        }
+        Err(err) => logging::warn!("build durable layout envelope failed: {err}"),
+    }
 }
 
 pub(super) fn persist_theme(host: DesktopHostContext, runtime: DesktopRuntimeContext) {
     let theme = runtime.state.get_untracked().theme;
+    let snapshot_state = runtime.state.get_untracked();
+    let revision = next_monotonic_timestamp_ms();
+    runtime.dispatch_action(DesktopAction::RecordAppliedRevision {
+        domain: SyncDomain::Theme,
+        revision,
+    });
     let async_host = host.clone();
     spawn_local(async move {
         if let Err(err) = persistence::persist_theme(&async_host, &theme).await {
             logging::warn!("persist theme failed: {err}");
         }
+        if let Ok(envelope) = persistence::build_durable_layout_envelope(&snapshot_state) {
+            if let Err(err) =
+                persistence::save_durable_layout_envelope(&async_host, &envelope).await
+            {
+                logging::warn!("persist theme durable snapshot failed: {err}");
+            }
+        }
+        publish_shell_sync_event(&ShellSyncEvent::new(ShellSyncKind::Theme, revision));
     });
-    host.persist_durable_snapshot(runtime.state.get_untracked(), "theme");
-    publish_shell_sync_event(ShellSyncEvent::ThemeChanged);
 }
 
 pub(super) fn persist_wallpaper(host: DesktopHostContext, runtime: DesktopRuntimeContext) {
     let wallpaper = runtime.state.get_untracked().wallpaper;
+    let revision = next_monotonic_timestamp_ms();
+    runtime.dispatch_action(DesktopAction::RecordAppliedRevision {
+        domain: SyncDomain::Wallpaper,
+        revision,
+    });
     spawn_local(async move {
         if let Err(err) = persistence::persist_wallpaper(&host, &wallpaper).await {
             logging::warn!("persist wallpaper failed: {err}");
         }
+        publish_shell_sync_event(&ShellSyncEvent::new(ShellSyncKind::Wallpaper, revision));
     });
-    publish_shell_sync_event(ShellSyncEvent::WallpaperChanged);
 }
 
 pub(super) fn persist_terminal_history(host: DesktopHostContext, runtime: DesktopRuntimeContext) {

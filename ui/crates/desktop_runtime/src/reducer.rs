@@ -144,11 +144,15 @@ pub enum DesktopAction {
     HydrateTheme {
         /// Persisted theme payload.
         theme: DesktopTheme,
+        /// Revision associated with the theme payload.
+        revision: Option<u64>,
     },
     /// Hydrate wallpaper state independently from layout restore.
     HydrateWallpaper {
         /// Persisted wallpaper payload.
         wallpaper: WallpaperConfig,
+        /// Revision associated with the wallpaper payload.
+        revision: Option<u64>,
     },
     /// Replace the wallpaper library snapshot.
     WallpaperLibraryLoaded {
@@ -208,25 +212,42 @@ pub enum DesktopAction {
         /// Shared state payload.
         state: Value,
     },
+    /// Complete boot hydration in a single deterministic transition.
+    CompleteBootHydration {
+        /// Authoritative snapshot to restore when boot restore is enabled.
+        snapshot: Option<DesktopSnapshot>,
+        /// Durable revision for the authoritative snapshot when one exists.
+        snapshot_revision: Option<u64>,
+        /// Persisted theme payload.
+        theme: Option<DesktopTheme>,
+        /// Persisted wallpaper payload.
+        wallpaper: Option<WallpaperConfig>,
+        /// Persisted policy overlay payload.
+        privileged_app_ids: Vec<String>,
+        /// Initial deep-link payload captured at mount.
+        deep_link: Option<DeepLinkState>,
+    },
     /// Hydrate runtime state from a persisted snapshot.
     HydrateSnapshot {
         /// Snapshot payload to restore.
         snapshot: DesktopSnapshot,
         /// Hydration intent controlling lifecycle replay.
         mode: HydrationMode,
-    },
-    /// Hydrates the runtime policy overlay for the current session.
-    HydratePolicyOverlay {
-        /// App ids elevated by the policy overlay.
-        privileged_app_ids: Vec<String>,
+        /// Revision associated with the snapshot payload.
+        revision: Option<u64>,
     },
     /// Apply URL-derived deep-link instructions.
     ApplyDeepLink {
         /// Parsed deep-link payload.
         deep_link: DeepLinkState,
     },
-    /// Marks asynchronous boot hydration as complete for the current runtime session.
-    BootHydrationComplete,
+    /// Records the latest applied sync revision for a state domain.
+    RecordAppliedRevision {
+        /// State domain whose monotonic revision advanced.
+        domain: SyncDomain,
+        /// New monotonic revision value.
+        revision: u64,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -242,8 +263,6 @@ pub enum RuntimeEffect {
     PersistTerminalHistory,
     /// Move focus into the newly focused window's primary input.
     FocusWindowInput(WindowId),
-    /// Parse and open deep-link targets in the UI layer.
-    ParseAndOpenDeepLink(DeepLinkState),
     /// Open an external URL (for app actions that leave the shell).
     OpenExternalUrl(String),
     /// Play a named UI sound effect.
@@ -350,6 +369,17 @@ pub enum HydrationMode {
     BootRestore,
     /// Synchronizes persisted state into an already-running session.
     SyncRefresh,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+/// State domains that participate in monotonic cross-context synchronization.
+pub enum SyncDomain {
+    /// Desktop layout snapshot state.
+    Layout,
+    /// Theme and accessibility preference state.
+    Theme,
+    /// Wallpaper preference state.
+    Wallpaper,
 }
 
 #[derive(Debug, Error, Clone, PartialEq)]
@@ -516,6 +546,7 @@ pub fn reduce_desktop(
             ensure_parent_close_allowed(state, window_id)?;
             let was_focused = state.focused_window_id() == Some(window_id);
             let modal_parent_to_focus = complete_modal_close(state, window_id);
+            clear_interaction_for_window(interaction, window_id);
             effects.push(RuntimeEffect::DispatchLifecycle {
                 window_id,
                 event: AppLifecycleEvent::Closing,
@@ -1044,49 +1075,62 @@ pub fn reduce_desktop(
             state.app_shared_state.insert(storage_key, shared);
             effects.push(RuntimeEffect::PersistLayout);
         }
-        DesktopAction::HydrateSnapshot { snapshot, mode } => {
-            let theme = state.theme.clone();
-            let wallpaper_config = state.wallpaper.clone();
-            let wallpaper_preview = state.wallpaper_preview.clone();
-            let wallpaper_library = state.wallpaper_library.clone();
-            let privileged_app_ids = state.privileged_app_ids.clone();
-            *state = DesktopState::from_snapshot(snapshot);
-            state.theme = theme;
-            state.wallpaper = wallpaper_config;
-            state.wallpaper_preview = wallpaper_preview;
-            state.wallpaper_library = wallpaper_library;
-            state.privileged_app_ids = privileged_app_ids;
-            let max_restore = state.preferences.max_restore_windows;
-            if state.windows.len() > max_restore {
-                state.windows.truncate(max_restore);
+        DesktopAction::CompleteBootHydration {
+            snapshot,
+            snapshot_revision,
+            theme,
+            wallpaper,
+            privileged_app_ids,
+            deep_link,
+        } => {
+            if let Some(snapshot) = snapshot {
+                restore_snapshot(
+                    state,
+                    interaction,
+                    snapshot,
+                    HydrationMode::BootRestore,
+                    snapshot_revision,
+                    &mut effects,
+                );
+            } else {
+                *interaction = InteractionState::default();
+                state.layout_revision = snapshot_revision;
             }
-            normalize_window_stack(state);
-            if matches!(mode, HydrationMode::BootRestore) {
-                for window in state.windows.iter_mut() {
-                    record_window_lifecycle_by_id(window, AppLifecycleEvent::Mounted);
-                    effects.push(RuntimeEffect::DispatchLifecycle {
-                        window_id: window.id,
-                        event: AppLifecycleEvent::Mounted,
-                    });
-                }
-                if let Some(focused) = state.focused_window_id() {
-                    record_window_lifecycle(state, focused, AppLifecycleEvent::Focused);
-                    effects.push(RuntimeEffect::DispatchLifecycle {
-                        window_id: focused,
-                        event: AppLifecycleEvent::Focused,
-                    });
-                }
+            if let Some(theme) = theme {
+                state.theme = theme;
             }
-        }
-        DesktopAction::HydratePolicyOverlay { privileged_app_ids } => {
+            if let Some(wallpaper) = wallpaper {
+                state.wallpaper = wallpaper;
+                state.wallpaper_preview = None;
+            }
             state.privileged_app_ids = privileged_app_ids.into_iter().collect();
-        }
-        DesktopAction::ApplyDeepLink { deep_link } => {
-            effects.push(RuntimeEffect::ParseAndOpenDeepLink(deep_link));
-        }
-        DesktopAction::BootHydrationComplete => {
+            if let Some(deep_link) = deep_link {
+                apply_deep_link_targets(state, interaction, deep_link, &mut effects)?;
+            }
             state.boot_hydrated = true;
         }
+        DesktopAction::HydrateSnapshot {
+            snapshot,
+            mode,
+            revision,
+        } => {
+            if revision.is_some_and(|incoming| {
+                state
+                    .layout_revision
+                    .is_some_and(|current| incoming <= current)
+            }) {
+                return Ok(effects);
+            }
+            restore_snapshot(state, interaction, snapshot, mode, revision, &mut effects);
+        }
+        DesktopAction::ApplyDeepLink { deep_link } => {
+            apply_deep_link_targets(state, interaction, deep_link, &mut effects)?;
+        }
+        DesktopAction::RecordAppliedRevision { domain, revision } => match domain {
+            SyncDomain::Layout => state.layout_revision = Some(revision),
+            SyncDomain::Theme => state.theme_revision = Some(revision),
+            SyncDomain::Wallpaper => state.wallpaper_revision = Some(revision),
+        },
         DesktopAction::SetCurrentWallpaper { .. }
         | DesktopAction::PreviewWallpaper { .. }
         | DesktopAction::ApplyWallpaperPreview
@@ -1131,10 +1175,129 @@ pub fn build_open_request_from_deeplink(target: DeepLinkOpenTarget) -> OpenWindo
     }
 }
 
+fn restore_snapshot(
+    state: &mut DesktopState,
+    interaction: &mut InteractionState,
+    snapshot: DesktopSnapshot,
+    mode: HydrationMode,
+    revision: Option<u64>,
+    effects: &mut Vec<RuntimeEffect>,
+) {
+    let theme = state.theme.clone();
+    let wallpaper_config = state.wallpaper.clone();
+    let wallpaper_preview = state.wallpaper_preview.clone();
+    let wallpaper_library = state.wallpaper_library.clone();
+    let privileged_app_ids = state.privileged_app_ids.clone();
+    let theme_revision = state.theme_revision;
+    let wallpaper_revision = state.wallpaper_revision;
+    *state = DesktopState::from_snapshot(snapshot);
+    *interaction = InteractionState::default();
+    state.theme = theme;
+    state.wallpaper = wallpaper_config;
+    state.wallpaper_preview = wallpaper_preview;
+    state.wallpaper_library = wallpaper_library;
+    state.privileged_app_ids = privileged_app_ids;
+    state.theme_revision = theme_revision;
+    state.wallpaper_revision = wallpaper_revision;
+    state.layout_revision = revision;
+    let max_restore = state.preferences.max_restore_windows;
+    if state.windows.len() > max_restore {
+        state.windows.truncate(max_restore);
+    }
+    normalize_window_stack(state);
+    if matches!(mode, HydrationMode::BootRestore) {
+        for window in state.windows.iter_mut() {
+            record_window_lifecycle_by_id(window, AppLifecycleEvent::Mounted);
+            effects.push(RuntimeEffect::DispatchLifecycle {
+                window_id: window.id,
+                event: AppLifecycleEvent::Mounted,
+            });
+        }
+        if let Some(focused) = state.focused_window_id() {
+            record_window_lifecycle(state, focused, AppLifecycleEvent::Focused);
+            effects.push(RuntimeEffect::DispatchLifecycle {
+                window_id: focused,
+                event: AppLifecycleEvent::Focused,
+            });
+        }
+    }
+}
+
+fn apply_deep_link_targets(
+    state: &mut DesktopState,
+    interaction: &mut InteractionState,
+    deep_link: DeepLinkState,
+    effects: &mut Vec<RuntimeEffect>,
+) -> Result<(), ReducerError> {
+    for target in deep_link.open {
+        if deep_link_target_satisfied(state, &target) {
+            continue;
+        }
+
+        let nested = match target {
+            DeepLinkOpenTarget::App(app_id) => reduce_desktop(
+                state,
+                interaction,
+                DesktopAction::ActivateApp {
+                    app_id,
+                    viewport: None,
+                },
+            )?,
+            other => reduce_desktop(
+                state,
+                interaction,
+                DesktopAction::OpenWindow(build_open_request_from_deeplink(other)),
+            )?,
+        };
+        effects.extend(nested);
+    }
+
+    Ok(())
+}
+
+fn deep_link_target_satisfied(state: &DesktopState, target: &DeepLinkOpenTarget) -> bool {
+    match target {
+        DeepLinkOpenTarget::App(app_id) => {
+            state.windows.iter().any(|window| window.app_id == *app_id)
+        }
+        DeepLinkOpenTarget::NotesSlug(slug) => {
+            let persist_key = format!("notes:{slug}");
+            state
+                .windows
+                .iter()
+                .any(|window| window.persist_key.as_deref() == Some(persist_key.as_str()))
+        }
+        DeepLinkOpenTarget::ProjectSlug(slug) => {
+            let persist_key = format!("projects:{slug}");
+            state
+                .windows
+                .iter()
+                .any(|window| window.persist_key.as_deref() == Some(persist_key.as_str()))
+        }
+    }
+}
+
 fn next_window_id(state: &mut DesktopState) -> WindowId {
     let id = WindowId(state.next_window_id);
     state.next_window_id = state.next_window_id.saturating_add(1);
     id
+}
+
+fn clear_interaction_for_window(interaction: &mut InteractionState, window_id: WindowId) {
+    if interaction
+        .dragging
+        .as_ref()
+        .is_some_and(|session| session.window_id == window_id)
+    {
+        interaction.dragging = None;
+    }
+    if interaction
+        .resizing
+        .as_ref()
+        .is_some_and(|session| session.window_id == window_id)
+    {
+        interaction.resizing = None;
+    }
 }
 
 fn preferred_window_for_app(state: &DesktopState, app_id: &ApplicationId) -> Option<WindowId> {
@@ -2052,6 +2215,7 @@ mod tests {
             DesktopAction::HydrateSnapshot {
                 snapshot,
                 mode: HydrationMode::BootRestore,
+                revision: None,
             },
         )
         .expect("hydrate snapshot");
@@ -2090,11 +2254,137 @@ mod tests {
             DesktopAction::HydrateSnapshot {
                 snapshot,
                 mode: HydrationMode::SyncRefresh,
+                revision: Some(7),
             },
         )
         .expect("sync hydrate");
 
         assert!(effects.is_empty());
+    }
+
+    #[test]
+    fn stale_sync_snapshot_is_ignored() {
+        let mut state = DesktopState::default();
+        let mut interaction = InteractionState::default();
+        let first = open(
+            &mut state,
+            &mut interaction,
+            ApplicationId::trusted("system.settings"),
+        );
+        state.layout_revision = Some(12);
+
+        let mut snapshot = DesktopState::default().snapshot();
+        snapshot.windows = vec![WindowRecord {
+            id: WindowId(9),
+            app_id: ApplicationId::trusted("system.control-center"),
+            title: "Control Center".to_string(),
+            icon_id: "home".to_string(),
+            rect: WindowRect::default(),
+            restore_rect: None,
+            z_index: 1,
+            is_focused: true,
+            minimized: false,
+            maximized: false,
+            suspended: false,
+            flags: WindowFlags::default(),
+            persist_key: None,
+            app_state: Value::Null,
+            launch_params: Value::Null,
+            last_lifecycle_event: None,
+        }];
+
+        let effects = reduce_desktop(
+            &mut state,
+            &mut interaction,
+            DesktopAction::HydrateSnapshot {
+                snapshot,
+                mode: HydrationMode::SyncRefresh,
+                revision: Some(11),
+            },
+        )
+        .expect("stale hydrate should not error");
+
+        assert!(effects.is_empty());
+        assert_eq!(state.windows.len(), 1);
+        assert_eq!(state.windows[0].id, first);
+        assert_eq!(state.layout_revision, Some(12));
+    }
+
+    #[test]
+    fn complete_boot_hydration_augments_without_duplicate_deep_link_open() {
+        let mut state = DesktopState::default();
+        let mut interaction = InteractionState::default();
+        let mut snapshot = DesktopState::default().snapshot();
+        snapshot.windows = vec![WindowRecord {
+            id: WindowId(4),
+            app_id: ApplicationId::trusted("system.settings"),
+            title: "Settings - Notes roadmap".to_string(),
+            icon_id: "settings".to_string(),
+            rect: WindowRect::default(),
+            restore_rect: None,
+            z_index: 1,
+            is_focused: true,
+            minimized: false,
+            maximized: false,
+            suspended: false,
+            flags: WindowFlags::default(),
+            persist_key: Some("notes:roadmap".to_string()),
+            app_state: Value::Null,
+            launch_params: json!({ "section": "personalize", "note_slug": "roadmap" }),
+            last_lifecycle_event: None,
+        }];
+
+        reduce_desktop(
+            &mut state,
+            &mut interaction,
+            DesktopAction::CompleteBootHydration {
+                snapshot: Some(snapshot),
+                snapshot_revision: Some(21),
+                theme: None,
+                wallpaper: None,
+                privileged_app_ids: Vec::new(),
+                deep_link: Some(DeepLinkState {
+                    open: vec![DeepLinkOpenTarget::NotesSlug("roadmap".to_string())],
+                }),
+            },
+        )
+        .expect("boot hydration");
+
+        assert_eq!(state.windows.len(), 1);
+        assert_eq!(state.layout_revision, Some(21));
+        assert!(state.boot_hydrated);
+    }
+
+    #[test]
+    fn complete_boot_hydration_applies_unsatisfied_deep_link_after_restore() {
+        let mut state = DesktopState::default();
+        let mut interaction = InteractionState::default();
+        let snapshot = DesktopState::default().snapshot();
+
+        reduce_desktop(
+            &mut state,
+            &mut interaction,
+            DesktopAction::CompleteBootHydration {
+                snapshot: Some(snapshot),
+                snapshot_revision: Some(30),
+                theme: None,
+                wallpaper: None,
+                privileged_app_ids: Vec::new(),
+                deep_link: Some(DeepLinkState {
+                    open: vec![DeepLinkOpenTarget::App(ApplicationId::trusted(
+                        "system.terminal",
+                    ))],
+                }),
+            },
+        )
+        .expect("boot hydration");
+
+        assert_eq!(state.windows.len(), 1);
+        assert_eq!(
+            state.windows[0].app_id,
+            ApplicationId::trusted("system.terminal")
+        );
+        assert!(state.boot_hydrated);
     }
 
     #[test]
@@ -2319,8 +2609,13 @@ mod tests {
         reduce_desktop(
             &mut state,
             &mut interaction,
-            DesktopAction::HydratePolicyOverlay {
+            DesktopAction::CompleteBootHydration {
+                snapshot: None,
+                snapshot_revision: None,
+                theme: None,
+                wallpaper: None,
                 privileged_app_ids: vec!["system.terminal".to_string()],
+                deep_link: None,
             },
         )
         .expect("hydrate policy overlay");

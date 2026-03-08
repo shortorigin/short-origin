@@ -4,39 +4,7 @@ use leptos::{logging, spawn_local};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::{closure::Closure, JsCast};
 
-use crate::{
-    components::DesktopRuntimeContext,
-    host::DesktopHostContext,
-    model::WindowRect,
-    reducer::{build_open_request_from_deeplink, DesktopAction},
-};
-use system_ui::tokens::SHELL_TASKBAR_HEIGHT_PX;
-
-pub(super) fn open_deep_link(
-    runtime: DesktopRuntimeContext,
-    deep_link: crate::model::DeepLinkState,
-) {
-    for target in deep_link.open {
-        match target {
-            crate::model::DeepLinkOpenTarget::App(app_id) => {
-                runtime.dispatch_action(DesktopAction::ActivateApp {
-                    app_id,
-                    viewport: Some(
-                        runtime
-                            .host
-                            .get_value()
-                            .desktop_viewport_rect(SHELL_TASKBAR_HEIGHT_PX),
-                    ),
-                });
-            }
-            target => {
-                runtime.dispatch_action(DesktopAction::OpenWindow(
-                    build_open_request_from_deeplink(target),
-                ));
-            }
-        }
-    }
-}
+use crate::{host::DesktopHostContext, model::WindowRect};
 
 pub(super) fn focus_window_input(window_id: crate::model::WindowId) {
     #[cfg(target_arch = "wasm32")]
