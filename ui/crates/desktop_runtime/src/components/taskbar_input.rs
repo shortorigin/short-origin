@@ -35,11 +35,9 @@ pub(super) fn is_activation_key(ev: &web_sys::KeyboardEvent) -> bool {
 fn dismiss_taskbar_overlay_menus(
     window_context_menu: RwSignal<Option<TaskbarWindowContextMenuState>>,
     overflow_menu_open: RwSignal<bool>,
-    clock_menu_open: RwSignal<bool>,
 ) {
     window_context_menu.set(None);
     overflow_menu_open.set(false);
-    clock_menu_open.set(false);
 }
 
 /// Handles taskbar-global shortcuts shared by window-level and taskbar-local key handlers.
@@ -47,13 +45,12 @@ pub(super) fn try_handle_taskbar_shortcuts(
     runtime: DesktopRuntimeContext,
     window_context_menu: RwSignal<Option<TaskbarWindowContextMenuState>>,
     overflow_menu_open: RwSignal<bool>,
-    clock_menu_open: RwSignal<bool>,
     ev: &web_sys::KeyboardEvent,
 ) -> bool {
     if ev.ctrl_key() && !ev.alt_key() && !ev.meta_key() && ev.key() == "Escape" {
         ev.prevent_default();
         ev.stop_propagation();
-        dismiss_taskbar_overlay_menus(window_context_menu, overflow_menu_open, clock_menu_open);
+        dismiss_taskbar_overlay_menus(window_context_menu, overflow_menu_open);
         runtime.dispatch_action(DesktopAction::ToggleStartMenu);
         return true;
     }
@@ -67,11 +64,7 @@ pub(super) fn try_handle_taskbar_shortcuts(
             {
                 ev.prevent_default();
                 ev.stop_propagation();
-                dismiss_taskbar_overlay_menus(
-                    window_context_menu,
-                    overflow_menu_open,
-                    clock_menu_open,
-                );
+                dismiss_taskbar_overlay_menus(window_context_menu, overflow_menu_open);
                 runtime.dispatch_action(DesktopAction::CloseStartMenu);
                 activate_taskbar_shortcut_target(runtime, target);
             }
@@ -82,12 +75,11 @@ pub(super) fn try_handle_taskbar_shortcuts(
     if ev.key() == "Escape"
         && (runtime.state.get_untracked().panels.launcher_open
             || window_context_menu.get_untracked().is_some()
-            || overflow_menu_open.get_untracked()
-            || clock_menu_open.get_untracked())
+            || overflow_menu_open.get_untracked())
     {
         ev.prevent_default();
         ev.stop_propagation();
-        dismiss_taskbar_overlay_menus(window_context_menu, overflow_menu_open, clock_menu_open);
+        dismiss_taskbar_overlay_menus(window_context_menu, overflow_menu_open);
         runtime.dispatch_action(DesktopAction::CloseStartMenu);
         return true;
     }

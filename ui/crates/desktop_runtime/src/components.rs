@@ -33,14 +33,11 @@ use crate::{
 use system_ui::components::{DesktopBackdrop, DesktopIcon, DesktopIconGrid, DesktopWindowLayer};
 use system_ui::primitives::{Icon, IconName, IconSize};
 use system_ui::tokens::{
-    SHELL_DESKTOP_PADDING_PX, SHELL_TASKBAR_BUTTON_HEIGHT_PX, SHELL_TASKBAR_CLOCK_MIN_WIDTH_PX,
-    SHELL_TASKBAR_HEIGHT_PX,
+    SHELL_DOCK_BUTTON_SIZE_PX, SHELL_DOCK_PADDING_PX, SHELL_DOCK_SPACING_PX,
+    SHELL_TASKBAR_CLOCK_WIDTH_PX, SHELL_TASKBAR_HEIGHT_PX,
 };
 
 const TASKBAR_HEIGHT_PX: i32 = SHELL_TASKBAR_HEIGHT_PX;
-const TASKBAR_BUTTON_HEIGHT_PX: i32 = SHELL_TASKBAR_BUTTON_HEIGHT_PX;
-const TASKBAR_CLOCK_MIN_WIDTH_PX: i32 = SHELL_TASKBAR_CLOCK_MIN_WIDTH_PX;
-const DESKTOP_PADDING_PX: i32 = SHELL_DESKTOP_PADDING_PX;
 #[cfg(target_arch = "wasm32")]
 const E2E_START_BUTTON_ATTR: &str = "data-e2e-state";
 
@@ -432,12 +429,6 @@ pub fn DesktopShell() -> impl IntoView {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-struct TaskbarClockConfig {
-    use_24_hour: bool,
-    show_date: bool,
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct TaskbarClockSnapshot {
     year: u32,
@@ -479,10 +470,6 @@ impl TaskbarClockSnapshot {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct TaskbarLayoutPlan {
-    show_pins: bool,
-    visible_tray_widget_count: usize,
-    show_clock_date: bool,
-    compact_running_items: bool,
     visible_running_count: usize,
 }
 
@@ -504,23 +491,6 @@ struct PinnedTaskbarAppState {
 enum TaskbarShortcutTarget {
     Pinned(ApplicationId),
     Window(WindowId),
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum TaskbarTrayWidgetAction {
-    None,
-    ToggleHighContrast,
-    ToggleReducedMotion,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-struct TaskbarTrayWidget {
-    id: &'static str,
-    icon: IconName,
-    label: &'static str,
-    value: String,
-    pressed: Option<bool>,
-    action: TaskbarTrayWidgetAction,
 }
 
 fn pinned_taskbar_apps() -> Vec<ApplicationId> {
@@ -574,137 +544,37 @@ fn compute_taskbar_layout(
     viewport_width: i32,
     pinned_count: usize,
     running_count: usize,
-    tray_widget_count: usize,
-    desired_clock_show_date: bool,
 ) -> TaskbarLayoutPlan {
+    const SHELL_EDGE_GUTTER_PX: i32 = 20;
+
     let viewport_width = viewport_width.max(320);
-    let mut show_pins = pinned_count > 0 && viewport_width >= 560;
-    let mut visible_tray_widget_count = if viewport_width >= 1320 {
-        tray_widget_count.min(4)
-    } else if viewport_width >= 1040 {
-        tray_widget_count.min(3)
-    } else if viewport_width >= 760 {
-        tray_widget_count.min(2)
-    } else {
-        tray_widget_count.min(1)
-    };
-    let mut show_clock_date = desired_clock_show_date && viewport_width >= 920;
-    let compact_start_width = TASKBAR_BUTTON_HEIGHT_PX + (DESKTOP_PADDING_PX * 2);
-    let regular_start_width = compact_start_width + 24;
-    let pinned_item_width = TASKBAR_BUTTON_HEIGHT_PX + DESKTOP_PADDING_PX;
-    let tray_item_width = TASKBAR_BUTTON_HEIGHT_PX + DESKTOP_PADDING_PX + 12;
-    let base_tray_width = TASKBAR_BUTTON_HEIGHT_PX - 10;
-    let clock_compact_width = TASKBAR_CLOCK_MIN_WIDTH_PX;
-    let clock_expanded_width = TASKBAR_CLOCK_MIN_WIDTH_PX + 44;
-    let reserved_edge_padding = DESKTOP_PADDING_PX * 3;
-
-    // Priority order under pressure: hide date, reduce tray widgets, then collapse pinned strip.
-    loop {
-        let start_width = if viewport_width < 640 {
-            compact_start_width
-        } else {
-            regular_start_width
-        };
-        let pins_width = if show_pins {
-            (pinned_count as i32) * pinned_item_width + DESKTOP_PADDING_PX
-        } else {
-            0
-        };
-        let tray_width = base_tray_width + ((visible_tray_widget_count as i32) * tray_item_width);
-        let clock_width = if show_clock_date {
-            clock_expanded_width
-        } else {
-            clock_compact_width
-        };
-        let reserved = start_width + pins_width + tray_width + clock_width + reserved_edge_padding;
-        let available = viewport_width - reserved;
-
-        if available >= 120 || (!show_clock_date && visible_tray_widget_count <= 1 && !show_pins) {
-            break;
-        }
-
-        if show_clock_date {
-            show_clock_date = false;
-            continue;
-        }
-        if visible_tray_widget_count > 1 {
-            visible_tray_widget_count -= 1;
-            continue;
-        }
-        if show_pins {
-            show_pins = false;
-            continue;
-        }
-        break;
-    }
-
-    let start_width = if viewport_width < 640 {
-        compact_start_width
-    } else {
-        regular_start_width
-    };
-    let pins_width = if show_pins {
-        (pinned_count as i32) * pinned_item_width + DESKTOP_PADDING_PX
-    } else {
-        0
-    };
-    let tray_width = base_tray_width + ((visible_tray_widget_count as i32) * tray_item_width);
-    let clock_width = if show_clock_date {
-        clock_expanded_width
-    } else {
-        clock_compact_width
-    };
-    let reserved = start_width + pins_width + tray_width + clock_width + reserved_edge_padding;
-    let available = (viewport_width - reserved).max(0);
+    let max_dock_width = (viewport_width - SHELL_EDGE_GUTTER_PX).max(0);
+    let dock_padding = SHELL_DOCK_PADDING_PX * 2;
+    let leading_items = (1 + pinned_count) as i32;
+    let leading_width = leading_items * SHELL_DOCK_BUTTON_SIZE_PX;
+    let leading_gaps = leading_items * SHELL_DOCK_SPACING_PX;
+    let clock_gap = SHELL_DOCK_SPACING_PX * 2;
+    let reserved =
+        dock_padding + leading_width + leading_gaps + clock_gap + SHELL_TASKBAR_CLOCK_WIDTH_PX;
+    let available = (max_dock_width - reserved).max(0);
 
     if running_count == 0 {
         return TaskbarLayoutPlan {
-            show_pins,
-            visible_tray_widget_count,
-            show_clock_date,
-            compact_running_items: false,
             visible_running_count: 0,
         };
     }
 
-    let full_item_width = if viewport_width >= 1200 {
-        TASKBAR_BUTTON_HEIGHT_PX + 136
-    } else if viewport_width >= 900 {
-        TASKBAR_BUTTON_HEIGHT_PX + 120
-    } else {
-        TASKBAR_BUTTON_HEIGHT_PX + 104
-    };
-    let compact_item_width = if viewport_width >= 900 {
-        TASKBAR_BUTTON_HEIGHT_PX + 20
-    } else {
-        TASKBAR_BUTTON_HEIGHT_PX + 14
-    };
-    let full_visible = (available / full_item_width).max(0) as usize;
-    if full_visible >= running_count {
-        return TaskbarLayoutPlan {
-            show_pins,
-            visible_tray_widget_count,
-            show_clock_date,
-            compact_running_items: false,
-            visible_running_count: running_count,
-        };
+    let item_width = SHELL_DOCK_BUTTON_SIZE_PX + SHELL_DOCK_SPACING_PX;
+    let mut visible_running_count = (available / item_width).max(0) as usize;
+    if running_count > visible_running_count && visible_running_count > 0 {
+        visible_running_count -= 1;
     }
-
-    let mut compact_visible = (available / compact_item_width).max(0) as usize;
-    if compact_visible == 0 && available >= 36 {
-        compact_visible = 1;
-    }
-
     TaskbarLayoutPlan {
-        show_pins,
-        visible_tray_widget_count,
-        show_clock_date,
-        compact_running_items: true,
-        visible_running_count: compact_visible.min(running_count),
+        visible_running_count: visible_running_count.min(running_count),
     }
 }
 
-fn taskbar_window_aria_label(win: &WindowRecord) -> String {
+pub(crate) fn taskbar_window_aria_label(win: &WindowRecord) -> String {
     let mut parts = vec![win.title.clone()];
     if win.is_focused && !win.minimized {
         parts.push("focused".to_string());
@@ -858,124 +728,8 @@ fn clamp_taskbar_popup_position(
     (x.clamp(6, max_x), y.clamp(6, max_y))
 }
 
-fn build_taskbar_tray_widgets(state: &DesktopState) -> Vec<TaskbarTrayWidget> {
-    let total_windows = state.windows.len();
-    let minimized_windows = state.windows.iter().filter(|win| win.minimized).count();
-    let dialup_online = false;
-
-    vec![
-        TaskbarTrayWidget {
-            id: "win-count",
-            icon: IconName::WindowMultiple,
-            label: "Open windows",
-            value: total_windows.to_string(),
-            pressed: None,
-            action: TaskbarTrayWidgetAction::None,
-        },
-        TaskbarTrayWidget {
-            id: "bg-count",
-            icon: IconName::DesktopArrowDown,
-            label: "Minimized windows",
-            value: minimized_windows.to_string(),
-            pressed: None,
-            action: TaskbarTrayWidgetAction::None,
-        },
-        TaskbarTrayWidget {
-            id: "network",
-            icon: if dialup_online {
-                IconName::WifiOn
-            } else {
-                IconName::WifiOff
-            },
-            label: "Network status",
-            value: if dialup_online { "ON" } else { "IDLE" }.to_string(),
-            pressed: Some(dialup_online),
-            action: TaskbarTrayWidgetAction::None,
-        },
-        TaskbarTrayWidget {
-            id: "contrast",
-            icon: if state.theme.high_contrast {
-                IconName::Checkmark
-            } else {
-                IconName::Dismiss
-            },
-            label: "High contrast",
-            value: if state.theme.high_contrast {
-                "ON"
-            } else {
-                "OFF"
-            }
-            .to_string(),
-            pressed: Some(state.theme.high_contrast),
-            action: TaskbarTrayWidgetAction::ToggleHighContrast,
-        },
-        TaskbarTrayWidget {
-            id: "motion",
-            icon: if state.theme.reduced_motion {
-                IconName::MotionOff
-            } else {
-                IconName::MotionOn
-            },
-            label: "Reduced motion",
-            value: if state.theme.reduced_motion {
-                "ON"
-            } else {
-                "OFF"
-            }
-            .to_string(),
-            pressed: Some(state.theme.reduced_motion),
-            action: TaskbarTrayWidgetAction::ToggleReducedMotion,
-        },
-    ]
-}
-
-fn activate_taskbar_tray_widget(runtime: DesktopRuntimeContext, action: TaskbarTrayWidgetAction) {
-    match action {
-        TaskbarTrayWidgetAction::None => {}
-        TaskbarTrayWidgetAction::ToggleHighContrast => {
-            let enabled = runtime.state.get_untracked().theme.high_contrast;
-            runtime.dispatch_action(DesktopAction::SetHighContrast { enabled: !enabled });
-        }
-        TaskbarTrayWidgetAction::ToggleReducedMotion => {
-            let enabled = runtime.state.get_untracked().theme.reduced_motion;
-            runtime.dispatch_action(DesktopAction::SetReducedMotion { enabled: !enabled });
-        }
-    }
-}
-
-fn format_taskbar_clock_time(snapshot: TaskbarClockSnapshot, config: TaskbarClockConfig) -> String {
-    if config.use_24_hour {
-        format!(
-            "{:02}:{:02}:{:02}",
-            snapshot.hour, snapshot.minute, snapshot.second
-        )
-    } else {
-        let mut hour = snapshot.hour % 12;
-        if hour == 0 {
-            hour = 12;
-        }
-        let suffix = if snapshot.hour >= 12 { "PM" } else { "AM" };
-        format!(
-            "{:02}:{:02}:{:02} {}",
-            hour, snapshot.minute, snapshot.second, suffix
-        )
-    }
-}
-
-fn format_taskbar_clock_date(snapshot: TaskbarClockSnapshot) -> String {
-    format!(
-        "{:04}-{:02}-{:02}",
-        snapshot.year, snapshot.month, snapshot.day
-    )
-}
-
-fn format_taskbar_clock_aria(snapshot: TaskbarClockSnapshot, config: TaskbarClockConfig) -> String {
-    let time_text = format_taskbar_clock_time(snapshot, config);
-    if config.show_date {
-        format!("{}, {}", format_taskbar_clock_date(snapshot), time_text)
-    } else {
-        time_text
-    }
+fn format_taskbar_clock_time(snapshot: TaskbarClockSnapshot) -> String {
+    format!("{:02}:{:02}", snapshot.hour, snapshot.minute)
 }
 
 fn stop_mouse_event(ev: &web_sys::MouseEvent) {
@@ -1015,5 +769,31 @@ fn resize_edge_class(edge: ResizeEdge) -> &'static str {
         ResizeEdge::NorthWest => "edge-nw",
         ResizeEdge::SouthEast => "edge-se",
         ResizeEdge::SouthWest => "edge-sw",
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn taskbar_clock_renders_24_hour_hours_and_minutes_only() {
+        let snapshot = TaskbarClockSnapshot {
+            year: 2026,
+            month: 3,
+            day: 8,
+            hour: 6,
+            minute: 7,
+            second: 59,
+        };
+
+        assert_eq!(format_taskbar_clock_time(snapshot), "06:07");
+    }
+
+    #[test]
+    fn taskbar_layout_reserves_room_for_overflow_when_running_windows_exceed_capacity() {
+        let layout = compute_taskbar_layout(420, pinned_taskbar_apps().len(), 4);
+
+        assert_eq!(layout.visible_running_count, 1);
     }
 }

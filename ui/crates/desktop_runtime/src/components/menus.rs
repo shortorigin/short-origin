@@ -85,6 +85,7 @@ pub(super) fn StartMenu(
             <SystemLauncherPanel
                 id="desktop-launcher-menu"
                 aria_label="Application launcher"
+                style="left:50%;transform:translateX(-50%);bottom:calc(var(--origin-shell-taskbar-height) + var(--origin-space-3));"
                 on_keydown=Callback::new(move |ev: web_sys::KeyboardEvent| {
                     if handle_menu_roving_keydown(&ev, "desktop-launcher-menu") {
                         return;
@@ -145,11 +146,9 @@ pub(super) fn OverflowMenu(
     state: RwSignal<DesktopState>,
     runtime: DesktopRuntimeContext,
     viewport_width: RwSignal<i32>,
-    clock_config: RwSignal<TaskbarClockConfig>,
     selected_running_window: RwSignal<Option<WindowId>>,
     window_context_menu: RwSignal<Option<TaskbarWindowContextMenuState>>,
     overflow_menu_open: RwSignal<bool>,
-    clock_menu_open: RwSignal<bool>,
 ) -> impl IntoView {
     view! {
         <Show when=move || overflow_menu_open.get() fallback=|| ()>
@@ -173,13 +172,10 @@ pub(super) fn OverflowMenu(
                 <For
                     each=move || {
                         let desktop = state.get();
-                        let tray_count = build_taskbar_tray_widgets(&desktop).len();
                         let layout = compute_taskbar_layout(
                             viewport_width.get(),
                             pinned_taskbar_apps().len(),
                             ordered_taskbar_windows(&desktop).len(),
-                            tray_count,
-                            clock_config.get().show_date,
                         );
                         ordered_taskbar_windows(&desktop)
                             .into_iter()
@@ -199,7 +195,6 @@ pub(super) fn OverflowMenu(
                             selected_running_window.set(Some(win.id));
                             overflow_menu_open.set(false);
                             window_context_menu.set(None);
-                            clock_menu_open.set(false);
                             runtime.dispatch_action(DesktopAction::CloseStartMenu);
                             let desktop = runtime.state.get_untracked();
                             focus_or_unminimize_window(runtime, &desktop, win.id);
@@ -209,7 +204,6 @@ pub(super) fn OverflowMenu(
                             ev.stop_propagation();
                             selected_running_window.set(Some(win.id));
                             overflow_menu_open.set(false);
-                            clock_menu_open.set(false);
                             runtime.dispatch_action(DesktopAction::CloseStartMenu);
                             open_taskbar_window_context_menu(
                                 runtime.host.get_value(),
@@ -229,59 +223,6 @@ pub(super) fn OverflowMenu(
                         <span>{win.title.clone()}</span>
                     </MenuItem>
                 </For>
-            </MenuSurface>
-        </Show>
-    }
-}
-
-#[component]
-pub(super) fn ClockMenu(
-    clock_config: RwSignal<TaskbarClockConfig>,
-    clock_menu_open: RwSignal<bool>,
-) -> impl IntoView {
-    view! {
-        <Show when=move || clock_menu_open.get() fallback=|| ()>
-            <MenuSurface
-                id="taskbar-clock-menu"
-                role="menu"
-                aria_label="Clock settings"
-                on_keydown=Callback::new(move |ev: web_sys::KeyboardEvent| {
-                    if handle_menu_roving_keydown(&ev, "taskbar-clock-menu") {
-                        return;
-                    }
-                    if ev.key() == "Escape" {
-                        ev.prevent_default();
-                        ev.stop_propagation();
-                        clock_menu_open.set(false);
-                        let _ = focus_element_by_id("taskbar-clock-button");
-                    }
-                })
-                on_mousedown=Callback::new(move |ev: MouseEvent| ev.stop_propagation())
-            >
-                <MenuItem
-                    id="taskbar-clock-menu-item-24h"
-                    role="menuitemcheckbox"
-                    aria_checked=Signal::derive(move || {
-                        if clock_config.get().use_24_hour {
-                            "true".to_string()
-                        } else {
-                            "false".to_string()
-                        }
-                    })
-                    selected=Signal::derive(move || clock_config.get().use_24_hour)
-                    on_click=Callback::new(move |_| {
-                        clock_config.update(|cfg| cfg.use_24_hour = !cfg.use_24_hour);
-                    })
-                >
-                    "24-hour time"
-                </MenuItem>
-                <MenuItem
-                    id="taskbar-clock-menu-item-close"
-                    role="menuitem"
-                    on_click=Callback::new(move |_| clock_menu_open.set(false))
-                >
-                    "Close"
-                </MenuItem>
             </MenuSurface>
         </Show>
     }
