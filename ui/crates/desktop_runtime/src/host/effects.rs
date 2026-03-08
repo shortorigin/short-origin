@@ -1,7 +1,7 @@
 //! Runtime-effect dispatch for the desktop host boundary.
 
 use crate::{
-    host::{app_bus, host_ui, persistence_effects, wallpaper_effects, DesktopHostContext},
+    host::{app_bus, host_ui, persistence_effects, DesktopHostContext},
     reducer::RuntimeEffect,
     runtime_context::DesktopRuntimeContext,
 };
@@ -14,7 +14,6 @@ pub(super) fn run_runtime_effect(
     match effect {
         RuntimeEffect::PersistLayout => persistence_effects::persist_layout(host, runtime),
         RuntimeEffect::PersistTheme => persistence_effects::persist_theme(host, runtime),
-        RuntimeEffect::PersistWallpaper => persistence_effects::persist_wallpaper(host, runtime),
         RuntimeEffect::PersistTerminalHistory => {
             persistence_effects::persist_terminal_history(host, runtime)
         }
@@ -52,26 +51,6 @@ pub(super) fn run_runtime_effect(
             key,
             value,
         } => persistence_effects::save_config(host, namespace, key, value),
-        RuntimeEffect::LoadWallpaperLibrary => wallpaper_effects::load_library(host, runtime),
-        RuntimeEffect::ImportWallpaperFromPicker { request } => {
-            wallpaper_effects::import_from_picker(host, runtime, request);
-        }
-        RuntimeEffect::UpdateWallpaperAssetMetadata { asset_id, patch } => {
-            wallpaper_effects::update_asset_metadata(host, runtime, asset_id, patch);
-        }
-        RuntimeEffect::CreateWallpaperCollection { display_name } => {
-            wallpaper_effects::create_collection(host, runtime, display_name);
-        }
-        RuntimeEffect::RenameWallpaperCollection {
-            collection_id,
-            display_name,
-        } => wallpaper_effects::rename_collection(host, runtime, collection_id, display_name),
-        RuntimeEffect::DeleteWallpaperCollection { collection_id } => {
-            wallpaper_effects::delete_collection(host, runtime, collection_id);
-        }
-        RuntimeEffect::DeleteWallpaperAsset { asset_id } => {
-            wallpaper_effects::delete_asset(host, runtime, asset_id);
-        }
         RuntimeEffect::Notify { title, body } => host_ui::notify(host, title, body),
     }
 }

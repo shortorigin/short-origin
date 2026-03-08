@@ -4,9 +4,6 @@
 //! canonical string application identifiers (`ApplicationId`) while keeping stable
 //! lifecycle semantics for runtime-managed windows.
 //!
-//! Host-owned wallpaper models now live in [`platform_host`]. This crate exposes the app-facing
-//! service surface that consumes those models without redefining the wallpaper domain itself.
-//!
 //! Runtime composition code constructs [`AppMountContext`] values per window instance and injects
 //! [`AppServices`] so application crates can persist state, query capabilities, use explorer/cache
 //! helpers, and register structured shell commands without importing environment-specific host
@@ -22,8 +19,7 @@ use platform_host::{
     load_app_state_with_migration, load_pref_with, save_app_state_with, save_pref_with,
     AppStateEnvelope, AppStateStore, CapabilityStatus, ContentCache, ExplorerBackendStatus,
     ExplorerFileReadResult, ExplorerFsService, ExplorerListResult, ExplorerMetadata,
-    ExplorerPermissionMode, ExplorerPermissionState, HostCapabilities, PrefsStore, WallpaperConfig,
-    WallpaperImportRequest, WallpaperLibrarySnapshot,
+    ExplorerPermissionMode, ExplorerPermissionState, HostCapabilities, PrefsStore,
 };
 use sdk_rs::UiDashboardSnapshotV1;
 use serde::{Deserialize, Serialize};
@@ -130,8 +126,6 @@ pub enum AppCapability {
     Config,
     /// Theme/accessibility shell controls.
     Theme,
-    /// Wallpaper selection, preview, and library-management controls.
-    Wallpaper,
     /// Host notification APIs.
     Notifications,
     /// Inter-application pub/sub and request/reply channels.
@@ -181,7 +175,6 @@ impl CapabilitySet {
 
         match capability {
             AppCapability::Commands => self.host.structured_commands,
-            AppCapability::Wallpaper => self.host.wallpaper_library,
             AppCapability::Notifications => self.host.notifications,
             AppCapability::ExternalUrl => self.host.external_urls,
             AppCapability::Window
@@ -256,7 +249,6 @@ impl AppCapability {
             Self::State => "state",
             Self::Config => "config",
             Self::Theme => "theme",
-            Self::Wallpaper => "wallpaper",
             Self::Notifications => "notifications",
             Self::Ipc => "ipc",
             Self::ExternalUrl => "external-url",
@@ -395,75 +387,6 @@ pub enum AppCommand {
         correlation_id: Option<String>,
         /// Optional reply target.
         reply_to: Option<String>,
-    },
-    /// Preview a wallpaper configuration without committing it.
-    PreviewWallpaper {
-        /// Wallpaper preview configuration.
-        config: WallpaperConfig,
-    },
-    /// Commit the active wallpaper preview as the current wallpaper.
-    ApplyWallpaperPreview,
-    /// Set the active wallpaper configuration immediately.
-    SetCurrentWallpaper {
-        /// Wallpaper configuration to apply.
-        config: WallpaperConfig,
-    },
-    /// Clear the active wallpaper preview.
-    ClearWallpaperPreview,
-    /// Import a wallpaper asset through the host picker flow.
-    ImportWallpaperFromPicker {
-        /// Import policy and defaults for the new asset.
-        request: WallpaperImportRequest,
-    },
-    /// Rename a managed wallpaper asset.
-    RenameWallpaperAsset {
-        /// Managed asset identifier.
-        asset_id: String,
-        /// New human-readable label.
-        display_name: String,
-    },
-    /// Toggle the favorite flag for a managed wallpaper asset.
-    SetWallpaperFavorite {
-        /// Managed asset identifier.
-        asset_id: String,
-        /// Updated favorite state.
-        favorite: bool,
-    },
-    /// Replace tags for a managed wallpaper asset.
-    SetWallpaperTags {
-        /// Managed asset identifier.
-        asset_id: String,
-        /// Tags associated with the asset.
-        tags: Vec<String>,
-    },
-    /// Replace collection memberships for a managed wallpaper asset.
-    SetWallpaperCollections {
-        /// Managed asset identifier.
-        asset_id: String,
-        /// Collection identifiers.
-        collection_ids: Vec<String>,
-    },
-    /// Create a new wallpaper collection.
-    CreateWallpaperCollection {
-        /// New collection label.
-        display_name: String,
-    },
-    /// Rename an existing wallpaper collection.
-    RenameWallpaperCollection {
-        /// Collection identifier.
-        collection_id: String,
-        /// Updated collection label.
-        display_name: String,
-    },
-    /// Delete a wallpaper collection and remove memberships.
-    DeleteWallpaperCollection {
-        /// Collection identifier.
-        collection_id: String,
-    },
-    /// Delete a managed wallpaper asset.
-    DeleteWallpaperAsset {
-        /// Managed asset identifier.
-        asset_id: String,
     },
     /// Toggle desktop high-contrast rendering.
     SetDesktopHighContrast {
@@ -776,111 +699,6 @@ impl ThemeService {
     pub fn set_reduced_motion(&self, enabled: bool) {
         self.sender
             .call(AppCommand::SetDesktopReducedMotion { enabled });
-    }
-}
-
-#[derive(Clone, Copy)]
-/// Wallpaper service for desktop background query, preview, and library operations.
-pub struct WallpaperService {
-    sender: Callback<AppCommand>,
-    /// Current committed wallpaper configuration.
-    pub current: ReadSignal<WallpaperConfig>,
-    /// Current wallpaper preview when one exists.
-    pub preview: ReadSignal<Option<WallpaperConfig>>,
-    /// Current wallpaper library snapshot.
-    pub library: ReadSignal<WallpaperLibrarySnapshot>,
-}
-
-impl WallpaperService {
-    /// Starts a wallpaper preview.
-    pub fn preview(&self, config: WallpaperConfig) {
-        self.sender.call(AppCommand::PreviewWallpaper { config });
-    }
-
-    /// Commits the active wallpaper preview.
-    pub fn apply_preview(&self) {
-        self.sender.call(AppCommand::ApplyWallpaperPreview);
-    }
-
-    /// Replaces the current wallpaper immediately.
-    pub fn set_current(&self, config: WallpaperConfig) {
-        self.sender.call(AppCommand::SetCurrentWallpaper { config });
-    }
-
-    /// Clears the active wallpaper preview.
-    pub fn clear_preview(&self) {
-        self.sender.call(AppCommand::ClearWallpaperPreview);
-    }
-
-    /// Starts host import flow for a new wallpaper asset.
-    pub fn import_from_picker(&self, request: WallpaperImportRequest) {
-        self.sender
-            .call(AppCommand::ImportWallpaperFromPicker { request });
-    }
-
-    /// Renames a managed wallpaper asset.
-    pub fn rename_asset(&self, asset_id: impl Into<String>, display_name: impl Into<String>) {
-        self.sender.call(AppCommand::RenameWallpaperAsset {
-            asset_id: asset_id.into(),
-            display_name: display_name.into(),
-        });
-    }
-
-    /// Updates the favorite flag for a managed wallpaper asset.
-    pub fn set_favorite(&self, asset_id: impl Into<String>, favorite: bool) {
-        self.sender.call(AppCommand::SetWallpaperFavorite {
-            asset_id: asset_id.into(),
-            favorite,
-        });
-    }
-
-    /// Replaces tags for a managed wallpaper asset.
-    pub fn set_tags(&self, asset_id: impl Into<String>, tags: Vec<String>) {
-        self.sender.call(AppCommand::SetWallpaperTags {
-            asset_id: asset_id.into(),
-            tags,
-        });
-    }
-
-    /// Replaces collection memberships for a managed wallpaper asset.
-    pub fn set_collections(&self, asset_id: impl Into<String>, collection_ids: Vec<String>) {
-        self.sender.call(AppCommand::SetWallpaperCollections {
-            asset_id: asset_id.into(),
-            collection_ids,
-        });
-    }
-
-    /// Creates a new wallpaper collection.
-    pub fn create_collection(&self, display_name: impl Into<String>) {
-        self.sender.call(AppCommand::CreateWallpaperCollection {
-            display_name: display_name.into(),
-        });
-    }
-
-    /// Renames an existing wallpaper collection.
-    pub fn rename_collection(
-        &self,
-        collection_id: impl Into<String>,
-        display_name: impl Into<String>,
-    ) {
-        self.sender.call(AppCommand::RenameWallpaperCollection {
-            collection_id: collection_id.into(),
-            display_name: display_name.into(),
-        });
-    }
-
-    /// Deletes a wallpaper collection.
-    pub fn delete_collection(&self, collection_id: impl Into<String>) {
-        self.sender.call(AppCommand::DeleteWallpaperCollection {
-            collection_id: collection_id.into(),
-        });
-    }
-
-    /// Deletes a managed wallpaper asset.
-    pub fn delete_asset(&self, asset_id: impl Into<String>) {
-        self.sender.call(AppCommand::DeleteWallpaperAsset {
-            asset_id: asset_id.into(),
-        });
     }
 }
 
@@ -1258,7 +1076,7 @@ impl PlatformService {
 /// Injected app services bundle.
 ///
 /// This is the main app-facing service surface. It combines runtime-mediated command callbacks
-/// with host-selected persistence, explorer, cache, wallpaper, notification, and command-session
+/// with host-selected persistence, explorer, cache, notification, and command-session
 /// adapters, while [`CapabilitySet`] exposes which optional domains are currently granted and
 /// available.
 pub struct AppServices {
@@ -1279,8 +1097,6 @@ pub struct AppServices {
     pub cache: CacheHostService,
     /// Theme/accessibility service.
     pub theme: ThemeService,
-    /// Wallpaper query/preview/library service.
-    pub wallpaper: WallpaperService,
     /// Notification service.
     pub notifications: NotificationService,
     /// IPC service.
@@ -1306,9 +1122,6 @@ impl AppServices {
         theme_dark_mode: ReadSignal<bool>,
         theme_high_contrast: ReadSignal<bool>,
         theme_reduced_motion: ReadSignal<bool>,
-        wallpaper_current: ReadSignal<WallpaperConfig>,
-        wallpaper_preview: ReadSignal<Option<WallpaperConfig>>,
-        wallpaper_library: ReadSignal<WallpaperLibrarySnapshot>,
         platform_dashboard: ReadSignal<UiDashboardSnapshotV1>,
         commands: CommandService,
     ) -> Self {
@@ -1333,12 +1146,6 @@ impl AppServices {
                 dark_mode: theme_dark_mode,
                 high_contrast: theme_high_contrast,
                 reduced_motion: theme_reduced_motion,
-            },
-            wallpaper: WallpaperService {
-                sender,
-                current: wallpaper_current,
-                preview: wallpaper_preview,
-                library: wallpaper_library,
             },
             notifications: NotificationService { sender },
             ipc: IpcService { sender },
@@ -1480,7 +1287,7 @@ mod tests {
         let sender = Callback::new(|_: AppCommand| {});
         let shared_state = create_rw_signal(BTreeMap::from([(
             "system.settings:appearance".to_string(),
-            serde_json::json!({ "tab": "wallpaper" }),
+            serde_json::json!({ "tab": "appearance" }),
         )]));
         let service = StateService {
             sender,
@@ -1490,7 +1297,7 @@ mod tests {
 
         assert_eq!(
             service.load_shared_state("appearance"),
-            Some(serde_json::json!({ "tab": "wallpaper" }))
+            Some(serde_json::json!({ "tab": "appearance" }))
         );
         assert_eq!(service.load_shared_state("missing"), None);
 

@@ -321,9 +321,6 @@ fn ManagedWindowBody(window_id: WindowId) -> impl IntoView {
     ));
     let theme_high_contrast = create_rw_signal(runtime.state.get_untracked().theme.high_contrast);
     let theme_reduced_motion = create_rw_signal(runtime.state.get_untracked().theme.reduced_motion);
-    let wallpaper_current = create_rw_signal(runtime.state.get_untracked().wallpaper);
-    let wallpaper_preview = create_rw_signal(runtime.state.get_untracked().wallpaper_preview);
-    let wallpaper_library = create_rw_signal(runtime.state.get_untracked().wallpaper_library);
     let terminal_history = create_rw_signal(runtime.state.get_untracked().terminal_history);
     let shared_state = create_rw_signal(runtime.state.get_untracked().app_shared_state);
     create_effect(move |_| {
@@ -331,9 +328,6 @@ fn ManagedWindowBody(window_id: WindowId) -> impl IntoView {
         theme_dark_mode.set(matches!(desktop.theme.mode, crate::model::ThemeMode::Dark));
         theme_high_contrast.set(desktop.theme.high_contrast);
         theme_reduced_motion.set(desktop.theme.reduced_motion);
-        wallpaper_current.set(desktop.wallpaper);
-        wallpaper_preview.set(desktop.wallpaper_preview);
-        wallpaper_library.set(desktop.wallpaper_library);
         terminal_history.set(desktop.terminal_history);
         shared_state.set(desktop.app_shared_state);
     });
@@ -393,9 +387,6 @@ fn ManagedWindowBody(window_id: WindowId) -> impl IntoView {
         theme_dark_mode.read_only(),
         theme_high_contrast.read_only(),
         theme_reduced_motion.read_only(),
-        wallpaper_current.read_only(),
-        wallpaper_preview.read_only(),
-        wallpaper_library.read_only(),
         platform_dashboard.read_only(),
         shell::build_command_service(
             runtime.clone(),

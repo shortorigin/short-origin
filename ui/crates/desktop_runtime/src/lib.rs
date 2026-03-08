@@ -11,7 +11,6 @@
 //! - runtime provider/context wiring in the internal `runtime_context` module
 //! - Leptos UI primitives in [`components`]
 //! - app integration bridge types re-exported from [`desktop_app_contract`]
-//! - wallpaper contracts re-exported from [`platform_host`]
 //!
 //! The crate is intentionally layered so reducer logic stays pure, host effects stay explicit,
 //! and built-in apps consume the runtime through typed contracts rather than direct host-adapter
@@ -61,8 +60,6 @@ pub mod persistence;
 pub mod reducer;
 mod runtime_context;
 mod shell;
-/// Wallpaper catalog, resolution, and library helpers.
-pub mod wallpaper;
 mod window_manager;
 
 /// Re-exported runtime provider and shell UI entrypoints.
@@ -81,14 +78,7 @@ pub use model::*;
 /// Re-exported persistence entrypoints used by the shell runtime.
 pub use persistence::{
     load_boot_snapshot, load_durable_boot_snapshot, load_durable_boot_snapshot_record, load_theme,
-    load_wallpaper, persist_layout_snapshot, persist_terminal_history, persist_theme,
-    persist_wallpaper, DurableDesktopSnapshot,
-};
-/// Re-exported wallpaper contracts owned by the host boundary.
-pub use platform_host::{
-    ResolvedWallpaperSource, WallpaperAnimationPolicy, WallpaperAssetRecord, WallpaperCollection,
-    WallpaperConfig, WallpaperDisplayMode, WallpaperImportRequest, WallpaperLibrarySnapshot,
-    WallpaperMediaKind, WallpaperPosition, WallpaperSelection, WallpaperSourceKind,
+    persist_layout_snapshot, persist_terminal_history, persist_theme, DurableDesktopSnapshot,
 };
 /// Re-exported reducer entrypoint and core action/effect enums.
 pub use reducer::{reduce_desktop, DesktopAction, HydrationMode, RuntimeEffect, SyncDomain};

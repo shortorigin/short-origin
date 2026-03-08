@@ -60,21 +60,6 @@ pub(super) fn persist_theme(host: DesktopHostContext, runtime: DesktopRuntimeCon
     });
 }
 
-pub(super) fn persist_wallpaper(host: DesktopHostContext, runtime: DesktopRuntimeContext) {
-    let wallpaper = runtime.state.get_untracked().wallpaper;
-    let revision = next_monotonic_timestamp_ms();
-    runtime.dispatch_action(DesktopAction::RecordAppliedRevision {
-        domain: SyncDomain::Wallpaper,
-        revision,
-    });
-    spawn_local(async move {
-        if let Err(err) = persistence::persist_wallpaper(&host, &wallpaper).await {
-            logging::warn!("persist wallpaper failed: {err}");
-        }
-        publish_shell_sync_event(&ShellSyncEvent::new(ShellSyncKind::Wallpaper, revision));
-    });
-}
-
 pub(super) fn persist_terminal_history(host: DesktopHostContext, runtime: DesktopRuntimeContext) {
     let history = runtime.state.get_untracked().terminal_history;
     let async_host = host.clone();

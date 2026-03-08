@@ -3,12 +3,11 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use desktop_app_contract::ApplicationId;
-use platform_host::{WallpaperConfig, WallpaperLibrarySnapshot};
 use serde::de::Error as _;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::{apps, wallpaper};
+use crate::apps;
 
 /// Schema version for serialized [`DesktopSnapshot`] layout payloads.
 pub const DESKTOP_LAYOUT_SCHEMA_VERSION: u32 = 2;
@@ -199,9 +198,6 @@ pub struct DesktopPanels {
     pub notification_center_open: bool,
 }
 
-/// Current committed desktop wallpaper configuration.
-pub type DesktopWallpaperConfig = WallpaperConfig;
-
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// Desktop runtime preferences that affect restore behavior and feature toggles.
 pub struct DesktopPreferences {
@@ -238,12 +234,6 @@ pub struct DesktopState {
     pub active_modal: Option<WindowId>,
     /// Current desktop theme.
     pub theme: DesktopTheme,
-    /// Current committed desktop wallpaper configuration.
-    pub wallpaper: DesktopWallpaperConfig,
-    /// Active wallpaper preview, if any.
-    pub wallpaper_preview: Option<DesktopWallpaperConfig>,
-    /// Wallpaper library snapshot for built-in and imported assets.
-    pub wallpaper_library: WallpaperLibrarySnapshot,
     /// Runtime/user preferences.
     pub preferences: DesktopPreferences,
     /// Recent terminal commands captured for history.
@@ -266,9 +256,6 @@ pub struct DesktopState {
     /// Last applied durable/sync revision for theme state.
     #[serde(skip)]
     pub theme_revision: Option<u64>,
-    /// Last applied durable/sync revision for wallpaper state.
-    #[serde(skip)]
-    pub wallpaper_revision: Option<u64>,
 }
 
 impl Default for DesktopState {
@@ -280,11 +267,6 @@ impl Default for DesktopState {
             panels: DesktopPanels::default(),
             active_modal: None,
             theme: DesktopTheme::default(),
-            wallpaper: DesktopWallpaperConfig::default(),
-            wallpaper_preview: None,
-            wallpaper_library: wallpaper::merged_wallpaper_library(
-                &WallpaperLibrarySnapshot::default(),
-            ),
             preferences: DesktopPreferences::default(),
             terminal_history: Vec::new(),
             notifications: Vec::new(),
@@ -293,7 +275,6 @@ impl Default for DesktopState {
             privileged_app_ids: BTreeSet::new(),
             layout_revision: None,
             theme_revision: None,
-            wallpaper_revision: None,
         }
     }
 }

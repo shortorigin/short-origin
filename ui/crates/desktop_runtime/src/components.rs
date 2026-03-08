@@ -10,9 +10,6 @@ use std::time::Duration;
 
 use desktop_app_contract::ApplicationId;
 use leptos::*;
-use platform_host::{
-    WallpaperAnimationPolicy, WallpaperDisplayMode, WallpaperMediaKind, WallpaperPosition,
-};
 use serde_json::{json, Value};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::{JsCast, JsValue};
@@ -32,7 +29,6 @@ use crate::{
     model::{DesktopState, PointerPosition, ResizeEdge, WindowId, WindowRecord},
     reducer::DesktopAction,
     runtime_context::open_system_settings,
-    wallpaper,
 };
 use system_ui::components::{DesktopBackdrop, DesktopIcon, DesktopIconGrid, DesktopWindowLayer};
 use system_ui::primitives::{Icon, IconName, IconSize};
@@ -60,34 +56,6 @@ struct DesktopContextMenuState {
 
 fn taskbar_window_button_dom_id(window_id: WindowId) -> String {
     format!("taskbar-window-button-{}", window_id.0)
-}
-
-fn wallpaper_object_position(position: WallpaperPosition) -> &'static str {
-    match position {
-        WallpaperPosition::TopLeft => "left top",
-        WallpaperPosition::Top => "center top",
-        WallpaperPosition::TopRight => "right top",
-        WallpaperPosition::Left => "left center",
-        WallpaperPosition::Center => "center center",
-        WallpaperPosition::Right => "right center",
-        WallpaperPosition::BottomLeft => "left bottom",
-        WallpaperPosition::Bottom => "center bottom",
-        WallpaperPosition::BottomRight => "right bottom",
-    }
-}
-
-fn wallpaper_background_position(position: WallpaperPosition) -> &'static str {
-    wallpaper_object_position(position)
-}
-
-fn wallpaper_object_fit(display_mode: WallpaperDisplayMode) -> &'static str {
-    match display_mode {
-        WallpaperDisplayMode::Fill => "cover",
-        WallpaperDisplayMode::Fit => "contain",
-        WallpaperDisplayMode::Stretch => "fill",
-        WallpaperDisplayMode::Center => "none",
-        WallpaperDisplayMode::Tile => "none",
-    }
 }
 
 pub use crate::runtime_context::{use_desktop_runtime, DesktopProvider, DesktopRuntimeContext};
@@ -158,92 +126,14 @@ fn mark_browser_e2e_ready() {
 fn mark_browser_e2e_ready() {}
 
 #[component]
-fn DesktopWallpaperRenderer(state: RwSignal<DesktopState>) -> impl IntoView {
-    let active_config = Signal::derive(move || {
-        let desktop = state.get();
-        desktop.wallpaper_preview.unwrap_or(desktop.wallpaper)
-    });
-    let resolved_source = Signal::derive(move || {
-        let desktop = state.get();
-        wallpaper::resolve_wallpaper_source(&active_config.get(), &desktop.wallpaper_library)
-    });
-    let reduced_motion = Signal::derive(move || state.get().theme.reduced_motion);
-
+fn DesktopWallpaperRenderer() -> impl IntoView {
     view! {
-        <Show when=move || resolved_source.get().is_some() fallback=|| ()>
-            {move || {
-                let config = active_config.get();
-                let source = resolved_source.get().expect("wallpaper source");
-                let fit = wallpaper_object_fit(config.display_mode);
-                let position = wallpaper_object_position(config.position);
-                let background_position = wallpaper_background_position(config.position);
-                let allow_animation = !reduced_motion.get()
-                    && config.animation == WallpaperAnimationPolicy::LoopMuted;
-
-                match (source.media_kind, config.display_mode) {
-                    (WallpaperMediaKind::StaticImage | WallpaperMediaKind::Svg, WallpaperDisplayMode::Tile) => {
-                        view! {
-                            <div
-                                data-ui-slot="wallpaper-layer"
-                                data-ui-kind="wallpaper-layer"
-                                style=format!(
-                                    "background-image:url('{}');background-position:{};",
-                                    source.primary_url,
-                                    background_position
-                                )
-                            />
-                        }
-                            .into_view()
-                    }
-                    (WallpaperMediaKind::Video, _) | (WallpaperMediaKind::AnimatedImage, _)
-                        if !allow_animation =>
-                    {
-                        let fallback_url = source
-                            .poster_url
-                            .clone()
-                            .unwrap_or_else(|| source.primary_url.clone());
-                        view! {
-                            <img
-                                data-ui-slot="wallpaper-layer"
-                                data-ui-kind="wallpaper-layer"
-                                src=fallback_url
-                                alt=""
-                                style=format!("object-fit:{};object-position:{};", fit, position)
-                            />
-                        }
-                            .into_view()
-                    }
-                    (WallpaperMediaKind::Video, _) => {
-                        view! {
-                            <video
-                                data-ui-slot="wallpaper-layer"
-                                data-ui-kind="wallpaper-layer"
-                                src=source.primary_url
-                                poster=source.poster_url.unwrap_or_default()
-                                autoplay=true
-                                muted=true
-                                loop=true
-                                playsinline=true
-                                style=format!("object-fit:{};object-position:{};", fit, position)
-                            />
-                        }
-                            .into_view()
-                    }
-                    _ => {
-                        view! {
-                            <img
-                                data-ui-slot="wallpaper-layer"
-                                data-ui-kind="wallpaper-layer"
-                                src=source.primary_url
-                                alt=""
-                                style=format!("object-fit:{};object-position:{};", fit, position)
-                            />
-                        }
-                            .into_view()
-                    }
-                }
-            }}
-        </Show>
+        <img
+            data-ui-slot="wallpaper-layer"
+            data-ui-kind="wallpaper-layer"
+            src="/wallpapers/wallpaper.png"
+            alt=""
+        />
     }
 }
 
@@ -470,7 +360,7 @@ pub fn DesktopShell() -> impl IntoView {
             on:pointercancel=on_pointer_end
         >
             <DesktopBackdrop>
-                <DesktopWallpaperRenderer state=state />
+                <DesktopWallpaperRenderer />
                 <div data-ui-slot="atmosphere" aria-hidden="true"></div>
                 <div
                     data-ui-slot="dismiss-layer"

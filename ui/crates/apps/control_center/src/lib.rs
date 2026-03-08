@@ -211,7 +211,6 @@ fn HostSection(capabilities: desktop_app_contract::CapabilitySet) -> impl IntoVi
     let native_explorer = capability_flag(capabilities.supports_native_explorer());
     let terminal_backend = capability_flag(capabilities.supports_terminal_process());
     let commands = capability_status_text(capabilities.status(AppCapability::Commands));
-    let wallpaper = capability_status_text(capabilities.status(AppCapability::Wallpaper));
     let notifications = capability_status_text(capabilities.status(AppCapability::Notifications));
 
     view! {
@@ -227,10 +226,6 @@ fn HostSection(capabilities: desktop_app_contract::CapabilitySet) -> impl IntoVi
             <div>
                 <Text role=TextRole::Label>"Structured commands"</Text>
                 <Text>{commands}</Text>
-            </div>
-            <div>
-                <Text role=TextRole::Label>"Wallpaper library"</Text>
-                <Text>{wallpaper}</Text>
             </div>
             <div>
                 <Text role=TextRole::Label>"Notifications"</Text>
@@ -284,7 +279,6 @@ fn format_capabilities(capabilities: &[AppCapability]) -> String {
             AppCapability::State => "state",
             AppCapability::Config => "config",
             AppCapability::Theme => "theme",
-            AppCapability::Wallpaper => "wallpaper",
             AppCapability::Notifications => "notifications",
             AppCapability::Ipc => "ipc",
             AppCapability::ExternalUrl => "external-url",

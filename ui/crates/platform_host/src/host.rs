@@ -4,7 +4,7 @@ use std::rc::Rc;
 
 use crate::{
     AppStateStore, ContentCache, ExplorerFsService, ExternalUrlService, NotificationService,
-    PrefsStore, TerminalProcessService, WallpaperAssetService,
+    PrefsStore, TerminalProcessService,
 };
 
 /// Stable host strategy selected for the current build/runtime composition path.
@@ -109,8 +109,6 @@ pub struct HostCapabilities {
     pub external_urls: CapabilityStatus,
     /// Host notification availability.
     pub notifications: CapabilityStatus,
-    /// Wallpaper import/library mutation availability.
-    pub wallpaper_library: CapabilityStatus,
 }
 
 impl HostCapabilities {
@@ -122,7 +120,6 @@ impl HostCapabilities {
             native_explorer: CapabilityStatus::RequiresUserActivation,
             external_urls: CapabilityStatus::Available,
             notifications: CapabilityStatus::RequiresUserActivation,
-            wallpaper_library: CapabilityStatus::Available,
         }
     }
 
@@ -134,7 +131,6 @@ impl HostCapabilities {
             native_explorer: CapabilityStatus::Available,
             external_urls: CapabilityStatus::Available,
             notifications: CapabilityStatus::Available,
-            wallpaper_library: CapabilityStatus::Available,
         }
     }
 
@@ -146,7 +142,6 @@ impl HostCapabilities {
             native_explorer: CapabilityStatus::Unavailable,
             external_urls: CapabilityStatus::Unavailable,
             notifications: CapabilityStatus::Unavailable,
-            wallpaper_library: CapabilityStatus::Available,
         }
     }
 }
@@ -170,8 +165,6 @@ pub struct HostServices {
     pub external_urls: Rc<dyn ExternalUrlService>,
     /// Notification delivery service.
     pub notifications: Rc<dyn NotificationService>,
-    /// Wallpaper asset/library service.
-    pub wallpaper: Rc<dyn WallpaperAssetService>,
     /// Optional host terminal-process backend.
     pub terminal_process: Option<Rc<dyn TerminalProcessService>>,
     /// Host availability snapshot for optional capability domains.

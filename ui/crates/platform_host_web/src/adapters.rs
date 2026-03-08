@@ -4,7 +4,6 @@ use crate::{
     TauriAppStateStore, TauriContentCache, TauriExplorerFsService, TauriExternalUrlService,
     TauriNotificationService, TauriPrefsStore, WebAppStateStore, WebContentCache,
     WebExplorerFsService, WebExternalUrlService, WebNotificationService, WebPrefsStore,
-    WebWallpaperAssetService,
 };
 use platform_host::{
     AppStateEnvelope, AppStateStore, AppStateStoreFuture, ContentCache, ContentCacheFuture,
@@ -12,12 +11,8 @@ use platform_host::{
     ExplorerListResult, ExplorerMetadata, ExplorerPermissionMode, ExplorerPermissionState,
     ExternalUrlFuture, ExternalUrlService, HostCapabilities, HostServices, HostStrategy,
     NoopAppStateStore, NoopContentCache, NoopExplorerFsService, NoopExternalUrlService,
-    NoopNotificationService, NoopPrefsStore, NoopWallpaperAssetService, NotificationFuture,
-    NotificationService, PrefsStore, PrefsStoreFuture, ResolvedWallpaperSource,
-    WallpaperAssetDeleteResult, WallpaperAssetFuture, WallpaperAssetMetadataPatch,
-    WallpaperAssetRecord, WallpaperAssetService, WallpaperCollection,
-    WallpaperCollectionDeleteResult, WallpaperImportRequest, WallpaperImportResult,
-    WallpaperLibrarySnapshot, WallpaperSelection,
+    NoopNotificationService, NoopPrefsStore, NotificationFuture, NotificationService, PrefsStore,
+    PrefsStoreFuture,
 };
 
 /// Returns the compile-time selected host strategy for the active build.
@@ -360,113 +355,6 @@ impl NotificationService for NotificationServiceAdapter {
     }
 }
 
-/// Adapter enum that erases the concrete wallpaper-library backend behind
-/// [`WallpaperAssetService`].
-#[derive(Debug, Clone, Copy)]
-pub enum WallpaperAssetServiceAdapter {
-    /// Browser-backed wallpaper library implementation.
-    Browser(WebWallpaperAssetService),
-    /// Desktop transport build that currently reuses the browser wallpaper implementation.
-    DesktopTauri(WebWallpaperAssetService),
-    /// No-op fallback used when desktop transport is intentionally stubbed.
-    DesktopStub(NoopWallpaperAssetService),
-}
-
-impl WallpaperAssetService for WallpaperAssetServiceAdapter {
-    fn import_from_picker<'a>(
-        &'a self,
-        request: WallpaperImportRequest,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperImportResult, String>> {
-        match self {
-            Self::Browser(service) | Self::DesktopTauri(service) => {
-                service.import_from_picker(request)
-            }
-            Self::DesktopStub(service) => service.import_from_picker(request),
-        }
-    }
-
-    fn list_library<'a>(
-        &'a self,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperLibrarySnapshot, String>> {
-        match self {
-            Self::Browser(service) | Self::DesktopTauri(service) => service.list_library(),
-            Self::DesktopStub(service) => service.list_library(),
-        }
-    }
-
-    fn update_asset_metadata<'a>(
-        &'a self,
-        asset_id: &'a str,
-        patch: WallpaperAssetMetadataPatch,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperAssetRecord, String>> {
-        match self {
-            Self::Browser(service) | Self::DesktopTauri(service) => {
-                service.update_asset_metadata(asset_id, patch)
-            }
-            Self::DesktopStub(service) => service.update_asset_metadata(asset_id, patch),
-        }
-    }
-
-    fn create_collection<'a>(
-        &'a self,
-        display_name: &'a str,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperCollection, String>> {
-        match self {
-            Self::Browser(service) | Self::DesktopTauri(service) => {
-                service.create_collection(display_name)
-            }
-            Self::DesktopStub(service) => service.create_collection(display_name),
-        }
-    }
-
-    fn rename_collection<'a>(
-        &'a self,
-        collection_id: &'a str,
-        display_name: &'a str,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperCollection, String>> {
-        match self {
-            Self::Browser(service) | Self::DesktopTauri(service) => {
-                service.rename_collection(collection_id, display_name)
-            }
-            Self::DesktopStub(service) => service.rename_collection(collection_id, display_name),
-        }
-    }
-
-    fn delete_collection<'a>(
-        &'a self,
-        collection_id: &'a str,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperCollectionDeleteResult, String>> {
-        match self {
-            Self::Browser(service) | Self::DesktopTauri(service) => {
-                service.delete_collection(collection_id)
-            }
-            Self::DesktopStub(service) => service.delete_collection(collection_id),
-        }
-    }
-
-    fn delete_asset<'a>(
-        &'a self,
-        asset_id: &'a str,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperAssetDeleteResult, String>> {
-        match self {
-            Self::Browser(service) | Self::DesktopTauri(service) => service.delete_asset(asset_id),
-            Self::DesktopStub(service) => service.delete_asset(asset_id),
-        }
-    }
-
-    fn resolve_source<'a>(
-        &'a self,
-        selection: WallpaperSelection,
-    ) -> WallpaperAssetFuture<'a, Result<Option<ResolvedWallpaperSource>, String>> {
-        match self {
-            Self::Browser(service) | Self::DesktopTauri(service) => {
-                service.resolve_source(selection)
-            }
-            Self::DesktopStub(service) => service.resolve_source(selection),
-        }
-    }
-}
-
 /// Builds the app-state adapter for the compile-time selected host strategy.
 pub fn app_state_store() -> AppStateStoreAdapter {
     match selected_host_strategy() {
@@ -529,19 +417,6 @@ pub fn external_url_service() -> ExternalUrlServiceAdapter {
     }
 }
 
-/// Builds the wallpaper-library adapter for the compile-time selected host strategy.
-pub fn wallpaper_asset_service() -> WallpaperAssetServiceAdapter {
-    match selected_host_strategy() {
-        HostStrategy::Browser => WallpaperAssetServiceAdapter::Browser(WebWallpaperAssetService),
-        HostStrategy::DesktopTauri => {
-            WallpaperAssetServiceAdapter::DesktopTauri(WebWallpaperAssetService)
-        }
-        HostStrategy::DesktopStub => {
-            WallpaperAssetServiceAdapter::DesktopStub(NoopWallpaperAssetService)
-        }
-    }
-}
-
 /// Returns the host capability snapshot for the selected host strategy.
 pub const fn host_capabilities() -> HostCapabilities {
     match selected_host_strategy() {
@@ -560,7 +435,6 @@ pub fn build_host_services() -> HostServices {
         cache: Rc::new(content_cache()),
         external_urls: Rc::new(external_url_service()),
         notifications: Rc::new(notification_service()),
-        wallpaper: Rc::new(wallpaper_asset_service()),
         terminal_process: None,
         capabilities: host_capabilities(),
         host_strategy: selected_host_strategy(),

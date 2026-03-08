@@ -150,7 +150,6 @@ fn inspect_storage_registration(runtime: DesktopRuntimeContext) -> AppCommandReg
                         capability_field("native_explorer", capabilities.native_explorer),
                         capability_field("external_urls", capabilities.external_urls),
                         capability_field("notifications", capabilities.notifications),
-                        capability_field("wallpaper_library", capabilities.wallpaper_library),
                         super::super::value_field(
                             "namespaces",
                             StructuredValue::List(

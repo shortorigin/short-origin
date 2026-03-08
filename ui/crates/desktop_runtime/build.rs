@@ -24,23 +24,6 @@ struct AppManifest {
     window_defaults: WindowDefaults,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct WallpaperCatalog {
-    schema_version: u32,
-    wallpapers: Vec<WallpaperManifest>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct WallpaperManifest {
-    wallpaper_id: String,
-    display_name: String,
-    note: String,
-    media_kind: String,
-    primary_path: String,
-    poster_path: Option<String>,
-    featured: bool,
-}
-
 fn app_manifest_paths(root: &Path) -> Vec<PathBuf> {
     ["control_center", "terminal", "settings"]
         .iter()
@@ -97,50 +80,6 @@ pub const APP_MANIFEST_CATALOG_JSON: &str = r##\"{}\"##;\n\n{}\n",
     let out_file = out_dir.join("app_catalog_generated.rs");
     fs::write(&out_file, generated)
         .unwrap_or_else(|err| panic!("failed to write {}: {err}", out_file.display()));
-
-    let wallpaper_catalog_path = crate_root
-        .join("..")
-        .join("..")
-        .join("assets")
-        .join("wallpapers")
-        .join("catalog.toml");
-    println!(
-        "cargo:rerun-if-changed={}",
-        wallpaper_catalog_path.display()
-    );
-    let raw = fs::read_to_string(&wallpaper_catalog_path).unwrap_or_else(|err| {
-        panic!(
-            "failed to read wallpaper catalog {}: {err}",
-            wallpaper_catalog_path.display()
-        )
-    });
-    let mut catalog: WallpaperCatalog = toml::from_str(&raw).unwrap_or_else(|err| {
-        panic!(
-            "failed to parse wallpaper catalog {}: {err}",
-            wallpaper_catalog_path.display()
-        )
-    });
-    if catalog.schema_version != 1 {
-        panic!(
-            "wallpaper catalog schema mismatch in {}: expected 1 found {}",
-            wallpaper_catalog_path.display(),
-            catalog.schema_version
-        );
-    }
-    validate_wallpaper_catalog(&crate_root, &catalog);
-    catalog
-        .wallpapers
-        .sort_by(|a, b| a.wallpaper_id.cmp(&b.wallpaper_id));
-    let json =
-        serde_json::to_string_pretty(&catalog.wallpapers).expect("serialize wallpaper catalog");
-    let generated = format!(
-        "/// Build-time generated built-in wallpaper catalog JSON.\n\
-pub const BUILTIN_WALLPAPER_CATALOG_JSON: &str = r##\"{}\"##;\n",
-        json
-    );
-    let out_file = out_dir.join("wallpaper_catalog_generated.rs");
-    fs::write(&out_file, generated)
-        .unwrap_or_else(|err| panic!("failed to write {}: {err}", out_file.display()));
 }
 
 fn render_manifest_metadata_const(manifest: &AppManifest) -> String {
@@ -163,7 +102,6 @@ fn render_manifest_metadata_const(manifest: &AppManifest) -> String {
             "state" => "AppCapability::State",
             "config" => "AppCapability::Config",
             "theme" => "AppCapability::Theme",
-            "wallpaper" => "AppCapability::Wallpaper",
             "notifications" => "AppCapability::Notifications",
             "ipc" => "AppCapability::Ipc",
             "external-url" => "AppCapability::ExternalUrl",
@@ -204,43 +142,4 @@ fn render_manifest_metadata_const(manifest: &AppManifest) -> String {
         window_width = manifest.window_defaults.width,
         window_height = manifest.window_defaults.height,
     )
-}
-
-fn validate_wallpaper_catalog(crate_root: &Path, catalog: &WallpaperCatalog) {
-    let assets_root = crate_root
-        .join("..")
-        .join("..")
-        .join("assets")
-        .join("wallpapers");
-    let mut seen = std::collections::BTreeSet::new();
-    for entry in &catalog.wallpapers {
-        if !seen.insert(entry.wallpaper_id.clone()) {
-            panic!("duplicate wallpaper id: {}", entry.wallpaper_id);
-        }
-        let primary = assets_root.join(&entry.primary_path);
-        if !primary.exists() {
-            panic!("wallpaper asset missing: {}", primary.display());
-        }
-        println!("cargo:rerun-if-changed={}", primary.display());
-        match entry.media_kind.as_str() {
-            "static-image" | "animated-image" | "video" | "svg" => {}
-            other => panic!("unsupported wallpaper media_kind `{other}`"),
-        }
-        if entry.media_kind == "video" && entry.poster_path.is_none() {
-            panic!(
-                "video wallpaper {} must declare poster_path",
-                entry.wallpaper_id
-            );
-        }
-        if let Some(poster_path) = &entry.poster_path {
-            let poster = assets_root.join(poster_path);
-            if !poster.exists() {
-                panic!("wallpaper poster missing: {}", poster.display());
-            }
-            println!("cargo:rerun-if-changed={}", poster.display());
-        }
-    }
-    if !catalog.wallpapers.iter().any(|entry| entry.featured) {
-        panic!("wallpaper catalog must declare at least one featured entry");
-    }
 }

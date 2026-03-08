@@ -23,7 +23,6 @@ pub mod session;
 pub mod storage;
 pub mod terminal_process;
 pub mod time;
-pub mod wallpaper;
 
 pub use cache::{
     cache_get_json_with, cache_put_json_with, ContentCache, ContentCacheFuture, MemoryContentCache,
@@ -57,11 +56,3 @@ pub use terminal_process::{
     TerminalResizeRequest, TerminalSessionId, TerminalWriteRequest,
 };
 pub use time::{next_monotonic_timestamp_ms, unix_time_ms_now};
-pub use wallpaper::{
-    NoopWallpaperAssetService, ResolvedWallpaperSource, WallpaperAnimationPolicy,
-    WallpaperAssetDeleteResult, WallpaperAssetFuture, WallpaperAssetMetadataPatch,
-    WallpaperAssetRecord, WallpaperAssetService, WallpaperCollection,
-    WallpaperCollectionDeleteResult, WallpaperConfig, WallpaperDisplayMode, WallpaperImportRequest,
-    WallpaperImportResult, WallpaperLibrarySnapshot, WallpaperMediaKind, WallpaperPosition,
-    WallpaperSelection, WallpaperSourceKind,
-};
