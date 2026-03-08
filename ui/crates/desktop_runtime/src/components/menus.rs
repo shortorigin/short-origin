@@ -1,10 +1,8 @@
 use super::*;
 use crate::model::{DesktopNotification, ThemeMode};
-use crate::wallpaper;
 use leptos::ev::MouseEvent;
-use platform_host::{WallpaperConfig, WallpaperMediaKind, WallpaperSelection};
 use system_ui::components::{
-    LauncherPanel as SystemLauncherPanel, MenuItem, MenuSeparator, MenuSurface,
+    LauncherPanel as SystemLauncherPanel, MenuItem, MenuSurface,
     NotificationCenter as SystemNotificationCenter, QuickSettingTile, SidePanel as SystemSidePanel,
 };
 use system_ui::primitives::{ButtonVariant, Icon, IconName, IconSize};
@@ -16,15 +14,13 @@ pub(super) fn DesktopContextMenu(
     desktop_context_menu: RwSignal<Option<DesktopContextMenuState>>,
     open_system_settings: Callback<()>,
 ) -> impl IntoView {
+    let _ = (state, runtime);
+
     view! {
         <Show when=move || desktop_context_menu.get().is_some() fallback=|| ()>
             {move || {
                 let Some(menu) = desktop_context_menu.get() else {
                     return ().into_view();
-                };
-                let active_id = match &state.get().wallpaper.selection {
-                    WallpaperSelection::BuiltIn { wallpaper_id } => wallpaper_id.clone(),
-                    WallpaperSelection::Imported { asset_id } => asset_id.clone(),
                 };
                 let menu_style = format!("left:{}px;top:{}px;", menu.x, menu.y);
 
@@ -69,65 +65,6 @@ pub(super) fn DesktopContextMenu(
                         >
                             "Properties..."
                         </MenuItem>
-
-                        <MenuSeparator />
-                        <div data-ui-slot="menu-group-label">
-                            "Quick Backgrounds"
-                        </div>
-
-                        <For
-                            each=move || wallpaper::featured_builtin_wallpapers()
-                            key=|asset| asset.asset_id.clone()
-                            let:asset
-                        >
-                            {{
-                                let active_id = active_id.clone();
-                                move || {
-                                let item_id = asset.asset_id.clone();
-                                let is_active = active_id == item_id;
-                                let display_name = asset.display_name.clone();
-                                let media_label = match asset.media_kind {
-                                    WallpaperMediaKind::Video => "Video",
-                                    WallpaperMediaKind::AnimatedImage => "Animated",
-                                    WallpaperMediaKind::Svg => "Vector",
-                                    WallpaperMediaKind::StaticImage => "Image",
-                                };
-
-                                view! {
-                                    <MenuItem
-                                        id=format!("desktop-context-menu-wallpaper-{}", item_id)
-                                        role="menuitemradio"
-                                        aria_checked=if is_active { "true" } else { "false" }
-                                        selected=is_active
-                                        on_click=Callback::new(move |ev| {
-                                            stop_mouse_event(&ev);
-                                            desktop_context_menu.set(None);
-                                            runtime.dispatch_action(DesktopAction::SetCurrentWallpaper {
-                                                config: WallpaperConfig {
-                                                    selection: WallpaperSelection::BuiltIn {
-                                                        wallpaper_id: item_id.clone(),
-                                                    },
-                                                    ..WallpaperConfig::default()
-                                                },
-                                            });
-                                        })
-                                    >
-                                        <span aria-hidden="true">
-                                            {if is_active {
-                                                view! { <Icon icon=IconName::Checkmark size=IconSize::Xs /> }.into_view()
-                                            } else {
-                                                ().into_view()
-                                            }}
-                                        </span>
-                                        <span>
-                                            <span>{display_name}</span>
-                                            <span>{media_label}</span>
-                                        </span>
-                                    </MenuItem>
-                                }
-                                }
-                            }}
-                        </For>
                     </MenuSurface>
                 }
                     .into_view()

@@ -9,14 +9,13 @@ mod boot;
 mod effects;
 mod host_ui;
 mod persistence_effects;
-mod wallpaper_effects;
 
 use std::rc::Rc;
 
 use leptos::{logging, spawn_local, Callback};
 use platform_host::{
     AppStateStore, ContentCache, ExplorerFsService, ExternalUrlService, HostCapabilities,
-    HostServices, NotificationService, PrefsStore, TerminalProcessService, WallpaperAssetService,
+    HostServices, NotificationService, PrefsStore, TerminalProcessService,
 };
 
 use crate::{
@@ -35,7 +34,6 @@ pub struct DesktopHostContext {
     cache: Rc<dyn ContentCache>,
     external_urls: Rc<dyn ExternalUrlService>,
     notifications: Rc<dyn NotificationService>,
-    wallpaper: Rc<dyn WallpaperAssetService>,
     terminal_process: Option<Rc<dyn TerminalProcessService>>,
     capabilities: HostCapabilities,
     host_strategy_name: &'static str,
@@ -51,7 +49,6 @@ impl DesktopHostContext {
             cache: services.cache,
             external_urls: services.external_urls,
             notifications: services.notifications,
-            wallpaper: services.wallpaper,
             terminal_process: services.terminal_process,
             capabilities: services.capabilities,
             host_strategy_name: services.host_strategy.as_str(),
@@ -86,11 +83,6 @@ impl DesktopHostContext {
     /// Returns the configured notification delivery service.
     pub fn notification_service(&self) -> Rc<dyn NotificationService> {
         self.notifications.clone()
-    }
-
-    /// Returns the configured wallpaper asset/library service.
-    pub fn wallpaper_asset_service(&self) -> Rc<dyn WallpaperAssetService> {
-        self.wallpaper.clone()
     }
 
     /// Returns the configured terminal-process backend when one is available.

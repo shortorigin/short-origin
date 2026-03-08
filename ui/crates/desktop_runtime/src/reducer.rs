@@ -3,10 +3,6 @@
 mod appearance;
 
 use desktop_app_contract::{AppCapability, AppCommand, AppEvent, AppLifecycleEvent, ApplicationId};
-use platform_host::{
-    WallpaperAssetMetadataPatch, WallpaperAssetRecord, WallpaperCollection, WallpaperConfig,
-    WallpaperImportRequest, WallpaperLibrarySnapshot,
-};
 use serde_json::{json, Value};
 use thiserror::Error;
 
@@ -134,60 +130,12 @@ pub enum DesktopAction {
         /// App command payload.
         command: AppCommand,
     },
-    /// Replace the committed desktop wallpaper configuration.
-    SetCurrentWallpaper {
-        /// Wallpaper configuration to commit.
-        config: WallpaperConfig,
-    },
-    /// Start previewing a wallpaper configuration.
-    PreviewWallpaper {
-        /// Wallpaper configuration to preview.
-        config: WallpaperConfig,
-    },
-    /// Commit the active wallpaper preview.
-    ApplyWallpaperPreview,
-    /// Clear the active wallpaper preview.
-    ClearWallpaperPreview,
     /// Hydrate theme state independently from layout restore.
     HydrateTheme {
         /// Persisted theme payload.
         theme: DesktopTheme,
         /// Revision associated with the theme payload.
         revision: Option<u64>,
-    },
-    /// Hydrate wallpaper state independently from layout restore.
-    HydrateWallpaper {
-        /// Persisted wallpaper payload.
-        wallpaper: WallpaperConfig,
-        /// Revision associated with the wallpaper payload.
-        revision: Option<u64>,
-    },
-    /// Replace the wallpaper library snapshot.
-    WallpaperLibraryLoaded {
-        /// Imported wallpaper library snapshot loaded from the host.
-        snapshot: WallpaperLibrarySnapshot,
-    },
-    /// Upsert one imported wallpaper asset inside the merged wallpaper library.
-    WallpaperAssetUpdated {
-        /// Updated imported wallpaper asset metadata.
-        asset: WallpaperAssetRecord,
-    },
-    /// Upsert one wallpaper collection inside the merged wallpaper library.
-    WallpaperCollectionUpdated {
-        /// Updated or newly created collection metadata.
-        collection: WallpaperCollection,
-    },
-    /// Remove one wallpaper collection from the merged wallpaper library.
-    WallpaperCollectionDeleted {
-        /// Deleted collection identifier.
-        collection_id: String,
-    },
-    /// Remove one imported wallpaper asset from the merged wallpaper library.
-    WallpaperAssetDeleted {
-        /// Deleted imported wallpaper asset identifier.
-        asset_id: String,
-        /// Current managed library usage in bytes after deletion.
-        used_bytes: u64,
     },
     /// Toggle high-contrast rendering.
     SetHighContrast {
@@ -242,8 +190,6 @@ pub enum DesktopAction {
         snapshot_revision: Option<u64>,
         /// Persisted theme payload.
         theme: Option<DesktopTheme>,
-        /// Persisted wallpaper payload.
-        wallpaper: Option<WallpaperConfig>,
         /// Persisted policy overlay payload.
         privileged_app_ids: Vec<String>,
         /// Initial deep-link payload captured at mount.
@@ -279,8 +225,6 @@ pub enum RuntimeEffect {
     PersistLayout,
     /// Persist theme changes.
     PersistTheme,
-    /// Persist wallpaper changes.
-    PersistWallpaper,
     /// Persist terminal history changes.
     PersistTerminalHistory,
     /// Move focus into the newly focused window's primary input.
@@ -339,42 +283,6 @@ pub enum RuntimeEffect {
         /// Config payload.
         value: Value,
     },
-    /// Load the wallpaper library snapshot from the host.
-    LoadWallpaperLibrary,
-    /// Import a wallpaper through the host picker flow.
-    ImportWallpaperFromPicker {
-        /// Import request payload.
-        request: WallpaperImportRequest,
-    },
-    /// Update managed wallpaper metadata through the host service.
-    UpdateWallpaperAssetMetadata {
-        /// Managed asset identifier.
-        asset_id: String,
-        /// Metadata patch payload.
-        patch: WallpaperAssetMetadataPatch,
-    },
-    /// Create a wallpaper collection.
-    CreateWallpaperCollection {
-        /// New collection label.
-        display_name: String,
-    },
-    /// Rename a wallpaper collection.
-    RenameWallpaperCollection {
-        /// Collection identifier.
-        collection_id: String,
-        /// Updated collection label.
-        display_name: String,
-    },
-    /// Delete a wallpaper collection.
-    DeleteWallpaperCollection {
-        /// Collection identifier.
-        collection_id: String,
-    },
-    /// Delete a wallpaper asset.
-    DeleteWallpaperAsset {
-        /// Managed asset identifier.
-        asset_id: String,
-    },
     /// Emit a host notification request.
     Notify {
         /// Notification title.
@@ -400,8 +308,6 @@ pub enum SyncDomain {
     Layout,
     /// Theme and accessibility preference state.
     Theme,
-    /// Wallpaper preference state.
-    Wallpaper,
 }
 
 #[derive(Debug, Error, Clone, PartialEq)]
@@ -410,9 +316,6 @@ pub enum ReducerError {
     /// The target window id was not found in the current state.
     #[error("window not found")]
     WindowNotFound,
-    /// A wallpaper configuration violated runtime constraints.
-    #[error("invalid wallpaper configuration: {0}")]
-    InvalidWallpaperConfig(String),
     /// The requested transition is blocked by an active modal window.
     #[error("active modal window {active_modal:?} blocks this transition")]
     ModalBlocked {
@@ -1014,95 +917,6 @@ pub fn reduce_desktop(
                         });
                     }
                 }
-                AppCommand::PreviewWallpaper { config } => {
-                    let nested = reduce_desktop(
-                        state,
-                        interaction,
-                        DesktopAction::PreviewWallpaper { config },
-                    )?;
-                    effects.extend(nested);
-                }
-                AppCommand::ApplyWallpaperPreview => {
-                    let nested =
-                        reduce_desktop(state, interaction, DesktopAction::ApplyWallpaperPreview)?;
-                    effects.extend(nested);
-                }
-                AppCommand::SetCurrentWallpaper { config } => {
-                    let nested = reduce_desktop(
-                        state,
-                        interaction,
-                        DesktopAction::SetCurrentWallpaper { config },
-                    )?;
-                    effects.extend(nested);
-                }
-                AppCommand::ClearWallpaperPreview => {
-                    let nested =
-                        reduce_desktop(state, interaction, DesktopAction::ClearWallpaperPreview)?;
-                    effects.extend(nested);
-                }
-                AppCommand::ImportWallpaperFromPicker { request } => {
-                    effects.push(RuntimeEffect::ImportWallpaperFromPicker { request });
-                }
-                AppCommand::RenameWallpaperAsset {
-                    asset_id,
-                    display_name,
-                } => {
-                    effects.push(RuntimeEffect::UpdateWallpaperAssetMetadata {
-                        asset_id,
-                        patch: WallpaperAssetMetadataPatch {
-                            display_name: Some(display_name),
-                            ..Default::default()
-                        },
-                    });
-                }
-                AppCommand::SetWallpaperFavorite { asset_id, favorite } => {
-                    effects.push(RuntimeEffect::UpdateWallpaperAssetMetadata {
-                        asset_id,
-                        patch: WallpaperAssetMetadataPatch {
-                            favorite: Some(favorite),
-                            ..Default::default()
-                        },
-                    });
-                }
-                AppCommand::SetWallpaperTags { asset_id, tags } => {
-                    effects.push(RuntimeEffect::UpdateWallpaperAssetMetadata {
-                        asset_id,
-                        patch: WallpaperAssetMetadataPatch {
-                            tags: Some(tags),
-                            ..Default::default()
-                        },
-                    });
-                }
-                AppCommand::SetWallpaperCollections {
-                    asset_id,
-                    collection_ids,
-                } => {
-                    effects.push(RuntimeEffect::UpdateWallpaperAssetMetadata {
-                        asset_id,
-                        patch: WallpaperAssetMetadataPatch {
-                            collection_ids: Some(collection_ids),
-                            ..Default::default()
-                        },
-                    });
-                }
-                AppCommand::CreateWallpaperCollection { display_name } => {
-                    effects.push(RuntimeEffect::CreateWallpaperCollection { display_name });
-                }
-                AppCommand::RenameWallpaperCollection {
-                    collection_id,
-                    display_name,
-                } => {
-                    effects.push(RuntimeEffect::RenameWallpaperCollection {
-                        collection_id,
-                        display_name,
-                    });
-                }
-                AppCommand::DeleteWallpaperCollection { collection_id } => {
-                    effects.push(RuntimeEffect::DeleteWallpaperCollection { collection_id });
-                }
-                AppCommand::DeleteWallpaperAsset { asset_id } => {
-                    effects.push(RuntimeEffect::DeleteWallpaperAsset { asset_id });
-                }
                 AppCommand::SetDesktopHighContrast { enabled } => {
                     let nested = reduce_desktop(
                         state,
@@ -1188,7 +1002,6 @@ pub fn reduce_desktop(
             snapshot,
             snapshot_revision,
             theme,
-            wallpaper,
             privileged_app_ids,
             deep_link,
         } => {
@@ -1207,10 +1020,6 @@ pub fn reduce_desktop(
             }
             if let Some(theme) = theme {
                 state.theme = theme;
-            }
-            if let Some(wallpaper) = wallpaper {
-                state.wallpaper = wallpaper;
-                state.wallpaper_preview = None;
             }
             state.privileged_app_ids = privileged_app_ids.into_iter().collect();
             if let Some(deep_link) = deep_link {
@@ -1238,19 +1047,8 @@ pub fn reduce_desktop(
         DesktopAction::RecordAppliedRevision { domain, revision } => match domain {
             SyncDomain::Layout => state.layout_revision = Some(revision),
             SyncDomain::Theme => state.theme_revision = Some(revision),
-            SyncDomain::Wallpaper => state.wallpaper_revision = Some(revision),
         },
-        DesktopAction::SetCurrentWallpaper { .. }
-        | DesktopAction::PreviewWallpaper { .. }
-        | DesktopAction::ApplyWallpaperPreview
-        | DesktopAction::ClearWallpaperPreview
-        | DesktopAction::HydrateTheme { .. }
-        | DesktopAction::HydrateWallpaper { .. }
-        | DesktopAction::WallpaperLibraryLoaded { .. }
-        | DesktopAction::WallpaperAssetUpdated { .. }
-        | DesktopAction::WallpaperCollectionUpdated { .. }
-        | DesktopAction::WallpaperCollectionDeleted { .. }
-        | DesktopAction::WallpaperAssetDeleted { .. }
+        DesktopAction::HydrateTheme { .. }
         | DesktopAction::SetHighContrast { .. }
         | DesktopAction::SetThemeMode { .. }
         | DesktopAction::SetReducedMotion { .. } => {
@@ -1294,21 +1092,13 @@ fn restore_snapshot(
     effects: &mut Vec<RuntimeEffect>,
 ) {
     let theme = state.theme.clone();
-    let wallpaper_config = state.wallpaper.clone();
-    let wallpaper_preview = state.wallpaper_preview.clone();
-    let wallpaper_library = state.wallpaper_library.clone();
     let privileged_app_ids = state.privileged_app_ids.clone();
     let theme_revision = state.theme_revision;
-    let wallpaper_revision = state.wallpaper_revision;
     *state = DesktopState::from_snapshot(snapshot);
     *interaction = InteractionState::default();
     state.theme = theme;
-    state.wallpaper = wallpaper_config;
-    state.wallpaper_preview = wallpaper_preview;
-    state.wallpaper_library = wallpaper_library;
     state.privileged_app_ids = privileged_app_ids;
     state.theme_revision = theme_revision;
-    state.wallpaper_revision = wallpaper_revision;
     state.layout_revision = revision;
     let max_restore = state.preferences.max_restore_windows;
     if state.windows.len() > max_restore {
@@ -1497,19 +1287,6 @@ fn command_required_capability(command: &AppCommand) -> Option<AppCapability> {
         AppCommand::SetDesktopHighContrast { .. }
         | AppCommand::SetDesktopReducedMotion { .. }
         | AppCommand::SetDesktopDarkMode { .. } => Some(AppCapability::Theme),
-        AppCommand::PreviewWallpaper { .. }
-        | AppCommand::ApplyWallpaperPreview
-        | AppCommand::SetCurrentWallpaper { .. }
-        | AppCommand::ClearWallpaperPreview
-        | AppCommand::ImportWallpaperFromPicker { .. }
-        | AppCommand::RenameWallpaperAsset { .. }
-        | AppCommand::SetWallpaperFavorite { .. }
-        | AppCommand::SetWallpaperTags { .. }
-        | AppCommand::SetWallpaperCollections { .. }
-        | AppCommand::CreateWallpaperCollection { .. }
-        | AppCommand::RenameWallpaperCollection { .. }
-        | AppCommand::DeleteWallpaperCollection { .. }
-        | AppCommand::DeleteWallpaperAsset { .. } => Some(AppCapability::Wallpaper),
         AppCommand::Notify { .. } => Some(AppCapability::Notifications),
     }
 }
@@ -1605,19 +1382,6 @@ fn command_label(command: &AppCommand) -> &'static str {
         AppCommand::Subscribe { .. } => "subscribe",
         AppCommand::Unsubscribe { .. } => "unsubscribe",
         AppCommand::PublishEvent { .. } => "publish-event",
-        AppCommand::PreviewWallpaper { .. } => "preview-wallpaper",
-        AppCommand::ApplyWallpaperPreview => "apply-wallpaper-preview",
-        AppCommand::SetCurrentWallpaper { .. } => "set-current-wallpaper",
-        AppCommand::ClearWallpaperPreview => "clear-wallpaper-preview",
-        AppCommand::ImportWallpaperFromPicker { .. } => "import-wallpaper-from-picker",
-        AppCommand::RenameWallpaperAsset { .. } => "rename-wallpaper-asset",
-        AppCommand::SetWallpaperFavorite { .. } => "set-wallpaper-favorite",
-        AppCommand::SetWallpaperTags { .. } => "set-wallpaper-tags",
-        AppCommand::SetWallpaperCollections { .. } => "set-wallpaper-collections",
-        AppCommand::CreateWallpaperCollection { .. } => "create-wallpaper-collection",
-        AppCommand::RenameWallpaperCollection { .. } => "rename-wallpaper-collection",
-        AppCommand::DeleteWallpaperCollection { .. } => "delete-wallpaper-collection",
-        AppCommand::DeleteWallpaperAsset { .. } => "delete-wallpaper-asset",
         AppCommand::SetDesktopHighContrast { .. } => "set-desktop-high-contrast",
         AppCommand::SetDesktopReducedMotion { .. } => "set-desktop-reduced-motion",
         AppCommand::SetDesktopDarkMode { .. } => "set-desktop-dark-mode",
@@ -1632,7 +1396,6 @@ mod tests {
     use super::*;
     use crate::model::{InteractionState, OpenWindowRequest, WindowFlags};
     use desktop_app_contract::ApplicationId;
-    use platform_host::{WallpaperDisplayMode, WallpaperSelection};
 
     fn open(
         state: &mut DesktopState,
@@ -1995,63 +1758,6 @@ mod tests {
 
         assert!(state.theme.high_contrast);
         assert_eq!(effects, vec![RuntimeEffect::PersistTheme]);
-    }
-
-    #[test]
-    fn preview_and_apply_wallpaper_are_independent_of_theme() {
-        let mut state = DesktopState::default();
-        let mut interaction = InteractionState::default();
-        let next = WallpaperConfig {
-            selection: WallpaperSelection::BuiltIn {
-                wallpaper_id: "sunset-lake".to_string(),
-            },
-            display_mode: WallpaperDisplayMode::Fit,
-            ..WallpaperConfig::default()
-        };
-
-        let effects = reduce_desktop(
-            &mut state,
-            &mut interaction,
-            DesktopAction::PreviewWallpaper {
-                config: next.clone(),
-            },
-        )
-        .expect("preview wallpaper");
-        assert!(effects.is_empty());
-        assert_eq!(state.wallpaper_preview, Some(next.clone()));
-
-        let effects = reduce_desktop(
-            &mut state,
-            &mut interaction,
-            DesktopAction::ApplyWallpaperPreview,
-        )
-        .expect("apply wallpaper preview");
-        assert_eq!(state.wallpaper, next);
-        assert!(state.wallpaper_preview.is_none());
-        assert_eq!(effects, vec![RuntimeEffect::PersistWallpaper]);
-    }
-
-    #[test]
-    fn tile_mode_rejects_animated_wallpapers() {
-        let mut state = DesktopState::default();
-        let mut interaction = InteractionState::default();
-
-        let err = reduce_desktop(
-            &mut state,
-            &mut interaction,
-            DesktopAction::SetCurrentWallpaper {
-                config: WallpaperConfig {
-                    selection: WallpaperSelection::BuiltIn {
-                        wallpaper_id: "aurora-flow".to_string(),
-                    },
-                    display_mode: WallpaperDisplayMode::Tile,
-                    ..WallpaperConfig::default()
-                },
-            },
-        )
-        .expect_err("animated wallpaper tile mode should fail");
-
-        assert!(matches!(err, ReducerError::InvalidWallpaperConfig(_)));
     }
 
     #[test]
@@ -2449,7 +2155,6 @@ mod tests {
                 snapshot: Some(snapshot),
                 snapshot_revision: Some(21),
                 theme: None,
-                wallpaper: None,
                 privileged_app_ids: Vec::new(),
                 deep_link: Some(DeepLinkState {
                     open: vec![DeepLinkOpenTarget::NotesSlug("roadmap".to_string())],
@@ -2476,7 +2181,6 @@ mod tests {
                 snapshot: Some(snapshot),
                 snapshot_revision: Some(30),
                 theme: None,
-                wallpaper: None,
                 privileged_app_ids: Vec::new(),
                 deep_link: Some(DeepLinkState {
                     open: vec![DeepLinkOpenTarget::App(ApplicationId::trusted(
@@ -2721,7 +2425,6 @@ mod tests {
                 snapshot: None,
                 snapshot_revision: None,
                 theme: None,
-                wallpaper: None,
                 privileged_app_ids: vec!["system.terminal".to_string()],
                 deep_link: None,
             },

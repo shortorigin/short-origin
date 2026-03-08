@@ -112,9 +112,7 @@ fn BrowserShellSync() -> impl IntoView {
 
     #[cfg(target_arch = "wasm32")]
     {
-        use desktop_runtime::{
-            load_durable_boot_snapshot, load_theme, load_wallpaper, HydrationMode,
-        };
+        use desktop_runtime::{load_durable_boot_snapshot, load_theme, HydrationMode};
         use wasm_bindgen::{closure::Closure, JsCast};
 
         let host = runtime.host.get_value();
@@ -157,25 +155,6 @@ fn BrowserShellSync() -> impl IntoView {
                                 if let Some(theme) = load_theme(&host).await {
                                     runtime.dispatch_action(DesktopAction::HydrateTheme {
                                         theme,
-                                        revision: Some(sync_event.revision),
-                                    });
-                                }
-                            });
-                        }
-                        ShellSyncKind::Wallpaper => {
-                            if !should_apply_shell_sync_event(
-                                &sync_event,
-                                &sender_id,
-                                runtime.state.get_untracked().wallpaper_revision,
-                            ) {
-                                return;
-                            }
-                            let runtime = runtime.clone();
-                            let host = host.clone();
-                            leptos::spawn_local(async move {
-                                if let Some(wallpaper) = load_wallpaper(&host).await {
-                                    runtime.dispatch_action(DesktopAction::HydrateWallpaper {
-                                        wallpaper,
                                         revision: Some(sync_event.revision),
                                     });
                                 }

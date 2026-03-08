@@ -6,7 +6,6 @@ use crate::{
     model::{DeepLinkState, DesktopSnapshot, DesktopTheme},
     persistence::{self, AppPolicyOverlay, DurableDesktopSnapshot},
     reducer::DesktopAction,
-    WallpaperConfig,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -20,7 +19,6 @@ struct BootHydrationPlan {
     snapshot: Option<AuthoritativeBootSnapshot>,
     migrate_legacy_snapshot: Option<DesktopSnapshot>,
     theme: Option<DesktopTheme>,
-    wallpaper: Option<WallpaperConfig>,
     policy_overlay: Option<AppPolicyOverlay>,
     deep_link: Option<DeepLinkState>,
 }
@@ -31,7 +29,6 @@ impl BootHydrationPlan {
             snapshot: None,
             migrate_legacy_snapshot: None,
             theme: None,
-            wallpaper: None,
             policy_overlay: None,
             deep_link: initial_deep_link.filter(|deep_link| !deep_link.open.is_empty()),
         }
@@ -56,13 +53,11 @@ pub(super) fn install_boot_hydration(
                 let durable_snapshot =
                     persistence::load_durable_boot_snapshot_record(&boot_host).await;
                 let theme = persistence::load_theme(&boot_host).await;
-                let wallpaper = persistence::load_wallpaper(&boot_host).await;
                 let policy_overlay = persistence::load_app_policy_overlay(&boot_host).await;
                 resolve_boot_hydration_plan(
                     durable_snapshot,
                     legacy_snapshot,
                     theme,
-                    wallpaper,
                     policy_overlay,
                     boot_deep_link,
                 )
@@ -75,23 +70,12 @@ pub(super) fn install_boot_hydration(
                 snapshot,
                 snapshot_revision,
                 theme: plan.theme,
-                wallpaper: plan.wallpaper,
                 privileged_app_ids: plan
                     .policy_overlay
                     .map(|policy| policy.privileged_app_ids)
                     .unwrap_or_default(),
                 deep_link: plan.deep_link,
             });
-        });
-
-        let host = host.clone();
-        spawn_local(async move {
-            match host.wallpaper_asset_service().list_library().await {
-                Ok(snapshot) => {
-                    dispatch.call(DesktopAction::WallpaperLibraryLoaded { snapshot });
-                }
-                Err(err) => logging::warn!("wallpaper library load failed: {err}"),
-            }
         });
     });
 }
@@ -100,7 +84,6 @@ fn resolve_boot_hydration_plan(
     durable_snapshot: Option<DurableDesktopSnapshot>,
     legacy_snapshot: Option<DesktopSnapshot>,
     theme: Option<DesktopTheme>,
-    wallpaper: Option<WallpaperConfig>,
     policy_overlay: Option<AppPolicyOverlay>,
     deep_link: Option<DeepLinkState>,
 ) -> BootHydrationPlan {
@@ -126,7 +109,6 @@ fn resolve_boot_hydration_plan(
         snapshot: restore_snapshot,
         migrate_legacy_snapshot,
         theme,
-        wallpaper,
         policy_overlay,
         deep_link: deep_link.filter(|parsed| !parsed.open.is_empty()),
     }
@@ -198,14 +180,8 @@ mod tests {
             revision: 44,
         };
         let legacy = snapshot_with_restore(true);
-        let plan = resolve_boot_hydration_plan(
-            Some(durable.clone()),
-            Some(legacy),
-            None,
-            None,
-            None,
-            None,
-        );
+        let plan =
+            resolve_boot_hydration_plan(Some(durable.clone()), Some(legacy), None, None, None);
 
         assert_eq!(
             plan.snapshot,
@@ -217,7 +193,7 @@ mod tests {
     #[test]
     fn legacy_snapshot_is_migrated_even_when_restore_is_disabled() {
         let legacy = snapshot_with_restore(false);
-        let plan = resolve_boot_hydration_plan(None, Some(legacy.clone()), None, None, None, None);
+        let plan = resolve_boot_hydration_plan(None, Some(legacy.clone()), None, None, None);
 
         assert!(plan.snapshot.is_none());
         assert_eq!(plan.migrate_legacy_snapshot, Some(legacy));
@@ -226,7 +202,7 @@ mod tests {
     #[test]
     fn legacy_snapshot_restores_once_and_migrates_once() {
         let legacy = snapshot_with_restore(true);
-        let plan = resolve_boot_hydration_plan(None, Some(legacy.clone()), None, None, None, None);
+        let plan = resolve_boot_hydration_plan(None, Some(legacy.clone()), None, None, None);
 
         assert_eq!(
             plan.snapshot,

@@ -6,7 +6,7 @@ use leptos::logging;
 use platform_host::build_app_state_envelope;
 use platform_host::{
     load_pref_with, migrate_envelope_payload, save_pref_with, AppStateEnvelope, HostResult,
-    PrefsStore, WallpaperConfig, WallpaperSelection, DESKTOP_STATE_NAMESPACE,
+    PrefsStore, DESKTOP_STATE_NAMESPACE,
 };
 use serde::{Deserialize, Serialize};
 
@@ -17,8 +17,6 @@ const LEGACY_SNAPSHOT_KEY: &str = "retrodesk.layout.v1";
 const THEME_KEY: &str = "origin.shell.theme.v1";
 const LEGACY_THEME_KEY: &str = "retrodesk.theme.v1";
 const PREVIOUS_THEME_KEY: &str = "system.desktop_theme.v2";
-const WALLPAPER_KEY: &str = "origin.shell.wallpaper.v1";
-const PREVIOUS_WALLPAPER_KEY: &str = "system.desktop_wallpaper.v1";
 const TERMINAL_HISTORY_KEY: &str = "origin.shell.terminal-history.v1";
 #[cfg(target_arch = "wasm32")]
 const LEGACY_TERMINAL_HISTORY_KEY: &str = "retrodesk.terminal_history.v1";
@@ -249,52 +247,6 @@ pub async fn load_theme(host: &DesktopHostContext) -> Option<DesktopTheme> {
     }
 }
 
-/// Persists the current wallpaper configuration through typed host prefs storage.
-pub async fn persist_wallpaper(
-    host: &DesktopHostContext,
-    wallpaper: &WallpaperConfig,
-) -> HostResult<()> {
-    save_pref_with(host.prefs_store().as_ref(), WALLPAPER_KEY, wallpaper).await
-}
-
-/// Loads the current wallpaper configuration from typed prefs, falling back to the legacy theme payload.
-pub async fn load_wallpaper(host: &DesktopHostContext) -> Option<WallpaperConfig> {
-    match load_pref_with_migration::<WallpaperConfig>(
-        host.prefs_store().as_ref(),
-        WALLPAPER_KEY,
-        &[PREVIOUS_WALLPAPER_KEY],
-    )
-    .await
-    {
-        Ok(Some(wallpaper)) => Some(normalize_wallpaper(wallpaper)),
-        Ok(None) => load_legacy_theme(host).await.map(|legacy| WallpaperConfig {
-            selection: WallpaperSelection::BuiltIn {
-                wallpaper_id: normalize_legacy_wallpaper_id(&legacy.wallpaper_id),
-            },
-            ..WallpaperConfig::default()
-        }),
-        Err(err) => {
-            logging::warn!("desktop wallpaper load failed: {err}");
-            None
-        }
-    }
-}
-
-fn normalize_legacy_wallpaper_id(raw: &str) -> String {
-    match raw.trim() {
-        "slate-grid" => "teal-grid".to_string(),
-        "" => "cloud-bands".to_string(),
-        other => other.to_string(),
-    }
-}
-
-fn normalize_wallpaper(mut wallpaper: WallpaperConfig) -> WallpaperConfig {
-    if let WallpaperSelection::BuiltIn { wallpaper_id } = &mut wallpaper.selection {
-        *wallpaper_id = normalize_legacy_wallpaper_id(wallpaper_id);
-    }
-    wallpaper
-}
-
 async fn load_legacy_theme(host: &DesktopHostContext) -> Option<LegacyThemePayload> {
     match load_pref_with_migration::<LegacyThemePayload>(
         host.prefs_store().as_ref(),
@@ -454,7 +406,6 @@ mod tests {
             cache: std::rc::Rc::new(platform_host::NoopContentCache),
             external_urls: std::rc::Rc::new(platform_host::NoopExternalUrlService),
             notifications: std::rc::Rc::new(platform_host::NoopNotificationService),
-            wallpaper: std::rc::Rc::new(platform_host::NoopWallpaperAssetService),
             terminal_process: None,
             capabilities: platform_host::HostCapabilities::browser(),
             host_strategy: platform_host::HostStrategy::Browser,

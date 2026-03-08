@@ -1,7 +1,7 @@
 //! Browser (`wasm32`) implementations of [`platform_host`] service contracts.
 //!
 //! This crate is the concrete browser-side host wiring layer for app-state, cache, prefs,
-//! explorer/filesystem, notifications, external URL opening, and wallpaper services.
+//! explorer/filesystem, notifications, and external URL opening services.
 //!
 //! Bridge bindings are split by domain under `bridge/`:
 //! - `bridge::app_state`
@@ -29,14 +29,12 @@ pub mod notifications;
 pub mod persistence;
 pub mod pwa;
 pub mod storage;
-pub mod wallpaper;
 
 pub use adapters::{
     app_state_store, build_host_services, content_cache, explorer_fs_service, external_url_service,
     host_capabilities, host_strategy_name, notification_service, prefs_store,
-    selected_host_strategy, wallpaper_asset_service, AppStateStoreAdapter, ContentCacheAdapter,
-    ExplorerFsServiceAdapter, ExternalUrlServiceAdapter, NotificationServiceAdapter,
-    PrefsStoreAdapter, WallpaperAssetServiceAdapter,
+    selected_host_strategy, AppStateStoreAdapter, ContentCacheAdapter, ExplorerFsServiceAdapter,
+    ExternalUrlServiceAdapter, NotificationServiceAdapter, PrefsStoreAdapter,
 };
 pub use cache::cache_api::WebContentCache;
 pub use cache::tauri_cache_api::TauriContentCache;
@@ -51,4 +49,3 @@ pub use storage::indexed_db::WebAppStateStore;
 pub use storage::local_prefs::WebPrefsStore;
 pub use storage::tauri_app_state::TauriAppStateStore;
 pub use storage::tauri_prefs::TauriPrefsStore;
-pub use wallpaper::WebWallpaperAssetService;

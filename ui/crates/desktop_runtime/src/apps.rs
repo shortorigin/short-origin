@@ -20,7 +20,6 @@ const ALL_APP_CAPABILITIES: &[AppCapability] = &[
     AppCapability::State,
     AppCapability::Config,
     AppCapability::Theme,
-    AppCapability::Wallpaper,
     AppCapability::Notifications,
     AppCapability::Ipc,
     AppCapability::ExternalUrl,

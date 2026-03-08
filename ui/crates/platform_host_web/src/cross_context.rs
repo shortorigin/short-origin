@@ -8,8 +8,6 @@ use serde::{Deserialize, Serialize};
 pub enum ShellSyncKind {
     /// Theme or accessibility preferences changed.
     Theme,
-    /// Wallpaper selection or wallpaper metadata changed.
-    Wallpaper,
     /// Desktop layout state changed.
     Layout,
 }
@@ -146,7 +144,7 @@ mod tests {
     #[test]
     fn accepts_newer_cross_context_events() {
         let event = ShellSyncEvent {
-            kind: ShellSyncKind::Wallpaper,
+            kind: ShellSyncKind::Layout,
             sender_id: "tab-b".to_string(),
             revision: 11,
         };
