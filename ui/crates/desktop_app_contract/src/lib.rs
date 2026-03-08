@@ -22,8 +22,8 @@ use platform_host::{
     load_app_state_with_migration, load_pref_with, save_app_state_with, save_pref_with,
     AppStateEnvelope, AppStateStore, CapabilityStatus, ContentCache, ExplorerBackendStatus,
     ExplorerFileReadResult, ExplorerFsService, ExplorerListResult, ExplorerMetadata,
-    ExplorerPermissionMode, ExplorerPermissionState, HostCapabilities, PrefsStore, WallpaperConfig,
-    WallpaperImportRequest, WallpaperLibrarySnapshot,
+    ExplorerPermissionMode, ExplorerPermissionState, HostCapabilities, HostResult, PrefsStore,
+    WallpaperConfig, WallpaperImportRequest, WallpaperLibrarySnapshot,
 };
 use sdk_rs::UiDashboardSnapshotV1;
 use serde::{Deserialize, Serialize};
@@ -555,7 +555,7 @@ impl ConfigService {
         &self,
         namespace: &str,
         key: &str,
-    ) -> Result<Option<T>, String> {
+    ) -> HostResult<Option<T>> {
         load_pref_with(self.prefs.as_ref(), &Self::pref_key(namespace, key)).await
     }
 
@@ -589,10 +589,10 @@ impl AppStateHostService {
         namespace: &str,
         current_schema_version: u32,
         migrate_legacy: F,
-    ) -> Result<Option<T>, String>
+    ) -> HostResult<Option<T>>
     where
         T: serde::de::DeserializeOwned,
-        F: Fn(u32, &AppStateEnvelope) -> Result<Option<T>, String>,
+        F: Fn(u32, &AppStateEnvelope) -> HostResult<Option<T>>,
     {
         load_app_state_with_migration(
             self.store.as_ref(),
@@ -609,7 +609,7 @@ impl AppStateHostService {
         namespace: &str,
         schema_version: u32,
         payload: &T,
-    ) -> Result<(), String> {
+    ) -> HostResult<()> {
         save_app_state_with(self.store.as_ref(), namespace, schema_version, payload).await
     }
 }
@@ -627,20 +627,17 @@ impl PrefsHostService {
     }
 
     /// Loads a typed preference value.
-    pub async fn load<T: serde::de::DeserializeOwned>(
-        &self,
-        key: &str,
-    ) -> Result<Option<T>, String> {
+    pub async fn load<T: serde::de::DeserializeOwned>(&self, key: &str) -> HostResult<Option<T>> {
         load_pref_with(self.store.as_ref(), key).await
     }
 
     /// Saves a typed preference value.
-    pub async fn save<T: Serialize>(&self, key: &str, value: &T) -> Result<(), String> {
+    pub async fn save<T: Serialize>(&self, key: &str, value: &T) -> HostResult<()> {
         save_pref_with(self.store.as_ref(), key, value).await
     }
 
     /// Deletes a stored preference key.
-    pub async fn delete(&self, key: &str) -> Result<(), String> {
+    pub async fn delete(&self, key: &str) -> HostResult<()> {
         self.store.delete_pref(key).await
     }
 }
@@ -658,12 +655,12 @@ impl ExplorerHostService {
     }
 
     /// Returns active backend status.
-    pub async fn status(&self) -> Result<ExplorerBackendStatus, String> {
+    pub async fn status(&self) -> HostResult<ExplorerBackendStatus> {
         self.service.status().await
     }
 
     /// Opens the native-directory picker.
-    pub async fn pick_native_directory(&self) -> Result<ExplorerBackendStatus, String> {
+    pub async fn pick_native_directory(&self) -> HostResult<ExplorerBackendStatus> {
         self.service.pick_native_directory().await
     }
 
@@ -671,46 +668,42 @@ impl ExplorerHostService {
     pub async fn request_permission(
         &self,
         mode: ExplorerPermissionMode,
-    ) -> Result<ExplorerPermissionState, String> {
+    ) -> HostResult<ExplorerPermissionState> {
         self.service.request_permission(mode).await
     }
 
     /// Lists a directory.
-    pub async fn list_dir(&self, path: &str) -> Result<ExplorerListResult, String> {
+    pub async fn list_dir(&self, path: &str) -> HostResult<ExplorerListResult> {
         self.service.list_dir(path).await
     }
 
     /// Reads a text file.
-    pub async fn read_text_file(&self, path: &str) -> Result<ExplorerFileReadResult, String> {
+    pub async fn read_text_file(&self, path: &str) -> HostResult<ExplorerFileReadResult> {
         self.service.read_text_file(path).await
     }
 
     /// Writes a text file.
-    pub async fn write_text_file(
-        &self,
-        path: &str,
-        text: &str,
-    ) -> Result<ExplorerMetadata, String> {
+    pub async fn write_text_file(&self, path: &str, text: &str) -> HostResult<ExplorerMetadata> {
         self.service.write_text_file(path, text).await
     }
 
     /// Creates a directory.
-    pub async fn create_dir(&self, path: &str) -> Result<ExplorerMetadata, String> {
+    pub async fn create_dir(&self, path: &str) -> HostResult<ExplorerMetadata> {
         self.service.create_dir(path).await
     }
 
     /// Creates a text file.
-    pub async fn create_file(&self, path: &str, text: &str) -> Result<ExplorerMetadata, String> {
+    pub async fn create_file(&self, path: &str, text: &str) -> HostResult<ExplorerMetadata> {
         self.service.create_file(path, text).await
     }
 
     /// Deletes a path.
-    pub async fn delete(&self, path: &str, recursive: bool) -> Result<(), String> {
+    pub async fn delete(&self, path: &str, recursive: bool) -> HostResult<()> {
         self.service.delete(path, recursive).await
     }
 
     /// Retrieves metadata for a path.
-    pub async fn stat(&self, path: &str) -> Result<ExplorerMetadata, String> {
+    pub async fn stat(&self, path: &str) -> HostResult<ExplorerMetadata> {
         self.service.stat(path).await
     }
 }
@@ -728,17 +721,17 @@ impl CacheHostService {
     }
 
     /// Stores cached text content.
-    pub async fn put_text(&self, cache_name: &str, key: &str, value: &str) -> Result<(), String> {
+    pub async fn put_text(&self, cache_name: &str, key: &str, value: &str) -> HostResult<()> {
         self.cache.put_text(cache_name, key, value).await
     }
 
     /// Loads cached text content.
-    pub async fn get_text(&self, cache_name: &str, key: &str) -> Result<Option<String>, String> {
+    pub async fn get_text(&self, cache_name: &str, key: &str) -> HostResult<Option<String>> {
         self.cache.get_text(cache_name, key).await
     }
 
     /// Deletes cached text content.
-    pub async fn delete(&self, cache_name: &str, key: &str) -> Result<(), String> {
+    pub async fn delete(&self, cache_name: &str, key: &str) -> HostResult<()> {
         self.cache.delete(cache_name, key).await
     }
 }

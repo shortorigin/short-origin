@@ -13,7 +13,7 @@ mod wallpaper_effects;
 
 use std::rc::Rc;
 
-use leptos::{logging, spawn_local, Callback};
+use leptos::{spawn_local, Callback};
 use platform_host::{
     AppStateStore, ContentCache, ExplorerFsService, ExternalUrlService, HostCapabilities,
     HostServices, NotificationService, PrefsStore, TerminalProcessService, WallpaperAssetService,
@@ -141,7 +141,14 @@ impl DesktopHostContext {
         let host = self.clone();
         spawn_local(async move {
             if let Err(err) = persistence::persist_durable_layout_snapshot(&host, &state).await {
-                logging::warn!("persist durable {cause} snapshot failed: {err}");
+                crate::ui_event!(
+                    warn,
+                    "desktop.persistence.snapshot_failed",
+                    "desktop.persist_durable_snapshot",
+                    "desktop_runtime",
+                    cause = cause,
+                    error = err
+                );
             }
         });
     }

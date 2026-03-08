@@ -1,16 +1,13 @@
 //! Browser preference storage implementation backed by the shared async bridge.
 
-use platform_host::{PrefsStore, PrefsStoreFuture};
+use platform_host::{HostResult, PrefsStore, PrefsStoreFuture};
 
 #[derive(Debug, Clone, Copy, Default)]
 /// Browser preference store backed by browser persistence through the shared bridge.
 pub struct WebPrefsStore;
 
 impl PrefsStore for WebPrefsStore {
-    fn load_pref<'a>(
-        &'a self,
-        key: &'a str,
-    ) -> PrefsStoreFuture<'a, Result<Option<String>, String>> {
+    fn load_pref<'a>(&'a self, key: &'a str) -> PrefsStoreFuture<'a, HostResult<Option<String>>> {
         Box::pin(async move { crate::bridge::load_pref(key).await })
     }
 
@@ -18,11 +15,11 @@ impl PrefsStore for WebPrefsStore {
         &'a self,
         key: &'a str,
         raw_json: &'a str,
-    ) -> PrefsStoreFuture<'a, Result<(), String>> {
+    ) -> PrefsStoreFuture<'a, HostResult<()>> {
         Box::pin(async move { crate::bridge::save_pref(key, raw_json).await })
     }
 
-    fn delete_pref<'a>(&'a self, key: &'a str) -> PrefsStoreFuture<'a, Result<(), String>> {
+    fn delete_pref<'a>(&'a self, key: &'a str) -> PrefsStoreFuture<'a, HostResult<()>> {
         Box::pin(async move { crate::bridge::delete_pref(key).await })
     }
 }

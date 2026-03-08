@@ -3,7 +3,7 @@
 //! This store uses the bridge interop layer, which routes app-state calls to Tauri
 //! commands when available in desktop webview contexts.
 
-use platform_host::{AppStateEnvelope, AppStateStore, AppStateStoreFuture};
+use platform_host::{AppStateEnvelope, AppStateStore, AppStateStoreFuture, HostResult};
 
 #[derive(Debug, Clone, Copy, Default)]
 /// Desktop app-state store backed by Tauri command transport.
@@ -13,27 +13,25 @@ impl AppStateStore for TauriAppStateStore {
     fn load_app_state_envelope<'a>(
         &'a self,
         namespace: &'a str,
-    ) -> AppStateStoreFuture<'a, Result<Option<AppStateEnvelope>, String>> {
+    ) -> AppStateStoreFuture<'a, HostResult<Option<AppStateEnvelope>>> {
         Box::pin(async move { crate::bridge::load_app_state_envelope(namespace).await })
     }
 
     fn save_app_state_envelope<'a>(
         &'a self,
         envelope: &'a AppStateEnvelope,
-    ) -> AppStateStoreFuture<'a, Result<(), String>> {
+    ) -> AppStateStoreFuture<'a, HostResult<()>> {
         Box::pin(async move { crate::bridge::save_app_state_envelope(envelope).await })
     }
 
     fn delete_app_state<'a>(
         &'a self,
         namespace: &'a str,
-    ) -> AppStateStoreFuture<'a, Result<(), String>> {
+    ) -> AppStateStoreFuture<'a, HostResult<()>> {
         Box::pin(async move { crate::bridge::delete_app_state(namespace).await })
     }
 
-    fn list_app_state_namespaces<'a>(
-        &'a self,
-    ) -> AppStateStoreFuture<'a, Result<Vec<String>, String>> {
+    fn list_app_state_namespaces<'a>(&'a self) -> AppStateStoreFuture<'a, HostResult<Vec<String>>> {
         Box::pin(async move { crate::bridge::list_app_state_namespaces().await })
     }
 }

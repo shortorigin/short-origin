@@ -1,6 +1,6 @@
 //! External URL host-service adapters for browser and desktop-webview contexts.
 
-use platform_host::{ExternalUrlFuture, ExternalUrlService};
+use platform_host::{ExternalUrlFuture, ExternalUrlService, HostResult};
 
 use crate::bridge;
 
@@ -9,7 +9,7 @@ use crate::bridge;
 pub struct WebExternalUrlService;
 
 impl ExternalUrlService for WebExternalUrlService {
-    fn open_url<'a>(&'a self, url: &'a str) -> ExternalUrlFuture<'a, Result<(), String>> {
+    fn open_url<'a>(&'a self, url: &'a str) -> ExternalUrlFuture<'a, HostResult<()>> {
         Box::pin(async move { bridge::open_external_url(url).await })
     }
 }
@@ -19,7 +19,7 @@ impl ExternalUrlService for WebExternalUrlService {
 pub struct TauriExternalUrlService;
 
 impl ExternalUrlService for TauriExternalUrlService {
-    fn open_url<'a>(&'a self, url: &'a str) -> ExternalUrlFuture<'a, Result<(), String>> {
+    fn open_url<'a>(&'a self, url: &'a str) -> ExternalUrlFuture<'a, HostResult<()>> {
         Box::pin(async move { bridge::open_external_url(url).await })
     }
 }

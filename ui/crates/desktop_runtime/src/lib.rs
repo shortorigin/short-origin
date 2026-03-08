@@ -53,6 +53,8 @@ pub mod e2e;
 mod effect_executor;
 /// Host-side effect execution and viewport helpers used by the shell runtime.
 pub mod host;
+/// Shared observability helpers and runtime logging metadata.
+pub mod logging;
 /// Core runtime state model and serializable snapshot types.
 pub mod model;
 /// Browser/local persistence helpers for desktop runtime state.

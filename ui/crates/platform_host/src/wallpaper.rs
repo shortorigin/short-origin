@@ -4,6 +4,8 @@ use std::{future::Future, pin::Pin};
 
 use serde::{Deserialize, Serialize};
 
+use crate::{HostError, HostResult, WallpaperErrorKind};
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "kebab-case")]
 /// Identifies either a built-in wallpaper or an imported managed asset.
@@ -273,50 +275,49 @@ pub trait WallpaperAssetService {
     fn import_from_picker<'a>(
         &'a self,
         request: WallpaperImportRequest,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperImportResult, String>>;
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperImportResult>>;
 
     /// Lists the current wallpaper library snapshot.
-    fn list_library<'a>(
-        &'a self,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperLibrarySnapshot, String>>;
+    fn list_library<'a>(&'a self)
+        -> WallpaperAssetFuture<'a, HostResult<WallpaperLibrarySnapshot>>;
 
     /// Updates asset metadata by patch.
     fn update_asset_metadata<'a>(
         &'a self,
         asset_id: &'a str,
         patch: WallpaperAssetMetadataPatch,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperAssetRecord, String>>;
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperAssetRecord>>;
 
     /// Creates a wallpaper collection.
     fn create_collection<'a>(
         &'a self,
         display_name: &'a str,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperCollection, String>>;
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperCollection>>;
 
     /// Renames a wallpaper collection.
     fn rename_collection<'a>(
         &'a self,
         collection_id: &'a str,
         display_name: &'a str,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperCollection, String>>;
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperCollection>>;
 
     /// Deletes a wallpaper collection and removes its memberships.
     fn delete_collection<'a>(
         &'a self,
         collection_id: &'a str,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperCollectionDeleteResult, String>>;
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperCollectionDeleteResult>>;
 
     /// Deletes a wallpaper asset.
     fn delete_asset<'a>(
         &'a self,
         asset_id: &'a str,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperAssetDeleteResult, String>>;
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperAssetDeleteResult>>;
 
     /// Resolves a wallpaper selection to a renderer-safe source.
     fn resolve_source<'a>(
         &'a self,
         selection: WallpaperSelection,
-    ) -> WallpaperAssetFuture<'a, Result<Option<ResolvedWallpaperSource>, String>>;
+    ) -> WallpaperAssetFuture<'a, HostResult<Option<ResolvedWallpaperSource>>>;
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -324,8 +325,12 @@ pub trait WallpaperAssetService {
 pub struct NoopWallpaperAssetService;
 
 impl NoopWallpaperAssetService {
-    fn unsupported(op: &str) -> String {
-        format!("wallpaper asset service unavailable: {op}")
+    fn unsupported(op: &str) -> HostError {
+        HostError::wallpaper(
+            WallpaperErrorKind::Unsupported,
+            "Wallpaper library support is unavailable",
+        )
+        .with_operation(op)
     }
 }
 
@@ -333,13 +338,13 @@ impl WallpaperAssetService for NoopWallpaperAssetService {
     fn import_from_picker<'a>(
         &'a self,
         _request: WallpaperImportRequest,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperImportResult, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperImportResult>> {
         Box::pin(async { Err(Self::unsupported("import_from_picker")) })
     }
 
     fn list_library<'a>(
         &'a self,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperLibrarySnapshot, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperLibrarySnapshot>> {
         Box::pin(async { Ok(WallpaperLibrarySnapshot::default()) })
     }
 
@@ -347,14 +352,14 @@ impl WallpaperAssetService for NoopWallpaperAssetService {
         &'a self,
         _asset_id: &'a str,
         _patch: WallpaperAssetMetadataPatch,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperAssetRecord, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperAssetRecord>> {
         Box::pin(async { Err(Self::unsupported("update_asset_metadata")) })
     }
 
     fn create_collection<'a>(
         &'a self,
         _display_name: &'a str,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperCollection, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperCollection>> {
         Box::pin(async { Err(Self::unsupported("create_collection")) })
     }
 
@@ -362,28 +367,28 @@ impl WallpaperAssetService for NoopWallpaperAssetService {
         &'a self,
         _collection_id: &'a str,
         _display_name: &'a str,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperCollection, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperCollection>> {
         Box::pin(async { Err(Self::unsupported("rename_collection")) })
     }
 
     fn delete_collection<'a>(
         &'a self,
         _collection_id: &'a str,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperCollectionDeleteResult, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperCollectionDeleteResult>> {
         Box::pin(async { Err(Self::unsupported("delete_collection")) })
     }
 
     fn delete_asset<'a>(
         &'a self,
         _asset_id: &'a str,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperAssetDeleteResult, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperAssetDeleteResult>> {
         Box::pin(async { Err(Self::unsupported("delete_asset")) })
     }
 
     fn resolve_source<'a>(
         &'a self,
         _selection: WallpaperSelection,
-    ) -> WallpaperAssetFuture<'a, Result<Option<ResolvedWallpaperSource>, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<Option<ResolvedWallpaperSource>>> {
         Box::pin(async { Ok(None) })
     }
 }

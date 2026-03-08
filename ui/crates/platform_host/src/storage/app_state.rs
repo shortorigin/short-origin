@@ -5,6 +5,8 @@ use std::{cell::RefCell, collections::HashMap, future::Future, pin::Pin, rc::Rc}
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json::Value;
 
+use crate::{HostError, HostResult, StorageErrorKind};
+
 /// Version for [`AppStateEnvelope`] metadata serialization.
 pub const APP_STATE_ENVELOPE_VERSION: u32 = 1;
 /// Namespace used by the desktop runtime durable snapshot.
@@ -57,24 +59,22 @@ pub trait AppStateStore {
     fn load_app_state_envelope<'a>(
         &'a self,
         namespace: &'a str,
-    ) -> AppStateStoreFuture<'a, Result<Option<AppStateEnvelope>, String>>;
+    ) -> AppStateStoreFuture<'a, HostResult<Option<AppStateEnvelope>>>;
 
     /// Saves a full app-state envelope.
     fn save_app_state_envelope<'a>(
         &'a self,
         envelope: &'a AppStateEnvelope,
-    ) -> AppStateStoreFuture<'a, Result<(), String>>;
+    ) -> AppStateStoreFuture<'a, HostResult<()>>;
 
     /// Deletes persisted app state for a namespace.
     fn delete_app_state<'a>(
         &'a self,
         namespace: &'a str,
-    ) -> AppStateStoreFuture<'a, Result<(), String>>;
+    ) -> AppStateStoreFuture<'a, HostResult<()>>;
 
     /// Lists namespaces currently present in the app-state store.
-    fn list_app_state_namespaces<'a>(
-        &'a self,
-    ) -> AppStateStoreFuture<'a, Result<Vec<String>, String>>;
+    fn list_app_state_namespaces<'a>(&'a self) -> AppStateStoreFuture<'a, HostResult<Vec<String>>>;
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -85,27 +85,25 @@ impl AppStateStore for NoopAppStateStore {
     fn load_app_state_envelope<'a>(
         &'a self,
         _namespace: &'a str,
-    ) -> AppStateStoreFuture<'a, Result<Option<AppStateEnvelope>, String>> {
+    ) -> AppStateStoreFuture<'a, HostResult<Option<AppStateEnvelope>>> {
         Box::pin(async { Ok(None) })
     }
 
     fn save_app_state_envelope<'a>(
         &'a self,
         _envelope: &'a AppStateEnvelope,
-    ) -> AppStateStoreFuture<'a, Result<(), String>> {
+    ) -> AppStateStoreFuture<'a, HostResult<()>> {
         Box::pin(async { Ok(()) })
     }
 
     fn delete_app_state<'a>(
         &'a self,
         _namespace: &'a str,
-    ) -> AppStateStoreFuture<'a, Result<(), String>> {
+    ) -> AppStateStoreFuture<'a, HostResult<()>> {
         Box::pin(async { Ok(()) })
     }
 
-    fn list_app_state_namespaces<'a>(
-        &'a self,
-    ) -> AppStateStoreFuture<'a, Result<Vec<String>, String>> {
+    fn list_app_state_namespaces<'a>(&'a self) -> AppStateStoreFuture<'a, HostResult<Vec<String>>> {
         Box::pin(async { Ok(Vec::new()) })
     }
 }
@@ -128,14 +126,14 @@ impl AppStateStore for MemoryAppStateStore {
     fn load_app_state_envelope<'a>(
         &'a self,
         namespace: &'a str,
-    ) -> AppStateStoreFuture<'a, Result<Option<AppStateEnvelope>, String>> {
+    ) -> AppStateStoreFuture<'a, HostResult<Option<AppStateEnvelope>>> {
         Box::pin(async move { Ok(self.inner.borrow().get(namespace).cloned()) })
     }
 
     fn save_app_state_envelope<'a>(
         &'a self,
         envelope: &'a AppStateEnvelope,
-    ) -> AppStateStoreFuture<'a, Result<(), String>> {
+    ) -> AppStateStoreFuture<'a, HostResult<()>> {
         Box::pin(async move {
             self.inner
                 .borrow_mut()
@@ -147,16 +145,14 @@ impl AppStateStore for MemoryAppStateStore {
     fn delete_app_state<'a>(
         &'a self,
         namespace: &'a str,
-    ) -> AppStateStoreFuture<'a, Result<(), String>> {
+    ) -> AppStateStoreFuture<'a, HostResult<()>> {
         Box::pin(async move {
             self.inner.borrow_mut().remove(namespace);
             Ok(())
         })
     }
 
-    fn list_app_state_namespaces<'a>(
-        &'a self,
-    ) -> AppStateStoreFuture<'a, Result<Vec<String>, String>> {
+    fn list_app_state_namespaces<'a>(&'a self) -> AppStateStoreFuture<'a, HostResult<Vec<String>>> {
         Box::pin(async move {
             let mut keys = self.inner.borrow().keys().cloned().collect::<Vec<_>>();
             keys.sort();
@@ -174,8 +170,15 @@ pub fn build_app_state_envelope<T: Serialize>(
     namespace: &str,
     schema_version: u32,
     payload: &T,
-) -> Result<AppStateEnvelope, String> {
-    let payload = serde_json::to_value(payload).map_err(|e| e.to_string())?;
+) -> HostResult<AppStateEnvelope> {
+    let payload = serde_json::to_value(payload).map_err(|err| {
+        HostError::storage(
+            StorageErrorKind::Serialize,
+            "App state could not be encoded",
+        )
+        .with_operation("app_state.build_envelope")
+        .with_internal(err.to_string())
+    })?;
     Ok(AppStateEnvelope::new(
         namespace.to_string(),
         schema_version,
@@ -188,10 +191,15 @@ pub fn build_app_state_envelope<T: Serialize>(
 /// # Errors
 ///
 /// Returns an error when deserialization fails.
-pub fn migrate_envelope_payload<T: DeserializeOwned>(
-    envelope: &AppStateEnvelope,
-) -> Result<T, String> {
-    serde_json::from_value(envelope.payload.clone()).map_err(|e| e.to_string())
+pub fn migrate_envelope_payload<T: DeserializeOwned>(envelope: &AppStateEnvelope) -> HostResult<T> {
+    serde_json::from_value(envelope.payload.clone()).map_err(|err| {
+        HostError::storage(
+            StorageErrorKind::Deserialize,
+            "App state payload could not be decoded",
+        )
+        .with_operation("app_state.migrate_payload")
+        .with_internal(err.to_string())
+    })
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -225,7 +233,7 @@ pub async fn save_app_state_with<S: AppStateStore + ?Sized, T: Serialize>(
     namespace: &str,
     schema_version: u32,
     payload: &T,
-) -> Result<(), String> {
+) -> HostResult<()> {
     let envelope = build_app_state_envelope(namespace, schema_version, payload)?;
     store.save_app_state_envelope(&envelope).await
 }
@@ -244,7 +252,7 @@ pub async fn load_app_state_typed_with<S: AppStateStore + ?Sized, T: Deserialize
     store: &S,
     namespace: &str,
     schema_policy: AppStateSchemaPolicy,
-) -> Result<Option<T>, String> {
+) -> HostResult<Option<T>> {
     let Some(envelope) = store.load_app_state_envelope(namespace).await? else {
         return Ok(None);
     };
@@ -266,11 +274,11 @@ pub async fn load_app_state_with_migration<S, T, F>(
     namespace: &str,
     current_schema_version: u32,
     migrate_legacy: F,
-) -> Result<Option<T>, String>
+) -> HostResult<Option<T>>
 where
     S: AppStateStore + ?Sized,
     T: DeserializeOwned,
-    F: Fn(u32, &AppStateEnvelope) -> Result<Option<T>, String>,
+    F: Fn(u32, &AppStateEnvelope) -> HostResult<Option<T>>,
 {
     let Some(envelope) = store.load_app_state_envelope(namespace).await? else {
         return Ok(None);
@@ -281,7 +289,7 @@ where
 fn decode_typed_app_state_envelope<T: DeserializeOwned>(
     envelope: &AppStateEnvelope,
     schema_policy: AppStateSchemaPolicy,
-) -> Result<Option<T>, String> {
+) -> HostResult<Option<T>> {
     if envelope.envelope_version != APP_STATE_ENVELOPE_VERSION {
         return Ok(None);
     }
@@ -295,10 +303,10 @@ fn decode_typed_app_state_with_migration<T, F>(
     envelope: &AppStateEnvelope,
     current_schema_version: u32,
     migrate_legacy: F,
-) -> Result<Option<T>, String>
+) -> HostResult<Option<T>>
 where
     T: DeserializeOwned,
-    F: Fn(u32, &AppStateEnvelope) -> Result<Option<T>, String>,
+    F: Fn(u32, &AppStateEnvelope) -> HostResult<Option<T>>,
 {
     if envelope.envelope_version != APP_STATE_ENVELOPE_VERSION {
         return Ok(None);
@@ -321,6 +329,7 @@ mod tests {
     use serde_json::json;
 
     use super::*;
+    use crate::HostErrorKind;
 
     #[derive(Debug, Deserialize, PartialEq)]
     struct TestPayload {
@@ -380,7 +389,15 @@ mod tests {
     fn build_app_state_envelope_returns_error_for_unserializable_payload() {
         let err = build_app_state_envelope("app.example", 1, &NonSerializable)
             .expect_err("expected serialization error");
-        assert!(err.contains("boom"));
+        assert_eq!(
+            err.kind,
+            HostErrorKind::Storage(StorageErrorKind::Serialize)
+        );
+        assert_eq!(
+            err.metadata.operation.as_deref(),
+            Some("app_state.build_envelope")
+        );
+        assert_eq!(err.internal_message.as_deref(), Some("boom"));
     }
 
     #[test]
@@ -415,7 +432,15 @@ mod tests {
 
         let err = migrate_envelope_payload::<TestPayload>(&envelope)
             .expect_err("expected decode failure");
-        assert!(!err.is_empty());
+        assert_eq!(
+            err.kind,
+            HostErrorKind::Storage(StorageErrorKind::Deserialize)
+        );
+        assert_eq!(
+            err.metadata.operation.as_deref(),
+            Some("app_state.migrate_payload")
+        );
+        assert!(!err.safe_message.is_empty());
     }
 
     #[test]

@@ -107,7 +107,13 @@ pub fn DesktopProvider(
                     });
                     effects.set(queue);
                 }
-                logging::warn!("desktop reducer error: {err}");
+                crate::ui_event!(
+                    warn,
+                    "desktop.reducer.error",
+                    "desktop.dispatch",
+                    "desktop_runtime",
+                    error = err
+                );
             }
         }
     });

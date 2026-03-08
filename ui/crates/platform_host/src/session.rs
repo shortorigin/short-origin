@@ -5,6 +5,8 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 use serde::{de::DeserializeOwned, Serialize};
 use serde_json::Value;
 
+use crate::{HostError, HostResult, StorageErrorKind};
+
 #[derive(Debug, Clone)]
 /// In-memory session-scoped key/value JSON store used by non-durable UI state.
 pub struct MemorySessionStore {
@@ -40,8 +42,15 @@ impl MemorySessionStore {
     /// # Errors
     ///
     /// Returns an error when `value` cannot be serialized to JSON.
-    pub fn set<T: Serialize>(&self, key: impl Into<String>, value: &T) -> Result<(), String> {
-        let json = serde_json::to_value(value).map_err(|e| e.to_string())?;
+    pub fn set<T: Serialize>(&self, key: impl Into<String>, value: &T) -> HostResult<()> {
+        let json = serde_json::to_value(value).map_err(|err| {
+            HostError::storage(
+                StorageErrorKind::Serialize,
+                "Session state could not be encoded",
+            )
+            .with_operation("session.set")
+            .with_internal(err.to_string())
+        })?;
         self.set_json(key, json);
         Ok(())
     }

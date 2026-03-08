@@ -4,26 +4,25 @@ use std::{cell::RefCell, collections::HashMap, future::Future, pin::Pin, rc::Rc}
 
 use serde::{de::DeserializeOwned, Serialize};
 
+use crate::{HostError, HostResult, StorageErrorKind};
+
 /// Object-safe boxed future used by [`PrefsStore`] async methods.
 pub type PrefsStoreFuture<'a, T> = Pin<Box<dyn Future<Output = T> + 'a>>;
 
 /// Host service for lightweight preference values (JSON stored as text per key).
 pub trait PrefsStore {
     /// Loads a raw JSON string for a preference key.
-    fn load_pref<'a>(
-        &'a self,
-        key: &'a str,
-    ) -> PrefsStoreFuture<'a, Result<Option<String>, String>>;
+    fn load_pref<'a>(&'a self, key: &'a str) -> PrefsStoreFuture<'a, HostResult<Option<String>>>;
 
     /// Saves a raw JSON string for a preference key.
     fn save_pref<'a>(
         &'a self,
         key: &'a str,
         raw_json: &'a str,
-    ) -> PrefsStoreFuture<'a, Result<(), String>>;
+    ) -> PrefsStoreFuture<'a, HostResult<()>>;
 
     /// Deletes a preference key.
-    fn delete_pref<'a>(&'a self, key: &'a str) -> PrefsStoreFuture<'a, Result<(), String>>;
+    fn delete_pref<'a>(&'a self, key: &'a str) -> PrefsStoreFuture<'a, HostResult<()>>;
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -31,10 +30,7 @@ pub trait PrefsStore {
 pub struct NoopPrefsStore;
 
 impl PrefsStore for NoopPrefsStore {
-    fn load_pref<'a>(
-        &'a self,
-        _key: &'a str,
-    ) -> PrefsStoreFuture<'a, Result<Option<String>, String>> {
+    fn load_pref<'a>(&'a self, _key: &'a str) -> PrefsStoreFuture<'a, HostResult<Option<String>>> {
         Box::pin(async { Ok(None) })
     }
 
@@ -42,11 +38,11 @@ impl PrefsStore for NoopPrefsStore {
         &'a self,
         _key: &'a str,
         _raw_json: &'a str,
-    ) -> PrefsStoreFuture<'a, Result<(), String>> {
+    ) -> PrefsStoreFuture<'a, HostResult<()>> {
         Box::pin(async { Ok(()) })
     }
 
-    fn delete_pref<'a>(&'a self, _key: &'a str) -> PrefsStoreFuture<'a, Result<(), String>> {
+    fn delete_pref<'a>(&'a self, _key: &'a str) -> PrefsStoreFuture<'a, HostResult<()>> {
         Box::pin(async { Ok(()) })
     }
 }
@@ -58,10 +54,7 @@ pub struct MemoryPrefsStore {
 }
 
 impl PrefsStore for MemoryPrefsStore {
-    fn load_pref<'a>(
-        &'a self,
-        key: &'a str,
-    ) -> PrefsStoreFuture<'a, Result<Option<String>, String>> {
+    fn load_pref<'a>(&'a self, key: &'a str) -> PrefsStoreFuture<'a, HostResult<Option<String>>> {
         Box::pin(async move { Ok(self.inner.borrow().get(key).cloned()) })
     }
 
@@ -69,7 +62,7 @@ impl PrefsStore for MemoryPrefsStore {
         &'a self,
         key: &'a str,
         raw_json: &'a str,
-    ) -> PrefsStoreFuture<'a, Result<(), String>> {
+    ) -> PrefsStoreFuture<'a, HostResult<()>> {
         Box::pin(async move {
             self.inner
                 .borrow_mut()
@@ -78,7 +71,7 @@ impl PrefsStore for MemoryPrefsStore {
         })
     }
 
-    fn delete_pref<'a>(&'a self, key: &'a str) -> PrefsStoreFuture<'a, Result<(), String>> {
+    fn delete_pref<'a>(&'a self, key: &'a str) -> PrefsStoreFuture<'a, HostResult<()>> {
         Box::pin(async move {
             self.inner.borrow_mut().remove(key);
             Ok(())
@@ -94,11 +87,18 @@ impl PrefsStore for MemoryPrefsStore {
 pub async fn load_pref_with<S: PrefsStore + ?Sized, T: DeserializeOwned>(
     store: &S,
     key: &str,
-) -> Result<Option<T>, String> {
+) -> HostResult<Option<T>> {
     let Some(raw) = store.load_pref(key).await? else {
         return Ok(None);
     };
-    let value = serde_json::from_str(&raw).map_err(|e| e.to_string())?;
+    let value = serde_json::from_str(&raw).map_err(|err| {
+        HostError::storage(
+            StorageErrorKind::Deserialize,
+            "Stored preference could not be read",
+        )
+        .with_operation("prefs.load")
+        .with_internal(err.to_string())
+    })?;
     Ok(Some(value))
 }
 
@@ -111,8 +111,15 @@ pub async fn save_pref_with<S: PrefsStore + ?Sized, T: Serialize>(
     store: &S,
     key: &str,
     value: &T,
-) -> Result<(), String> {
-    let raw = serde_json::to_string(value).map_err(|e| e.to_string())?;
+) -> HostResult<()> {
+    let raw = serde_json::to_string(value).map_err(|err| {
+        HostError::storage(
+            StorageErrorKind::Serialize,
+            "Preference value could not be written",
+        )
+        .with_operation("prefs.save")
+        .with_internal(err.to_string())
+    })?;
     store.save_pref(key, &raw).await
 }
 

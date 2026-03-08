@@ -1,6 +1,6 @@
 //! Tauri command-backed content cache implementation.
 
-use platform_host::{ContentCache, ContentCacheFuture};
+use platform_host::{ContentCache, ContentCacheFuture, HostResult};
 
 #[derive(Debug, Clone, Copy, Default)]
 /// Desktop content cache backed by Tauri command transport.
@@ -12,7 +12,7 @@ impl ContentCache for TauriContentCache {
         cache_name: &'a str,
         key: &'a str,
         value: &'a str,
-    ) -> ContentCacheFuture<'a, Result<(), String>> {
+    ) -> ContentCacheFuture<'a, HostResult<()>> {
         Box::pin(async move { crate::bridge::cache_put_text(cache_name, key, value).await })
     }
 
@@ -20,7 +20,7 @@ impl ContentCache for TauriContentCache {
         &'a self,
         cache_name: &'a str,
         key: &'a str,
-    ) -> ContentCacheFuture<'a, Result<Option<String>, String>> {
+    ) -> ContentCacheFuture<'a, HostResult<Option<String>>> {
         Box::pin(async move { crate::bridge::cache_get_text(cache_name, key).await })
     }
 
@@ -28,7 +28,7 @@ impl ContentCache for TauriContentCache {
         &'a self,
         cache_name: &'a str,
         key: &'a str,
-    ) -> ContentCacheFuture<'a, Result<(), String>> {
+    ) -> ContentCacheFuture<'a, HostResult<()>> {
         Box::pin(async move { crate::bridge::cache_delete(cache_name, key).await })
     }
 }

@@ -6,7 +6,8 @@ use crate::model::{DesktopPreferences, DesktopSnapshot, DesktopState, DesktopThe
 use platform_host::build_app_state_envelope;
 use platform_host::{
     load_app_state_with_migration, load_pref_with, migrate_envelope_payload, save_app_state_with,
-    save_pref_with, AppStateEnvelope, WallpaperConfig, WallpaperSelection, DESKTOP_STATE_NAMESPACE,
+    save_pref_with, AppStateEnvelope, HostResult, WallpaperConfig, WallpaperSelection,
+    DESKTOP_STATE_NAMESPACE,
 };
 use serde::{Deserialize, Serialize};
 
@@ -48,7 +49,7 @@ struct LegacyDesktopSnapshotV1 {
 fn migrate_desktop_snapshot(
     schema_version: u32,
     envelope: &AppStateEnvelope,
-) -> Result<Option<DesktopSnapshot>, String> {
+) -> HostResult<Option<DesktopSnapshot>> {
     match schema_version {
         0 => migrate_envelope_payload(envelope).map(Some),
         1 => {
@@ -82,7 +83,7 @@ pub async fn load_boot_snapshot(_host: &DesktopHostContext) -> Option<DesktopSna
             match load_pref_with(host.prefs_store().as_ref(), TERMINAL_HISTORY_KEY).await {
                 Ok(history) => history,
                 Err(err) => {
-                    leptos::logging::warn!("terminal history compatibility load failed: {err}");
+                    tracing::warn!("terminal history compatibility load failed: {err}");
                     None
                 }
             };
@@ -125,7 +126,7 @@ pub async fn load_durable_boot_snapshot(host: &DesktopHostContext) -> Option<Des
     {
         Ok(snapshot) => snapshot,
         Err(err) => {
-            leptos::logging::warn!("durable boot snapshot load failed: {err}");
+            tracing::warn!("durable boot snapshot load failed: {err}");
             None
         }
     }
@@ -147,7 +148,7 @@ pub fn resolve_restore_preferences(
 pub async fn persist_durable_layout_snapshot(
     host: &DesktopHostContext,
     state: &DesktopState,
-) -> Result<(), String> {
+) -> HostResult<()> {
     let snapshot = state.snapshot();
     let store = host.app_state_store();
     save_app_state_with(
@@ -163,7 +164,7 @@ pub async fn persist_durable_layout_snapshot(
 ///
 /// The current implementation keeps full layout persistence in the configured app-state store and
 /// reserves localStorage for lightweight compatibility/prefs state.
-pub fn persist_layout_snapshot(state: &DesktopState) -> Result<(), String> {
+pub fn persist_layout_snapshot(state: &DesktopState) -> HostResult<()> {
     #[cfg(target_arch = "wasm32")]
     {
         // Full desktop layout is durably persisted in IndexedDB via the configured app-state
@@ -181,7 +182,7 @@ pub fn persist_layout_snapshot(state: &DesktopState) -> Result<(), String> {
 }
 
 /// Persists the desktop theme through typed host prefs storage.
-pub async fn persist_theme(host: &DesktopHostContext, theme: &DesktopTheme) -> Result<(), String> {
+pub async fn persist_theme(host: &DesktopHostContext, theme: &DesktopTheme) -> HostResult<()> {
     save_pref_with(host.prefs_store().as_ref(), THEME_KEY, theme).await
 }
 
@@ -194,7 +195,7 @@ pub async fn load_theme(host: &DesktopHostContext) -> Option<DesktopTheme> {
             reduced_motion: legacy.reduced_motion,
         }),
         Err(err) => {
-            leptos::logging::warn!("desktop theme load failed: {err}");
+            tracing::warn!("desktop theme load failed: {err}");
             None
         }
     }
@@ -204,7 +205,7 @@ pub async fn load_theme(host: &DesktopHostContext) -> Option<DesktopTheme> {
 pub async fn persist_wallpaper(
     host: &DesktopHostContext,
     wallpaper: &WallpaperConfig,
-) -> Result<(), String> {
+) -> HostResult<()> {
     save_pref_with(host.prefs_store().as_ref(), WALLPAPER_KEY, wallpaper).await
 }
 
@@ -219,7 +220,7 @@ pub async fn load_wallpaper(host: &DesktopHostContext) -> Option<WallpaperConfig
             ..WallpaperConfig::default()
         }),
         Err(err) => {
-            leptos::logging::warn!("desktop wallpaper load failed: {err}");
+            tracing::warn!("desktop wallpaper load failed: {err}");
             None
         }
     }
@@ -244,7 +245,7 @@ async fn load_legacy_theme(host: &DesktopHostContext) -> Option<LegacyThemePaylo
     match load_pref_with(host.prefs_store().as_ref(), LEGACY_THEME_KEY).await {
         Ok(value) => value,
         Err(err) => {
-            leptos::logging::warn!("legacy theme compatibility load failed: {err}");
+            tracing::warn!("legacy theme compatibility load failed: {err}");
             None
         }
     }
@@ -254,7 +255,7 @@ async fn load_legacy_theme(host: &DesktopHostContext) -> Option<LegacyThemePaylo
 pub async fn persist_terminal_history(
     host: &DesktopHostContext,
     history: &[String],
-) -> Result<(), String> {
+) -> HostResult<()> {
     save_pref_with(host.prefs_store().as_ref(), TERMINAL_HISTORY_KEY, &history).await
 }
 
@@ -263,7 +264,7 @@ pub async fn load_app_policy_overlay(host: &DesktopHostContext) -> Option<AppPol
     match load_pref_with(host.prefs_store().as_ref(), APP_POLICY_KEY).await {
         Ok(value) => value,
         Err(err) => {
-            leptos::logging::warn!("app policy overlay load failed: {err}");
+            tracing::warn!("app policy overlay load failed: {err}");
             None
         }
     }
@@ -273,7 +274,7 @@ pub async fn load_app_policy_overlay(host: &DesktopHostContext) -> Option<AppPol
 pub async fn persist_app_policy_overlay(
     host: &DesktopHostContext,
     policy: &AppPolicyOverlay,
-) -> Result<(), String> {
+) -> HostResult<()> {
     save_pref_with(host.prefs_store().as_ref(), APP_POLICY_KEY, policy).await
 }
 
