@@ -1,7 +1,7 @@
 use leptos::ev::KeyboardEvent;
 use leptos::*;
 
-use crate::foundation::{merge_layout_class, ButtonVariant};
+use crate::foundation::{merge_layout_class, ButtonVariant, Elevation, SurfaceVariant};
 
 #[component]
 pub fn AppShell(
@@ -14,8 +14,8 @@ pub fn AppShell(
             data-origin-component="app-shell"
             data-ui-primitive="true"
             data-ui-kind="app-shell"
-            data-ui-variant="standard"
-            data-ui-elevation="flat"
+            data-ui-variant=SurfaceVariant::Standard.token()
+            data-ui-elevation=Elevation::Flat.token()
         >
             {children()}
         </div>
@@ -123,6 +123,8 @@ pub fn Taskbar(
             data-origin-component="taskbar"
             data-ui-primitive="true"
             data-ui-kind="taskbar"
+            data-ui-variant=SurfaceVariant::Overlay.token()
+            data-ui-elevation=Elevation::Overlay.token()
             role=role
             aria-label=aria_label
             aria-keyshortcuts=aria_keyshortcuts
@@ -156,6 +158,8 @@ pub fn TaskbarSection(
             data-origin-component="taskbar-section"
             data-ui-primitive="true"
             data-ui-kind="taskbar-section"
+            data-ui-variant=SurfaceVariant::Control.token()
+            data-ui-elevation=Elevation::Raised.token()
             data-ui-slot=ui_slot
             role=role
             aria-label=aria_label
@@ -266,6 +270,7 @@ pub fn SystemTray(
             data-origin-component="system-tray"
             data-ui-primitive="true"
             data-ui-kind="tray-list"
+            data-ui-variant=SurfaceVariant::Control.token()
         >
             {children()}
         </div>

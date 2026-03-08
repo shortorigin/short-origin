@@ -85,7 +85,7 @@ pub fn Grid(
 #[component]
 pub fn Surface(
     #[prop(default = SurfaceVariant::Standard)] variant: SurfaceVariant,
-    #[prop(default = Elevation::Flat)] elevation: Elevation,
+    #[prop(default = Elevation::Embedded)] elevation: Elevation,
     #[prop(default = LayoutPadding::Md)] padding: LayoutPadding,
     #[prop(optional)] layout_class: Option<&'static str>,
     #[prop(optional, into)] role: Option<String>,
@@ -142,6 +142,8 @@ pub fn Panel(
 
 #[component]
 pub fn ListSurface(
+    #[prop(default = SurfaceVariant::Muted)] variant: SurfaceVariant,
+    #[prop(default = Elevation::Raised)] elevation: Elevation,
     #[prop(optional)] layout_class: Option<&'static str>,
     #[prop(optional, into)] role: Option<String>,
     #[prop(optional, into)] aria_label: MaybeSignal<String>,
@@ -153,6 +155,8 @@ pub fn ListSurface(
             data-origin-primitive="list-surface"
             data-ui-primitive="true"
             data-ui-kind="list-surface"
+            data-ui-variant=variant.token()
+            data-ui-elevation=elevation.token()
             role=role
             aria-label=move || aria_label.get()
         >
@@ -216,6 +220,7 @@ pub fn CompletionItem(
 
 #[component]
 pub fn CompletionList(
+    #[prop(default = Elevation::Transient)] elevation: Elevation,
     #[prop(optional)] layout_class: Option<&'static str>,
     #[prop(optional, into)] role: Option<String>,
     #[prop(optional, into)] aria_label: MaybeSignal<String>,
@@ -227,6 +232,7 @@ pub fn CompletionList(
             data-origin-primitive="completion-list"
             data-ui-primitive="true"
             data-ui-kind="completion-list"
+            data-ui-elevation=elevation.token()
             role=role
             aria-label=move || aria_label.get()
         >
@@ -237,6 +243,8 @@ pub fn CompletionList(
 
 #[component]
 pub fn TerminalSurface(
+    #[prop(default = SurfaceVariant::Inset)] variant: SurfaceVariant,
+    #[prop(default = Elevation::Embedded)] elevation: Elevation,
     #[prop(optional)] layout_class: Option<&'static str>,
     #[prop(optional)] node_ref: NodeRef<html::Div>,
     #[prop(optional, into)] role: Option<String>,
@@ -250,6 +258,8 @@ pub fn TerminalSurface(
             data-origin-primitive="terminal-surface"
             data-ui-primitive="true"
             data-ui-kind="terminal-surface"
+            data-ui-variant=variant.token()
+            data-ui-elevation=elevation.token()
             node_ref=node_ref
             role=role
             aria-live=aria_live

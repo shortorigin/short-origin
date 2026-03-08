@@ -1,9 +1,13 @@
 use leptos::*;
 
-use crate::foundation::{bool_token, merge_layout_class, ButtonSize, ButtonVariant};
+use crate::foundation::{
+    bool_token, merge_layout_class, ButtonSize, ButtonVariant, Elevation, SurfaceVariant,
+};
 
 #[component]
 pub fn WindowSurface(
+    #[prop(default = SurfaceVariant::Modal)] variant: SurfaceVariant,
+    #[prop(default = Elevation::Modal)] elevation: Elevation,
     #[prop(optional)] layout_class: Option<&'static str>,
     #[prop(optional, into)] style: MaybeSignal<String>,
     #[prop(optional, into)] focused: MaybeSignal<bool>,
@@ -22,6 +26,8 @@ pub fn WindowSurface(
             data-origin-primitive="window-surface"
             data-ui-primitive="true"
             data-ui-kind="window-surface"
+            data-ui-variant=variant.token()
+            data-ui-elevation=elevation.token()
             data-ui-focused=move || bool_token(focused.get())
             data-ui-minimized=move || bool_token(minimized.get())
             data-ui-maximized=move || bool_token(maximized.get())
@@ -49,6 +55,7 @@ pub fn TitlebarRegion(
             data-origin-primitive="titlebar-region"
             data-ui-primitive="true"
             data-ui-kind="titlebar-region"
+            data-ui-elevation=Elevation::Raised.token()
             on:pointerdown=move |ev| {
                 if let Some(on_pointerdown) = on_pointerdown.as_ref() {
                     on_pointerdown.call(ev);
@@ -109,6 +116,8 @@ pub fn WindowBody(
             data-origin-primitive="window-body"
             data-ui-primitive="true"
             data-ui-kind="window-body"
+            data-ui-variant=SurfaceVariant::Standard.token()
+            data-ui-elevation=Elevation::Embedded.token()
         >
             {children()}
         </div>

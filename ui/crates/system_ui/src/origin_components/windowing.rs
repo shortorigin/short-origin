@@ -1,9 +1,11 @@
 use leptos::*;
 
-use crate::foundation::{bool_token, merge_layout_class};
+use crate::foundation::{bool_token, merge_layout_class, Elevation, SurfaceVariant};
 
 #[component]
 pub fn WindowFrame(
+    #[prop(default = SurfaceVariant::Modal)] variant: SurfaceVariant,
+    #[prop(default = Elevation::Modal)] elevation: Elevation,
     #[prop(optional)] layout_class: Option<&'static str>,
     #[prop(optional, into)] style: MaybeSignal<String>,
     #[prop(optional, into)] aria_label: MaybeSignal<String>,
@@ -22,6 +24,8 @@ pub fn WindowFrame(
             data-origin-component="window-frame"
             data-ui-primitive="true"
             data-ui-kind="window-frame"
+            data-ui-variant=variant.token()
+            data-ui-elevation=elevation.token()
             data-ui-focused=move || bool_token(focused.get())
             data-ui-minimized=move || bool_token(minimized.get())
             data-ui-maximized=move || bool_token(maximized.get())
@@ -49,6 +53,7 @@ pub fn WindowTitleBar(
             data-origin-component="window-titlebar"
             data-ui-primitive="true"
             data-ui-kind="window-titlebar"
+            data-ui-elevation=Elevation::Raised.token()
             on:pointerdown=move |ev| {
                 if let Some(on_pointerdown) = on_pointerdown.as_ref() {
                     on_pointerdown.call(ev);

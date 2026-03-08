@@ -4,7 +4,7 @@ use crate::foundation::{merge_layout_class, Elevation, LayoutPadding};
 
 #[component]
 pub fn Layer(
-    #[prop(default = Elevation::Raised)] elevation: Elevation,
+    #[prop(default = Elevation::Overlay)] elevation: Elevation,
     #[prop(default = LayoutPadding::None)] padding: LayoutPadding,
     #[prop(optional)] layout_class: Option<&'static str>,
     children: Children,

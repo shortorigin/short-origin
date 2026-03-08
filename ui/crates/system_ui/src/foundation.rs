@@ -3,13 +3,19 @@
 /// Semantic surface variants for structural primitives.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum SurfaceVariant {
-    /// Primary surface.
+    /// Primary glass surface.
     #[default]
     Standard,
-    /// Secondary or muted surface.
+    /// Raised glass surface.
     Muted,
-    /// Inset surface.
+    /// Inset or control-adjacent surface.
     Inset,
+    /// Floating overlay surface.
+    Overlay,
+    /// Modal depth surface.
+    Modal,
+    /// Interactive control surface.
+    Control,
 }
 
 impl SurfaceVariant {
@@ -18,6 +24,9 @@ impl SurfaceVariant {
             Self::Standard => "standard",
             Self::Muted => "muted",
             Self::Inset => "inset",
+            Self::Overlay => "overlay",
+            Self::Modal => "modal",
+            Self::Control => "control",
         }
     }
 }
@@ -28,10 +37,16 @@ pub enum Elevation {
     /// Flat surface.
     #[default]
     Flat,
+    /// Embedded glass surface.
+    Embedded,
     /// Raised surface.
     Raised,
-    /// Overlay surface.
+    /// Floating overlay surface.
     Overlay,
+    /// Modal surface.
+    Modal,
+    /// Transient menu/popover surface.
+    Transient,
     /// Inset surface.
     Inset,
     /// Pressed control surface.
@@ -42,8 +57,11 @@ impl Elevation {
     pub(crate) fn token(self) -> &'static str {
         match self {
             Self::Flat => "flat",
+            Self::Embedded => "embedded",
             Self::Raised => "raised",
             Self::Overlay => "overlay",
+            Self::Modal => "modal",
+            Self::Transient => "transient",
             Self::Inset => "inset",
             Self::Pressed => "pressed",
         }
@@ -139,6 +157,8 @@ pub enum FieldVariant {
     Standard,
     /// Inset/editor input.
     Inset,
+    /// Floating/overlay input.
+    Overlay,
 }
 
 impl FieldVariant {
@@ -146,6 +166,7 @@ impl FieldVariant {
         match self {
             Self::Standard => "standard",
             Self::Inset => "inset",
+            Self::Overlay => "overlay",
         }
     }
 }
