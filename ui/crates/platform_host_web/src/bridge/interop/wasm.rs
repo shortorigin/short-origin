@@ -6,7 +6,10 @@ use serde_wasm_bindgen::{from_value, Serializer};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 
-use platform_host::ExplorerPermissionMode;
+use platform_host::{
+    CacheErrorKind, ExplorerPermissionMode, ExternalUrlErrorKind, FsErrorKind, HostError,
+    HostResult, NotificationErrorKind, StorageErrorKind,
+};
 
 #[wasm_bindgen(inline_js = r#"
 const DB_NAME = 'retrodesk_os';
@@ -971,6 +974,24 @@ async fn await_promise(promise: Promise) -> Result<JsValue, String> {
     JsFuture::from(promise).await.map_err(js_error_to_string)
 }
 
+fn storage_error(kind: StorageErrorKind, operation: &str, detail: impl Into<String>) -> HostError {
+    HostError::storage(kind, "Browser storage request failed")
+        .with_operation(operation)
+        .with_internal(detail.into())
+}
+
+fn cache_error(kind: CacheErrorKind, operation: &str, detail: impl Into<String>) -> HostError {
+    HostError::cache(kind, "Browser cache request failed")
+        .with_operation(operation)
+        .with_internal(detail.into())
+}
+
+fn fs_error(kind: FsErrorKind, operation: &str, detail: impl Into<String>) -> HostError {
+    HostError::fs(kind, "Browser filesystem request failed")
+        .with_operation(operation)
+        .with_internal(detail.into())
+}
+
 fn js_error_to_string(err: JsValue) -> String {
     if let Some(text) = err.as_string() {
         return text;
@@ -999,129 +1020,207 @@ async fn promise_to_optional_json<T: DeserializeOwned>(
     }
 }
 
-pub async fn load_app_state_envelope(namespace: &str) -> Result<Option<AppStateEnvelope>, String> {
-    promise_to_optional_json(js_app_state_load(namespace)).await
+pub async fn load_app_state_envelope(namespace: &str) -> HostResult<Option<AppStateEnvelope>> {
+    promise_to_optional_json(js_app_state_load(namespace))
+        .await
+        .map_err(|err| storage_error(StorageErrorKind::Load, "app_state.load", err))
 }
 
-pub async fn save_app_state_envelope(envelope: &AppStateEnvelope) -> Result<(), String> {
+pub async fn save_app_state_envelope(envelope: &AppStateEnvelope) -> HostResult<()> {
     let value = envelope
         .serialize(&Serializer::json_compatible())
-        .map_err(|e| e.to_string())?;
-    let _ = await_promise(js_app_state_save(value)).await?;
+        .map_err(|err| {
+            storage_error(
+                StorageErrorKind::Serialize,
+                "app_state.save",
+                err.to_string(),
+            )
+        })?;
+    let _ = await_promise(js_app_state_save(value))
+        .await
+        .map_err(|err| storage_error(StorageErrorKind::Save, "app_state.save", err))?;
     Ok(())
 }
 
-pub async fn delete_app_state(namespace: &str) -> Result<(), String> {
-    let _ = await_promise(js_app_state_delete(namespace)).await?;
+pub async fn delete_app_state(namespace: &str) -> HostResult<()> {
+    let _ = await_promise(js_app_state_delete(namespace))
+        .await
+        .map_err(|err| storage_error(StorageErrorKind::Delete, "app_state.delete", err))?;
     Ok(())
 }
 
-pub async fn list_app_state_namespaces() -> Result<Vec<String>, String> {
-    promise_to_json(js_app_state_namespaces()).await
+pub async fn list_app_state_namespaces() -> HostResult<Vec<String>> {
+    promise_to_json(js_app_state_namespaces())
+        .await
+        .map_err(|err| storage_error(StorageErrorKind::List, "app_state.list", err))
 }
 
-pub async fn load_pref(key: &str) -> Result<Option<String>, String> {
-    let value = await_promise(js_prefs_load(key)).await?;
+pub async fn load_pref(key: &str) -> HostResult<Option<String>> {
+    let value = await_promise(js_prefs_load(key))
+        .await
+        .map_err(|err| storage_error(StorageErrorKind::Load, "prefs.load", err))?;
     if value.is_null() || value.is_undefined() {
         Ok(None)
     } else {
-        value
-            .as_string()
-            .map(Some)
-            .ok_or_else(|| "Prefs API returned non-string payload".to_string())
+        value.as_string().map(Some).ok_or_else(|| {
+            storage_error(
+                StorageErrorKind::Deserialize,
+                "prefs.load",
+                "Prefs API returned non-string payload",
+            )
+        })
     }
 }
 
-pub async fn save_pref(key: &str, raw_json: &str) -> Result<(), String> {
-    let _ = await_promise(js_prefs_save(key, raw_json)).await?;
+pub async fn save_pref(key: &str, raw_json: &str) -> HostResult<()> {
+    let _ = await_promise(js_prefs_save(key, raw_json))
+        .await
+        .map_err(|err| storage_error(StorageErrorKind::Save, "prefs.save", err))?;
     Ok(())
 }
 
-pub async fn delete_pref(key: &str) -> Result<(), String> {
-    let _ = await_promise(js_prefs_delete(key)).await?;
+pub async fn delete_pref(key: &str) -> HostResult<()> {
+    let _ = await_promise(js_prefs_delete(key))
+        .await
+        .map_err(|err| storage_error(StorageErrorKind::Delete, "prefs.delete", err))?;
     Ok(())
 }
 
-pub async fn cache_put_text(cache_name: &str, key: &str, value: &str) -> Result<(), String> {
-    let _ = await_promise(js_cache_put_text(cache_name, key, value)).await?;
+pub async fn cache_put_text(cache_name: &str, key: &str, value: &str) -> HostResult<()> {
+    let _ = await_promise(js_cache_put_text(cache_name, key, value))
+        .await
+        .map_err(|err| cache_error(CacheErrorKind::Put, "cache.put", err))?;
     Ok(())
 }
 
-pub async fn cache_get_text(cache_name: &str, key: &str) -> Result<Option<String>, String> {
-    let value = await_promise(js_cache_get_text(cache_name, key)).await?;
+pub async fn cache_get_text(cache_name: &str, key: &str) -> HostResult<Option<String>> {
+    let value = await_promise(js_cache_get_text(cache_name, key))
+        .await
+        .map_err(|err| cache_error(CacheErrorKind::Get, "cache.get", err))?;
     if value.is_null() || value.is_undefined() {
         Ok(None)
     } else {
-        value
-            .as_string()
-            .map(Some)
-            .ok_or_else(|| "Cache API returned non-string payload".to_string())
+        value.as_string().map(Some).ok_or_else(|| {
+            cache_error(
+                CacheErrorKind::Deserialize,
+                "cache.get",
+                "Cache API returned non-string payload",
+            )
+        })
     }
 }
 
-pub async fn cache_delete(cache_name: &str, key: &str) -> Result<(), String> {
-    let _ = await_promise(js_cache_delete(cache_name, key)).await?;
+pub async fn cache_delete(cache_name: &str, key: &str) -> HostResult<()> {
+    let _ = await_promise(js_cache_delete(cache_name, key))
+        .await
+        .map_err(|err| cache_error(CacheErrorKind::Delete, "cache.delete", err))?;
     Ok(())
 }
 
-pub async fn explorer_status() -> Result<ExplorerBackendStatus, String> {
-    promise_to_json(js_explorer_status()).await
+pub async fn explorer_status() -> HostResult<ExplorerBackendStatus> {
+    promise_to_json(js_explorer_status())
+        .await
+        .map_err(|err| fs_error(FsErrorKind::Status, "explorer.status", err))
 }
 
-pub async fn explorer_pick_native_directory() -> Result<ExplorerBackendStatus, String> {
-    promise_to_json(js_explorer_pick_native_directory()).await
+pub async fn explorer_pick_native_directory() -> HostResult<ExplorerBackendStatus> {
+    promise_to_json(js_explorer_pick_native_directory())
+        .await
+        .map_err(|err| {
+            fs_error(
+                FsErrorKind::Permission,
+                "explorer.pick_native_directory",
+                err,
+            )
+        })
 }
 
 pub async fn explorer_request_permission(
     mode: ExplorerPermissionMode,
-) -> Result<ExplorerPermissionState, String> {
+) -> HostResult<ExplorerPermissionState> {
     let mode = match mode {
         ExplorerPermissionMode::Read => "read",
         ExplorerPermissionMode::Readwrite => "readwrite",
     };
-    promise_to_json(js_explorer_request_permission(mode)).await
+    promise_to_json(js_explorer_request_permission(mode))
+        .await
+        .map_err(|err| fs_error(FsErrorKind::Permission, "explorer.request_permission", err))
 }
 
-pub async fn explorer_list_dir(path: &str) -> Result<ExplorerListResult, String> {
-    promise_to_json(js_explorer_list_dir(path)).await
+pub async fn explorer_list_dir(path: &str) -> HostResult<ExplorerListResult> {
+    promise_to_json(js_explorer_list_dir(path))
+        .await
+        .map_err(|err| fs_error(FsErrorKind::Read, "explorer.list_dir", err))
 }
 
-pub async fn explorer_read_text_file(path: &str) -> Result<ExplorerFileReadResult, String> {
-    promise_to_json(js_explorer_read_text_file(path)).await
+pub async fn explorer_read_text_file(path: &str) -> HostResult<ExplorerFileReadResult> {
+    promise_to_json(js_explorer_read_text_file(path))
+        .await
+        .map_err(|err| fs_error(FsErrorKind::Read, "explorer.read_text_file", err))
 }
 
-pub async fn explorer_write_text_file(path: &str, text: &str) -> Result<ExplorerMetadata, String> {
-    promise_to_json(js_explorer_write_text_file(path, text)).await
+pub async fn explorer_write_text_file(path: &str, text: &str) -> HostResult<ExplorerMetadata> {
+    promise_to_json(js_explorer_write_text_file(path, text))
+        .await
+        .map_err(|err| fs_error(FsErrorKind::Write, "explorer.write_text_file", err))
 }
 
-pub async fn explorer_create_dir(path: &str) -> Result<ExplorerMetadata, String> {
-    promise_to_json(js_explorer_create_dir(path)).await
+pub async fn explorer_create_dir(path: &str) -> HostResult<ExplorerMetadata> {
+    promise_to_json(js_explorer_create_dir(path))
+        .await
+        .map_err(|err| fs_error(FsErrorKind::Create, "explorer.create_dir", err))
 }
 
-pub async fn explorer_create_file(path: &str, text: &str) -> Result<ExplorerMetadata, String> {
-    promise_to_json(js_explorer_create_file(path, text)).await
+pub async fn explorer_create_file(path: &str, text: &str) -> HostResult<ExplorerMetadata> {
+    promise_to_json(js_explorer_create_file(path, text))
+        .await
+        .map_err(|err| fs_error(FsErrorKind::Create, "explorer.create_file", err))
 }
 
-pub async fn explorer_delete(path: &str, recursive: bool) -> Result<(), String> {
-    let _ = await_promise(js_explorer_delete(path, recursive)).await?;
+pub async fn explorer_delete(path: &str, recursive: bool) -> HostResult<()> {
+    let _ = await_promise(js_explorer_delete(path, recursive))
+        .await
+        .map_err(|err| fs_error(FsErrorKind::Delete, "explorer.delete", err))?;
     Ok(())
 }
 
-pub async fn explorer_stat(path: &str) -> Result<ExplorerMetadata, String> {
-    promise_to_json(js_explorer_stat(path)).await
+pub async fn explorer_stat(path: &str) -> HostResult<ExplorerMetadata> {
+    promise_to_json(js_explorer_stat(path))
+        .await
+        .map_err(|err| fs_error(FsErrorKind::Stat, "explorer.stat", err))
 }
 
 #[allow(dead_code)]
-pub async fn explorer_clear_native_root() -> Result<ExplorerBackendStatus, String> {
-    promise_to_json(js_explorer_clear_native_root()).await
+pub async fn explorer_clear_native_root() -> HostResult<ExplorerBackendStatus> {
+    promise_to_json(js_explorer_clear_native_root())
+        .await
+        .map_err(|err| fs_error(FsErrorKind::Permission, "explorer.clear_native_root", err))
 }
 
-pub async fn open_external_url(url: &str) -> Result<(), String> {
-    let _ = await_promise(js_open_external_url(url)).await?;
+pub async fn open_external_url(url: &str) -> HostResult<()> {
+    let _ = await_promise(js_open_external_url(url))
+        .await
+        .map_err(|err| {
+            HostError::external_url(
+                ExternalUrlErrorKind::Open,
+                "External URL could not be opened",
+            )
+            .with_operation("external_url.open")
+            .with_internal(err)
+        })?;
     Ok(())
 }
 
-pub async fn send_notification(title: &str, body: &str) -> Result<(), String> {
-    let _ = await_promise(js_notify_send(title, body)).await?;
+pub async fn send_notification(title: &str, body: &str) -> HostResult<()> {
+    let _ = await_promise(js_notify_send(title, body))
+        .await
+        .map_err(|err| {
+            HostError::notification(
+                NotificationErrorKind::Dispatch,
+                "Notification could not be delivered",
+            )
+            .with_operation("notification.notify")
+            .with_internal(err)
+        })?;
     Ok(())
 }

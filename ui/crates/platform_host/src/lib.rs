@@ -12,6 +12,7 @@
 #![warn(missing_docs, rustdoc::broken_intra_doc_links)]
 
 pub mod cache;
+pub mod error;
 pub mod external_url;
 pub mod fs;
 pub mod host;
@@ -25,6 +26,10 @@ pub mod wallpaper;
 pub use cache::{
     cache_get_json_with, cache_put_json_with, ContentCache, ContentCacheFuture, MemoryContentCache,
     NoopContentCache,
+};
+pub use error::{
+    CacheErrorKind, ExternalUrlErrorKind, FsErrorKind, HostError, HostErrorKind, HostResult,
+    NotificationErrorKind, StorageErrorKind, TerminalProcessErrorKind, WallpaperErrorKind,
 };
 pub use external_url::{ExternalUrlFuture, ExternalUrlService, NoopExternalUrlService};
 pub use fs::path::normalize_virtual_path;

@@ -3,17 +3,14 @@
 //! This store uses the bridge interop layer, which routes preference calls to Tauri commands
 //! when available in desktop webview contexts.
 
-use platform_host::{PrefsStore, PrefsStoreFuture};
+use platform_host::{HostResult, PrefsStore, PrefsStoreFuture};
 
 #[derive(Debug, Clone, Copy, Default)]
 /// Desktop preference store backed by Tauri command transport.
 pub struct TauriPrefsStore;
 
 impl PrefsStore for TauriPrefsStore {
-    fn load_pref<'a>(
-        &'a self,
-        key: &'a str,
-    ) -> PrefsStoreFuture<'a, Result<Option<String>, String>> {
+    fn load_pref<'a>(&'a self, key: &'a str) -> PrefsStoreFuture<'a, HostResult<Option<String>>> {
         Box::pin(async move { crate::bridge::load_pref(key).await })
     }
 
@@ -21,11 +18,11 @@ impl PrefsStore for TauriPrefsStore {
         &'a self,
         key: &'a str,
         raw_json: &'a str,
-    ) -> PrefsStoreFuture<'a, Result<(), String>> {
+    ) -> PrefsStoreFuture<'a, HostResult<()>> {
         Box::pin(async move { crate::bridge::save_pref(key, raw_json).await })
     }
 
-    fn delete_pref<'a>(&'a self, key: &'a str) -> PrefsStoreFuture<'a, Result<(), String>> {
+    fn delete_pref<'a>(&'a self, key: &'a str) -> PrefsStoreFuture<'a, HostResult<()>> {
         Box::pin(async move { crate::bridge::delete_pref(key).await })
     }
 }

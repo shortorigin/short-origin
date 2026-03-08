@@ -1,7 +1,7 @@
 //! Notification host-service adapters for browser and desktop-webview contexts.
 
 use crate::bridge;
-use platform_host::{NotificationFuture, NotificationService};
+use platform_host::{HostResult, NotificationFuture, NotificationService};
 
 #[derive(Debug, Clone, Copy, Default)]
 /// Browser notification adapter backed by the Web Notifications API.
@@ -12,7 +12,7 @@ impl NotificationService for WebNotificationService {
         &'a self,
         title: &'a str,
         body: &'a str,
-    ) -> NotificationFuture<'a, Result<(), String>> {
+    ) -> NotificationFuture<'a, HostResult<()>> {
         Box::pin(async move {
             #[cfg(target_arch = "wasm32")]
             {
@@ -22,9 +22,16 @@ impl NotificationService for WebNotificationService {
                 } else {
                     format!("{title}: {body}")
                 };
-                return web_sys::Notification::new(&rendered)
-                    .map(|_| ())
-                    .map_err(|err: JsValue| format!("notification dispatch failed: {err:?}"));
+                return web_sys::Notification::new(&rendered).map(|_| ()).map_err(
+                    |err: JsValue| {
+                        platform_host::HostError::notification(
+                            platform_host::NotificationErrorKind::Dispatch,
+                            "Notification could not be delivered",
+                        )
+                        .with_operation("notification.notify")
+                        .with_internal(format!("{err:?}"))
+                    },
+                );
             }
 
             #[cfg(not(target_arch = "wasm32"))]
@@ -45,7 +52,7 @@ impl NotificationService for TauriNotificationService {
         &'a self,
         title: &'a str,
         body: &'a str,
-    ) -> NotificationFuture<'a, Result<(), String>> {
+    ) -> NotificationFuture<'a, HostResult<()>> {
         Box::pin(async move { bridge::send_notification(title, body).await })
     }
 }

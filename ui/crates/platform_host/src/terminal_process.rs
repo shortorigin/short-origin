@@ -2,6 +2,8 @@
 
 use std::{future::Future, pin::Pin};
 
+use crate::{HostError, HostResult, TerminalProcessErrorKind};
+
 /// Stable identifier for one host terminal-process session.
 pub type TerminalSessionId = u64;
 
@@ -49,25 +51,25 @@ pub trait TerminalProcessService {
     fn spawn<'a>(
         &'a self,
         cwd: &'a str,
-    ) -> TerminalProcessFuture<'a, Result<TerminalSessionId, String>>;
+    ) -> TerminalProcessFuture<'a, HostResult<TerminalSessionId>>;
 
     /// Writes text into a running terminal-process session.
     fn write<'a>(
         &'a self,
         request: TerminalWriteRequest,
-    ) -> TerminalProcessFuture<'a, Result<(), String>>;
+    ) -> TerminalProcessFuture<'a, HostResult<()>>;
 
     /// Resizes a running terminal-process session.
     fn resize<'a>(
         &'a self,
         request: TerminalResizeRequest,
-    ) -> TerminalProcessFuture<'a, Result<(), String>>;
+    ) -> TerminalProcessFuture<'a, HostResult<()>>;
 
     /// Cancels a running terminal-process session.
     fn cancel<'a>(
         &'a self,
         session_id: TerminalSessionId,
-    ) -> TerminalProcessFuture<'a, Result<(), String>>;
+    ) -> TerminalProcessFuture<'a, HostResult<()>>;
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -78,28 +80,52 @@ impl TerminalProcessService for NoopTerminalProcessService {
     fn spawn<'a>(
         &'a self,
         _cwd: &'a str,
-    ) -> TerminalProcessFuture<'a, Result<TerminalSessionId, String>> {
-        Box::pin(async { Err("terminal process unavailable: spawn".to_string()) })
+    ) -> TerminalProcessFuture<'a, HostResult<TerminalSessionId>> {
+        Box::pin(async {
+            Err(HostError::terminal_process(
+                TerminalProcessErrorKind::Unsupported,
+                "Terminal process support is unavailable",
+            )
+            .with_operation("terminal.spawn"))
+        })
     }
 
     fn write<'a>(
         &'a self,
         _request: TerminalWriteRequest,
-    ) -> TerminalProcessFuture<'a, Result<(), String>> {
-        Box::pin(async { Err("terminal process unavailable: write".to_string()) })
+    ) -> TerminalProcessFuture<'a, HostResult<()>> {
+        Box::pin(async {
+            Err(HostError::terminal_process(
+                TerminalProcessErrorKind::Unsupported,
+                "Terminal process support is unavailable",
+            )
+            .with_operation("terminal.write"))
+        })
     }
 
     fn resize<'a>(
         &'a self,
         _request: TerminalResizeRequest,
-    ) -> TerminalProcessFuture<'a, Result<(), String>> {
-        Box::pin(async { Err("terminal process unavailable: resize".to_string()) })
+    ) -> TerminalProcessFuture<'a, HostResult<()>> {
+        Box::pin(async {
+            Err(HostError::terminal_process(
+                TerminalProcessErrorKind::Unsupported,
+                "Terminal process support is unavailable",
+            )
+            .with_operation("terminal.resize"))
+        })
     }
 
     fn cancel<'a>(
         &'a self,
         _session_id: TerminalSessionId,
-    ) -> TerminalProcessFuture<'a, Result<(), String>> {
-        Box::pin(async { Err("terminal process unavailable: cancel".to_string()) })
+    ) -> TerminalProcessFuture<'a, HostResult<()>> {
+        Box::pin(async {
+            Err(HostError::terminal_process(
+                TerminalProcessErrorKind::Unsupported,
+                "Terminal process support is unavailable",
+            )
+            .with_operation("terminal.cancel"))
+        })
     }
 }

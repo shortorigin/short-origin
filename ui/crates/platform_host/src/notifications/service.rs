@@ -2,6 +2,8 @@
 
 use std::{future::Future, pin::Pin};
 
+use crate::HostResult;
+
 /// Object-safe boxed future used by [`NotificationService`].
 pub type NotificationFuture<'a, T> = Pin<Box<dyn Future<Output = T> + 'a>>;
 
@@ -12,7 +14,7 @@ pub trait NotificationService {
         &'a self,
         title: &'a str,
         body: &'a str,
-    ) -> NotificationFuture<'a, Result<(), String>>;
+    ) -> NotificationFuture<'a, HostResult<()>>;
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -24,7 +26,7 @@ impl NotificationService for NoopNotificationService {
         &'a self,
         _title: &'a str,
         _body: &'a str,
-    ) -> NotificationFuture<'a, Result<(), String>> {
+    ) -> NotificationFuture<'a, HostResult<()>> {
         Box::pin(async { Ok(()) })
     }
 }

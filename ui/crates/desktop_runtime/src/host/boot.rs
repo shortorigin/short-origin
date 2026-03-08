@@ -1,4 +1,4 @@
-use leptos::{create_effect, logging, spawn_local, Callable, Callback};
+use leptos::{create_effect, spawn_local, Callable, Callback};
 
 use crate::{
     current_browser_e2e_config, host::DesktopHostContext, persistence, reducer::DesktopAction,
@@ -54,7 +54,7 @@ pub(super) fn install_boot_hydration(host: DesktopHostContext, dispatch: Callbac
                         persistence::persist_durable_layout_snapshot(&boot_host, &migrated_state)
                             .await
                     {
-                        logging::warn!("migrate legacy snapshot to durable store failed: {err}");
+                        tracing::warn!("migrate legacy snapshot to durable store failed: {err}");
                     }
                 }
             }
@@ -68,7 +68,7 @@ pub(super) fn install_boot_hydration(host: DesktopHostContext, dispatch: Callbac
                 Ok(snapshot) => {
                     dispatch.call(DesktopAction::WallpaperLibraryLoaded { snapshot });
                 }
-                Err(err) => logging::warn!("wallpaper library load failed: {err}"),
+                Err(err) => tracing::warn!("wallpaper library load failed: {err}"),
             }
         });
     });

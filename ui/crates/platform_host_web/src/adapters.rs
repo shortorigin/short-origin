@@ -10,10 +10,10 @@ use platform_host::{
     AppStateEnvelope, AppStateStore, AppStateStoreFuture, ContentCache, ContentCacheFuture,
     ExplorerBackendStatus, ExplorerFileReadResult, ExplorerFsFuture, ExplorerFsService,
     ExplorerListResult, ExplorerMetadata, ExplorerPermissionMode, ExplorerPermissionState,
-    ExternalUrlFuture, ExternalUrlService, HostCapabilities, HostServices, HostStrategy,
-    NoopAppStateStore, NoopContentCache, NoopExplorerFsService, NoopExternalUrlService,
-    NoopNotificationService, NoopPrefsStore, NoopWallpaperAssetService, NotificationFuture,
-    NotificationService, PrefsStore, PrefsStoreFuture, ResolvedWallpaperSource,
+    ExternalUrlFuture, ExternalUrlService, HostCapabilities, HostResult, HostServices,
+    HostStrategy, NoopAppStateStore, NoopContentCache, NoopExplorerFsService,
+    NoopExternalUrlService, NoopNotificationService, NoopPrefsStore, NoopWallpaperAssetService,
+    NotificationFuture, NotificationService, PrefsStore, PrefsStoreFuture, ResolvedWallpaperSource,
     WallpaperAssetDeleteResult, WallpaperAssetFuture, WallpaperAssetMetadataPatch,
     WallpaperAssetRecord, WallpaperAssetService, WallpaperCollection,
     WallpaperCollectionDeleteResult, WallpaperImportRequest, WallpaperImportResult,
@@ -56,7 +56,7 @@ impl AppStateStore for AppStateStoreAdapter {
     fn load_app_state_envelope<'a>(
         &'a self,
         namespace: &'a str,
-    ) -> AppStateStoreFuture<'a, Result<Option<AppStateEnvelope>, String>> {
+    ) -> AppStateStoreFuture<'a, HostResult<Option<AppStateEnvelope>>> {
         match self {
             Self::Browser(store) => store.load_app_state_envelope(namespace),
             Self::DesktopTauri(store) => store.load_app_state_envelope(namespace),
@@ -67,7 +67,7 @@ impl AppStateStore for AppStateStoreAdapter {
     fn save_app_state_envelope<'a>(
         &'a self,
         envelope: &'a AppStateEnvelope,
-    ) -> AppStateStoreFuture<'a, Result<(), String>> {
+    ) -> AppStateStoreFuture<'a, HostResult<()>> {
         match self {
             Self::Browser(store) => store.save_app_state_envelope(envelope),
             Self::DesktopTauri(store) => store.save_app_state_envelope(envelope),
@@ -78,7 +78,7 @@ impl AppStateStore for AppStateStoreAdapter {
     fn delete_app_state<'a>(
         &'a self,
         namespace: &'a str,
-    ) -> AppStateStoreFuture<'a, Result<(), String>> {
+    ) -> AppStateStoreFuture<'a, HostResult<()>> {
         match self {
             Self::Browser(store) => store.delete_app_state(namespace),
             Self::DesktopTauri(store) => store.delete_app_state(namespace),
@@ -86,9 +86,7 @@ impl AppStateStore for AppStateStoreAdapter {
         }
     }
 
-    fn list_app_state_namespaces<'a>(
-        &'a self,
-    ) -> AppStateStoreFuture<'a, Result<Vec<String>, String>> {
+    fn list_app_state_namespaces<'a>(&'a self) -> AppStateStoreFuture<'a, HostResult<Vec<String>>> {
         match self {
             Self::Browser(store) => store.list_app_state_namespaces(),
             Self::DesktopTauri(store) => store.list_app_state_namespaces(),
@@ -114,7 +112,7 @@ impl ContentCache for ContentCacheAdapter {
         cache_name: &'a str,
         key: &'a str,
         value: &'a str,
-    ) -> ContentCacheFuture<'a, Result<(), String>> {
+    ) -> ContentCacheFuture<'a, HostResult<()>> {
         match self {
             Self::Browser(store) => store.put_text(cache_name, key, value),
             Self::DesktopTauri(store) => store.put_text(cache_name, key, value),
@@ -126,7 +124,7 @@ impl ContentCache for ContentCacheAdapter {
         &'a self,
         cache_name: &'a str,
         key: &'a str,
-    ) -> ContentCacheFuture<'a, Result<Option<String>, String>> {
+    ) -> ContentCacheFuture<'a, HostResult<Option<String>>> {
         match self {
             Self::Browser(store) => store.get_text(cache_name, key),
             Self::DesktopTauri(store) => store.get_text(cache_name, key),
@@ -138,7 +136,7 @@ impl ContentCache for ContentCacheAdapter {
         &'a self,
         cache_name: &'a str,
         key: &'a str,
-    ) -> ContentCacheFuture<'a, Result<(), String>> {
+    ) -> ContentCacheFuture<'a, HostResult<()>> {
         match self {
             Self::Browser(store) => store.delete(cache_name, key),
             Self::DesktopTauri(store) => store.delete(cache_name, key),
@@ -160,7 +158,7 @@ pub enum ExplorerFsServiceAdapter {
 }
 
 impl ExplorerFsService for ExplorerFsServiceAdapter {
-    fn status<'a>(&'a self) -> ExplorerFsFuture<'a, Result<ExplorerBackendStatus, String>> {
+    fn status<'a>(&'a self) -> ExplorerFsFuture<'a, HostResult<ExplorerBackendStatus>> {
         match self {
             Self::Browser(store) => store.status(),
             Self::DesktopTauri(store) => store.status(),
@@ -170,7 +168,7 @@ impl ExplorerFsService for ExplorerFsServiceAdapter {
 
     fn pick_native_directory<'a>(
         &'a self,
-    ) -> ExplorerFsFuture<'a, Result<ExplorerBackendStatus, String>> {
+    ) -> ExplorerFsFuture<'a, HostResult<ExplorerBackendStatus>> {
         match self {
             Self::Browser(store) => store.pick_native_directory(),
             Self::DesktopTauri(store) => store.pick_native_directory(),
@@ -181,7 +179,7 @@ impl ExplorerFsService for ExplorerFsServiceAdapter {
     fn request_permission<'a>(
         &'a self,
         mode: ExplorerPermissionMode,
-    ) -> ExplorerFsFuture<'a, Result<ExplorerPermissionState, String>> {
+    ) -> ExplorerFsFuture<'a, HostResult<ExplorerPermissionState>> {
         match self {
             Self::Browser(store) => store.request_permission(mode),
             Self::DesktopTauri(store) => store.request_permission(mode),
@@ -192,7 +190,7 @@ impl ExplorerFsService for ExplorerFsServiceAdapter {
     fn list_dir<'a>(
         &'a self,
         path: &'a str,
-    ) -> ExplorerFsFuture<'a, Result<ExplorerListResult, String>> {
+    ) -> ExplorerFsFuture<'a, HostResult<ExplorerListResult>> {
         match self {
             Self::Browser(store) => store.list_dir(path),
             Self::DesktopTauri(store) => store.list_dir(path),
@@ -203,7 +201,7 @@ impl ExplorerFsService for ExplorerFsServiceAdapter {
     fn read_text_file<'a>(
         &'a self,
         path: &'a str,
-    ) -> ExplorerFsFuture<'a, Result<ExplorerFileReadResult, String>> {
+    ) -> ExplorerFsFuture<'a, HostResult<ExplorerFileReadResult>> {
         match self {
             Self::Browser(store) => store.read_text_file(path),
             Self::DesktopTauri(store) => store.read_text_file(path),
@@ -215,7 +213,7 @@ impl ExplorerFsService for ExplorerFsServiceAdapter {
         &'a self,
         path: &'a str,
         text: &'a str,
-    ) -> ExplorerFsFuture<'a, Result<ExplorerMetadata, String>> {
+    ) -> ExplorerFsFuture<'a, HostResult<ExplorerMetadata>> {
         match self {
             Self::Browser(store) => store.write_text_file(path, text),
             Self::DesktopTauri(store) => store.write_text_file(path, text),
@@ -226,7 +224,7 @@ impl ExplorerFsService for ExplorerFsServiceAdapter {
     fn create_dir<'a>(
         &'a self,
         path: &'a str,
-    ) -> ExplorerFsFuture<'a, Result<ExplorerMetadata, String>> {
+    ) -> ExplorerFsFuture<'a, HostResult<ExplorerMetadata>> {
         match self {
             Self::Browser(store) => store.create_dir(path),
             Self::DesktopTauri(store) => store.create_dir(path),
@@ -238,7 +236,7 @@ impl ExplorerFsService for ExplorerFsServiceAdapter {
         &'a self,
         path: &'a str,
         text: &'a str,
-    ) -> ExplorerFsFuture<'a, Result<ExplorerMetadata, String>> {
+    ) -> ExplorerFsFuture<'a, HostResult<ExplorerMetadata>> {
         match self {
             Self::Browser(store) => store.create_file(path, text),
             Self::DesktopTauri(store) => store.create_file(path, text),
@@ -250,7 +248,7 @@ impl ExplorerFsService for ExplorerFsServiceAdapter {
         &'a self,
         path: &'a str,
         recursive: bool,
-    ) -> ExplorerFsFuture<'a, Result<(), String>> {
+    ) -> ExplorerFsFuture<'a, HostResult<()>> {
         match self {
             Self::Browser(store) => store.delete(path, recursive),
             Self::DesktopTauri(store) => store.delete(path, recursive),
@@ -258,7 +256,7 @@ impl ExplorerFsService for ExplorerFsServiceAdapter {
         }
     }
 
-    fn stat<'a>(&'a self, path: &'a str) -> ExplorerFsFuture<'a, Result<ExplorerMetadata, String>> {
+    fn stat<'a>(&'a self, path: &'a str) -> ExplorerFsFuture<'a, HostResult<ExplorerMetadata>> {
         match self {
             Self::Browser(store) => store.stat(path),
             Self::DesktopTauri(store) => store.stat(path),
@@ -279,7 +277,7 @@ pub enum ExternalUrlServiceAdapter {
 }
 
 impl ExternalUrlService for ExternalUrlServiceAdapter {
-    fn open_url<'a>(&'a self, url: &'a str) -> ExternalUrlFuture<'a, Result<(), String>> {
+    fn open_url<'a>(&'a self, url: &'a str) -> ExternalUrlFuture<'a, HostResult<()>> {
         match self {
             Self::Browser(service) => service.open_url(url),
             Self::DesktopTauri(service) => service.open_url(url),
@@ -302,10 +300,7 @@ pub enum PrefsStoreAdapter {
 impl PrefsStoreAdapter {}
 
 impl PrefsStore for PrefsStoreAdapter {
-    fn load_pref<'a>(
-        &'a self,
-        key: &'a str,
-    ) -> PrefsStoreFuture<'a, Result<Option<String>, String>> {
+    fn load_pref<'a>(&'a self, key: &'a str) -> PrefsStoreFuture<'a, HostResult<Option<String>>> {
         match self {
             Self::Browser(store) => store.load_pref(key),
             Self::DesktopTauri(store) => store.load_pref(key),
@@ -317,7 +312,7 @@ impl PrefsStore for PrefsStoreAdapter {
         &'a self,
         key: &'a str,
         raw_json: &'a str,
-    ) -> PrefsStoreFuture<'a, Result<(), String>> {
+    ) -> PrefsStoreFuture<'a, HostResult<()>> {
         match self {
             Self::Browser(store) => store.save_pref(key, raw_json),
             Self::DesktopTauri(store) => store.save_pref(key, raw_json),
@@ -325,7 +320,7 @@ impl PrefsStore for PrefsStoreAdapter {
         }
     }
 
-    fn delete_pref<'a>(&'a self, key: &'a str) -> PrefsStoreFuture<'a, Result<(), String>> {
+    fn delete_pref<'a>(&'a self, key: &'a str) -> PrefsStoreFuture<'a, HostResult<()>> {
         match self {
             Self::Browser(store) => store.delete_pref(key),
             Self::DesktopTauri(store) => store.delete_pref(key),
@@ -351,7 +346,7 @@ impl NotificationService for NotificationServiceAdapter {
         &'a self,
         title: &'a str,
         body: &'a str,
-    ) -> NotificationFuture<'a, Result<(), String>> {
+    ) -> NotificationFuture<'a, HostResult<()>> {
         match self {
             Self::Browser(service) => service.notify(title, body),
             Self::DesktopTauri(service) => service.notify(title, body),
@@ -376,7 +371,7 @@ impl WallpaperAssetService for WallpaperAssetServiceAdapter {
     fn import_from_picker<'a>(
         &'a self,
         request: WallpaperImportRequest,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperImportResult, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperImportResult>> {
         match self {
             Self::Browser(service) | Self::DesktopTauri(service) => {
                 service.import_from_picker(request)
@@ -387,7 +382,7 @@ impl WallpaperAssetService for WallpaperAssetServiceAdapter {
 
     fn list_library<'a>(
         &'a self,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperLibrarySnapshot, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperLibrarySnapshot>> {
         match self {
             Self::Browser(service) | Self::DesktopTauri(service) => service.list_library(),
             Self::DesktopStub(service) => service.list_library(),
@@ -398,7 +393,7 @@ impl WallpaperAssetService for WallpaperAssetServiceAdapter {
         &'a self,
         asset_id: &'a str,
         patch: WallpaperAssetMetadataPatch,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperAssetRecord, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperAssetRecord>> {
         match self {
             Self::Browser(service) | Self::DesktopTauri(service) => {
                 service.update_asset_metadata(asset_id, patch)
@@ -410,7 +405,7 @@ impl WallpaperAssetService for WallpaperAssetServiceAdapter {
     fn create_collection<'a>(
         &'a self,
         display_name: &'a str,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperCollection, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperCollection>> {
         match self {
             Self::Browser(service) | Self::DesktopTauri(service) => {
                 service.create_collection(display_name)
@@ -423,7 +418,7 @@ impl WallpaperAssetService for WallpaperAssetServiceAdapter {
         &'a self,
         collection_id: &'a str,
         display_name: &'a str,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperCollection, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperCollection>> {
         match self {
             Self::Browser(service) | Self::DesktopTauri(service) => {
                 service.rename_collection(collection_id, display_name)
@@ -435,7 +430,7 @@ impl WallpaperAssetService for WallpaperAssetServiceAdapter {
     fn delete_collection<'a>(
         &'a self,
         collection_id: &'a str,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperCollectionDeleteResult, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperCollectionDeleteResult>> {
         match self {
             Self::Browser(service) | Self::DesktopTauri(service) => {
                 service.delete_collection(collection_id)
@@ -447,7 +442,7 @@ impl WallpaperAssetService for WallpaperAssetServiceAdapter {
     fn delete_asset<'a>(
         &'a self,
         asset_id: &'a str,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperAssetDeleteResult, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperAssetDeleteResult>> {
         match self {
             Self::Browser(service) | Self::DesktopTauri(service) => service.delete_asset(asset_id),
             Self::DesktopStub(service) => service.delete_asset(asset_id),
@@ -457,7 +452,7 @@ impl WallpaperAssetService for WallpaperAssetServiceAdapter {
     fn resolve_source<'a>(
         &'a self,
         selection: WallpaperSelection,
-    ) -> WallpaperAssetFuture<'a, Result<Option<ResolvedWallpaperSource>, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<Option<ResolvedWallpaperSource>>> {
         match self {
             Self::Browser(service) | Self::DesktopTauri(service) => {
                 service.resolve_source(selection)

@@ -4,6 +4,8 @@ use std::{cell::RefCell, collections::HashMap, future::Future, pin::Pin, rc::Rc}
 
 use serde::{de::DeserializeOwned, Serialize};
 
+use crate::{CacheErrorKind, HostError, HostResult};
+
 /// Object-safe boxed future used by [`ContentCache`] async methods.
 pub type ContentCacheFuture<'a, T> = Pin<Box<dyn Future<Output = T> + 'a>>;
 
@@ -15,21 +17,21 @@ pub trait ContentCache {
         cache_name: &'a str,
         key: &'a str,
         value: &'a str,
-    ) -> ContentCacheFuture<'a, Result<(), String>>;
+    ) -> ContentCacheFuture<'a, HostResult<()>>;
 
     /// Reads text content by `cache_name` and `key`.
     fn get_text<'a>(
         &'a self,
         cache_name: &'a str,
         key: &'a str,
-    ) -> ContentCacheFuture<'a, Result<Option<String>, String>>;
+    ) -> ContentCacheFuture<'a, HostResult<Option<String>>>;
 
     /// Deletes cached content by `cache_name` and `key`.
     fn delete<'a>(
         &'a self,
         cache_name: &'a str,
         key: &'a str,
-    ) -> ContentCacheFuture<'a, Result<(), String>>;
+    ) -> ContentCacheFuture<'a, HostResult<()>>;
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -42,7 +44,7 @@ impl ContentCache for NoopContentCache {
         _cache_name: &'a str,
         _key: &'a str,
         _value: &'a str,
-    ) -> ContentCacheFuture<'a, Result<(), String>> {
+    ) -> ContentCacheFuture<'a, HostResult<()>> {
         Box::pin(async { Ok(()) })
     }
 
@@ -50,7 +52,7 @@ impl ContentCache for NoopContentCache {
         &'a self,
         _cache_name: &'a str,
         _key: &'a str,
-    ) -> ContentCacheFuture<'a, Result<Option<String>, String>> {
+    ) -> ContentCacheFuture<'a, HostResult<Option<String>>> {
         Box::pin(async { Ok(None) })
     }
 
@@ -58,7 +60,7 @@ impl ContentCache for NoopContentCache {
         &'a self,
         _cache_name: &'a str,
         _key: &'a str,
-    ) -> ContentCacheFuture<'a, Result<(), String>> {
+    ) -> ContentCacheFuture<'a, HostResult<()>> {
         Box::pin(async { Ok(()) })
     }
 }
@@ -75,7 +77,7 @@ impl ContentCache for MemoryContentCache {
         cache_name: &'a str,
         key: &'a str,
         value: &'a str,
-    ) -> ContentCacheFuture<'a, Result<(), String>> {
+    ) -> ContentCacheFuture<'a, HostResult<()>> {
         Box::pin(async move {
             self.inner
                 .borrow_mut()
@@ -88,7 +90,7 @@ impl ContentCache for MemoryContentCache {
         &'a self,
         cache_name: &'a str,
         key: &'a str,
-    ) -> ContentCacheFuture<'a, Result<Option<String>, String>> {
+    ) -> ContentCacheFuture<'a, HostResult<Option<String>>> {
         Box::pin(async move {
             Ok(self
                 .inner
@@ -102,7 +104,7 @@ impl ContentCache for MemoryContentCache {
         &'a self,
         cache_name: &'a str,
         key: &'a str,
-    ) -> ContentCacheFuture<'a, Result<(), String>> {
+    ) -> ContentCacheFuture<'a, HostResult<()>> {
         Box::pin(async move {
             self.inner
                 .borrow_mut()
@@ -122,8 +124,15 @@ pub async fn cache_put_json_with<C: ContentCache + ?Sized, T: Serialize>(
     cache_name: &str,
     key: &str,
     value: &T,
-) -> Result<(), String> {
-    let raw = serde_json::to_string(value).map_err(|e| e.to_string())?;
+) -> HostResult<()> {
+    let raw = serde_json::to_string(value).map_err(|err| {
+        HostError::cache(
+            CacheErrorKind::Serialize,
+            "Cached value could not be written",
+        )
+        .with_operation("cache.put")
+        .with_internal(err.to_string())
+    })?;
     cache.put_text(cache_name, key, &raw).await
 }
 
@@ -136,11 +145,18 @@ pub async fn cache_get_json_with<C: ContentCache + ?Sized, T: DeserializeOwned>(
     cache: &C,
     cache_name: &str,
     key: &str,
-) -> Result<Option<T>, String> {
+) -> HostResult<Option<T>> {
     let Some(raw) = cache.get_text(cache_name, key).await? else {
         return Ok(None);
     };
-    let value = serde_json::from_str(&raw).map_err(|e| e.to_string())?;
+    let value = serde_json::from_str(&raw).map_err(|err| {
+        HostError::cache(
+            CacheErrorKind::Deserialize,
+            "Cached value could not be read",
+        )
+        .with_operation("cache.get")
+        .with_internal(err.to_string())
+    })?;
     Ok(Some(value))
 }
 

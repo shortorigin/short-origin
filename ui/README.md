@@ -50,6 +50,35 @@ The shell supports two runtime targets with a shared Rust composition core:
 
 `desktop_runtime` is the common execution core for both targets. It keeps reducer-owned state, effect generation, compositor behavior, and shell composition in one Rust runtime while host capabilities vary by adapter selection.
 
+## Observability and Errors
+`ui/` now standardizes on typed host/runtime errors plus structured tracing-based diagnostics.
+
+- `shared/error-model` provides shared error classification metadata such as category and visibility.
+- `shared/telemetry` provides stable runtime-target and environment-profile types used by UI logs.
+- `platform_host` owns the canonical UI host error contract through `HostError` and `HostResult<T>`.
+- `desktop_runtime` owns shared runtime logging metadata helpers and emits structured events through `tracing`.
+- `site` initializes wasm logging, while `desktop_tauri` initializes the native JSON subscriber.
+
+Required log fields:
+- `timestamp`
+- `level`
+- `target`
+- `event`
+- `operation`
+- `component`
+- `runtime_target`
+- `environment`
+
+Optional fields should be additive and stable, for example `window_id`, `app_id`, `host_strategy`, `error_category`, and `error_code`.
+
+Development builds may emit richer diagnostics. Production defaults should stay concise, favor `warn` and `error` in wasm/browser flows, and avoid leaking internal details to end users.
+
+Prohibited patterns:
+- `Result<_, String>` on public UI host boundaries when a typed `HostError` is appropriate
+- ad hoc free-form runtime diagnostics when structured `tracing` events can be emitted instead
+- logging secrets, raw credentials, uncontrolled payload dumps, or sensitive absolute paths
+- non-test `unwrap`/`expect` on recoverable runtime and host paths
+
 ## Development Workflow
 Use the browser/WASM preview for fast shell iteration and parity checks. Use the Tauri path to validate desktop-only integrations and packaged behavior. Keep all new UI integration behind typed contracts and place presentation-specific models only in `ui/`.
 

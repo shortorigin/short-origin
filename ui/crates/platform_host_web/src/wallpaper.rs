@@ -1,11 +1,12 @@
 //! Browser-backed wallpaper asset service implementation.
 
 use platform_host::{
-    build_app_state_envelope, migrate_envelope_payload, next_monotonic_timestamp_ms,
-    ResolvedWallpaperSource, WallpaperAssetDeleteResult, WallpaperAssetFuture,
+    build_app_state_envelope, migrate_envelope_payload, next_monotonic_timestamp_ms, HostError,
+    HostResult, ResolvedWallpaperSource, WallpaperAssetDeleteResult, WallpaperAssetFuture,
     WallpaperAssetMetadataPatch, WallpaperAssetRecord, WallpaperAssetService, WallpaperCollection,
-    WallpaperCollectionDeleteResult, WallpaperImportRequest, WallpaperImportResult,
-    WallpaperLibrarySnapshot, WallpaperMediaKind, WallpaperSelection, WallpaperSourceKind,
+    WallpaperCollectionDeleteResult, WallpaperErrorKind, WallpaperImportRequest,
+    WallpaperImportResult, WallpaperLibrarySnapshot, WallpaperMediaKind, WallpaperSelection,
+    WallpaperSourceKind,
 };
 
 #[cfg(target_arch = "wasm32")]
@@ -29,7 +30,7 @@ impl WallpaperAssetService for WebWallpaperAssetService {
     fn import_from_picker<'a>(
         &'a self,
         request: WallpaperImportRequest,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperImportResult, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperImportResult>> {
         Box::pin(async move {
             let picked = pick_file().await?;
             let library = load_library_snapshot().await?;
@@ -37,10 +38,12 @@ impl WallpaperAssetService for WebWallpaperAssetService {
             let mut next = library;
             next.used_bytes = next.used_bytes.saturating_add(record.byte_len);
             if next.used_bytes > next.soft_limit_bytes {
-                return Err(format!(
-                    "wallpaper library soft limit exceeded ({} > {})",
-                    next.used_bytes, next.soft_limit_bytes
-                ));
+                return Err(HostError::wallpaper(
+                    WallpaperErrorKind::Import,
+                    "Wallpaper library limit was exceeded",
+                )
+                .with_operation("wallpaper.import")
+                .with_internal(format!("{} > {}", next.used_bytes, next.soft_limit_bytes)));
             }
             next.assets.push(record.clone());
             save_library_snapshot(&next).await?;
@@ -54,7 +57,7 @@ impl WallpaperAssetService for WebWallpaperAssetService {
 
     fn list_library<'a>(
         &'a self,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperLibrarySnapshot, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperLibrarySnapshot>> {
         Box::pin(async move { load_library_snapshot().await })
     }
 
@@ -62,14 +65,21 @@ impl WallpaperAssetService for WebWallpaperAssetService {
         &'a self,
         asset_id: &'a str,
         patch: WallpaperAssetMetadataPatch,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperAssetRecord, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperAssetRecord>> {
         Box::pin(async move {
             let mut library = load_library_snapshot().await?;
             let asset = library
                 .assets
                 .iter_mut()
                 .find(|asset| asset.asset_id == asset_id)
-                .ok_or_else(|| format!("wallpaper asset not found: {asset_id}"))?;
+                .ok_or_else(|| {
+                    HostError::wallpaper(
+                        WallpaperErrorKind::Update,
+                        "Wallpaper asset could not be found",
+                    )
+                    .with_operation("wallpaper.update_asset_metadata")
+                    .with_internal(asset_id)
+                })?;
             if let Some(display_name) = patch.display_name {
                 asset.display_name = display_name;
             }
@@ -92,7 +102,7 @@ impl WallpaperAssetService for WebWallpaperAssetService {
     fn create_collection<'a>(
         &'a self,
         display_name: &'a str,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperCollection, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperCollection>> {
         Box::pin(async move {
             let mut library = load_library_snapshot().await?;
             let collection = WallpaperCollection {
@@ -110,14 +120,21 @@ impl WallpaperAssetService for WebWallpaperAssetService {
         &'a self,
         collection_id: &'a str,
         display_name: &'a str,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperCollection, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperCollection>> {
         Box::pin(async move {
             let mut library = load_library_snapshot().await?;
             let collection = library
                 .collections
                 .iter_mut()
                 .find(|collection| collection.collection_id == collection_id)
-                .ok_or_else(|| format!("wallpaper collection not found: {collection_id}"))?;
+                .ok_or_else(|| {
+                    HostError::wallpaper(
+                        WallpaperErrorKind::RenameCollection,
+                        "Wallpaper collection could not be found",
+                    )
+                    .with_operation("wallpaper.rename_collection")
+                    .with_internal(collection_id)
+                })?;
             collection.display_name = display_name.trim().to_string();
             let updated = collection.clone();
             save_library_snapshot(&library).await?;
@@ -128,7 +145,7 @@ impl WallpaperAssetService for WebWallpaperAssetService {
     fn delete_collection<'a>(
         &'a self,
         collection_id: &'a str,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperCollectionDeleteResult, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperCollectionDeleteResult>> {
         Box::pin(async move {
             let mut library = load_library_snapshot().await?;
             library
@@ -147,13 +164,18 @@ impl WallpaperAssetService for WebWallpaperAssetService {
     fn delete_asset<'a>(
         &'a self,
         asset_id: &'a str,
-    ) -> WallpaperAssetFuture<'a, Result<WallpaperAssetDeleteResult, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<WallpaperAssetDeleteResult>> {
         Box::pin(async move {
             let mut library = load_library_snapshot().await?;
             let before = library.assets.len();
             library.assets.retain(|asset| asset.asset_id != asset_id);
             if library.assets.len() == before {
-                return Err(format!("wallpaper asset not found: {asset_id}"));
+                return Err(HostError::wallpaper(
+                    WallpaperErrorKind::DeleteAsset,
+                    "Wallpaper asset could not be found",
+                )
+                .with_operation("wallpaper.delete_asset")
+                .with_internal(asset_id));
             }
             library.used_bytes = library.assets.iter().map(|asset| asset.byte_len).sum();
             save_library_snapshot(&library).await?;
@@ -167,7 +189,7 @@ impl WallpaperAssetService for WebWallpaperAssetService {
     fn resolve_source<'a>(
         &'a self,
         selection: WallpaperSelection,
-    ) -> WallpaperAssetFuture<'a, Result<Option<ResolvedWallpaperSource>, String>> {
+    ) -> WallpaperAssetFuture<'a, HostResult<Option<ResolvedWallpaperSource>>> {
         Box::pin(async move {
             match selection {
                 WallpaperSelection::BuiltIn { .. } => Ok(None),
@@ -202,17 +224,19 @@ struct PickedFile {
 fn build_import_record(
     picked: &PickedFile,
     request: WallpaperImportRequest,
-) -> Result<WallpaperAssetRecord, String> {
+) -> HostResult<WallpaperAssetRecord> {
     let media_kind = classify_media_kind(&picked.name, &picked.mime_type)?;
     let limit = match media_kind {
         WallpaperMediaKind::StaticImage | WallpaperMediaKind::Svg => STILL_IMAGE_LIMIT_BYTES,
         WallpaperMediaKind::AnimatedImage | WallpaperMediaKind::Video => ANIMATED_LIMIT_BYTES,
     };
     if picked.size > limit {
-        return Err(format!(
-            "selected wallpaper exceeds size limit ({} > {})",
-            picked.size, limit
-        ));
+        return Err(HostError::wallpaper(
+            WallpaperErrorKind::Import,
+            "Selected wallpaper exceeds the supported size limit",
+        )
+        .with_operation("wallpaper.import")
+        .with_internal(format!("{} > {}", picked.size, limit)));
     }
 
     let stem = picked
@@ -251,7 +275,7 @@ fn build_import_record(
     })
 }
 
-fn classify_media_kind(name: &str, mime_type: &str) -> Result<WallpaperMediaKind, String> {
+fn classify_media_kind(name: &str, mime_type: &str) -> HostResult<WallpaperMediaKind> {
     let extension = name
         .rsplit_once('.')
         .map(|(_, ext)| ext.to_ascii_lowercase())
@@ -264,11 +288,16 @@ fn classify_media_kind(name: &str, mime_type: &str) -> Result<WallpaperMediaKind
         _ if mime_type == "image/svg+xml" => Ok(WallpaperMediaKind::Svg),
         _ if mime_type.starts_with("image/") => Ok(WallpaperMediaKind::StaticImage),
         _ if mime_type.starts_with("video/") => Ok(WallpaperMediaKind::Video),
-        _ => Err(format!("unsupported wallpaper format: {name}")),
+        _ => Err(HostError::wallpaper(
+            WallpaperErrorKind::Import,
+            "Selected wallpaper format is not supported",
+        )
+        .with_operation("wallpaper.classify_media_kind")
+        .with_internal(name)),
     }
 }
 
-async fn load_library_snapshot() -> Result<WallpaperLibrarySnapshot, String> {
+async fn load_library_snapshot() -> HostResult<WallpaperLibrarySnapshot> {
     let Some(envelope) =
         crate::bridge::load_app_state_envelope(WALLPAPER_LIBRARY_NAMESPACE).await?
     else {
@@ -280,7 +309,7 @@ async fn load_library_snapshot() -> Result<WallpaperLibrarySnapshot, String> {
     migrate_envelope_payload::<WallpaperLibrarySnapshot>(&envelope)
 }
 
-async fn save_library_snapshot(snapshot: &WallpaperLibrarySnapshot) -> Result<(), String> {
+async fn save_library_snapshot(snapshot: &WallpaperLibrarySnapshot) -> HostResult<()> {
     let envelope = build_app_state_envelope(
         WALLPAPER_LIBRARY_NAMESPACE,
         WALLPAPER_LIBRARY_SCHEMA_VERSION,
@@ -289,23 +318,50 @@ async fn save_library_snapshot(snapshot: &WallpaperLibrarySnapshot) -> Result<()
     crate::bridge::save_app_state_envelope(&envelope).await
 }
 
-async fn pick_file() -> Result<PickedFile, String> {
+async fn pick_file() -> HostResult<PickedFile> {
     #[cfg(not(target_arch = "wasm32"))]
     {
-        Err("wallpaper import is only available when compiled for wasm32".to_string())
+        Err(HostError::wallpaper(
+            WallpaperErrorKind::Unsupported,
+            "Wallpaper import is only available in wasm builds",
+        )
+        .with_operation("wallpaper.pick_file"))
     }
 
     #[cfg(target_arch = "wasm32")]
     {
-        let window = web_sys::window().ok_or_else(|| "window unavailable".to_string())?;
-        let document = window
-            .document()
-            .ok_or_else(|| "document unavailable".to_string())?;
+        let window = web_sys::window().ok_or_else(|| {
+            HostError::wallpaper(
+                WallpaperErrorKind::Import,
+                "Browser window is unavailable for wallpaper import",
+            )
+            .with_operation("wallpaper.pick_file")
+        })?;
+        let document = window.document().ok_or_else(|| {
+            HostError::wallpaper(
+                WallpaperErrorKind::Import,
+                "Browser document is unavailable for wallpaper import",
+            )
+            .with_operation("wallpaper.pick_file")
+        })?;
         let input = document
             .create_element("input")
-            .map_err(|err| format!("failed to create file input: {err:?}"))?
+            .map_err(|err| {
+                HostError::wallpaper(
+                    WallpaperErrorKind::Import,
+                    "Wallpaper file picker could not be created",
+                )
+                .with_operation("wallpaper.pick_file")
+                .with_internal(format!("{err:?}"))
+            })?
             .dyn_into::<web_sys::HtmlInputElement>()
-            .map_err(|_| "failed to cast file input".to_string())?;
+            .map_err(|_| {
+                HostError::wallpaper(
+                    WallpaperErrorKind::Import,
+                    "Wallpaper file picker could not be initialized",
+                )
+                .with_operation("wallpaper.pick_file")
+            })?;
         input.set_type("file");
         input.set_accept(
             "image/png,image/jpeg,image/webp,image/svg+xml,image/gif,video/mp4,video/webm",
@@ -316,7 +372,7 @@ async fn pick_file() -> Result<PickedFile, String> {
             let _ = body.append_child(&input);
         }
 
-        let (tx, rx) = oneshot::channel::<Result<web_sys::File, String>>();
+        let (tx, rx) = oneshot::channel::<HostResult<web_sys::File>>();
         let sender = Rc::new(RefCell::new(Some(tx)));
         let input_for_change = input.clone();
         let change_sender = sender.clone();
@@ -324,7 +380,13 @@ async fn pick_file() -> Result<PickedFile, String> {
             let result = input_for_change
                 .files()
                 .and_then(|files| files.get(0))
-                .ok_or_else(|| "no wallpaper file selected".to_string());
+                .ok_or_else(|| {
+                    HostError::wallpaper(
+                        WallpaperErrorKind::Import,
+                        "No wallpaper file was selected",
+                    )
+                    .with_operation("wallpaper.pick_file")
+                });
             if let Some(tx) = change_sender.borrow_mut().take() {
                 let _ = tx.send(result);
             }
@@ -332,9 +394,10 @@ async fn pick_file() -> Result<PickedFile, String> {
         input.set_onchange(Some(on_change.as_ref().unchecked_ref()));
         input.click();
 
-        let file = rx
-            .await
-            .map_err(|_| "wallpaper picker was cancelled".to_string())??;
+        let file = rx.await.map_err(|_| {
+            HostError::wallpaper(WallpaperErrorKind::Import, "Wallpaper picker was cancelled")
+                .with_operation("wallpaper.pick_file")
+        })??;
         input.remove();
         on_change.forget();
 
@@ -349,9 +412,16 @@ async fn pick_file() -> Result<PickedFile, String> {
 }
 
 #[cfg(target_arch = "wasm32")]
-async fn read_file_as_data_url(file: &web_sys::File) -> Result<String, String> {
-    let reader = web_sys::FileReader::new().map_err(|err| format!("{err:?}"))?;
-    let (tx, rx) = oneshot::channel::<Result<String, String>>();
+async fn read_file_as_data_url(file: &web_sys::File) -> HostResult<String> {
+    let reader = web_sys::FileReader::new().map_err(|err| {
+        HostError::wallpaper(
+            WallpaperErrorKind::Import,
+            "Wallpaper file could not be read",
+        )
+        .with_operation("wallpaper.read_file")
+        .with_internal(format!("{err:?}"))
+    })?;
+    let (tx, rx) = oneshot::channel::<HostResult<String>>();
     let sender = Rc::new(RefCell::new(Some(tx)));
 
     let reader_for_load = reader.clone();
@@ -359,11 +429,22 @@ async fn read_file_as_data_url(file: &web_sys::File) -> Result<String, String> {
     let on_load = Closure::<dyn FnMut(web_sys::ProgressEvent)>::wrap(Box::new(move |_| {
         let result = reader_for_load
             .result()
-            .map_err(|err| format!("failed to read wallpaper file: {err:?}"))
+            .map_err(|err| {
+                HostError::wallpaper(
+                    WallpaperErrorKind::Import,
+                    "Wallpaper file could not be read",
+                )
+                .with_operation("wallpaper.read_file")
+                .with_internal(format!("{err:?}"))
+            })
             .and_then(|value| {
-                value
-                    .as_string()
-                    .ok_or_else(|| "file reader returned non-string result".to_string())
+                value.as_string().ok_or_else(|| {
+                    HostError::wallpaper(
+                        WallpaperErrorKind::Import,
+                        "Wallpaper file reader returned invalid data",
+                    )
+                    .with_operation("wallpaper.read_file")
+                })
             });
         if let Some(tx) = load_sender.borrow_mut().take() {
             let _ = tx.send(result);
@@ -374,18 +455,31 @@ async fn read_file_as_data_url(file: &web_sys::File) -> Result<String, String> {
     let error_sender = sender.clone();
     let on_error = Closure::<dyn FnMut(web_sys::ProgressEvent)>::wrap(Box::new(move |_| {
         if let Some(tx) = error_sender.borrow_mut().take() {
-            let _ = tx.send(Err("failed to load wallpaper file".to_string()));
+            let _ = tx.send(Err(HostError::wallpaper(
+                WallpaperErrorKind::Import,
+                "Wallpaper file could not be loaded",
+            )
+            .with_operation("wallpaper.read_file")));
         }
     }));
     reader.set_onerror(Some(on_error.as_ref().unchecked_ref()));
 
-    reader
-        .read_as_data_url(file)
-        .map_err(|err| format!("failed to start file read: {err:?}"))?;
+    reader.read_as_data_url(file).map_err(|err| {
+        HostError::wallpaper(
+            WallpaperErrorKind::Import,
+            "Wallpaper file read could not be started",
+        )
+        .with_operation("wallpaper.read_file")
+        .with_internal(format!("{err:?}"))
+    })?;
 
-    let result = rx
-        .await
-        .map_err(|_| "wallpaper file read was interrupted".to_string())?;
+    let result = rx.await.map_err(|_| {
+        HostError::wallpaper(
+            WallpaperErrorKind::Import,
+            "Wallpaper file read was interrupted",
+        )
+        .with_operation("wallpaper.read_file")
+    })?;
     on_load.forget();
     on_error.forget();
     result

@@ -1,4 +1,4 @@
-use leptos::{logging, spawn_local, SignalGetUntracked};
+use leptos::{spawn_local, SignalGetUntracked};
 use platform_host::{
     WallpaperAnimationPolicy, WallpaperConfig, WallpaperDisplayMode, WallpaperImportRequest,
     WallpaperMediaKind, WallpaperPosition, WallpaperSelection,
@@ -14,7 +14,7 @@ pub(super) fn load_library(host: DesktopHostContext, runtime: DesktopRuntimeCont
             Ok(snapshot) => {
                 runtime.dispatch_action(DesktopAction::WallpaperLibraryLoaded { snapshot });
             }
-            Err(err) => logging::warn!("wallpaper library load failed: {err}"),
+            Err(err) => tracing::warn!("wallpaper library load failed: {err}"),
         }
     });
 }
@@ -68,7 +68,7 @@ pub(super) fn import_from_picker(
                 });
                 runtime.dispatch_action(DesktopAction::PreviewWallpaper { config });
             }
-            Err(err) => logging::warn!("wallpaper import failed: {err}"),
+            Err(err) => tracing::warn!("wallpaper import failed: {err}"),
         }
     });
 }
@@ -85,7 +85,7 @@ pub(super) fn update_asset_metadata(
             Ok(asset) => {
                 runtime.dispatch_action(DesktopAction::WallpaperAssetUpdated { asset });
             }
-            Err(err) => logging::warn!("wallpaper metadata update failed: {err}"),
+            Err(err) => tracing::warn!("wallpaper metadata update failed: {err}"),
         }
     });
 }
@@ -101,7 +101,7 @@ pub(super) fn create_collection(
             Ok(collection) => {
                 runtime.dispatch_action(DesktopAction::WallpaperCollectionUpdated { collection });
             }
-            Err(err) => logging::warn!("wallpaper collection create failed: {err}"),
+            Err(err) => tracing::warn!("wallpaper collection create failed: {err}"),
         }
     });
 }
@@ -121,7 +121,7 @@ pub(super) fn rename_collection(
             Ok(collection) => {
                 runtime.dispatch_action(DesktopAction::WallpaperCollectionUpdated { collection });
             }
-            Err(err) => logging::warn!("wallpaper collection rename failed: {err}"),
+            Err(err) => tracing::warn!("wallpaper collection rename failed: {err}"),
         }
     });
 }
@@ -142,7 +142,7 @@ pub(super) fn delete_collection(
                     collection_id: result.collection_id,
                 });
             }
-            Err(err) => logging::warn!("wallpaper collection delete failed: {err}"),
+            Err(err) => tracing::warn!("wallpaper collection delete failed: {err}"),
         }
     });
 }
@@ -184,7 +184,7 @@ pub(super) fn delete_asset(
                     used_bytes: result.used_bytes,
                 });
             }
-            Err(err) => logging::warn!("wallpaper asset delete failed: {err}"),
+            Err(err) => tracing::warn!("wallpaper asset delete failed: {err}"),
         }
     });
 }

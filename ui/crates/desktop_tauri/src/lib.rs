@@ -18,11 +18,39 @@ mod external_url;
 mod notifications;
 mod prefs;
 
+use std::sync::Once;
+
+fn init_tracing() {
+    static ONCE: Once = Once::new();
+    ONCE.call_once(|| {
+        let subscriber = tracing_subscriber::fmt()
+            .json()
+            .with_target(true)
+            .with_current_span(false)
+            .with_span_list(false)
+            .finish();
+        let _ = tracing::subscriber::set_global_default(subscriber);
+    });
+}
+
 /// Starts the Tauri desktop host process.
 ///
 /// This registers the current host-domain commands and then transfers control to Tauri's runtime
 /// event loop.
 pub fn run() {
+    init_tracing();
+    tracing::info!(
+        event = "desktop_tauri.start",
+        operation = "desktop_tauri.run",
+        component = "desktop_tauri",
+        runtime_target = %telemetry::RuntimeTarget::Desktop.as_str(),
+        environment = %if cfg!(debug_assertions) {
+            telemetry::EnvironmentProfile::Development.as_str()
+        } else {
+            telemetry::EnvironmentProfile::Production.as_str()
+        }
+    );
+
     tauri::Builder::default()
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_opener::init())
@@ -51,5 +79,19 @@ pub fn run() {
             prefs::prefs_delete
         ])
         .run(tauri::generate_context!())
-        .expect("desktop_tauri failed to run Tauri application");
+        .unwrap_or_else(|err| {
+            tracing::error!(
+                event = "desktop_tauri.run_failed",
+                operation = "desktop_tauri.run",
+                component = "desktop_tauri",
+                runtime_target = %telemetry::RuntimeTarget::Desktop.as_str(),
+                environment = %if cfg!(debug_assertions) {
+                    telemetry::EnvironmentProfile::Development.as_str()
+                } else {
+                    telemetry::EnvironmentProfile::Production.as_str()
+                },
+                error = %err
+            );
+            std::process::exit(1);
+        });
 }

@@ -1,6 +1,6 @@
 #[cfg(target_arch = "wasm32")]
 use desktop_app_contract::window_primary_input_dom_id;
-use leptos::{logging, spawn_local};
+use leptos::spawn_local;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::{closure::Closure, JsCast};
 
@@ -68,7 +68,7 @@ pub(super) fn open_external_url(host: DesktopHostContext, url: &str) {
     let url = url.to_string();
     spawn_local(async move {
         if let Err(err) = host.external_url_service().open_url(&url).await {
-            logging::warn!("open external url failed for `{url}`: {err}");
+            tracing::warn!("open external url failed for `{url}`: {err}");
         }
     });
 }
@@ -76,7 +76,7 @@ pub(super) fn open_external_url(host: DesktopHostContext, url: &str) {
 pub(super) fn notify(host: DesktopHostContext, title: String, body: String) {
     spawn_local(async move {
         if let Err(err) = host.notification_service().notify(&title, &body).await {
-            logging::warn!("notification dispatch failed: {err}");
+            tracing::warn!("notification dispatch failed: {err}");
         }
     });
 }
