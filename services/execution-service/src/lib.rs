@@ -17,9 +17,11 @@ use trading_core::{
 use trading_errors::TradingError;
 
 fn map_trading_error(error: TradingError) -> InstitutionalError {
-    InstitutionalError::InvariantViolation {
-        invariant: error.to_string(),
-    }
+    InstitutionalError::external(
+        "trading-core",
+        Some("execution".to_string()),
+        error.to_string(),
+    )
 }
 
 pub struct ExecutionRouter {

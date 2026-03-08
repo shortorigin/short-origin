@@ -41,49 +41,24 @@ jobs:
             exit 1
           fi
 
-      - name: Validate required configuration
-        env:
-          AWS_ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          PULUMI_STATE_BUCKET: ${{ secrets.PULUMI_STATE_BUCKET }}
-        run: |
-          missing=0
-          for variable in AWS_ROLE_TO_ASSUME CLOUDFLARE_API_TOKEN PULUMI_STATE_BUCKET; do
-            if [[ -z "${!variable}" ]]; then
-              echo "Missing required secret: ${variable}"
-              missing=1
-            fi
-          done
-          if [[ "${missing}" -ne 0 ]]; then
-            exit 1
-          fi
-
       - name: Checkout main
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build-environment
         with:
           node-version: "20"
-          cache: npm
-          cache-dependency-path: infrastructure/pulumi/package-lock.json
+          node-cache-path: infrastructure/pulumi/package-lock.json
 
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@1.91.1
-
-      - name: Cache cargo
-        uses: Swatinem/rust-cache@v2
+      - name: Setup delivery environment
+        uses: ./.github/actions/setup-delivery-environment
         with:
-          shared-key: rust-core-ubuntu-stable-v1
-          cache-all-crates: "false"
-          cache-bin: "false"
-          cache-workspace-crates: "false"
-
-      - name: Setup ORAS
-        uses: oras-project/setup-oras@v1
-
-      - name: Login to GHCR
-        run: echo "${{ github.token }}" | oras login ghcr.io -u "${{ github.actor }}" --password-stdin
+          aws-role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: us-west-2
+          cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          pulumi-state-bucket: ${{ secrets.PULUMI_STATE_BUCKET }}
+          gh-actor: ${{ github.actor }}
+          gh-token: ${{ github.token }}
 
       - name: Download stage manifest from release candidate
         run: |
@@ -123,19 +98,6 @@ jobs:
       - name: Install Pulumi dependencies
         working-directory: infrastructure/pulumi
         run: npm ci
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          aws-region: us-west-2
-
-      - name: Install Pulumi CLI
-        uses: pulumi/setup-pulumi@v3
-
-      - name: Pulumi login
-        working-directory: infrastructure/pulumi
-        run: pulumi login "$PULUMI_BACKEND_URL"
 
       - name: Deploy production stack
         working-directory: infrastructure/pulumi

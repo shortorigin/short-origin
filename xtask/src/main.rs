@@ -1,3 +1,4 @@
+mod common;
 mod delivery;
 mod github;
 mod ui_hardening;
@@ -5,10 +6,12 @@ mod ui_hardening;
 use std::env;
 use std::io::{Read, Write};
 use std::net::TcpStream;
-use std::path::{Path, PathBuf};
-use std::process::{Child, Command, ExitStatus};
+use std::path::Path;
+use std::process::{Child, Command};
 use std::thread;
 use std::time::{Duration, Instant};
+
+use common::{absolutize, run_command, workspace_root};
 
 const UI_PACKAGES: &[&str] = &[
     "desktop_app_contract",
@@ -473,9 +476,17 @@ fn terminate_child(child: &mut Child) -> Result<(), String> {
 fn verify_ui_browser_manifest_hygiene(workspace_root: &Path) -> Result<(), String> {
     let site_manifest = std::fs::read_to_string(workspace_root.join("ui/crates/site/Cargo.toml"))
         .map_err(|error| format!("failed to read site manifest: {error}"))?;
+    let e2e_package = workspace_root.join("ui/e2e/package.json");
+    let e2e_lockfile = workspace_root.join("ui/e2e/package-lock.json");
     if !site_manifest.contains("js-sys") {
         return Err(
             "site manifest must declare a direct `js-sys` dependency for reflective browser APIs"
+                .to_string(),
+        );
+    }
+    if !e2e_package.exists() || !e2e_lockfile.exists() {
+        return Err(
+            "ui/e2e must declare committed package.json and package-lock.json for clean-runner verification"
                 .to_string(),
         );
     }
@@ -536,56 +547,21 @@ fn sanitize_trunk_environment(command: &mut Command) {
     }
 }
 
-fn absolutize(workspace_root: &Path, value: &str) -> PathBuf {
-    let path = PathBuf::from(value);
-    if path.is_absolute() {
-        path
-    } else {
-        workspace_root.join(path)
-    }
-}
-
-fn run_command(command: &mut Command) -> Result<(), String> {
-    let status = command
-        .status()
-        .map_err(|error| format!("failed to start `{}`: {error}", display_command(command)))?;
-    ensure_success(command, status)
-}
-
-fn ensure_success(command: &Command, status: ExitStatus) -> Result<(), String> {
-    if status.success() {
-        Ok(())
-    } else {
-        Err(format!(
-            "`{}` exited with status {status}",
-            display_command(command)
-        ))
-    }
-}
-
-fn display_command(command: &Command) -> String {
-    let program = command.get_program().to_string_lossy();
-    let args = command
-        .get_args()
-        .map(|arg| arg.to_string_lossy())
-        .collect::<Vec<_>>()
-        .join(" ");
-    if args.is_empty() {
-        program.into_owned()
-    } else {
-        format!("{program} {args}")
-    }
-}
-
-fn workspace_root() -> Result<PathBuf, String> {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .map(Path::to_path_buf)
-        .ok_or_else(|| "xtask manifest dir is missing a workspace root".to_string())
-}
-
 fn help() -> String {
-    "usage: cargo xtask <delivery|github|wasmcloud|ui|tauri|components|verify> ...".to_string()
+    "\
+usage: cargo xtask <command> ...
+
+Commands:
+  github        GitHub governance sync, PR validation, and process auditing
+  verify        Workspace verification profiles
+  delivery      Delivery manifest and component rendering
+  ui-hardening  Deterministic UI/browser hardening verification
+  ui            Compatibility shim for Trunk browser workflows
+  tauri         Compatibility shim for Tauri wrapper workflows
+  components    Compatibility shim for component build verification
+  wasmcloud     Local wasmCloud operator helpers
+"
+    .to_string()
 }
 
 #[cfg(test)]
@@ -699,9 +675,13 @@ mod tests {
         let root = unique_temp_dir("ui-browser-hygiene-pass");
         let site_dir = root.join("ui/crates/site");
         let host_dir = root.join("ui/crates/platform_host_web/src");
+        let e2e_dir = root.join("ui/e2e");
         fs::create_dir_all(&site_dir).expect("create site dir");
         fs::create_dir_all(&host_dir).expect("create host dir");
+        fs::create_dir_all(&e2e_dir).expect("create e2e dir");
         fs::write(site_dir.join("Cargo.toml"), "js-sys = \"0.3\"\n").expect("write site manifest");
+        fs::write(e2e_dir.join("package.json"), "{}\n").expect("write e2e package");
+        fs::write(e2e_dir.join("package-lock.json"), "{}\n").expect("write e2e lockfile");
         fs::write(
             host_dir.join("persistence.rs"),
             "let _ = js_sys::Reflect::get(window.navigator().as_ref(), &\"storage\".into());\n",
@@ -717,9 +697,13 @@ mod tests {
         let root = unique_temp_dir("ui-browser-hygiene-fail");
         let site_dir = root.join("ui/crates/site");
         let host_dir = root.join("ui/crates/platform_host_web/src");
+        let e2e_dir = root.join("ui/e2e");
         fs::create_dir_all(&site_dir).expect("create site dir");
         fs::create_dir_all(&host_dir).expect("create host dir");
+        fs::create_dir_all(&e2e_dir).expect("create e2e dir");
         fs::write(site_dir.join("Cargo.toml"), "js-sys = \"0.3\"\n").expect("write site manifest");
+        fs::write(e2e_dir.join("package.json"), "{}\n").expect("write e2e package");
+        fs::write(e2e_dir.join("package-lock.json"), "{}\n").expect("write e2e lockfile");
         fs::write(
             host_dir.join("persistence.rs"),
             "window.navigator().storage();\n",
@@ -727,7 +711,7 @@ mod tests {
         .expect("write persistence source");
 
         let error = verify_ui_browser_manifest_hygiene(&root).expect_err("hygiene should fail");
-        assert!(error.contains("Navigator.storage"));
+        assert!(error.contains("typed `Navigator.storage()` bindings"));
         fs::remove_dir_all(root).expect("cleanup temp dir");
     }
 }

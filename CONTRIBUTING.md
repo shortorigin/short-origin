@@ -73,8 +73,15 @@ Run the baseline checks from the repository root:
 cargo fmt --all --check
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo test --workspace --all-targets
+cargo xtask github audit-process
 ```
 
 If your change affects dependency security posture, validate `cargo audit` locally or rely on the `Security Scan` workflow in CI.
+
+The required GitHub checks are:
+
+- `Governance / validate`
+- `CI / pr-gate`
+- `Security / security-gate`
 
 During self-review, also remove assistant-generated branding, boilerplate provenance notes, and tool-specific placeholder text before requesting review.

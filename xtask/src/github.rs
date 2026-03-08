@@ -1,6 +1,10 @@
+use crate::common::workspace_root;
 use regex::Regex;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
+use serde_yaml::Value as YamlValue;
+use std::collections::{BTreeMap, BTreeSet};
+use std::fmt::Write as _;
 use std::fs;
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -73,6 +77,51 @@ struct RepositoryConfig {
     link_to_project: bool,
 }
 
+#[derive(Debug, Serialize)]
+struct ProcessAuditReport {
+    documented: DocumentedProcess,
+    automation: Vec<WorkflowAudit>,
+    drift_matrix: Vec<DriftRow>,
+    defects: Vec<String>,
+}
+
+#[derive(Debug, Serialize)]
+struct DocumentedProcess {
+    source_files: Vec<String>,
+    branch_model: String,
+    required_checks: Vec<String>,
+    release_flow: Vec<String>,
+    module_invariants: Vec<String>,
+    automatic_dev_promotion: bool,
+}
+
+#[derive(Debug, Serialize)]
+struct WorkflowAudit {
+    file: String,
+    workflow_name: String,
+    triggers: Vec<String>,
+    jobs: Vec<JobAudit>,
+    environment_targets: Vec<String>,
+    shared_setup_steps: Vec<String>,
+    reusable_logic_candidates: Vec<String>,
+}
+
+#[derive(Debug, Serialize)]
+struct JobAudit {
+    job_id: String,
+    job_name: String,
+    condition: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+struct DriftRow {
+    expectation: String,
+    documented_source: String,
+    automation_source: String,
+    status: String,
+    details: String,
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum SyncTarget {
     Org,
@@ -90,6 +139,7 @@ pub fn run(args: Vec<String>) -> Result<(), String> {
     match args.split_first() {
         Some((command, rest)) if command == "sync" => sync(rest),
         Some((command, rest)) if command == "validate-pr" => validate_pr(rest),
+        Some((command, rest)) if command == "audit-process" => audit_process(rest),
         Some((command, _)) => Err(format!("unknown github xtask command `{command}`")),
         None => Err(help()),
     }
@@ -159,6 +209,506 @@ fn validate_pr(args: &[String]) -> Result<(), String> {
         event.branch, event.title
     );
     Ok(())
+}
+
+fn audit_process(args: &[String]) -> Result<(), String> {
+    let mut output_dir = workspace_root()?.join("target/process-audit");
+    let mut index = 0usize;
+    while index < args.len() {
+        match args[index].as_str() {
+            "--output-dir" => {
+                let Some(path) = args.get(index + 1) else {
+                    return Err("missing value for --output-dir".to_owned());
+                };
+                output_dir = PathBuf::from(path);
+                index += 2;
+            }
+            other => return Err(format!("unknown audit-process argument `{other}`")),
+        }
+    }
+
+    let workspace_root = workspace_root()?;
+    let report = build_process_audit(&workspace_root)?;
+    fs::create_dir_all(&output_dir).map_err(|error| {
+        format!(
+            "failed to create audit output directory `{}`: {error}",
+            output_dir.display()
+        )
+    })?;
+
+    let json_path = output_dir.join("process-audit.json");
+    let markdown_path = output_dir.join("process-audit.md");
+    let matrix_path = output_dir.join("drift-matrix.md");
+    let json = serde_json::to_string_pretty(&report)
+        .map_err(|error| format!("failed to serialize process audit JSON: {error}"))?;
+    fs::write(&json_path, format!("{json}\n"))
+        .map_err(|error| format!("failed to write `{}`: {error}", json_path.display()))?;
+    fs::write(&markdown_path, render_process_audit_markdown(&report)).map_err(|error| {
+        format!(
+            "failed to write process audit markdown `{}`: {error}",
+            markdown_path.display()
+        )
+    })?;
+    fs::write(
+        &matrix_path,
+        render_drift_matrix_markdown(&report.drift_matrix),
+    )
+    .map_err(|error| {
+        format!(
+            "failed to write drift matrix `{}`: {error}",
+            matrix_path.display()
+        )
+    })?;
+
+    if report.defects.is_empty() {
+        println!(
+            "process audit passed; artifacts written to `{}`",
+            output_dir.display()
+        );
+        Ok(())
+    } else {
+        Err(format!(
+            "process audit found {} defect(s): {}",
+            report.defects.len(),
+            report.defects.join("; ")
+        ))
+    }
+}
+
+fn build_process_audit(workspace_root: &Path) -> Result<ProcessAuditReport, String> {
+    let documented = load_documented_process(workspace_root)?;
+    let workflows = load_workflow_audits(workspace_root)?;
+    let defects = collect_audit_defects(&documented, &workflows)?;
+    let drift_matrix = build_drift_matrix(&documented, &workflows, &defects);
+    Ok(ProcessAuditReport {
+        documented,
+        automation: workflows,
+        drift_matrix,
+        defects,
+    })
+}
+
+fn load_documented_process(workspace_root: &Path) -> Result<DocumentedProcess, String> {
+    let source_files = vec![
+        "README.md".to_string(),
+        "CONTRIBUTING.md".to_string(),
+        "DEVELOPMENT_MODEL.md".to_string(),
+        "ARCHITECTURE.md".to_string(),
+        ".github/governance.toml".to_string(),
+    ];
+    let read = |path: &str| {
+        fs::read_to_string(workspace_root.join(path))
+            .map_err(|error| format!("failed to read `{path}`: {error}"))
+    };
+    let readme = read("README.md")?;
+    let contributing = read("CONTRIBUTING.md")?;
+    let development = read("DEVELOPMENT_MODEL.md")?;
+    let architecture = read("ARCHITECTURE.md")?;
+    let governance = load_config(&workspace_root.join(".github/governance.toml"))?;
+
+    let branch_model = if development.contains("main` is the only long-lived branch")
+        && contributing.contains("No direct commits to `main`")
+    {
+        "issue-driven trunk-based pull-request flow on main".to_owned()
+    } else {
+        "undetermined".to_owned()
+    };
+
+    let required_checks = governance
+        .repository_defaults
+        .required_status_checks
+        .clone();
+    let release_flow = vec![
+        "Delivery Dev auto-promotes dev from merges to main".to_owned(),
+        "Release Candidate is manual and deploys stage".to_owned(),
+        "Promote Release is manual and deploys production".to_owned(),
+    ];
+    let module_invariants = architecture
+        .lines()
+        .filter(|line| line.starts_with("- "))
+        .map(|line| line.trim_start_matches("- ").trim().to_owned())
+        .collect::<Vec<_>>();
+
+    Ok(DocumentedProcess {
+        source_files,
+        branch_model,
+        required_checks,
+        release_flow,
+        module_invariants,
+        automatic_dev_promotion: readme.contains("auto-promote the `dev` environment")
+            || development.contains("auto-deploys `dev`"),
+    })
+}
+
+fn load_workflow_audits(workspace_root: &Path) -> Result<Vec<WorkflowAudit>, String> {
+    let workflow_files = [
+        ".github/workflows/ci.yml",
+        ".github/workflows/governance.yml",
+        ".github/workflows/security.yml",
+        ".github/workflows/delivery-dev.yml",
+        ".github/workflows/release-candidate.yml",
+        ".github/workflows/promote-release.yml",
+    ];
+
+    workflow_files
+        .iter()
+        .map(|path| parse_workflow_audit(workspace_root, path))
+        .collect()
+}
+
+fn parse_workflow_audit(workspace_root: &Path, path: &str) -> Result<WorkflowAudit, String> {
+    let raw = fs::read_to_string(workspace_root.join(path))
+        .map_err(|error| format!("failed to read workflow `{path}`: {error}"))?;
+    let parsed: YamlValue = serde_yaml::from_str(&raw)
+        .map_err(|error| format!("failed to parse workflow `{path}`: {error}"))?;
+    let workflow_name = yaml_string(&parsed, "name")
+        .ok_or_else(|| format!("workflow `{path}` is missing top-level `name`"))?;
+    let triggers = extract_trigger_names(
+        parsed
+            .get("on")
+            .ok_or_else(|| format!("workflow `{path}` is missing top-level `on`"))?,
+    );
+    let jobs = extract_jobs(
+        parsed
+            .get("jobs")
+            .ok_or_else(|| format!("workflow `{path}` is missing top-level `jobs`"))?,
+    )?;
+    let environment_targets = extract_environment_targets(&parsed);
+    let shared_setup_steps = collect_shared_setup_steps(&raw);
+    let reusable_logic_candidates = collect_reusable_candidates(&raw);
+
+    Ok(WorkflowAudit {
+        file: path.to_owned(),
+        workflow_name,
+        triggers,
+        jobs,
+        environment_targets,
+        shared_setup_steps,
+        reusable_logic_candidates,
+    })
+}
+
+fn yaml_string(value: &YamlValue, key: &str) -> Option<String> {
+    value.get(key)?.as_str().map(str::to_owned)
+}
+
+fn extract_trigger_names(value: &YamlValue) -> Vec<String> {
+    match value {
+        YamlValue::String(single) => vec![single.clone()],
+        YamlValue::Sequence(items) => items
+            .iter()
+            .filter_map(YamlValue::as_str)
+            .map(str::to_owned)
+            .collect(),
+        YamlValue::Mapping(mapping) => mapping
+            .keys()
+            .filter_map(YamlValue::as_str)
+            .map(str::to_owned)
+            .collect(),
+        _ => Vec::new(),
+    }
+}
+
+fn extract_jobs(value: &YamlValue) -> Result<Vec<JobAudit>, String> {
+    let Some(mapping) = value.as_mapping() else {
+        return Err("workflow `jobs` entry must be a mapping".to_owned());
+    };
+    let mut jobs = Vec::new();
+    for (job_id, body) in mapping {
+        let Some(job_id) = job_id.as_str() else {
+            continue;
+        };
+        let job_name = body
+            .get("name")
+            .and_then(YamlValue::as_str)
+            .unwrap_or(job_id)
+            .to_owned();
+        let condition = body
+            .get("if")
+            .and_then(YamlValue::as_str)
+            .map(str::to_owned);
+        jobs.push(JobAudit {
+            job_id: job_id.to_owned(),
+            job_name,
+            condition,
+        });
+    }
+    Ok(jobs)
+}
+
+fn extract_environment_targets(value: &YamlValue) -> Vec<String> {
+    let mut targets = BTreeSet::new();
+    if let Some(jobs) = value.get("jobs").and_then(YamlValue::as_mapping) {
+        for body in jobs.values() {
+            match body.get("environment") {
+                Some(YamlValue::String(name)) => {
+                    targets.insert(name.clone());
+                }
+                Some(YamlValue::Mapping(mapping)) => {
+                    if let Some(name) = mapping.get("name").and_then(YamlValue::as_str) {
+                        targets.insert(name.to_owned());
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+    targets.into_iter().collect()
+}
+
+fn collect_shared_setup_steps(raw: &str) -> Vec<String> {
+    let mut steps = BTreeSet::new();
+    for candidate in [
+        "actions/checkout@v4",
+        "actions/setup-node@v4",
+        "dtolnay/rust-toolchain@",
+        "Swatinem/rust-cache@v2",
+        "pulumi/setup-pulumi@",
+        "aws-actions/configure-aws-credentials@",
+        "oras-project/setup-oras@",
+    ] {
+        if raw.contains(candidate) {
+            steps.insert(candidate.to_owned());
+        }
+    }
+    steps.into_iter().collect()
+}
+
+fn collect_reusable_candidates(raw: &str) -> Vec<String> {
+    let mut candidates = Vec::new();
+    if raw.contains("Setup Node") && raw.contains("Install Rust toolchain") {
+        candidates.push("shared rust/node bootstrap".to_owned());
+    }
+    if raw.contains("Validate required configuration")
+        && raw.contains("Login to GHCR")
+        && raw.contains("Pulumi login")
+    {
+        candidates.push("shared delivery environment bootstrap".to_owned());
+    }
+    candidates
+}
+
+fn collect_audit_defects(
+    documented: &DocumentedProcess,
+    workflows: &[WorkflowAudit],
+) -> Result<Vec<String>, String> {
+    let mut defects = Vec::new();
+    let workflow_map = workflows
+        .iter()
+        .map(|workflow| (workflow.workflow_name.as_str(), workflow))
+        .collect::<BTreeMap<_, _>>();
+
+    let governance = workflow_map
+        .get("Governance")
+        .ok_or_else(|| "missing Governance workflow".to_owned())?;
+    let ci = workflow_map
+        .get("CI")
+        .ok_or_else(|| "missing CI workflow".to_owned())?;
+    let security = workflow_map
+        .get("Security")
+        .ok_or_else(|| "missing Security workflow".to_owned())?;
+    let delivery = workflow_map
+        .get("Delivery Dev")
+        .ok_or_else(|| "missing Delivery Dev workflow".to_owned())?;
+
+    let expected_checks = documented.required_checks.iter().collect::<BTreeSet<_>>();
+    let actual_checks = workflows
+        .iter()
+        .flat_map(|workflow| {
+            workflow
+                .jobs
+                .iter()
+                .map(move |job| format!("{} / {}", workflow.workflow_name, job.job_name))
+        })
+        .collect::<BTreeSet<_>>();
+    for check in expected_checks {
+        if !actual_checks.contains(check) {
+            defects.push(format!(
+                "documented required check `{check}` is not emitted by any workflow job"
+            ));
+        }
+    }
+
+    for workflow in [governance, ci, security] {
+        if !workflow
+            .triggers
+            .iter()
+            .any(|trigger| trigger == "pull_request")
+        {
+            defects.push(format!(
+                "workflow `{}` must trigger on pull_request to enforce documented PR checks",
+                workflow.workflow_name
+            ));
+        }
+    }
+
+    for workflow in workflows {
+        let has_pull_request_trigger = workflow
+            .triggers
+            .iter()
+            .any(|trigger| trigger == "pull_request");
+        for job in &workflow.jobs {
+            if let Some(condition) = &job.condition {
+                if condition.contains("pull_request") && !has_pull_request_trigger {
+                    defects.push(format!(
+                        "workflow `{}` job `{}` has PR-only condition `{condition}` without a pull_request trigger",
+                        workflow.workflow_name, job.job_name
+                    ));
+                }
+            }
+        }
+    }
+
+    if documented.automatic_dev_promotion
+        && !(delivery.triggers.iter().any(|trigger| trigger == "push")
+            && workflow_targets_main(delivery))
+    {
+        defects.push(
+            "documentation requires automatic dev promotion from merges to main, but Delivery Dev is not push-to-main automated"
+                .to_owned(),
+        );
+    }
+
+    Ok(defects)
+}
+
+fn workflow_targets_main(workflow: &WorkflowAudit) -> bool {
+    let path = workflow.file.as_str();
+    let Ok(raw) = fs::read_to_string(path) else {
+        return false;
+    };
+    raw.contains("branches:") && raw.contains("- main")
+}
+
+fn build_drift_matrix(
+    documented: &DocumentedProcess,
+    workflows: &[WorkflowAudit],
+    defects: &[String],
+) -> Vec<DriftRow> {
+    let actual_checks = workflows
+        .iter()
+        .flat_map(|workflow| {
+            workflow
+                .jobs
+                .iter()
+                .map(move |job| format!("{} / {}", workflow.workflow_name, job.job_name))
+        })
+        .collect::<BTreeSet<_>>();
+
+    let mut rows = documented
+        .required_checks
+        .iter()
+        .map(|check| DriftRow {
+            expectation: format!("required check `{check}` is automated"),
+            documented_source: ".github/governance.toml + contributor docs".to_owned(),
+            automation_source: ".github/workflows/*".to_owned(),
+            status: if actual_checks.contains(check) {
+                "pass".to_owned()
+            } else {
+                "fail".to_owned()
+            },
+            details: if actual_checks.contains(check) {
+                format!("found `{check}`")
+            } else {
+                format!("missing `{check}`")
+            },
+        })
+        .collect::<Vec<_>>();
+
+    rows.push(DriftRow {
+        expectation: "Delivery Dev auto-promotes merges to main".to_owned(),
+        documented_source: "README.md + DEVELOPMENT_MODEL.md".to_owned(),
+        automation_source: ".github/workflows/delivery-dev.yml".to_owned(),
+        status: if defects
+            .iter()
+            .any(|defect| defect.contains("automatic dev promotion"))
+        {
+            "fail".to_owned()
+        } else {
+            "pass".to_owned()
+        },
+        details: "must trigger on push to main; manual-only dispatch is drift".to_owned(),
+    });
+
+    rows
+}
+
+fn render_process_audit_markdown(report: &ProcessAuditReport) -> String {
+    let mut defects = String::new();
+    if report.defects.is_empty() {
+        defects.push_str("- none\n");
+    } else {
+        for defect in &report.defects {
+            let _ = writeln!(defects, "- {defect}");
+        }
+    }
+
+    let mut workflows = String::new();
+    for workflow in &report.automation {
+        let jobs = workflow
+            .jobs
+            .iter()
+            .map(|job| format!("{} ({})", job.job_name, job.job_id))
+            .collect::<Vec<_>>()
+            .join(", ");
+        let environments = if workflow.environment_targets.is_empty() {
+            "none".to_owned()
+        } else {
+            workflow.environment_targets.join(", ")
+        };
+        let shared_setup = if workflow.shared_setup_steps.is_empty() {
+            "none".to_owned()
+        } else {
+            workflow.shared_setup_steps.join(", ")
+        };
+        let reusable_logic = if workflow.reusable_logic_candidates.is_empty() {
+            "none".to_owned()
+        } else {
+            workflow.reusable_logic_candidates.join(", ")
+        };
+        let _ = writeln!(
+            workflows,
+            "### {}\n- file: `{}`\n- triggers: {}\n- jobs: {}\n- environments: {}\n- shared setup: {}\n- reusable logic candidates: {}\n",
+            workflow.workflow_name,
+            workflow.file,
+            workflow.triggers.join(", "),
+            jobs,
+            environments,
+            shared_setup,
+            reusable_logic
+        );
+    }
+
+    format!(
+        "# Process Flow Audit Report\n\n## Documented Source of Truth\n- source files: {}\n- branch model: {}\n- required checks: {}\n- automatic dev promotion: {}\n\n## Defects\n{}\
+\n## Workflow Baseline\n{}\
+\n## Drift Matrix\n{}",
+        report.documented.source_files.join(", "),
+        report.documented.branch_model,
+        report.documented.required_checks.join(", "),
+        if report.documented.automatic_dev_promotion {
+            "yes"
+        } else {
+            "no"
+        },
+        defects,
+        workflows,
+        render_drift_matrix_markdown(&report.drift_matrix)
+    )
+}
+
+fn render_drift_matrix_markdown(rows: &[DriftRow]) -> String {
+    let mut out =
+        "| Expectation | Documented Source | Automation Source | Status | Details |\n| --- | --- | --- | --- | --- |\n"
+            .to_owned();
+    for row in rows {
+        let _ = writeln!(
+            out,
+            "| {} | {} | {} | {} | {} |",
+            row.expectation, row.documented_source, row.automation_source, row.status, row.details
+        );
+    }
+    out
 }
 
 fn parse_sync_args(args: &[String]) -> Result<SyncArgs, String> {
@@ -959,15 +1509,24 @@ fn run_gh_with_input(args: &[String], input: Option<&str>) -> Result<String, Str
 }
 
 fn help() -> String {
-    "usage: cargo xtask github <sync|validate-pr> ...".to_owned()
+    "\
+usage: cargo xtask github <subcommand> ...
+
+Subcommands:
+  sync           Sync repository governance settings from .github/governance.toml
+  validate-pr    Validate pull request title, branch, and issue linkage
+  audit-process  Audit contributor docs, governance config, and workflow enforcement
+"
+    .to_owned()
 }
 
 #[cfg(test)]
 mod tests {
     use super::{
-        branch_ruleset_payload, load_config, main_ruleset_payload, validate_pr_event,
-        PullRequestEvent,
+        branch_ruleset_payload, extract_trigger_names, load_config, main_ruleset_payload,
+        render_drift_matrix_markdown, validate_pr_event, DriftRow, PullRequestEvent,
     };
+    use serde_yaml::Value as YamlValue;
     use std::path::PathBuf;
 
     fn config_path() -> PathBuf {
@@ -1051,5 +1610,32 @@ mod tests {
         assert!(branch_rules
             .iter()
             .any(|rule| rule["type"] == "branch_name_pattern"));
+    }
+
+    #[test]
+    fn extract_trigger_names_reads_mapping_keys() {
+        let yaml: YamlValue = serde_yaml::from_str(
+            "pull_request:\npush:\n  branches:\n    - main\nworkflow_dispatch:\n",
+        )
+        .expect("yaml");
+        let triggers = extract_trigger_names(&yaml);
+        assert!(triggers.contains(&"pull_request".to_string()));
+        assert!(triggers.contains(&"push".to_string()));
+        assert!(triggers.contains(&"workflow_dispatch".to_string()));
+    }
+
+    #[test]
+    fn drift_matrix_markdown_renders_expected_columns() {
+        let markdown = render_drift_matrix_markdown(&[DriftRow {
+            expectation: "required check".to_string(),
+            documented_source: "docs".to_string(),
+            automation_source: "workflow".to_string(),
+            status: "pass".to_string(),
+            details: "found".to_string(),
+        }]);
+        assert!(markdown.contains(
+            "| Expectation | Documented Source | Automation Source | Status | Details |"
+        ));
+        assert!(markdown.contains("| required check | docs | workflow | pass | found |"));
     }
 }

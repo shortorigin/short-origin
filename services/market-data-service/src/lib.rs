@@ -11,15 +11,37 @@ use rand::{Rng, SeedableRng};
 use trading_core::{Clock, IdGenerator, MarketDataAdapter, SystemClock};
 use trading_errors::{TradingError, TradingResult};
 
+const SERVICE_NAME: &str = "market-data-service";
+const DOMAIN_NAME: &str = "capital_markets_data";
+const APPROVED_WORKFLOWS: &[&str] = &["quant_strategy_promotion"];
+const OWNED_AGGREGATES: &[&str] = &["market_dataset", "normalization_report"];
+
 fn map_trading_error(error: TradingError) -> InstitutionalError {
-    InstitutionalError::InvariantViolation {
-        invariant: error.to_string(),
+    InstitutionalError::external(
+        "trading-core",
+        Some("market-data".to_string()),
+        error.to_string(),
+    )
+}
+
+#[derive(Debug, Default, Clone)]
+struct InMemoryMarketDataCatalog {
+    batches: Vec<MarketDataBatchV1>,
+}
+
+impl InMemoryMarketDataCatalog {
+    fn record(&mut self, batch: MarketDataBatchV1) {
+        self.batches.push(batch);
+    }
+
+    fn batches(&self) -> &[MarketDataBatchV1] {
+        &self.batches
     }
 }
 
 #[derive(Debug, Default, Clone)]
 pub struct MarketDataService {
-    batches: Vec<MarketDataBatchV1>,
+    catalog: InMemoryMarketDataCatalog,
 }
 
 impl MarketDataService {
@@ -72,13 +94,13 @@ impl MarketDataService {
             end_time,
             events,
         };
-        self.batches.push(batch.clone());
+        self.catalog.record(batch.clone());
         Ok(batch)
     }
 
     #[must_use]
     pub fn batches(&self) -> &[MarketDataBatchV1] {
-        &self.batches
+        self.catalog.batches()
     }
 }
 
@@ -284,13 +306,16 @@ fn split_symbol(value: &str) -> TradingResult<(&str, &str)> {
 #[must_use]
 pub fn service_boundary() -> ServiceBoundaryV1 {
     ServiceBoundaryV1 {
-        service_name: "market-data-service".to_owned(),
-        domain: "capital_markets_data".to_owned(),
-        approved_workflows: vec!["quant_strategy_promotion".to_owned()],
-        owned_aggregates: vec![
-            "market_dataset".to_owned(),
-            "normalization_report".to_owned(),
-        ],
+        service_name: SERVICE_NAME.to_owned(),
+        domain: DOMAIN_NAME.to_owned(),
+        approved_workflows: APPROVED_WORKFLOWS
+            .iter()
+            .map(|value| (*value).to_owned())
+            .collect(),
+        owned_aggregates: OWNED_AGGREGATES
+            .iter()
+            .map(|value| (*value).to_owned())
+            .collect(),
     }
 }
 
@@ -314,7 +339,27 @@ mod tests {
     use contracts::{AssetClassV1, HistoricalDataRequestV1, RawMarketRecordV1, SymbolV1, VenueV1};
     use trading_core::{FixedClock, MarketDataAdapter, SequenceIdGenerator};
 
-    use super::{CoinbaseAdapter, MarketDataService, OandaAdapter};
+    use super::{
+        service_boundary, CoinbaseAdapter, MarketDataService, OandaAdapter, APPROVED_WORKFLOWS,
+        DOMAIN_NAME, OWNED_AGGREGATES, SERVICE_NAME,
+    };
+
+    #[test]
+    fn service_boundary_matches_enterprise_catalog() {
+        let source = include_str!(
+            "../../../enterprise/domains/capital_markets_data/service_boundaries.toml"
+        );
+        let boundary = service_boundary();
+
+        assert_eq!(boundary.service_name, SERVICE_NAME);
+        assert_eq!(boundary.domain, DOMAIN_NAME);
+        for workflow in APPROVED_WORKFLOWS {
+            assert!(source.contains(workflow));
+        }
+        for aggregate in OWNED_AGGREGATES {
+            assert!(source.contains(aggregate));
+        }
+    }
 
     #[test]
     fn coinbase_historical_is_sorted() {

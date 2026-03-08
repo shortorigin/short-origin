@@ -4,11 +4,11 @@ This repository is the pilot adopter for the `shortorigin` GitHub-native Scrumba
 
 ## Canonical Config
 
-- GitHub governance config: [`.github/governance.toml`](/Users/justinshort/short%20origin/.github/governance.toml)
-- Issue forms: [`.github/ISSUE_TEMPLATE`](/Users/justinshort/short%20origin/.github/ISSUE_TEMPLATE)
-- PR template: [`.github/PULL_REQUEST_TEMPLATE.md`](/Users/justinshort/short%20origin/.github/PULL_REQUEST_TEMPLATE.md)
-- Development policy: [DEVELOPMENT_MODEL.md](/Users/justinshort/short%20origin/DEVELOPMENT_MODEL.md)
-- Contributor workflow: [CONTRIBUTING.md](/Users/justinshort/short%20origin/CONTRIBUTING.md)
+- GitHub governance config: [`.github/governance.toml`](../../.github/governance.toml)
+- Issue forms: [`.github/ISSUE_TEMPLATE`](../../.github/ISSUE_TEMPLATE)
+- PR template: [`.github/PULL_REQUEST_TEMPLATE.md`](../../.github/PULL_REQUEST_TEMPLATE.md)
+- Development policy: [`DEVELOPMENT_MODEL.md`](../../DEVELOPMENT_MODEL.md)
+- Contributor workflow: [`CONTRIBUTING.md`](../../CONTRIBUTING.md)
 
 ## Required GitHub Workflow Protocol
 
@@ -27,6 +27,7 @@ Dry-run the organization and repository sync plans:
 ```bash
 cargo xtask github sync org --config .github/governance.toml --dry-run
 cargo xtask github sync repo --config .github/governance.toml --repository shortorigin/origin --dry-run
+cargo xtask github audit-process
 ```
 
 Apply the GitHub settings with `gh` once authenticated:
@@ -91,5 +92,6 @@ Create the same secret names in each environment where needed:
 - `PULUMI_STATE_BUCKET`
 - `CLOUDFLARE_API_TOKEN`
 
-`dev` deploys automatically from `main`, `stage` is reserved for release candidates, and
-`production` is reserved for approved final releases.
+`dev` deploys automatically from pushes to `main`, `stage` is reserved for release candidates, and
+`production` is reserved for approved final releases. See
+[`github-workflow-migration.md`](github-workflow-migration.md) for the contributor-facing flow.

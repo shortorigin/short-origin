@@ -21,18 +21,19 @@ Origin is a Rust-first, contract-driven platform organized around explicit modul
 Origin uses a GitHub-native Scrumban model.
 
 1. Start with a same-repository GitHub issue that defines context, scope, and acceptance criteria.
-2. Work on a short-lived issue branch named `<type>/<issue-id>-description` using an approved prefix from [DEVELOPMENT_MODEL.md](/Users/justinshort/short%20origin/DEVELOPMENT_MODEL.md).
+2. Work on a short-lived issue branch named `<type>/<issue-id>-description` using an approved prefix from [`DEVELOPMENT_MODEL.md`](DEVELOPMENT_MODEL.md).
 3. Open a pull request with a conventional title and a PR body that includes `Closes #<issue-id>`.
 4. Merge to `main` only after review and required checks pass so the linked issue closes automatically.
 
 Primary contributor docs:
 
-- [ARCHITECTURE.md](/Users/justinshort/short%20origin/ARCHITECTURE.md)
-- [CONTRIBUTING.md](/Users/justinshort/short%20origin/CONTRIBUTING.md)
-- [DEVELOPMENT_MODEL.md](/Users/justinshort/short%20origin/DEVELOPMENT_MODEL.md)
-- [GitHub governance rollout](/Users/justinshort/short%20origin/docs/process/github-governance-rollout.md)
-- [Local wasmCloud development](/Users/justinshort/short%20origin/docs/process/wasmcloud-local-dev.md)
-- [SECURITY.md](/Users/justinshort/short%20origin/SECURITY.md)
+- [ARCHITECTURE.md](ARCHITECTURE.md)
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [DEVELOPMENT_MODEL.md](DEVELOPMENT_MODEL.md)
+- [GitHub governance rollout](docs/process/github-governance-rollout.md)
+- [GitHub workflow migration note](docs/process/github-workflow-migration.md)
+- [Local wasmCloud development](docs/process/wasmcloud-local-dev.md)
+- [SECURITY.md](SECURITY.md)
 
 ## Verification
 
@@ -46,17 +47,23 @@ cargo test --workspace --all-targets
 
 The GitHub CI baseline also includes `cargo audit`.
 
+For local enforcement parity, also run:
+
+```bash
+cargo xtask github audit-process
+```
+
 ## Delivery and Release
 
 Origin uses a GitHub-native, trunk-based delivery model:
 
 - `main` is the only long-lived branch.
 - `CI / pr-gate`, `Security / security-gate`, and `Governance / validate` are the required checks.
-- Merges to `main` publish digest-addressable component descriptors to `ghcr.io/shortorigin/*` and
-  auto-promote the `dev` environment.
+- The `Delivery Dev` workflow runs automatically on pushes to `main`, publishes
+  digest-addressable component descriptors to `ghcr.io/shortorigin/*`, and promotes `dev`.
 - Release candidates are cut from a green `main` SHA, deployed to `stage`, and promoted to
   `production` only through the `Promote Release` workflow.
 
 Digest-pinned environment manifests are rendered under
-[`infrastructure/wasmcloud/manifests`](/Users/justinshort/short%20origin/infrastructure/wasmcloud/manifests)
+[`infrastructure/wasmcloud/manifests`](infrastructure/wasmcloud/manifests)
 and attached to GitHub Releases for rollback and audit.

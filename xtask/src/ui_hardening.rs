@@ -649,8 +649,7 @@ fn render_report(
         wasm_bindgen_crate = dependency_audit
             .versions
             .get("wasm-bindgen")
-            .map(join_set)
-            .unwrap_or_else(|| "NOT FOUND".to_string()),
+            .map_or_else(|| "NOT FOUND".to_string(), join_set),
         wasm_opt = tool_versions.wasm_opt.as_deref().unwrap_or("NOT INSTALLED"),
         targets = tool_versions.rustup_targets.join(", "),
         build_root = BUILD_ROOT,
@@ -827,7 +826,7 @@ fn build_actions(findings: &[Finding]) -> Vec<Action> {
             status: finding.status.clone(),
             defect: finding.evidence.clone(),
             root_cause: finding.impact.clone(),
-            corrective_action: if finding.status == "FAIL" {
+            fix: if finding.status == "FAIL" {
                 format!(
                     "Remediate `{}` until the verification procedure reports `PASS`.",
                     finding.title
@@ -909,8 +908,15 @@ fn build_checklist(
         ),
         checklist_item(
             "full asset graph capture",
-            build_a.files.iter().any(|artifact| artifact.relative_path.ends_with(".wasm"))
-                && build_a.files.iter().any(|artifact| artifact.relative_path.ends_with(".js"))
+            build_a.files.iter().any(|artifact| {
+                Path::new(&artifact.relative_path)
+                    .extension()
+                    .is_some_and(|ext| ext.eq_ignore_ascii_case("wasm"))
+            }) && build_a.files.iter().any(|artifact| {
+                Path::new(&artifact.relative_path)
+                    .extension()
+                    .is_some_and(|ext| ext.eq_ignore_ascii_case("js"))
+            })
                 && build_a
                     .files
                     .iter()
@@ -986,13 +992,13 @@ fn render_actions(actions: &[Action]) -> String {
         .iter()
         .map(|action| {
             format!(
-                "{idx}. [{status}] {title}\n   - precise defect description: {defect}\n   - root cause: {root_cause}\n   - corrective action: {corrective_action}\n   - verification command or procedure: {verification}\n   - final expected condition: {expected}",
+                "{idx}. [{status}] {title}\n   - precise defect description: {defect}\n   - root cause: {root_cause}\n   - corrective action: {fix}\n   - verification command or procedure: {verification}\n   - final expected condition: {expected}",
                 idx = action.index,
                 status = action.status,
                 title = action.title,
                 defect = action.defect,
                 root_cause = action.root_cause,
-                corrective_action = action.corrective_action,
+                fix = action.fix,
                 verification = action.verification,
                 expected = action.expected,
             )
@@ -1553,7 +1559,7 @@ struct Action {
     status: String,
     defect: String,
     root_cause: String,
-    corrective_action: String,
+    fix: String,
     verification: String,
     expected: String,
 }

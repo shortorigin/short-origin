@@ -1,0 +1,55 @@
+name: Setup Build Environment
+description: Install shared Rust and Node build dependencies with stable caching.
+
+inputs:
+  rust-components:
+    description: Comma-separated Rust components to install.
+    required: false
+    default: ""
+  rust-cache-shared-key:
+    description: Shared cache key for Rust dependencies.
+    required: false
+    default: rust-core-ubuntu-stable-v1
+  node-version:
+    description: Node.js version to install. Empty skips Node setup.
+    required: false
+    default: ""
+  node-cache-path:
+    description: npm lockfile path used for cache setup. Empty disables npm cache wiring.
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node
+      if: ${{ inputs.node-version != '' && inputs.node-cache-path == '' }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Setup Node with npm cache
+      if: ${{ inputs.node-version != '' && inputs.node-cache-path != '' }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: npm
+        cache-dependency-path: ${{ inputs.node-cache-path }}
+
+    - name: Install Rust toolchain
+      if: ${{ inputs.rust-components == '' }}
+      uses: dtolnay/rust-toolchain@1.91.1
+
+    - name: Install Rust toolchain with components
+      if: ${{ inputs.rust-components != '' }}
+      uses: dtolnay/rust-toolchain@1.91.1
+      with:
+        components: ${{ inputs.rust-components }}
+
+    - name: Cache cargo
+      uses: Swatinem/rust-cache@v2
+      with:
+        shared-key: ${{ inputs.rust-cache-shared-key }}
+        cache-all-crates: "false"
+        cache-bin: "false"
+        cache-workspace-crates: "false"

@@ -1,19 +1,20 @@
 name: CI
 
 on:
+  pull_request:
+  merge_group:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  changes:
+  pr-gate:
+    name: pr-gate
     runs-on: ubuntu-latest
-    outputs:
-      rust: ${{ steps.detect.outputs.rust }}
-      nomad: ${{ steps.detect.outputs.nomad }}
-      pulumi: ${{ steps.detect.outputs.pulumi }}
-      nomad_files: ${{ steps.detect.outputs.nomad_files }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,97 +22,145 @@ jobs:
           fetch-depth: 0
 
       - name: Detect changed areas
-        id: detect
-        run: ./.github/scripts/detect_changes.sh
-
-  verify:
-    name: verify
-    needs: changes
-    if: needs.changes.outputs.rust == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@1.91.1
+        id: filter
+        if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' }}
+        uses: dorny/paths-filter@v3
         with:
-          components: rustfmt, clippy
+          filters: |
+            shared_root:
+              - '.cargo/**'
+              - 'Cargo.toml'
+              - 'Cargo.lock'
+              - 'rust-toolchain.toml'
+              - 'README.md'
+              - 'CONTRIBUTING.md'
+              - 'DEVELOPMENT_MODEL.md'
+              - 'ARCHITECTURE.md'
+              - '.github/workflows/**'
+              - '.github/actions/**'
+              - 'xtask/**'
+              - 'shared/**'
+              - 'schemas/**'
+              - 'platform/**'
+              - 'enterprise/**'
+              - 'workflows/**'
+            core_rust:
+              - 'services/**'
+              - 'agents/**'
+            ui:
+              - 'ui/**'
+            nomad:
+              - 'infrastructure/nomad/**/*.hcl'
+            pulumi:
+              - 'infrastructure/pulumi/**'
 
-      - name: Cache cargo
-        uses: Swatinem/rust-cache@v2
-        with:
-          shared-key: rust-core-ubuntu-stable-v1
-          cache-all-crates: "false"
-          cache-bin: "false"
-          cache-workspace-crates: "false"
+      - name: Resolve validation scope
+        id: scope
+        shell: bash
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == "merge_group" || "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            shared_root=true
+            core_rust=true
+            ui=true
+            nomad=true
+            pulumi=true
+          else
+            shared_root="${{ steps.filter.outputs.shared_root }}"
+            core_rust="${{ steps.filter.outputs.core_rust }}"
+            ui="${{ steps.filter.outputs.ui }}"
+            nomad="${{ steps.filter.outputs.nomad }}"
+            pulumi="${{ steps.filter.outputs.pulumi }}"
+          fi
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+          if [[ "${shared_root}" == "true" || "${core_rust}" == "true" ]]; then
+            run_core=true
+          else
+            run_core=false
+          fi
+
+          if [[ "${shared_root}" == "true" || "${ui}" == "true" ]]; then
+            run_ui=true
+          else
+            run_ui=false
+          fi
+
+          {
+            echo "run_core=${run_core}"
+            echo "run_ui=${run_ui}"
+            echo "run_nomad=${nomad}"
+            echo "run_pulumi=${pulumi}"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build-environment
         with:
+          rust-components: rustfmt,clippy
           node-version: "20"
+          node-cache-path: ui/e2e/package-lock.json
+
+      - name: Install UI verification dependencies
+        if: ${{ steps.scope.outputs.run_ui == 'true' }}
+        run: npm ci --prefix ui/e2e
 
       - name: Install Playwright browsers for browser hardening validation
-        run: node ui/e2e/node_modules/playwright/cli.js install chromium firefox
+        if: ${{ steps.scope.outputs.run_ui == 'true' }}
+        run: npx --prefix ui/e2e playwright install --with-deps chromium firefox webkit
 
       - name: Run core verification profile
+        if: ${{ steps.scope.outputs.run_core == 'true' }}
         run: cargo xtask verify profile core
 
+      - name: Run UI verification profile
+        if: ${{ steps.scope.outputs.run_ui == 'true' }}
+        run: cargo xtask verify profile ui
+
       - name: Run UI hardening verification
+        if: ${{ steps.scope.outputs.run_ui == 'true' }}
         run: cargo xtask ui-hardening
 
       - name: Infrastructure posture validation
+        if: ${{ steps.scope.outputs.run_core == 'true' }}
         run: |
           if rg -n 'driver\s*=\s*"raw_exec"' infrastructure/nomad/jobs; then
             echo "raw_exec deployments are not allowed for workload services"
             exit 1
           fi
 
-  nomad:
-    name: nomad
-    needs: changes
-    if: needs.changes.outputs.nomad == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Validate changed Nomad jobs
-        env:
-          NOMAD_FILES: ${{ needs.changes.outputs.nomad_files }}
+      - name: Validate Nomad jobs
+        if: ${{ steps.scope.outputs.run_nomad == 'true' }}
+        shell: bash
         run: |
-          mapfile -t files <<< "${NOMAD_FILES}"
+          mapfile -t files < <(find infrastructure/nomad/jobs -type f -name '*.nomad.hcl' | sort)
           if [[ "${#files[@]}" -eq 0 ]]; then
-            echo "No Nomad jobs changed."
+            echo "No Nomad jobs found."
             exit 0
           fi
           for file in "${files[@]}"; do
-            [[ -z "${file}" ]] && continue
             docker run --rm -v "${PWD}:/workspace" -w /workspace hashicorp/nomad:1.8.4 \
               nomad job validate "${file}"
           done
 
-  pulumi:
-    name: pulumi
-    needs: changes
-    if: needs.changes.outputs.pulumi == 'true'
-    runs-on: ubuntu-latest
-    defaults:
-      run:
+      - name: Install Pulumi dependencies
+        if: ${{ steps.scope.outputs.run_pulumi == 'true' }}
         working-directory: infrastructure/pulumi
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: npm
-          cache-dependency-path: infrastructure/pulumi/package-lock.json
-
-      - name: Install dependencies
         run: npm ci
 
       - name: Run Pulumi workspace tests
+        if: ${{ steps.scope.outputs.run_pulumi == 'true' }}
+        working-directory: infrastructure/pulumi
         run: npm test
+
+      - name: Summarize path-scoped validation
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Path-scoped validation summary"
+            echo ""
+            echo "- core verification: ${{ steps.scope.outputs.run_core }}"
+            echo "- ui verification: ${{ steps.scope.outputs.run_ui }}"
+            echo "- nomad validation: ${{ steps.scope.outputs.run_nomad }}"
+            echo "- pulumi validation: ${{ steps.scope.outputs.run_pulumi }}"
+            echo ""
+            echo "The top-level required check remains \`CI / pr-gate\` even when individual validation areas are skipped."
+          } >> "${GITHUB_STEP_SUMMARY}"

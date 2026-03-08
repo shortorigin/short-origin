@@ -24,4 +24,8 @@ Origin is organized around explicit module ownership, versioned contracts, and w
 
 ## Delivery Model
 
-Engineering delivery is GitHub-native and issue-driven. See [DEVELOPMENT_MODEL.md](/Users/justinshort/short%20origin/DEVELOPMENT_MODEL.md) for the operating model and [AGENTS.md](/Users/justinshort/short%20origin/AGENTS.md) for repository-specific architecture and agent constraints.
+Engineering delivery is GitHub-native and issue-driven. See
+[`DEVELOPMENT_MODEL.md`](DEVELOPMENT_MODEL.md) for the operating model,
+[`docs/process/github-workflow-migration.md`](docs/process/github-workflow-migration.md) for the
+current automation flow, and [`AGENTS.md`](AGENTS.md) for repository-specific architecture and
+agent constraints.

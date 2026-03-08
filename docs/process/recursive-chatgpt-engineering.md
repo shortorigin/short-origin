@@ -1,6 +1,6 @@
 # Recursive ChatGPT Engineering
 
-> Archived on 2026-03-05. This playbook is preserved as historical context for the retired `work-items/` process. Active delivery now follows [DEVELOPMENT_MODEL.md](/Users/justinshort/short%20origin/DEVELOPMENT_MODEL.md) and the GitHub rollout runbook in [docs/process/github-governance-rollout.md](/Users/justinshort/short%20origin/docs/process/github-governance-rollout.md).
+> Archived on 2026-03-05. This playbook is preserved as historical context for the retired `work-items/` process. Active delivery now follows [DEVELOPMENT_MODEL.md](../../DEVELOPMENT_MODEL.md) and the GitHub rollout runbook in [docs/process/github-governance-rollout.md](github-governance-rollout.md).
 
 ## Purpose
 This playbook defines the required prompt-driven delivery loop for Short Origin:

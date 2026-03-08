@@ -1,6 +1,6 @@
 # UI System Refactor Issue Drafts
 
-This document operationalizes the current UI review into ready-to-file GitHub issues. Each draft aligns to the repository's refactor issue form in [`.github/ISSUE_TEMPLATE/refactor.yml`](/Users/justinshort/short%20origin/.github/ISSUE_TEMPLATE/refactor.yml) and is intended to be copied into GitHub with minimal editing.
+This document operationalizes the current UI review into ready-to-file GitHub issues. Each draft aligns to the repository's refactor issue form in [`.github/ISSUE_TEMPLATE/refactor.yml`](../../.github/ISSUE_TEMPLATE/refactor.yml) and is intended to be copied into GitHub with minimal editing.
 
 Issue sequencing:
 
@@ -32,9 +32,9 @@ The repository has already committed to `ui/` as the owner of Leptos/Tauri prese
 
 **Relevant Context**
 
-- Shared button semantics are defined in [controls.rs](/Users/justinshort/short%20origin/ui/crates/system_ui/src/primitives/controls.rs).
-- Shared navigation and tab primitives live in [navigation.rs](/Users/justinshort/short%20origin/ui/crates/system_ui/src/primitives/navigation.rs).
-- Shared menu and modal surfaces live in [overlays.rs](/Users/justinshort/short%20origin/ui/crates/system_ui/src/primitives/overlays.rs).
+- Shared button semantics are defined in [controls.rs](../../ui/crates/system_ui/src/primitives/controls.rs).
+- Shared navigation and tab primitives live in [navigation.rs](../../ui/crates/system_ui/src/primitives/navigation.rs).
+- Shared menu and modal surfaces live in [overlays.rs](../../ui/crates/system_ui/src/primitives/overlays.rs).
 - Current consumers in `desktop_runtime` compensate for primitive gaps with local keyboard/focus logic instead of receiving a complete substrate.
 
 **Proposed Solution**
@@ -62,7 +62,7 @@ Expand `system_ui` so semantics are first-class primitive capabilities rather th
 **Related Issues**
 
 - Follow with the overlay interaction substrate issue in this document.
-- Related paths: [controls.rs](/Users/justinshort/short%20origin/ui/crates/system_ui/src/primitives/controls.rs), [navigation.rs](/Users/justinshort/short%20origin/ui/crates/system_ui/src/primitives/navigation.rs), [overlays.rs](/Users/justinshort/short%20origin/ui/crates/system_ui/src/primitives/overlays.rs)
+- Related paths: [controls.rs](../../ui/crates/system_ui/src/primitives/controls.rs), [navigation.rs](../../ui/crates/system_ui/src/primitives/navigation.rs), [overlays.rs](../../ui/crates/system_ui/src/primitives/overlays.rs)
 
 ## Issue 2
 
@@ -84,9 +84,9 @@ The overlay surfaces are a core part of the system UI shell. They are already nu
 
 **Relevant Context**
 
-- Taskbar-level overlay listeners and focus orchestration live in [taskbar.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/components/taskbar.rs).
-- Menu-specific keyboard and close behavior is spread across [menus.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/components/menus.rs).
-- Local DOM focus helpers live in [a11y.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/components/a11y.rs).
+- Taskbar-level overlay listeners and focus orchestration live in [taskbar.rs](../../ui/crates/desktop_runtime/src/components/taskbar.rs).
+- Menu-specific keyboard and close behavior is spread across [menus.rs](../../ui/crates/desktop_runtime/src/components/menus.rs).
+- Local DOM focus helpers live in [a11y.rs](../../ui/crates/desktop_runtime/src/components/a11y.rs).
 
 **Proposed Solution**
 
@@ -113,7 +113,7 @@ Create a shared overlay interaction layer that `desktop_runtime` can reuse acros
 **Related Issues**
 
 - Depends on the semantic substrate issue in this document.
-- Related paths: [taskbar.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/components/taskbar.rs), [menus.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/components/menus.rs), [a11y.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/components/a11y.rs)
+- Related paths: [taskbar.rs](../../ui/crates/desktop_runtime/src/components/taskbar.rs), [menus.rs](../../ui/crates/desktop_runtime/src/components/menus.rs), [a11y.rs](../../ui/crates/desktop_runtime/src/components/a11y.rs)
 
 ## Issue 3
 
@@ -135,8 +135,8 @@ This reducer is the shell's authoritative orchestration engine. As more features
 
 **Relevant Context**
 
-- The reducer currently spans the action/effect model and most transition logic in [reducer.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/reducer.rs).
-- Shared window-management helpers live in [window_manager.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/window_manager.rs).
+- The reducer currently spans the action/effect model and most transition logic in [reducer.rs](../../ui/crates/desktop_runtime/src/reducer.rs).
+- Shared window-management helpers live in [window_manager.rs](../../ui/crates/desktop_runtime/src/window_manager.rs).
 
 **Proposed Solution**
 
@@ -163,7 +163,7 @@ Retain the reducer as the authoritative boundary while modularizing its internal
 **Related Issues**
 
 - Should precede dispatch dirty-tracking, orchestration extraction, and effect-pipeline formalization.
-- Related paths: [reducer.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/reducer.rs), [window_manager.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/window_manager.rs)
+- Related paths: [reducer.rs](../../ui/crates/desktop_runtime/src/reducer.rs), [window_manager.rs](../../ui/crates/desktop_runtime/src/window_manager.rs)
 
 ## Issue 4
 
@@ -185,7 +185,7 @@ Window movement, resizing, and effect-heavy actions already put this path on the
 
 **Relevant Context**
 
-- Current dispatch orchestration and whole-state clone/equality comparison live in [runtime_context.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/runtime_context.rs).
+- Current dispatch orchestration and whole-state clone/equality comparison live in [runtime_context.rs](../../ui/crates/desktop_runtime/src/runtime_context.rs).
 
 **Proposed Solution**
 
@@ -212,7 +212,7 @@ Make state mutation reporting explicit at the reducer/runtime boundary.
 **Related Issues**
 
 - Depends on the reducer modularization issue in this document.
-- Related path: [runtime_context.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/runtime_context.rs)
+- Related path: [runtime_context.rs](../../ui/crates/desktop_runtime/src/runtime_context.rs)
 
 ## Issue 5
 
@@ -234,9 +234,9 @@ As the shell grows, keeping orchestration logic in view modules will create dupl
 
 **Relevant Context**
 
-- Shell composition and helper orchestration live in [components.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/components.rs).
-- Window interaction view logic lives in [window.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/components/window.rs).
-- Related orchestration wiring also touches taskbar behavior in [taskbar.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/components/taskbar.rs).
+- Shell composition and helper orchestration live in [components.rs](../../ui/crates/desktop_runtime/src/components.rs).
+- Window interaction view logic lives in [window.rs](../../ui/crates/desktop_runtime/src/components/window.rs).
+- Related orchestration wiring also touches taskbar behavior in [taskbar.rs](../../ui/crates/desktop_runtime/src/components/taskbar.rs).
 
 **Proposed Solution**
 
@@ -262,7 +262,7 @@ Introduce a typed orchestration layer that sits between views and reducer dispat
 **Related Issues**
 
 - Builds on the reducer modularization issue.
-- Related paths: [components.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/components.rs), [window.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/components/window.rs), [taskbar.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/components/taskbar.rs)
+- Related paths: [components.rs](../../ui/crates/desktop_runtime/src/components.rs), [window.rs](../../ui/crates/desktop_runtime/src/components/window.rs), [taskbar.rs](../../ui/crates/desktop_runtime/src/components/taskbar.rs)
 
 ## Issue 6
 
@@ -284,9 +284,9 @@ The effect pipeline is the place where UI orchestration meets host services, per
 
 **Relevant Context**
 
-- Queue draining is installed in [effect_executor.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/effect_executor.rs).
-- Effect-to-host dispatch is centralized in [host/effects.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/host/effects.rs).
-- The host boundary is defined in [host.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/host.rs).
+- Queue draining is installed in [effect_executor.rs](../../ui/crates/desktop_runtime/src/effect_executor.rs).
+- Effect-to-host dispatch is centralized in [host/effects.rs](../../ui/crates/desktop_runtime/src/host/effects.rs).
+- The host boundary is defined in [host.rs](../../ui/crates/desktop_runtime/src/host.rs).
 
 **Proposed Solution**
 
@@ -313,7 +313,7 @@ Formalize effect execution as a typed command pipeline with domain-scoped handle
 **Related Issues**
 
 - Closely related to reducer modularization and window orchestration extraction.
-- Related paths: [effect_executor.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/effect_executor.rs), [effects.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/host/effects.rs), [host.rs](/Users/justinshort/short%20origin/ui/crates/desktop_runtime/src/host.rs)
+- Related paths: [effect_executor.rs](../../ui/crates/desktop_runtime/src/effect_executor.rs), [effects.rs](../../ui/crates/desktop_runtime/src/host/effects.rs), [host.rs](../../ui/crates/desktop_runtime/src/host.rs)
 
 ## Issue 7
 
@@ -335,7 +335,7 @@ The repository explicitly keeps browser/WASM preview support for parity checks w
 
 **Relevant Context**
 
-- Current route composition, canonical placeholders, and deep-link parsing live in [web_app.rs](/Users/justinshort/short%20origin/ui/crates/site/src/web_app.rs).
+- Current route composition, canonical placeholders, and deep-link parsing live in [web_app.rs](../../ui/crates/site/src/web_app.rs).
 
 **Proposed Solution**
 
@@ -361,4 +361,4 @@ Strengthen the routing/deep-link boundary and remove placeholder behavior that w
 
 **Related Issues**
 
-- Related path: [web_app.rs](/Users/justinshort/short%20origin/ui/crates/site/src/web_app.rs)
+- Related path: [web_app.rs](../../ui/crates/site/src/web_app.rs)

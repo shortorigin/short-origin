@@ -1,6 +1,8 @@
 name: Governance
 
 on:
+  pull_request:
+  merge_group:
   workflow_dispatch:
 
 permissions:
@@ -8,16 +10,25 @@ permissions:
 
 jobs:
   validate:
+    name: validate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@1.91.1
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build-environment
 
-      - name: Cache cargo
-        uses: Swatinem/rust-cache@v2
+      - name: Audit documented process against automation
+        run: cargo xtask github audit-process
 
       - name: Validate PR governance
+        if: ${{ github.event_name == 'pull_request' }}
         run: cargo xtask github validate-pr --event-path "$GITHUB_EVENT_PATH" --config .github/governance.toml
+
+      - name: Upload process audit artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: process-audit
+          path: target/process-audit

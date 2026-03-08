@@ -2,9 +2,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 fn collect_rust_files(root: &Path, output: &mut Vec<PathBuf>) {
-    let entries = match fs::read_dir(root) {
-        Ok(entries) => entries,
-        Err(_) => return,
+    let Ok(entries) = fs::read_dir(root) else {
+        return;
     };
 
     for entry in entries.flatten() {

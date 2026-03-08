@@ -4,17 +4,42 @@ use contracts::{ApprovalDecisionV1, ApprovalRequestV1, ServiceBoundaryV1};
 use error_model::{InstitutionalError, InstitutionalResult};
 use policy_sdk::ApprovalVerificationPort;
 
+const SERVICE_NAME: &str = "approval-service";
+const DOMAIN_NAME: &str = "strategy_governance";
+const APPROVED_WORKFLOWS: &[&str] = &[
+    "policy_exception",
+    "release_approval",
+    "treasury_disbursement",
+    "quant_strategy_promotion",
+];
+const OWNED_AGGREGATES: &[&str] = &["approval_request", "approval_decision"];
+
 #[derive(Debug, Default, Clone)]
-pub struct ApprovalService {
+struct InMemoryApprovalStore {
     approvals: BTreeMap<String, Vec<ApprovalDecisionV1>>,
 }
 
-impl ApprovalService {
-    pub fn record_decision(&mut self, decision: ApprovalDecisionV1) {
+impl InMemoryApprovalStore {
+    fn record(&mut self, decision: ApprovalDecisionV1) {
         self.approvals
             .entry(decision.action_id.clone())
             .or_default()
             .push(decision);
+    }
+
+    fn decisions_for(&self, action_id: &str) -> Vec<ApprovalDecisionV1> {
+        self.approvals.get(action_id).cloned().unwrap_or_default()
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ApprovalService {
+    store: InMemoryApprovalStore,
+}
+
+impl ApprovalService {
+    pub fn record_decision(&mut self, decision: ApprovalDecisionV1) {
+        self.store.record(decision);
     }
 }
 
@@ -25,10 +50,8 @@ impl ApprovalVerificationPort for ApprovalService {
         }
 
         let decisions = self
-            .approvals
-            .get(&request.action_id)
-            .cloned()
-            .unwrap_or_default()
+            .store
+            .decisions_for(&request.action_id)
             .into_iter()
             .filter(|decision| decision.approved && decision.decided_at <= request.expires_at)
             .collect::<Vec<_>>();
@@ -57,17 +80,15 @@ impl ApprovalVerificationPort for ApprovalService {
 #[must_use]
 pub fn service_boundary() -> ServiceBoundaryV1 {
     ServiceBoundaryV1 {
-        service_name: "approval-service".to_owned(),
-        domain: "strategy_governance".to_owned(),
-        approved_workflows: vec![
-            "policy_exception".to_owned(),
-            "release_approval".to_owned(),
-            "treasury_disbursement".to_owned(),
-            "quant_strategy_promotion".to_owned(),
-        ],
-        owned_aggregates: vec![
-            "approval_request".to_owned(),
-            "approval_decision".to_owned(),
-        ],
+        service_name: SERVICE_NAME.to_owned(),
+        domain: DOMAIN_NAME.to_owned(),
+        approved_workflows: APPROVED_WORKFLOWS
+            .iter()
+            .map(|value| (*value).to_owned())
+            .collect(),
+        owned_aggregates: OWNED_AGGREGATES
+            .iter()
+            .map(|value| (*value).to_owned())
+            .collect(),
     }
 }

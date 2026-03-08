@@ -8,10 +8,22 @@ use serde::{Deserialize, Serialize};
 use trading_core::{hash_payload, Clock, IdGenerator, SystemClock, SystemIdGenerator};
 use trading_errors::TradingError;
 
+const SERVICE_NAME: &str = "evidence-service";
+const DOMAIN_NAME: &str = "audit_assurance";
+const APPROVED_WORKFLOWS: &[&str] = &[
+    "control_testing",
+    "treasury_disbursement",
+    "policy_exception",
+    "quant_strategy_promotion",
+];
+const OWNED_AGGREGATES: &[&str] = &["evidence_manifest", "audit_event"];
+
 fn map_trading_error(error: TradingError) -> InstitutionalError {
-    InstitutionalError::InvariantViolation {
-        invariant: error.to_string(),
-    }
+    InstitutionalError::external(
+        "trading-core",
+        Some("evidence-chain".to_string()),
+        error.to_string(),
+    )
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -23,10 +35,29 @@ pub struct AuditEvent {
     pub current_hash: String,
 }
 
+#[derive(Debug, Default, Clone)]
+struct InMemoryAuditEventLog {
+    events: Vec<AuditEvent>,
+}
+
+impl InMemoryAuditEventLog {
+    fn last_hash(&self) -> Option<&str> {
+        self.events.last().map(|event| event.current_hash.as_str())
+    }
+
+    fn append(&mut self, event: AuditEvent) {
+        self.events.push(event);
+    }
+
+    fn events(&self) -> &[AuditEvent] {
+        &self.events
+    }
+}
+
 #[derive(Clone)]
 pub struct EvidenceService {
     sink: MemoryEvidenceSink,
-    audit_events: Vec<AuditEvent>,
+    audit_log: InMemoryAuditEventLog,
     clock: Arc<dyn Clock>,
     ids: Arc<dyn IdGenerator>,
 }
@@ -36,7 +67,7 @@ impl std::fmt::Debug for EvidenceService {
         formatter
             .debug_struct("EvidenceService")
             .field("manifests", &self.sink.recorded().len())
-            .field("audit_events", &self.audit_events.len())
+            .field("audit_events", &self.audit_log.events().len())
             .finish_non_exhaustive()
     }
 }
@@ -45,7 +76,7 @@ impl Default for EvidenceService {
     fn default() -> Self {
         Self {
             sink: MemoryEvidenceSink::default(),
-            audit_events: Vec::new(),
+            audit_log: InMemoryAuditEventLog::default(),
             clock: Arc::new(SystemClock),
             ids: Arc::new(SystemIdGenerator),
         }
@@ -57,7 +88,7 @@ impl EvidenceService {
     pub fn new(clock: Arc<dyn Clock>, ids: Arc<dyn IdGenerator>) -> Self {
         Self {
             sink: MemoryEvidenceSink::default(),
-            audit_events: Vec::new(),
+            audit_log: InMemoryAuditEventLog::default(),
             clock,
             ids,
         }
@@ -68,9 +99,9 @@ impl EvidenceService {
         payload: serde_json::Value,
     ) -> InstitutionalResult<AuditEvent> {
         let previous_hash = self
-            .audit_events
-            .last()
-            .map_or_else(|| "GENESIS".to_string(), |event| event.current_hash.clone());
+            .audit_log
+            .last_hash()
+            .map_or_else(|| "GENESIS".to_string(), str::to_owned);
         let current_hash =
             hash_payload(&(payload.clone(), &previous_hash)).map_err(map_trading_error)?;
         let event = AuditEvent {
@@ -80,13 +111,13 @@ impl EvidenceService {
             previous_hash,
             current_hash,
         };
-        self.audit_events.push(event.clone());
+        self.audit_log.append(event.clone());
         Ok(event)
     }
 
     #[must_use]
     pub fn audit_events(&self) -> &[AuditEvent] {
-        &self.audit_events
+        self.audit_log.events()
     }
 }
 
@@ -103,14 +134,15 @@ impl EvidenceSink for EvidenceService {
 #[must_use]
 pub fn service_boundary() -> ServiceBoundaryV1 {
     ServiceBoundaryV1 {
-        service_name: "evidence-service".to_owned(),
-        domain: "audit_assurance".to_owned(),
-        approved_workflows: vec![
-            "control_testing".to_owned(),
-            "treasury_disbursement".to_owned(),
-            "policy_exception".to_owned(),
-            "quant_strategy_promotion".to_owned(),
-        ],
-        owned_aggregates: vec!["evidence_manifest".to_owned(), "audit_event".to_owned()],
+        service_name: SERVICE_NAME.to_owned(),
+        domain: DOMAIN_NAME.to_owned(),
+        approved_workflows: APPROVED_WORKFLOWS
+            .iter()
+            .map(|value| (*value).to_owned())
+            .collect(),
+        owned_aggregates: OWNED_AGGREGATES
+            .iter()
+            .map(|value| (*value).to_owned())
+            .collect(),
     }
 }

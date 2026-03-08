@@ -1,0 +1,12 @@
+{
+  "name": "origin-ui-e2e",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Clean-runner browser verification dependencies for the Origin UI.",
+  "scripts": {
+    "playwright:install": "playwright install --with-deps chromium firefox webkit"
+  },
+  "devDependencies": {
+    "playwright": "1.55.1"
+  }
+}

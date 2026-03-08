@@ -9,7 +9,7 @@ use identity::{ActorRef, InstitutionalRole};
 use policy_sdk::{ApprovalVerificationPort, PolicyDecisionPort};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use telemetry::TraceContext;
+use telemetry::{DecisionRef, TraceContext};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct GuardedMutationRequest {
@@ -137,7 +137,8 @@ where
     ) -> InstitutionalResult<ApprovedMutationContext> {
         let policy_request = request.to_policy_request();
         let decision = self.policy_port.evaluate(&policy_request)?;
-        let trace_context = TraceContext::new().with_decision_ref(decision.decision_id.clone());
+        let trace_context =
+            TraceContext::new().with_decision_ref(DecisionRef::new(decision.decision_id.clone()));
         let approvals = if request.impact_tier == ImpactTier::Tier0 {
             Vec::new()
         } else {

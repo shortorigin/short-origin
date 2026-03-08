@@ -238,8 +238,9 @@ where
     C: Connection,
     T: Clone + serde::Serialize + serde::de::DeserializeOwned + 'static,
 {
-    let content = serde_json::to_value(record.clone())
-        .map_err(|error| InstitutionalError::parse("surrealdb", error.to_string()))?;
+    let content = serde_json::to_value(record.clone()).map_err(|error| {
+        InstitutionalError::external("surrealdb", Some("create".to_string()), error.to_string())
+    })?;
     let content = match content {
         serde_json::Value::Object(mut map) => {
             map.remove("id");
@@ -275,7 +276,7 @@ where
 }
 
 fn surreal_error(error: surrealdb::Error) -> InstitutionalError {
-    InstitutionalError::parse("surrealdb", error.to_string())
+    InstitutionalError::external("surrealdb", None, error.to_string())
 }
 
 #[cfg(test)]

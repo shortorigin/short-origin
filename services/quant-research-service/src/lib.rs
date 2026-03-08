@@ -6,25 +6,31 @@ use error_model::{InstitutionalError, InstitutionalResult};
 use trading_errors::TradingError;
 use trading_sim::{run_trend_sweep, DeterministicBacktestEngine, SweepJob};
 
+const SERVICE_NAME: &str = "quant-research-service";
+const DOMAIN_NAME: &str = "capital_markets_research";
+const APPROVED_WORKFLOWS: &[&str] = &["quant_strategy_promotion"];
+const OWNED_AGGREGATES: &[&str] = &["experiment_result", "research_task"];
+
 fn map_trading_error(error: TradingError) -> InstitutionalError {
-    InstitutionalError::InvariantViolation {
-        invariant: error.to_string(),
-    }
+    InstitutionalError::external(
+        "trading-sim",
+        Some("quant-research".to_string()),
+        error.to_string(),
+    )
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct QuantResearchService {
+struct InMemoryResearchCatalog {
     results: Vec<ExperimentResultV1>,
     tasks: VecDeque<ResearchTaskV1>,
 }
 
-impl QuantResearchService {
-    pub fn register(&mut self, result: ExperimentResultV1) {
+impl InMemoryResearchCatalog {
+    fn register(&mut self, result: ExperimentResultV1) {
         self.results.push(result);
     }
 
-    #[must_use]
-    pub fn ranked(&self) -> Vec<ExperimentResultV1> {
+    fn ranked(&self) -> Vec<ExperimentResultV1> {
         let mut ranked = self.results.clone();
         ranked.sort_by(|left, right| {
             right
@@ -37,8 +43,7 @@ impl QuantResearchService {
         ranked
     }
 
-    #[must_use]
-    pub fn top_result(&self) -> Option<&ExperimentResultV1> {
+    fn top_result(&self) -> Option<&ExperimentResultV1> {
         self.results.iter().max_by(|left, right| {
             left.summary
                 .sharpe
@@ -48,32 +53,77 @@ impl QuantResearchService {
         })
     }
 
+    fn result_count(&self) -> usize {
+        self.results.len()
+    }
+
+    fn is_empty(&self) -> bool {
+        self.results.is_empty()
+    }
+
+    fn enqueue(&mut self, task: ResearchTaskV1) {
+        self.tasks.push_back(task);
+    }
+
+    fn dequeue(&mut self) -> Option<ResearchTaskV1> {
+        self.tasks.pop_front()
+    }
+
+    fn task_count(&self) -> usize {
+        self.tasks.len()
+    }
+
+    fn tasks_empty(&self) -> bool {
+        self.tasks.is_empty()
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct QuantResearchService {
+    catalog: InMemoryResearchCatalog,
+}
+
+impl QuantResearchService {
+    pub fn register(&mut self, result: ExperimentResultV1) {
+        self.catalog.register(result);
+    }
+
+    #[must_use]
+    pub fn ranked(&self) -> Vec<ExperimentResultV1> {
+        self.catalog.ranked()
+    }
+
+    #[must_use]
+    pub fn top_result(&self) -> Option<&ExperimentResultV1> {
+        self.catalog.top_result()
+    }
+
     #[must_use]
     pub fn result_count(&self) -> usize {
-        self.results.len()
+        self.catalog.result_count()
     }
 
     #[must_use]
     pub fn is_empty(&self) -> bool {
-        self.results.is_empty()
+        self.catalog.is_empty()
     }
 
     pub fn enqueue(&mut self, task: ResearchTaskV1) {
-        self.tasks.push_back(task);
+        self.catalog.enqueue(task);
     }
 
     pub fn dequeue(&mut self) -> Option<ResearchTaskV1> {
-        self.tasks.pop_front()
+        self.catalog.dequeue()
     }
 
     #[must_use]
     pub fn task_count(&self) -> usize {
-        self.tasks.len()
+        self.catalog.task_count()
     }
 
     #[must_use]
     pub fn tasks_empty(&self) -> bool {
-        self.tasks.is_empty()
+        self.catalog.tasks_empty()
     }
 
     pub fn evaluate_trend_sweep(
@@ -128,10 +178,16 @@ pub fn ai_assisted_summary(results: &[ExperimentResultV1]) -> String {
 #[must_use]
 pub fn service_boundary() -> ServiceBoundaryV1 {
     ServiceBoundaryV1 {
-        service_name: "quant-research-service".to_owned(),
-        domain: "capital_markets_research".to_owned(),
-        approved_workflows: vec!["quant_strategy_promotion".to_owned()],
-        owned_aggregates: vec!["experiment_result".to_owned(), "research_task".to_owned()],
+        service_name: SERVICE_NAME.to_owned(),
+        domain: DOMAIN_NAME.to_owned(),
+        approved_workflows: APPROVED_WORKFLOWS
+            .iter()
+            .map(|value| (*value).to_owned())
+            .collect(),
+        owned_aggregates: OWNED_AGGREGATES
+            .iter()
+            .map(|value| (*value).to_owned())
+            .collect(),
     }
 }
 
@@ -148,7 +204,27 @@ mod tests {
         build_feature_rows, experiment_config_hash, walk_forward, BasicLinearModel,
     };
 
-    use super::{ai_assisted_summary, QuantResearchService};
+    use super::{
+        ai_assisted_summary, service_boundary, QuantResearchService, APPROVED_WORKFLOWS,
+        DOMAIN_NAME, OWNED_AGGREGATES, SERVICE_NAME,
+    };
+
+    #[test]
+    fn service_boundary_matches_enterprise_catalog() {
+        let source = include_str!(
+            "../../../enterprise/domains/capital_markets_research/service_boundaries.toml"
+        );
+        let boundary = service_boundary();
+
+        assert_eq!(boundary.service_name, SERVICE_NAME);
+        assert_eq!(boundary.domain, DOMAIN_NAME);
+        for workflow in APPROVED_WORKFLOWS {
+            assert!(source.contains(workflow));
+        }
+        for aggregate in OWNED_AGGREGATES {
+            assert!(source.contains(aggregate));
+        }
+    }
 
     #[test]
     fn registry_ranks_deterministically() {

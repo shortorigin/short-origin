@@ -1,0 +1,71 @@
+name: Setup Delivery Environment
+description: Validate release configuration and prepare delivery tooling and credentials.
+
+inputs:
+  aws-role-to-assume:
+    description: AWS IAM role used for deployment.
+    required: true
+  aws-region:
+    description: AWS region for deployment.
+    required: false
+    default: us-west-2
+  cloudflare-api-token:
+    description: Cloudflare API token used by Pulumi.
+    required: true
+  pulumi-state-bucket:
+    description: Pulumi state bucket.
+    required: true
+  gh-actor:
+    description: GitHub actor for GHCR auth.
+    required: true
+  gh-token:
+    description: GitHub token for GHCR auth.
+    required: true
+  pulumi-working-directory:
+    description: Working directory used for Pulumi login.
+    required: false
+    default: infrastructure/pulumi
+
+runs:
+  using: composite
+  steps:
+    - name: Validate required configuration
+      shell: bash
+      env:
+        AWS_ROLE_TO_ASSUME: ${{ inputs.aws-role-to-assume }}
+        CLOUDFLARE_API_TOKEN: ${{ inputs.cloudflare-api-token }}
+        PULUMI_STATE_BUCKET: ${{ inputs.pulumi-state-bucket }}
+      run: |
+        missing=0
+        for variable in AWS_ROLE_TO_ASSUME CLOUDFLARE_API_TOKEN PULUMI_STATE_BUCKET; do
+          if [[ -z "${!variable}" ]]; then
+            echo "Missing required secret: ${variable}"
+            missing=1
+          fi
+        done
+        if [[ "${missing}" -ne 0 ]]; then
+          exit 1
+        fi
+
+    - name: Setup ORAS
+      uses: oras-project/setup-oras@v1
+
+    - name: Login to GHCR
+      shell: bash
+      run: echo "${{ inputs.gh-token }}" | oras login ghcr.io -u "${{ inputs.gh-actor }}" --password-stdin
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ inputs.aws-role-to-assume }}
+        aws-region: ${{ inputs.aws-region }}
+
+    - name: Install Pulumi CLI
+      uses: pulumi/setup-pulumi@v3
+
+    - name: Pulumi login
+      shell: bash
+      working-directory: ${{ inputs.pulumi-working-directory }}
+      env:
+        PULUMI_BACKEND_URL: s3://${{ inputs.pulumi-state-bucket }}?region=${{ inputs.aws-region }}&awssdk=v2
+      run: pulumi login "$PULUMI_BACKEND_URL"

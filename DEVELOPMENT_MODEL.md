@@ -137,11 +137,17 @@ Required status checks:
 - `CI / pr-gate`
 - `Security / security-gate`
 
+Documentation-to-automation drift is enforced by:
+
+```bash
+cargo xtask github audit-process
+```
+
 ## Release Promotion
 
 - `main` remains continuously mergeable after required checks pass.
-- The `Delivery Dev` workflow publishes immutable `sha-<fullsha>` and `main-<shortsha>` tags to
-  GHCR and auto-deploys `dev`.
+- The `Delivery Dev` workflow runs automatically on `push` to `main`, publishes immutable
+  `sha-<fullsha>` and `main-<shortsha>` tags to GHCR, and auto-deploys `dev`.
 - The `Release Candidate` workflow rebuilds a chosen `main` SHA, publishes `vX.Y.Z-rc.N` tags,
   deploys `stage`, and creates a GitHub prerelease with generated notes.
 - The `Promote Release` workflow retags the already-published GHCR digests to `vX.Y.Z`, deploys
@@ -185,4 +191,7 @@ Every repository in the organization should include:
 - `ARCHITECTURE.md`
 - `DEVELOPMENT_MODEL.md`
 
-Organization rollout details and bootstrap commands live in [docs/process/github-governance-rollout.md](/Users/justinshort/short%20origin/docs/process/github-governance-rollout.md).
+Organization rollout details and bootstrap commands live in
+[`docs/process/github-governance-rollout.md`](docs/process/github-governance-rollout.md). See also
+[`docs/process/github-workflow-migration.md`](docs/process/github-workflow-migration.md) for the
+current contributor-facing CI/CD flow.
