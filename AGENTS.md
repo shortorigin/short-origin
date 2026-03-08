@@ -61,6 +61,29 @@ cargo test --workspace --all-targets
 - Contract or schema changes MUST include compatibility tests or fixture updates.
 - CI failures block merge; no bypass without documented incident approval.
 
+## GitHub Workflow Protocol
+- Every material code, docs, schema, workflow, or infrastructure change MUST begin with a same-repository GitHub issue before implementation starts.
+- The issue is the system of record and MUST include:
+  - a concise summary of the proposed change, defect, or enhancement,
+  - background and scope,
+  - acceptance criteria,
+  - implementation notes, constraints, or linked context when needed.
+- Work MUST proceed on a dedicated short-lived branch created from the latest `main`.
+- Branch names MUST follow `<type>/<issue-id>-<short-kebab-summary>`.
+- Approved branch type prefixes are:
+  - `feature/`
+  - `fix/`
+  - `docs/`
+  - `refactor/`
+  - `infra/`
+  - `research/`
+- Each branch MUST map to one primary issue and MUST reference the GitHub issue identifier in the branch name.
+- Pull requests MUST target `main`, reference the originating issue, and include a closing directive in the PR body such as `Closes #123`.
+- Pull requests MUST summarize the change, testing performed, and any rollout or migration impact.
+- Direct commits to `main` are prohibited. All merges flow through reviewed pull requests after required checks pass.
+- Squash merge is the default merge strategy unless repository governance explicitly requires another merge mode.
+- The final merge action MUST preserve the issue-closing directive so GitHub automatically closes the linked issue when the PR lands.
+
 ## wasmCloud + Wasmtime Integration Model
 - Services are designed for wasmCloud deployment with Wasmtime-compatible modules.
 - Nomad and surrounding infrastructure deploy lattice hosts and support infrastructure, not native per-service binaries.
@@ -107,3 +130,8 @@ cargo test --workspace --all-targets
 - Agents may propose changes outside their domain but may not execute boundary-crossing mutations without policy/workflow authorization.
 - When requirements conflict, agents prioritize contract correctness, policy compliance, and test pass criteria in that order.
 - Agents MUST NOT introduce Codex, OpenAI, ChatGPT, or similar branding into repository artifacts unless explicitly required for a documented third-party reference or legal attribution.
+- Agents performing repository delivery work MUST follow the GitHub workflow protocol above:
+  - create or refine the issue first when the task is intended for GitHub tracking,
+  - use an issue-derived branch name,
+  - open a PR with `Closes #<issue-id>` in the body,
+  - never bypass review or protected-branch policy.
