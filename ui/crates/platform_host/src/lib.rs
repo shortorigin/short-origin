@@ -11,6 +11,9 @@
 
 #![warn(missing_docs, rustdoc::broken_intra_doc_links)]
 
+/// Canonical host-layer result type used by runtime and adapter boundaries.
+pub type HostResult<T> = Result<T, String>;
+
 pub mod cache;
 pub mod external_url;
 pub mod fs;

@@ -51,13 +51,19 @@ The shell supports two runtime targets with a shared Rust composition core:
 `desktop_runtime` is the common execution core for both targets. It keeps reducer-owned state, effect generation, compositor behavior, and shell composition in one Rust runtime while host capabilities vary by adapter selection.
 
 ## Observability and Errors
-`ui/` now standardizes on typed host/runtime errors plus structured tracing-based diagnostics.
+`ui/` is moving toward typed host/runtime errors plus structured tracing-based diagnostics, but the current development rule is visible-first diagnostics.
 
 - `shared/error-model` provides shared error classification metadata such as category and visibility.
 - `shared/telemetry` provides stable runtime-target and environment-profile types used by UI logs.
 - `platform_host` owns the canonical UI host error contract through `HostError` and `HostResult<T>`.
-- `desktop_runtime` owns shared runtime logging metadata helpers and emits structured events through `tracing`.
-- `site` initializes wasm logging, while `desktop_tauri` initializes the native JSON subscriber.
+- `desktop_runtime` is the target home for shared runtime logging metadata helpers and future structured `tracing` events.
+- `site` currently installs the panic hook used for browser debugging, but does not yet install a tracing subscriber in the checked-in entrypoint.
+- `desktop_tauri` does not yet install the native JSON tracing subscriber described by the target architecture in the checked-in entrypoint.
+
+Current development policy:
+- Development builds must preserve visible warnings, runtime diagnostics, panic hooks, reducer errors, host failures, and persistence failures in active browser and desktop workflows.
+- Until browser and native tracing bootstrap is implemented and verified, warning paths in browser/runtime code should use the currently observable diagnostics channel instead of tracing-only emission.
+- Migration from `leptos::logging` to `tracing` must be gated on end-to-end subscriber initialization and verified parity for developer-visible output.
 
 Required log fields:
 - `timestamp`
@@ -71,11 +77,11 @@ Required log fields:
 
 Optional fields should be additive and stable, for example `window_id`, `app_id`, `host_strategy`, `error_category`, and `error_code`.
 
-Development builds may emit richer diagnostics. Production defaults should stay concise, favor `warn` and `error` in wasm/browser flows, and avoid leaking internal details to end users.
+Development builds may emit richer diagnostics and should retain comprehensive warning and validation signals needed for debugging. Production defaults should stay concise, favor `warn` and `error` in wasm/browser flows, and avoid leaking internal details to end users.
 
 Prohibited patterns:
 - `Result<_, String>` on public UI host boundaries when a typed `HostError` is appropriate
-- ad hoc free-form runtime diagnostics when structured `tracing` events can be emitted instead
+- ad hoc free-form runtime diagnostics when structured `tracing` events can be emitted without reducing current developer-visible diagnostics
 - logging secrets, raw credentials, uncontrolled payload dumps, or sensitive absolute paths
 - non-test `unwrap`/`expect` on recoverable runtime and host paths
 
