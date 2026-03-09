@@ -1,0 +1,5 @@
+{
+  "name": "KnowledgeCapsulePublishedV1",
+  "version": "v1",
+  "fields": ["capsule"]
+}

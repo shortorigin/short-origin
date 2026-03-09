@@ -1,0 +1,5 @@
+{
+  "name": "KnowledgeAppendixV1",
+  "version": "v1",
+  "fields": ["definitions", "indicator_dictionary", "playbooks", "common_failure_modes", "source_note", "assumptions_log"]
+}

@@ -1,0 +1,5 @@
+{
+  "name": "KnowledgeSourceIngestV1",
+  "version": "v1",
+  "fields": ["ingestion_id", "classification", "sources"]
+}

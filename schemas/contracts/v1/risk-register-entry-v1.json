@@ -1,0 +1,5 @@
+{
+  "name": "RiskRegisterEntryV1",
+  "version": "v1",
+  "fields": ["risk", "mechanism", "early_indicators", "impact_channels", "mitigants_or_hedges", "probability", "confidence"]
+}

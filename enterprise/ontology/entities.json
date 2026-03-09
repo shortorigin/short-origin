@@ -17,6 +17,10 @@
     { "name": "portfolio_snapshot", "domain": "capital_markets_portfolio" },
     { "name": "trading_risk_state", "domain": "capital_markets_risk" },
     { "name": "knowledge_record", "domain": "data_knowledge" },
+    { "name": "knowledge_source", "domain": "data_knowledge" },
+    { "name": "knowledge_capsule", "domain": "data_knowledge" },
+    { "name": "knowledge_analysis", "domain": "data_knowledge" },
+    { "name": "knowledge_edge", "domain": "data_knowledge" },
     { "name": "continuity_plan", "domain": "resilience_continuity" }
   ]
 }

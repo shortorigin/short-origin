@@ -15,6 +15,7 @@ surrealdb = { version = "2.2.1", default-features = false, features = ["kv-mem"]
 surrealdb-model = { path = "../../schemas/crates/surrealdb-model" }
 
 [dev-dependencies]
+chrono = { version = "0.4.42", features = ["clock", "serde"] }
 identity = { path = "../identity" }
 tokio = { version = "1.48.0", features = ["macros", "rt-multi-thread"] }
 

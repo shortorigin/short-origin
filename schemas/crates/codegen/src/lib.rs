@@ -8,7 +8,7 @@ pub struct EmbeddedSchema {
     pub document: Value,
 }
 
-const CONTRACT_FILES: [(&str, &str); 25] = [
+const CONTRACT_FILES: [(&str, &str); 35] = [
     (
         "command-v1",
         include_str!("../../../contracts/v1/command-v1.json"),
@@ -109,9 +109,49 @@ const CONTRACT_FILES: [(&str, &str); 25] = [
         "promotion-gate-v1",
         include_str!("../../../contracts/v1/promotion-gate-v1.json"),
     ),
+    (
+        "knowledge-source-ingest-v1",
+        include_str!("../../../contracts/v1/knowledge-source-ingest-v1.json"),
+    ),
+    (
+        "knowledge-publication-v1",
+        include_str!("../../../contracts/v1/knowledge-publication-v1.json"),
+    ),
+    (
+        "macro-financial-analysis-request-v1",
+        include_str!("../../../contracts/v1/macro-financial-analysis-request-v1.json"),
+    ),
+    (
+        "executive-brief-v1",
+        include_str!("../../../contracts/v1/executive-brief-v1.json"),
+    ),
+    (
+        "data-register-entry-v1",
+        include_str!("../../../contracts/v1/data-register-entry-v1.json"),
+    ),
+    (
+        "mechanism-map-v1",
+        include_str!("../../../contracts/v1/mechanism-map-v1.json"),
+    ),
+    (
+        "scenario-case-v1",
+        include_str!("../../../contracts/v1/scenario-case-v1.json"),
+    ),
+    (
+        "risk-register-entry-v1",
+        include_str!("../../../contracts/v1/risk-register-entry-v1.json"),
+    ),
+    (
+        "knowledge-appendix-v1",
+        include_str!("../../../contracts/v1/knowledge-appendix-v1.json"),
+    ),
+    (
+        "macro-financial-analysis-v1",
+        include_str!("../../../contracts/v1/macro-financial-analysis-v1.json"),
+    ),
 ];
 
-const EVENT_FILES: [(&str, &str); 9] = [
+const EVENT_FILES: [(&str, &str); 12] = [
     (
         "event-envelope-v1",
         include_str!("../../../events/envelope/v1/event-envelope-v1.json"),
@@ -147,6 +187,18 @@ const EVENT_FILES: [(&str, &str); 9] = [
     (
         "promotion-gate-evaluated-v1",
         include_str!("../../../events/capital_markets/v1/promotion-gate-evaluated-v1.json"),
+    ),
+    (
+        "knowledge-source-ingested-v1",
+        include_str!("../../../events/data_knowledge/v1/knowledge-source-ingested-v1.json"),
+    ),
+    (
+        "knowledge-capsule-published-v1",
+        include_str!("../../../events/data_knowledge/v1/knowledge-capsule-published-v1.json"),
+    ),
+    (
+        "knowledge-analysis-generated-v1",
+        include_str!("../../../events/data_knowledge/v1/knowledge-analysis-generated-v1.json"),
     ),
 ];
 

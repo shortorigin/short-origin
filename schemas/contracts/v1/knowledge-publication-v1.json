@@ -1,0 +1,5 @@
+{
+  "name": "KnowledgePublicationV1",
+  "version": "v1",
+  "fields": ["publication_id", "capsule_id", "title", "source_ids", "classification", "retention_class"]
+}

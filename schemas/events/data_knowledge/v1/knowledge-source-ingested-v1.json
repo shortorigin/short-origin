@@ -1,0 +1,5 @@
+{
+  "name": "KnowledgeSourceIngestedV1",
+  "version": "v1",
+  "fields": ["source"]
+}

@@ -1,0 +1,5 @@
+{
+  "name": "MacroFinancialAnalysisRequestV1",
+  "version": "v1",
+  "fields": ["analysis_id", "objective", "horizon", "coverage", "data_vintage", "source_ids", "capsule_id", "classification", "constraints"]
+}

@@ -1,0 +1,31 @@
+[package]
+name = "knowledge-publication"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+version.workspace = true
+
+[dependencies]
+contracts = { path = "../../schemas/crates/contracts" }
+enforcement = { path = "../../platform/runtime/enforcement" }
+error-model = { path = "../../shared/error-model" }
+evidence-sdk = { path = "../../shared/evidence-sdk" }
+knowledge-service = { path = "../../services/knowledge-service" }
+memory-provider = { path = "../../platform/runtime/memory-provider" }
+orchestrator = { path = "../../platform/runtime/orchestrator" }
+policy-sdk = { path = "../../shared/policy-sdk" }
+surrealdb = { version = "2.2.1", default-features = false, features = ["kv-mem"] }
+surrealdb-access = { path = "../../shared/surrealdb-access" }
+
+[dev-dependencies]
+approval-service = { path = "../../services/approval-service" }
+chrono = { version = "0.4.42", features = ["clock", "serde"] }
+evidence-service = { path = "../../services/evidence-service" }
+identity = { path = "../../shared/identity" }
+policy-service = { path = "../../services/policy-service" }
+tempfile.workspace = true
+tokio.workspace = true
+trading-core = { path = "../../shared/trading-core" }
+
+[lints]
+workspace = true

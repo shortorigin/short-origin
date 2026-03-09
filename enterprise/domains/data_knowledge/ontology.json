@@ -1,1 +1,18 @@
-{ "version": "v1", "entities": ["knowledge_record", "retention_policy"], "relationships": ["classifies", "retains"] }
+{
+  "version": "v1",
+  "entities": [
+    "knowledge_record",
+    "knowledge_source",
+    "knowledge_capsule",
+    "knowledge_analysis",
+    "knowledge_edge",
+    "retention_policy"
+  ],
+  "relationships": [
+    "classifies",
+    "retains",
+    "derived_from",
+    "supports",
+    "cites"
+  ]
+}

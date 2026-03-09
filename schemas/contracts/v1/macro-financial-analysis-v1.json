@@ -1,0 +1,5 @@
+{
+  "name": "MacroFinancialAnalysisV1",
+  "version": "v1",
+  "fields": ["analysis_id", "generated_at", "trace_ref", "objective", "horizon", "coverage", "data_vintage", "required_inputs", "dependent_variables", "global_liquidity_phase", "driver_decomposition", "executive_brief", "data_register", "mechanism_map", "scenario_matrix", "risk_register", "knowledge_appendix", "source_ids", "capsule_id", "rendered_output", "retrieval_context"]
+}

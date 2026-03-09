@@ -8,6 +8,10 @@ use events::RecordedEventV1;
 use identity::ActorV1;
 use serde::{Deserialize, Serialize};
 
+mod knowledge;
+
+pub use knowledge::*;
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ActorRecordV1 {
     pub id: String,

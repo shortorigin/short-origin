@@ -19,6 +19,7 @@ members = [
   "schemas/crates/codegen",
   "platform/runtime/orchestrator",
   "platform/runtime/enforcement",
+  "platform/runtime/memory-provider",
   "platform/runtime/strategy-sandbox",
   "platform/sdk/sdk-rs",
   "platform/wasmcloud/bindings",
@@ -49,6 +50,7 @@ members = [
   "services/risk-service",
   "services/evidence-service",
   "workflows/engine",
+  "workflows/knowledge_publication",
   "workflows/payroll",
   "workflows/procurement",
   "workflows/contract_lifecycle",
@@ -91,12 +93,16 @@ version = "0.1.0"
 [workspace.dependencies]
 chrono = { version = "0.4.42", features = ["clock", "serde"] }
 hex = "0.4.3"
+quick-xml = "0.38.4"
 rand = "0.9.2"
+reqwest = { version = "0.12.28", default-features = false, features = ["json", "rustls-tls"] }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.145"
 sha2 = "0.10.9"
+tempfile = "3.26.0"
 thiserror = "2.0.17"
 toml = "0.8.23"
+tokio = { version = "1.48.0", features = ["macros", "rt-multi-thread"] }
 tracing = "0.1.41"
 uuid = { version = "1.18.1", features = ["js", "serde", "v4"] }
 

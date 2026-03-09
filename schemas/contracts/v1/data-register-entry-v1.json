@@ -1,0 +1,5 @@
+{
+  "name": "DataRegisterEntryV1",
+  "version": "v1",
+  "fields": ["series_name", "country_area", "source", "frequency", "last_obs", "units", "transform", "lag", "quality_flag", "notes"]
+}

@@ -7,6 +7,10 @@ use identity::ActorRef;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+mod knowledge;
+
+pub use knowledge::*;
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct EventEnvelopeV1 {
     pub event_id: String,

@@ -1,0 +1,5 @@
+{
+  "name": "MechanismMapV1",
+  "version": "v1",
+  "fields": ["current_account_narrative", "financial_account_funding_mix", "reserves_and_backstops", "fx_swap_basis_state", "dollar_funding_stress_state", "risk_sentiment_linkage", "spillover_channels"]
+}

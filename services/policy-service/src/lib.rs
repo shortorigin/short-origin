@@ -81,6 +81,7 @@ pub fn service_boundary() -> ServiceBoundaryV1 {
         service_name: "policy-service".to_owned(),
         domain: "strategy_governance".to_owned(),
         approved_workflows: vec![
+            "knowledge_publication".to_owned(),
             "policy_exception".to_owned(),
             "release_approval".to_owned(),
             "treasury_disbursement".to_owned(),

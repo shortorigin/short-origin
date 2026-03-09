@@ -7,6 +7,7 @@ use policy_sdk::ApprovalVerificationPort;
 const SERVICE_NAME: &str = "approval-service";
 const DOMAIN_NAME: &str = "strategy_governance";
 const APPROVED_WORKFLOWS: &[&str] = &[
+    "knowledge_publication",
     "policy_exception",
     "release_approval",
     "treasury_disbursement",

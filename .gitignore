@@ -12,3 +12,7 @@ coverage/
 .DS_Store
 .vscode/
 .idea/
+
+# Local task ledgers and spec notes
+completion-todo.txt
+complex-task.txt

@@ -1,4 +1,11 @@
 version = "v1"
 primary_service = "knowledge-service"
 approved_workflows = ["knowledge_publication", "record_retention"]
-owned_aggregates = ["knowledge_record", "retention_policy"]
+owned_aggregates = [
+  "knowledge_record",
+  "knowledge_source",
+  "knowledge_capsule",
+  "knowledge_analysis",
+  "knowledge_edge",
+  "retention_policy",
+]

@@ -1,0 +1,5 @@
+{
+  "name": "ScenarioCaseV1",
+  "version": "v1",
+  "fields": ["scenario", "triggers", "transmission_path", "fx_outcome", "capital_flows_outcome", "liquidity_funding_outcome", "systemic_risk_outcome", "policy_response_space", "strategy_implications", "watchlist"]
+}

@@ -14,6 +14,9 @@
     { "from": "execution_session", "to": "trading_risk_state", "relationship": "constrains" },
     { "from": "compliance_pack", "to": "promotion_recommendation", "relationship": "attests" },
     { "from": "knowledge_record", "to": "policy", "relationship": "documents" },
+    { "from": "knowledge_capsule", "to": "knowledge_source", "relationship": "derived_from" },
+    { "from": "knowledge_analysis", "to": "knowledge_source", "relationship": "cites" },
+    { "from": "knowledge_analysis", "to": "knowledge_capsule", "relationship": "supports" },
     { "from": "continuity_plan", "to": "workflow_execution", "relationship": "activates" }
   ]
 }

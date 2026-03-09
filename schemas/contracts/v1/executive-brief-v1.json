@@ -1,0 +1,5 @@
+{
+  "name": "ExecutiveBriefV1",
+  "version": "v1",
+  "fields": ["as_of_date", "as_of_timezone", "data_vintage", "objective", "horizon", "coverage", "key_judgments_facts", "key_judgments_inferences", "key_risks", "signal_summary", "implications"]
+}

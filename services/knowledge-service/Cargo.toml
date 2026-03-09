@@ -6,7 +6,28 @@ publish.workspace = true
 version.workspace = true
 
 [dependencies]
+chrono.workspace = true
 contracts = { path = "../../schemas/crates/contracts" }
+enforcement = { path = "../../platform/runtime/enforcement" }
+error-model = { path = "../../shared/error-model" }
+events = { path = "../../schemas/crates/events" }
+identity = { path = "../../shared/identity" }
+memory-provider = { path = "../../platform/runtime/memory-provider" }
+quick-xml.workspace = true
+reqwest.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+surrealdb = { version = "2.2.1", default-features = false, features = ["kv-mem"] }
+surrealdb-access = { path = "../../shared/surrealdb-access" }
+trading-core = { path = "../../shared/trading-core" }
+
+[dev-dependencies]
+approval-service = { path = "../approval-service" }
+evidence-service = { path = "../evidence-service" }
+orchestrator = { path = "../../platform/runtime/orchestrator" }
+policy-service = { path = "../policy-service" }
+tempfile.workspace = true
+tokio.workspace = true
 
 [lints]
 workspace = true
