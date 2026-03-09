@@ -19,7 +19,7 @@ pub struct KnowledgeAnalysisGeneratedV1 {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(tag = "event_type", content = "payload", rename_all = "snake_case")]
 pub enum KnowledgeEventPayloadV1 {
-    KnowledgeSourceIngested(KnowledgeSourceIngestedV1),
-    KnowledgeCapsulePublished(KnowledgeCapsulePublishedV1),
+    KnowledgeSourceIngested(Box<KnowledgeSourceIngestedV1>),
+    KnowledgeCapsulePublished(Box<KnowledgeCapsulePublishedV1>),
     KnowledgeAnalysisGenerated(Box<KnowledgeAnalysisGeneratedV1>),
 }

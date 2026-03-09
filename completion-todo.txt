@@ -18,27 +18,27 @@ Out of scope for this ledger: New UI work unless required to expose compliance a
 
 Checklist
 
-[ ] GMF-01 | Subsystem: `schemas/crates/contracts`, `services/knowledge-service`
+[x] GMF-01 | Subsystem: `schemas/crates/contracts`, `services/knowledge-service`
 Requirement: Implement a typed Step A problem-contract artifact.
 Expected outcome: The compiler must explicitly restate objective, horizon, target countries/currencies, dependent variables, required inputs, and missing inputs before any later step executes. Missing inputs must be listed precisely, not only implied.
 Verification: Add tests that omit subsets of accepted inputs and assert the generated Step A artifact preserves exact missing-item lists.
 
-[ ] GMF-02 | Subsystem: `schemas/crates/contracts`, `platform/sdk/sdk-rs`, `services/knowledge-service`
+[x] GMF-02 | Subsystem: `schemas/crates/contracts`, `platform/sdk/sdk-rs`, `services/knowledge-service`
 Requirement: Expand accepted input coverage to match `complex-task.txt`.
 Expected outcome: `MacroFinancialAnalysisRequestV1` or an adjacent typed input family must accept any subset of I1, I2, and I3 inputs directly, including optional raw series/doc inputs and explicit source constraints, without requiring pre-ingested source IDs only.
 Verification: Add request-contract tests covering direct-input-only, source-id-only, and mixed-input submissions.
 
-[ ] GMF-03 | Subsystem: `services/knowledge-service`
+[x] GMF-03 | Subsystem: `services/knowledge-service`
 Requirement: Enforce a strict deterministic Step A through Step H pipeline.
 Expected outcome: The analysis compiler must run the eight steps in the exact order defined by `complex-task.txt`, persist or retain step outputs, and make reordering or skipping impossible without a test failure.
 Verification: Add deterministic pipeline-order tests and golden traces that assert ordered execution and stable outputs.
 
-[ ] GMF-04 | Subsystem: `schemas/crates/contracts`, `services/knowledge-service`
+[x] GMF-04 | Subsystem: `schemas/crates/contracts`, `services/knowledge-service`
 Requirement: Complete Step C external-accounts and balance-sheet semantics.
 Expected outcome: Add explicit typed outputs for current-account pressures, financial-account decomposition, external debt structure, currency mismatch indicators, marginal financer identification, and flow-reversal vulnerability. When data is unavailable, output `MISSING` plus the precise additional inputs required.
 Verification: Add fixture-backed tests that cover both populated and missing-data paths.
 
-[ ] GMF-05 | Subsystem: `schemas/crates/contracts`, `services/knowledge-service`
+[x] GMF-05 | Subsystem: `schemas/crates/contracts`, `services/knowledge-service`
 Requirement: Complete Step D policy and regime diagnosis semantics.
 Expected outcome: Add explicit typed outputs for monetary-policy regime, credibility signals, exchange-rate regime/intervention pattern, relevant frictions/vulnerabilities, and a friction-to-observable map with confidence labels.
 Verification: Add tests that assert each required Step D field is emitted and linked to observable indicators or `MISSING` requirements.
@@ -48,37 +48,37 @@ Requirement: Complete Step E global-liquidity diagnostics.
 Expected outcome: Keep phase classification `{EASE, TIGHTEN, STRESS}` but also emit the dominant transmission channel from the required fixed set and an explicit dollar-funding/backstop evaluation grounded in evidence or labeled inference.
 Verification: Add scenario fixtures that drive each transmission-channel outcome and backstop state.
 
-[ ] GMF-07 | Subsystem: `schemas/crates/contracts`, `services/knowledge-service`
+[x] GMF-07 | Subsystem: `schemas/crates/contracts`, `services/knowledge-service`
 Requirement: Complete Step G sovereign and systemic-risk translation.
 Expected outcome: Add explicit typed outputs for debt-sustainability state, gross financing needs, rollover risk, sovereign-bank/nonbank nexus, amplifiers, and cross-border stress exporters/importers.
 Verification: Add tests that assert the sovereign and systemic modules are always present and template-complete.
 
-[ ] GMF-08 | Subsystem: `services/knowledge-service`
+[x] GMF-08 | Subsystem: `services/knowledge-service`
 Requirement: Resolve and implement the Step H watchlist requirement without violating strict template rules.
 Expected outcome: Every analysis must expose a watchlist of leading indicators with thresholds where possible, in a documented template-safe location consistent with `complex-task.txt`. The chosen rendering must be deterministic and test-locked.
 Verification: Add golden-output fixtures proving watchlist presence for all four scenarios.
 
-[ ] GMF-09 | Subsystem: `services/knowledge-service`
+[x] GMF-09 | Subsystem: `services/knowledge-service`
 Requirement: Enforce strict timestamp and missing-data semantics.
 Expected outcome: The renderer must use the spec-mandated `AS_OF_DATE`, `AS_OF_TIMEZONE`, and `DATA_VINTAGE` behavior exactly. Wherever information is missing, output `MISSING` and enumerate the precise data or source needed to fill the gap.
 Verification: Add regression fixtures for unknown data vintage, missing series metadata, and missing analytical inputs.
 
-[ ] GMF-10 | Subsystem: `services/knowledge-service`, `workflows/knowledge_publication`
+[x] GMF-10 | Subsystem: `services/knowledge-service`, `workflows/knowledge_publication`
 Requirement: Enforce allowed-source and forbidden-source governance constraints.
 Expected outcome: `allowed_sources` and `forbidden_sources` must be applied during ingest, source resolution, capsule publication, and analysis generation. Forbidden sources must be rejected, and governance decisions must be persisted for audit.
 Verification: Add tests that prove forbidden sources are blocked and allowlisted sources are the only ones admitted when constraints are present.
 
-[ ] GMF-11 | Subsystem: `schemas/crates/contracts`, `services/knowledge-service`
+[x] GMF-11 | Subsystem: `schemas/crates/contracts`, `services/knowledge-service`
 Requirement: Add explicit provenance tiering and source-policy validation.
 Expected outcome: Every source must be classified at least as `PRIMARY` or `SECONDARY`, with rule enforcement that secondary sources are context-only, social media is never admitted as evidence, and authoritative primary-source families include IMF, BIS, central banks, finance ministries/statistical agencies, FSB, World Bank, and approved flagship/peer-reviewed material.
 Verification: Add source-policy tests for primary admission, secondary-context-only handling, and social-media rejection.
 
-[ ] GMF-12 | Subsystem: `schemas/crates/contracts`, `schemas/crates/surrealdb-model`, `shared/surrealdb-access`, `services/knowledge-service`
+[x] GMF-12 | Subsystem: `schemas/crates/contracts`, `schemas/crates/surrealdb-model`, `shared/surrealdb-access`, `services/knowledge-service`
 Requirement: Implement claim-level evidence manifests.
 Expected outcome: Every non-trivial fact, inference, risk, scenario statement, and recommendation-relevant implication must carry a stable evidence reference to a primary source or a stable inference reference. Persist these manifests in SurrealDB and expose them with analysis records.
 Verification: Add tests that fail if any rendered claim lacks a source or inference reference.
 
-[ ] GMF-13 | Subsystem: `schemas/crates/contracts`, `services/knowledge-service`
+[x] GMF-13 | Subsystem: `schemas/crates/contracts`, `services/knowledge-service`
 Requirement: Implement explicit inference-step traceability.
 Expected outcome: Every inference must have a numbered inference ID, explicit assumptions, and a machine-readable lineage record linking assumptions, inputs, and resulting judgment text. Recommendations must remain separate from facts and inferences.
 Verification: Add tests asserting inference numbering stability and output separation for FACTS vs INFERENCES vs RECOMMENDATIONS.
@@ -93,7 +93,7 @@ Requirement: Lock output templates to the spec verbatim.
 Expected outcome: Golden fixtures must prove that all six outputs preserve the required headings, field names, ordering, probability/confidence vocabulary, and scenario set exactly, with no extra or missing sections.
 Verification: Add exact-render snapshot tests driven from fixture analyses.
 
-[ ] GMF-16 | Subsystem: `platform/sdk/sdk-rs`, `schemas/crates/contracts`
+[x] GMF-16 | Subsystem: `platform/sdk/sdk-rs`, `schemas/crates/contracts`
 Requirement: Expose compliance artifacts through typed SDK surfaces.
 Expected outcome: SDK query/command results must be able to return or reference step outputs, evidence manifests, governance validation results, and inference manifests needed for audit and downstream verification.
 Verification: Add SDK transport tests that round-trip the new compliance artifacts.
@@ -105,13 +105,13 @@ Verification: Add failing-first regression tests for each compliance rule and en
 
 Validation gates for full closure
 
-[ ] VG-01 | Subsystem: workspace
+[x] VG-01 | Subsystem: workspace
 Expected outcome: `cargo fmt --all --check` passes after all remaining compliance work.
 
-[ ] VG-02 | Subsystem: workspace
+[x] VG-02 | Subsystem: workspace
 Expected outcome: `cargo clippy --workspace --all-targets --all-features -- -D warnings` passes after all remaining compliance work.
 
-[ ] VG-03 | Subsystem: workspace
+[x] VG-03 | Subsystem: workspace
 Expected outcome: `cargo test --workspace --all-targets` passes after all remaining compliance work.
 
 [ ] VG-04 | Subsystem: `services/knowledge-service`, `testing/fixtures/knowledge`

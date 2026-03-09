@@ -10,9 +10,12 @@ use crate::Classification;
 pub enum KnowledgeSourceKindV1 {
     Imf,
     Bis,
+    Fsb,
     WorldBank,
     Fred,
     OfficialDocument,
+    ResearchPaper,
+    SecondaryContext,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
@@ -185,6 +188,107 @@ impl QualityFlagV1 {
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "snake_case")]
+pub enum KnowledgeSourceProvenanceV1 {
+    Primary,
+    Secondary,
+}
+
+impl KnowledgeSourceProvenanceV1 {
+    #[must_use]
+    pub fn directive_label(self) -> &'static str {
+        match self {
+            Self::Primary => "PRIMARY",
+            Self::Secondary => "SECONDARY",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[serde(rename_all = "snake_case")]
+pub enum KnowledgeEvidenceUseV1 {
+    Evidence,
+    ContextOnly,
+}
+
+impl KnowledgeEvidenceUseV1 {
+    #[must_use]
+    pub fn directive_label(self) -> &'static str {
+        match self {
+            Self::Evidence => "EVIDENCE",
+            Self::ContextOnly => "CONTEXT_ONLY",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[serde(rename_all = "snake_case")]
+pub enum TransmissionChannelV1 {
+    CrossBorderBankCredit,
+    BondMarketGlobalPortfolio,
+    DerivativesFundingStress,
+}
+
+impl TransmissionChannelV1 {
+    #[must_use]
+    pub fn directive_label(self) -> &'static str {
+        match self {
+            Self::CrossBorderBankCredit => "CROSS_BORDER_BANK_CREDIT",
+            Self::BondMarketGlobalPortfolio => "BOND_MARKET_GLOBAL_PORTFOLIO",
+            Self::DerivativesFundingStress => "DERIVATIVES_FUNDING_STRESS",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[serde(rename_all = "snake_case")]
+pub enum PipelineStepIdV1 {
+    StepA,
+    StepB,
+    StepC,
+    StepD,
+    StepE,
+    StepF,
+    StepG,
+    StepH,
+}
+
+impl PipelineStepIdV1 {
+    #[must_use]
+    pub fn directive_label(self) -> &'static str {
+        match self {
+            Self::StepA => "Step A",
+            Self::StepB => "Step B",
+            Self::StepC => "Step C",
+            Self::StepD => "Step D",
+            Self::StepE => "Step E",
+            Self::StepF => "Step F",
+            Self::StepG => "Step G",
+            Self::StepH => "Step H",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[serde(rename_all = "snake_case")]
+pub enum ClaimKindV1 {
+    Fact,
+    Inference,
+    Recommendation,
+}
+
+impl ClaimKindV1 {
+    #[must_use]
+    pub fn directive_label(self) -> &'static str {
+        match self {
+            Self::Fact => "FACTS",
+            Self::Inference => "INFERENCES",
+            Self::Recommendation => "RECOMMENDATIONS",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[serde(rename_all = "snake_case")]
 pub enum KnowledgeRelationshipV1 {
     DerivedFrom,
     Supports,
@@ -264,6 +368,66 @@ impl AnalysisCoverageV1 {
 pub struct SourceConstraintsV1 {
     pub allowed_sources: Vec<String>,
     pub forbidden_sources: Vec<String>,
+    pub required_output_format: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct AnalysisObservationV1 {
+    pub timestamp: String,
+    pub value: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct AnalysisSeriesInputV1 {
+    pub series_name: String,
+    pub country_area: String,
+    pub source_label: String,
+    pub frequency: Option<String>,
+    pub last_observation: Option<String>,
+    pub units: Option<String>,
+    pub transform: Option<String>,
+    pub observations: Vec<AnalysisObservationV1>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct AnalysisTextInputV1 {
+    pub input_id: String,
+    pub title: String,
+    pub country_area: Option<String>,
+    pub source_label: String,
+    pub text: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct PolicyCommunicationInputV1 {
+    pub communication_id: String,
+    pub issuer: String,
+    pub title: String,
+    pub issued_at: String,
+    pub summary: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct GeopoliticalEventInputV1 {
+    pub event_id: String,
+    pub event_date: String,
+    pub summary: String,
+    pub jurisdictions: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
+pub struct MacroFinancialDirectInputsV1 {
+    pub fx_levels_returns: Vec<AnalysisSeriesInputV1>,
+    pub rates_yields: Vec<AnalysisSeriesInputV1>,
+    pub inflation_growth_terms_trade_fiscal: Vec<AnalysisSeriesInputV1>,
+    pub balance_of_payments_iip: Vec<AnalysisSeriesInputV1>,
+    pub cross_border_banking_credit: Vec<AnalysisSeriesInputV1>,
+    pub portfolio_flow_positions_reserve_composition: Vec<AnalysisSeriesInputV1>,
+    pub funding_hedging_indicators: Vec<AnalysisSeriesInputV1>,
+    pub market_stress_proxies: Vec<AnalysisSeriesInputV1>,
+    pub policy_communications: Vec<PolicyCommunicationInputV1>,
+    pub geopolitical_timeline: Vec<GeopoliticalEventInputV1>,
+    pub inline_documents: Vec<AnalysisTextInputV1>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -285,6 +449,7 @@ pub struct KnowledgeSourceFetchSpecV1 {
 pub struct KnowledgeSourceIngestRequestV1 {
     pub ingestion_id: String,
     pub classification: Classification,
+    pub constraints: SourceConstraintsV1,
     pub sources: Vec<KnowledgeSourceFetchSpecV1>,
 }
 
@@ -304,12 +469,15 @@ pub struct KnowledgeSourceV1 {
     pub acquired_at: DateTime<Utc>,
     pub content_digest: String,
     pub content_text: String,
+    pub provenance_tier: KnowledgeSourceProvenanceV1,
+    pub evidence_use: KnowledgeEvidenceUseV1,
     pub last_observation: Option<String>,
     pub units: Option<String>,
     pub transform: Option<String>,
     pub release_lag: Option<String>,
     pub quality_flags: Vec<QualityFlagV1>,
     pub notes: Vec<String>,
+    pub governance_notes: Vec<String>,
     pub provider_metadata: BTreeMap<String, String>,
 }
 
@@ -321,6 +489,7 @@ pub struct KnowledgePublicationRequestV1 {
     pub source_ids: Vec<String>,
     pub classification: Classification,
     pub retention_class: String,
+    pub constraints: SourceConstraintsV1,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -383,8 +552,23 @@ pub struct MacroFinancialAnalysisRequestV1 {
     pub data_vintage: Option<String>,
     pub source_ids: Vec<String>,
     pub capsule_id: Option<String>,
+    pub direct_inputs: MacroFinancialDirectInputsV1,
     pub classification: Classification,
     pub constraints: SourceConstraintsV1,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct ProblemContractV1 {
+    pub objective: AnalysisObjectiveV1,
+    pub horizon: AnalysisHorizonV1,
+    pub target_countries: Vec<String>,
+    pub target_regions: Vec<String>,
+    pub target_currencies: Vec<String>,
+    pub target_fx_pairs: Vec<String>,
+    pub asset_classes: Vec<String>,
+    pub dependent_variables: Vec<String>,
+    pub required_inputs: Vec<String>,
+    pub missing_inputs: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -452,6 +636,43 @@ pub struct MechanismMapV1 {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct ExternalAccountsBalanceSheetMapV1 {
+    pub current_account_pressures: String,
+    pub financial_account_decomposition: String,
+    pub external_debt_structure: String,
+    pub currency_mismatch_indicators: String,
+    pub marginal_financer: String,
+    pub flow_reversal_vulnerability: String,
+    pub missing_inputs: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct PolicyFrictionObservationV1 {
+    pub friction: String,
+    pub observable_indicators: Vec<String>,
+    pub confidence: ConfidenceV1,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct PolicyRegimeDiagnosisV1 {
+    pub monetary_policy_regime: String,
+    pub credibility_signals: String,
+    pub exchange_rate_regime: String,
+    pub intervention_pattern: String,
+    pub frictions: Vec<PolicyFrictionObservationV1>,
+    pub missing_inputs: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct GlobalLiquidityFundingConditionsV1 {
+    pub phase: GlobalLiquidityPhaseV1,
+    pub dominant_transmission_channel: TransmissionChannelV1,
+    pub dollar_funding_stress_state: String,
+    pub backstop_availability: String,
+    pub missing_inputs: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct FxDriverAssessmentV1 {
     pub bucket: DriverBucketV1,
     pub direction: DirectionalBiasV1,
@@ -482,6 +703,17 @@ pub struct ScenarioCaseV1 {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct SovereignSystemicRiskV1 {
+    pub debt_sustainability_state: String,
+    pub gross_financing_needs: String,
+    pub rollover_risk: String,
+    pub sovereign_bank_nonbank_nexus: String,
+    pub key_amplifiers: Vec<String>,
+    pub cross_border_spillovers: String,
+    pub missing_inputs: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct RiskRegisterEntryV1 {
     pub risk: String,
     pub mechanism: String,
@@ -503,6 +735,49 @@ pub struct KnowledgeAppendixV1 {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct AnalysisAssumptionV1 {
+    pub assumption_id: String,
+    pub text: String,
+    pub stable: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct InferenceStepV1 {
+    pub inference_id: String,
+    pub label: String,
+    pub assumption_ids: Vec<String>,
+    pub inputs_used: Vec<String>,
+    pub resulting_judgment: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct ClaimEvidenceV1 {
+    pub claim_id: String,
+    pub output_section: String,
+    pub claim_kind: ClaimKindV1,
+    pub statement: String,
+    pub source_ids: Vec<String>,
+    pub inference_ids: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct SourceGovernanceDecisionV1 {
+    pub source_id: String,
+    pub source_domain: String,
+    pub provenance_tier: KnowledgeSourceProvenanceV1,
+    pub evidence_use: KnowledgeEvidenceUseV1,
+    pub accepted: bool,
+    pub reasons: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct PipelineStepTraceV1 {
+    pub step: PipelineStepIdV1,
+    pub ordinal: u8,
+    pub summary: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct MacroFinancialAnalysisV1 {
     pub analysis_id: String,
     pub generated_at: DateTime<Utc>,
@@ -510,17 +785,27 @@ pub struct MacroFinancialAnalysisV1 {
     pub objective: AnalysisObjectiveV1,
     pub horizon: AnalysisHorizonV1,
     pub coverage: AnalysisCoverageV1,
+    pub problem_contract: ProblemContractV1,
     pub data_vintage: String,
     pub required_inputs: Vec<String>,
     pub dependent_variables: Vec<String>,
     pub global_liquidity_phase: GlobalLiquidityPhaseV1,
+    pub global_liquidity_funding: GlobalLiquidityFundingConditionsV1,
+    pub external_accounts_map: ExternalAccountsBalanceSheetMapV1,
+    pub policy_regime_diagnosis: PolicyRegimeDiagnosisV1,
     pub driver_decomposition: Vec<FxDriverAssessmentV1>,
+    pub sovereign_systemic_risk: SovereignSystemicRiskV1,
     pub executive_brief: ExecutiveBriefV1,
     pub data_register: Vec<DataRegisterEntryV1>,
     pub mechanism_map: MechanismMapV1,
     pub scenario_matrix: Vec<ScenarioCaseV1>,
     pub risk_register: Vec<RiskRegisterEntryV1>,
     pub knowledge_appendix: KnowledgeAppendixV1,
+    pub source_governance: Vec<SourceGovernanceDecisionV1>,
+    pub assumptions: Vec<AnalysisAssumptionV1>,
+    pub inference_steps: Vec<InferenceStepV1>,
+    pub claim_evidence: Vec<ClaimEvidenceV1>,
+    pub pipeline_trace: Vec<PipelineStepTraceV1>,
     pub source_ids: Vec<String>,
     pub capsule_id: Option<String>,
     pub rendered_output: String,

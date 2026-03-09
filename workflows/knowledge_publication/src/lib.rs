@@ -159,6 +159,7 @@ mod tests {
             contracts::KnowledgeSourceIngestRequestV1 {
                 ingestion_id: "ingest-1".to_string(),
                 classification: contracts::Classification::Internal,
+                constraints: contracts::SourceConstraintsV1::default(),
                 sources: vec![
                     contracts::KnowledgeSourceFetchSpecV1 {
                         source_id: "source-fred".to_string(),
@@ -195,6 +196,7 @@ mod tests {
                 source_ids: vec!["source-fred".to_string(), "source-doc".to_string()],
                 classification: contracts::Classification::Internal,
                 retention_class: "institutional_record".to_string(),
+                constraints: contracts::SourceConstraintsV1::default(),
             },
         )
         .await
