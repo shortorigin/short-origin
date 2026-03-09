@@ -24,6 +24,9 @@ jobs:
       - name: Audit architecture boundaries
         run: cargo xtask architecture audit-boundaries
 
+      - name: Validate governed plugin manifests
+        run: cargo xtask plugin validate-manifests
+
       - name: Audit documented process against automation
         run: cargo xtask github audit-process
 

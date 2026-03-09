@@ -2,6 +2,7 @@ mod architecture;
 mod common;
 mod delivery;
 mod github;
+mod plugin;
 mod ui_hardening;
 
 use std::env;
@@ -62,6 +63,7 @@ fn run() -> Result<(), String> {
         Some("architecture") => architecture::run(args.collect()),
         Some("github") => github::run(args.collect()),
         Some("delivery") => delivery::run(args.collect()),
+        Some("plugin") => plugin::run(args.collect()),
         Some("wasmcloud") => run_wasmcloud(args.collect()),
         Some("ui-hardening") => ui_hardening::run(args.collect()),
         Some("ui") => run_ui(args.collect()),
@@ -609,6 +611,7 @@ usage: cargo xtask <command> ...
 Commands:
   architecture   Architecture boundary and dependency auditing
   github        GitHub governance sync, PR validation, and process auditing
+  plugin        Governed plugin manifest validation
   verify        Workspace verification profiles
   delivery      Delivery manifest and component rendering
   ui-hardening  Deterministic UI/browser hardening verification

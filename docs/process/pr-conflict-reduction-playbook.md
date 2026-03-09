@@ -115,6 +115,7 @@ Recommended validation:
 
 ```bash
 cargo xtask architecture audit-boundaries
+cargo xtask plugin validate-manifests
 cargo xtask github audit-process
 cargo fmt --all --check
 cargo clippy --workspace --all-targets --all-features -- -D warnings

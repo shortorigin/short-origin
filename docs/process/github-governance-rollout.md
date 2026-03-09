@@ -84,6 +84,7 @@ After applying or changing governance, run:
 
 ```bash
 cargo xtask architecture audit-boundaries
+cargo xtask plugin validate-manifests
 cargo xtask github audit-process
 ```
 

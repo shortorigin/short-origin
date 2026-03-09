@@ -76,6 +76,7 @@ For local enforcement parity, also run:
 
 ```bash
 cargo xtask architecture audit-boundaries
+cargo xtask plugin validate-manifests
 cargo xtask github audit-process
 ```
 

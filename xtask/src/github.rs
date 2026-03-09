@@ -97,6 +97,7 @@ struct DocumentedProcess {
     required_issue_fields: Vec<String>,
     automatic_dev_promotion: bool,
     architecture_validation_documented: bool,
+    plugin_validation_documented: bool,
 }
 
 #[derive(Debug, Serialize)]
@@ -376,6 +377,10 @@ fn load_documented_process(workspace_root: &Path) -> Result<DocumentedProcess, S
             && contributing.contains("cargo xtask architecture audit-boundaries")
             && development.contains("cargo xtask architecture audit-boundaries")
             && workflow_migration.contains("cargo xtask architecture audit-boundaries"),
+        plugin_validation_documented: readme.contains("cargo xtask plugin validate-manifests")
+            && contributing.contains("cargo xtask plugin validate-manifests")
+            && development.contains("cargo xtask plugin validate-manifests")
+            && workflow_migration.contains("cargo xtask plugin validate-manifests"),
     })
 }
 
@@ -614,6 +619,11 @@ fn collect_audit_defects(
                 .to_owned(),
         );
     }
+    if !documented.plugin_validation_documented {
+        defects.push(
+            "contributor docs must reference `cargo xtask plugin validate-manifests`".to_owned(),
+        );
+    }
 
     defects.extend(audit_issue_templates(&documented.required_issue_fields)?);
     defects.extend(audit_pr_template(&documented.required_pr_sections)?);
@@ -687,6 +697,11 @@ fn audit_governance_workflow_for_architecture_step() -> Result<Vec<String>, Stri
     if !raw.contains("cargo xtask architecture audit-boundaries") {
         defects.push(
             "governance workflow must run `cargo xtask architecture audit-boundaries`".to_owned(),
+        );
+    }
+    if !raw.contains("cargo xtask plugin validate-manifests") {
+        defects.push(
+            "governance workflow must run `cargo xtask plugin validate-manifests`".to_owned(),
         );
     }
     Ok(defects)
@@ -766,6 +781,22 @@ fn build_drift_matrix(
             .to_owned(),
     });
 
+    rows.push(DriftRow {
+        expectation: "Governance validates governed plugin manifests".to_owned(),
+        documented_source: "README.md + CONTRIBUTING.md + docs/process/*".to_owned(),
+        automation_source: ".github/workflows/governance.yml".to_owned(),
+        status: if defects
+            .iter()
+            .any(|defect| defect.contains("plugin validate-manifests"))
+        {
+            "fail".to_owned()
+        } else {
+            "pass".to_owned()
+        },
+        details: "governance workflow should run `cargo xtask plugin validate-manifests`"
+            .to_owned(),
+    });
+
     rows
 }
 
@@ -816,7 +847,7 @@ fn render_process_audit_markdown(report: &ProcessAuditReport) -> String {
     }
 
     format!(
-        "# Process Flow Audit Report\n\n## Documented Source of Truth\n- source files: {}\n- branch model: {}\n- required checks: {}\n- required PR sections: {}\n- required issue fields: {}\n- architecture validation documented: {}\n- automatic dev promotion: {}\n\n## Defects\n{}\
+        "# Process Flow Audit Report\n\n## Documented Source of Truth\n- source files: {}\n- branch model: {}\n- required checks: {}\n- required PR sections: {}\n- required issue fields: {}\n- architecture validation documented: {}\n- plugin validation documented: {}\n- automatic dev promotion: {}\n\n## Defects\n{}\
 \n## Workflow Baseline\n{}\
 \n## Drift Matrix\n{}",
         report.documented.source_files.join(", "),
@@ -825,6 +856,11 @@ fn render_process_audit_markdown(report: &ProcessAuditReport) -> String {
         report.documented.required_pr_sections.join(", "),
         report.documented.required_issue_fields.join(", "),
         if report.documented.architecture_validation_documented {
+            "yes"
+        } else {
+            "no"
+        },
+        if report.documented.plugin_validation_documented {
             "yes"
         } else {
             "no"

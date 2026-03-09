@@ -32,6 +32,7 @@ Run these from the repository root when you want local parity with the enforced 
 
 ```bash
 cargo xtask architecture audit-boundaries
+cargo xtask plugin validate-manifests
 cargo xtask github audit-process
 cargo xtask verify profile core
 cargo xtask verify profile ui
