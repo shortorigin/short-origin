@@ -68,6 +68,9 @@ cargo test --workspace --all-targets
 - The issue is the system of record and MUST include:
   - a concise summary of the proposed change, defect, or enhancement,
   - the primary architectural plane touched,
+  - the owning subsystem or component responsible for implementation,
+  - architectural references that cite the governing ADRs and supporting architecture docs,
+  - integration boundaries that state allowed cross-plane touchpoints and explicit non-goals,
   - scope in,
   - scope out,
   - background and scope,

@@ -7,7 +7,9 @@ All material changes are issue-driven and must follow the same GitHub workflow:
 1. Create or refine a same-repository GitHub issue before writing code.
 2. Ensure the issue captures:
    - the change, defect, or enhancement being proposed,
-   - the governing ADR references,
+   - the architectural references, including governing ADRs and supporting architecture docs,
+   - the owning subsystem or component responsible for implementation,
+   - the integration boundaries, including allowed cross-plane touchpoints and explicit non-goals,
    - the impacted domains,
    - the affected consistency class,
    - the affected risk tier,

@@ -48,11 +48,27 @@ body:
     validations:
       required: true
   - type: textarea
-    id: adr_references
+    id: architectural_references
     attributes:
-      label: ADR References
-      description: List the ADR IDs that govern this documentation or write `None`.
-      placeholder: "- ADR-0015"
+      label: Architectural References
+      description: List the governing ADRs and supporting architecture docs for this documentation or write `None`.
+      placeholder: "- docs/adr/0001-sovereign-institutional-architecture.md"
+    validations:
+      required: true
+  - type: textarea
+    id: owning_subsystem
+    attributes:
+      label: Owning Subsystem
+      description: Name the component, subsystem, or documentation area that owns the update.
+      placeholder: "- docs/process"
+    validations:
+      required: true
+  - type: textarea
+    id: integration_boundaries
+    attributes:
+      label: Integration Boundaries
+      description: Describe allowed cross-plane touchpoints and at least one explicit non-goal that keeps the change in the correct layer.
+      placeholder: "- Allowed: docs/ may reference platform and ui architecture\n- Non-goal: docs issue does not change runtime contracts"
     validations:
       required: true
   - type: textarea

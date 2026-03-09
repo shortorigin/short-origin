@@ -468,7 +468,9 @@ fn load_documented_process(workspace_root: &Path) -> Result<DocumentedProcess, S
     ];
     let required_issue_fields = vec![
         "primary_architectural_plane".to_string(),
-        "adr_references".to_string(),
+        "architectural_references".to_string(),
+        "owning_subsystem".to_string(),
+        "integration_boundaries".to_string(),
         "impacted_domains".to_string(),
         "affected_consistency_class".to_string(),
         "affected_risk_tier".to_string(),

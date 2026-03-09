@@ -46,7 +46,9 @@ Origin uses a GitHub-native Scrumban model.
 
 1. Start with a same-repository GitHub issue that defines context, scope, and acceptance criteria.
 2. Work on a short-lived issue branch named `<type>/<issue-id>-description` using an approved prefix from [`DEVELOPMENT_MODEL.md`](DEVELOPMENT_MODEL.md).
-3. Record ADR references, impacted domains, consistency class, risk tier, rollback path, and validation artifacts in the issue and PR traceability fields.
+3. Record architectural references, owning subsystem, integration boundaries, impacted domains,
+   consistency class, risk tier, rollback path, and validation artifacts in the issue and PR
+   traceability fields.
 4. Open a pull request with a conventional title and a PR body that includes `Closes #<issue-id>`.
 5. Merge to `main` only after review and required checks pass so the linked issue closes automatically.
 

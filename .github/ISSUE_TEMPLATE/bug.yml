@@ -48,11 +48,27 @@ body:
     validations:
       required: true
   - type: textarea
-    id: adr_references
+    id: architectural_references
     attributes:
-      label: ADR References
-      description: List the ADR IDs that govern the affected behavior or write `None`.
-      placeholder: "- ADR-0006"
+      label: Architectural References
+      description: List the governing ADRs and supporting architecture docs for the affected behavior or write `None`.
+      placeholder: "- docs/adr/0002-trust-zones-and-evidence.md"
+    validations:
+      required: true
+  - type: textarea
+    id: owning_subsystem
+    attributes:
+      label: Owning Subsystem
+      description: Name the component, subsystem, or bounded context that should implement the fix.
+      placeholder: "- services/audit-service"
+    validations:
+      required: true
+  - type: textarea
+    id: integration_boundaries
+    attributes:
+      label: Integration Boundaries
+      description: Describe allowed cross-plane touchpoints and at least one explicit non-goal that keeps the fix in the correct layer.
+      placeholder: "- Allowed: workflows/ -> services/ through typed contracts\n- Non-goal: ui/ -> services/ direct imports"
     validations:
       required: true
   - type: textarea
