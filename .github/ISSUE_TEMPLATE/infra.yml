@@ -48,11 +48,27 @@ body:
     validations:
       required: true
   - type: textarea
-    id: adr_references
+    id: architectural_references
     attributes:
-      label: ADR References
-      description: List the ADR IDs that govern this infrastructure work or write `None`.
-      placeholder: "- ADR-0015"
+      label: Architectural References
+      description: List the governing ADRs and supporting architecture docs for this infrastructure work or write `None`.
+      placeholder: "- docs/adr/0002-trust-zones-and-evidence.md"
+    validations:
+      required: true
+  - type: textarea
+    id: owning_subsystem
+    attributes:
+      label: Owning Subsystem
+      description: Name the environment, manifest set, workflow, or subsystem that should implement this work.
+      placeholder: "- infrastructure/wasmcloud/manifests"
+    validations:
+      required: true
+  - type: textarea
+    id: integration_boundaries
+    attributes:
+      label: Integration Boundaries
+      description: Describe allowed cross-plane touchpoints and at least one explicit non-goal that keeps work in the correct layer.
+      placeholder: "- Allowed: infrastructure/ consumes manifests and delivery outputs\n- Non-goal: infrastructure/ embedding business-domain logic"
     validations:
       required: true
   - type: textarea

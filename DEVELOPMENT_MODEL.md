@@ -41,7 +41,9 @@ Every issue should capture:
 - Summary
 - Problem Statement
 - Proposed Solution
-- ADR References
+- Architectural References
+- Owning Subsystem
+- Integration Boundaries
 - Impacted Domains
 - Affected Consistency Class
 - Affected Risk Tier
@@ -64,6 +66,8 @@ Issue creation protocol:
 4. Keep acceptance criteria concrete and testable.
 5. Declare one primary architectural plane even when the work spans multiple modules.
 6. Record explicit out-of-scope items so follow-on work can be sequenced cleanly.
+7. Cite the governing ADRs plus any supporting architecture docs needed to keep implementation in
+   the correct layer.
 
 ## Branching and Commits
 
