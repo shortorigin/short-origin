@@ -62,5 +62,10 @@ Repository-owned validation runs through:
 cargo xtask architecture audit-boundaries
 ```
 
-The audit validates direct workspace path dependencies, checks targeted source-scan rules, and is
-part of `Governance / validate`.
+The audit validates direct and transitive workspace dependencies, checks source-level workspace
+crate imports, enforces targeted source-scan rules, and is part of `Governance / validate`.
+
+Remaining gaps are still explicit:
+- non-Rust asset and generated-code dependency analysis is not yet fully enforced
+- macro-generated imports and repository-external build tooling remain review-time concerns unless
+  they surface through the existing manifest or source scans

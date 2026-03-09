@@ -1,8 +1,11 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet, VecDeque};
 use std::fs;
 use std::path::{Component, Path, PathBuf};
+use std::process::Command;
 
 use crate::common::workspace_root;
+use regex::Regex;
+use serde::Deserialize;
 
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub(crate) enum Plane {
@@ -62,6 +65,65 @@ struct MemberAudit {
     dependencies: Vec<ManifestDependency>,
 }
 
+#[derive(Debug)]
+struct MetadataWorkspace {
+    packages: BTreeMap<String, MetadataPackageAudit>,
+}
+
+#[derive(Debug)]
+struct MetadataPackageAudit {
+    id: String,
+    name: String,
+    member_path: String,
+    plane: Plane,
+    crate_names: BTreeSet<String>,
+    direct_dependencies: Vec<MetadataDependencyAudit>,
+}
+
+#[derive(Debug)]
+struct MetadataDependencyAudit {
+    package_id: String,
+    crate_name: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct CargoMetadata {
+    packages: Vec<CargoPackage>,
+    resolve: Option<CargoResolve>,
+    workspace_root: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct CargoPackage {
+    id: String,
+    name: String,
+    manifest_path: String,
+    targets: Vec<CargoTarget>,
+}
+
+#[derive(Debug, Deserialize)]
+struct CargoTarget {
+    kind: Vec<String>,
+    name: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct CargoResolve {
+    nodes: Vec<CargoResolveNode>,
+}
+
+#[derive(Debug, Deserialize)]
+struct CargoResolveNode {
+    id: String,
+    deps: Vec<CargoResolveDep>,
+}
+
+#[derive(Debug, Deserialize)]
+struct CargoResolveDep {
+    name: String,
+    pkg: String,
+}
+
 pub fn run(args: Vec<String>) -> Result<(), String> {
     match args.as_slice() {
         [command] if command == "audit-boundaries" => audit_boundaries(),
@@ -72,7 +134,8 @@ pub fn run(args: Vec<String>) -> Result<(), String> {
 fn audit_boundaries() -> Result<(), String> {
     let workspace_root = workspace_root()?;
     let audits = audit_workspace_members(&workspace_root)?;
-    let defects = collect_boundary_defects(&workspace_root, &audits)?;
+    let metadata = load_workspace_metadata(&workspace_root)?;
+    let defects = collect_boundary_defects(&workspace_root, &audits, &metadata)?;
 
     if defects.is_empty() {
         println!("architecture boundary audit passed");
@@ -212,6 +275,7 @@ fn dependency_path(value: &toml::Value) -> Option<&str> {
 fn collect_boundary_defects(
     workspace_root: &Path,
     audits: &[MemberAudit],
+    metadata: &MetadataWorkspace,
 ) -> Result<Vec<String>, String> {
     let mut defects = Vec::new();
 
@@ -233,6 +297,238 @@ fn collect_boundary_defects(
     }
 
     defects.extend(scan_for_direct_surreal_usage(workspace_root)?);
+    defects.extend(scan_for_transitive_workspace_violations(metadata));
+    defects.extend(scan_for_workspace_import_violations(
+        workspace_root,
+        metadata,
+    )?);
+    Ok(defects)
+}
+
+fn load_workspace_metadata(workspace_root: &Path) -> Result<MetadataWorkspace, String> {
+    let output = Command::new("cargo")
+        .current_dir(workspace_root)
+        .args(["metadata", "--format-version", "1"])
+        .output()
+        .map_err(|error| format!("failed to run `cargo metadata`: {error}"))?;
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!("`cargo metadata` failed: {stderr}"));
+    }
+
+    let raw = String::from_utf8(output.stdout)
+        .map_err(|error| format!("`cargo metadata` output was not valid UTF-8: {error}"))?;
+    let metadata: CargoMetadata = serde_json::from_str(&raw)
+        .map_err(|error| format!("failed to parse `cargo metadata` output: {error}"))?;
+
+    build_metadata_workspace(&metadata)
+}
+
+fn build_metadata_workspace(metadata: &CargoMetadata) -> Result<MetadataWorkspace, String> {
+    let workspace_root = Path::new(&metadata.workspace_root);
+    let mut package_index = BTreeMap::new();
+
+    for package in &metadata.packages {
+        let manifest_path = Path::new(&package.manifest_path);
+        if !manifest_path.starts_with(workspace_root) {
+            continue;
+        }
+        let manifest_dir = manifest_path.parent().ok_or_else(|| {
+            format!(
+                "manifest path `{}` returned by cargo metadata has no parent",
+                package.manifest_path
+            )
+        })?;
+        let relative = manifest_dir
+            .strip_prefix(workspace_root)
+            .map_err(|error| {
+                format!(
+                    "failed to strip workspace root from `{}`: {error}",
+                    manifest_dir.display()
+                )
+            })?
+            .to_string_lossy()
+            .replace('\\', "/");
+
+        let crate_names = package
+            .targets
+            .iter()
+            .filter(|target| {
+                target.kind.iter().any(|kind| {
+                    matches!(
+                        kind.as_str(),
+                        "lib" | "rlib" | "cdylib" | "dylib" | "proc-macro"
+                    )
+                })
+            })
+            .map(|target| target.name.clone())
+            .collect::<BTreeSet<_>>();
+
+        package_index.insert(
+            package.id.clone(),
+            MetadataPackageAudit {
+                id: package.id.clone(),
+                name: package.name.clone(),
+                member_path: relative.clone(),
+                plane: classify_member_path(&relative),
+                crate_names,
+                direct_dependencies: Vec::new(),
+            },
+        );
+    }
+
+    let resolve = metadata
+        .resolve
+        .as_ref()
+        .ok_or_else(|| "`cargo metadata` did not return a dependency graph".to_string())?;
+
+    for node in &resolve.nodes {
+        if !package_index.contains_key(&node.id) {
+            continue;
+        }
+
+        let direct_dependencies = node
+            .deps
+            .iter()
+            .filter_map(|dep| {
+                package_index.get(&dep.pkg)?;
+                Some(MetadataDependencyAudit {
+                    package_id: dep.pkg.clone(),
+                    crate_name: dep.name.clone(),
+                })
+            })
+            .collect::<Vec<_>>();
+
+        if let Some(package) = package_index.get_mut(&node.id) {
+            package.direct_dependencies = direct_dependencies;
+        }
+    }
+
+    Ok(MetadataWorkspace {
+        packages: package_index,
+    })
+}
+
+fn scan_for_transitive_workspace_violations(metadata: &MetadataWorkspace) -> Vec<String> {
+    let mut defects = Vec::new();
+
+    for package in metadata.packages.values() {
+        let allowed = allowed_transitive_planes(package.plane);
+        let mut queue = VecDeque::new();
+        let mut seen = BTreeSet::from([package.id.clone()]);
+
+        for dependency in &package.direct_dependencies {
+            queue.push_back((dependency.package_id.clone(), vec![package.name.clone()]));
+        }
+
+        while let Some((package_id, mut path)) = queue.pop_front() {
+            if !seen.insert(package_id.clone()) {
+                continue;
+            }
+
+            let Some(target) = metadata.packages.get(&package_id) else {
+                continue;
+            };
+            path.push(target.name.clone());
+
+            if !allowed.contains(&target.plane) {
+                defects.push(format!(
+                    "member `{}` in plane `{}` reaches disallowed transitive plane `{}` via `{}`",
+                    package.member_path,
+                    package.plane.as_str(),
+                    target.plane.as_str(),
+                    path.join(" -> ")
+                ));
+                continue;
+            }
+
+            for dependency in &target.direct_dependencies {
+                queue.push_back((dependency.package_id.clone(), path.clone()));
+            }
+        }
+    }
+
+    defects
+}
+
+fn scan_for_workspace_import_violations(
+    workspace_root: &Path,
+    metadata: &MetadataWorkspace,
+) -> Result<Vec<String>, String> {
+    let import_regex =
+        Regex::new(r"(?m)^\s*(?:pub\s+use|use|extern\s+crate)\s+(?:::)?([A-Za-z_][A-Za-z0-9_]*)")
+            .map_err(|error| format!("failed to compile workspace import regex: {error}"))?;
+
+    let crate_to_package = metadata
+        .packages
+        .values()
+        .flat_map(|package| {
+            package
+                .crate_names
+                .iter()
+                .cloned()
+                .map(move |crate_name| (crate_name, package))
+        })
+        .collect::<BTreeMap<_, _>>();
+
+    let mut defects = Vec::new();
+
+    for package in metadata.packages.values() {
+        let mut files = Vec::new();
+        collect_rust_files(&workspace_root.join(&package.member_path), &mut files)?;
+        let direct_crates = package
+            .direct_dependencies
+            .iter()
+            .map(|dependency| dependency.crate_name.clone())
+            .collect::<BTreeSet<_>>();
+        let allowed = allowed_planes(package.plane);
+
+        for path in files {
+            let raw = fs::read_to_string(&path)
+                .map_err(|error| format!("failed to read `{}`: {error}", path.display()))?;
+            for captures in import_regex.captures_iter(&raw) {
+                let Some(crate_name) = captures.get(1).map(|capture| capture.as_str()) else {
+                    continue;
+                };
+                if matches!(crate_name, "crate" | "self" | "super") {
+                    continue;
+                }
+
+                let Some(target) = crate_to_package.get(crate_name) else {
+                    continue;
+                };
+                if target.id == package.id {
+                    continue;
+                }
+
+                let relative = path
+                    .strip_prefix(workspace_root)
+                    .map_err(|error| {
+                        format!(
+                            "failed to strip workspace root from `{}`: {error}",
+                            path.display()
+                        )
+                    })?
+                    .to_string_lossy()
+                    .replace('\\', "/");
+
+                if !allowed.contains(&target.plane) {
+                    defects.push(format!(
+                        "source import in `{relative}` references workspace crate `{crate_name}` from disallowed plane `{}`",
+                        target.plane.as_str()
+                    ));
+                    continue;
+                }
+
+                if !direct_crates.contains(crate_name) {
+                    defects.push(format!(
+                        "source import in `{relative}` references workspace crate `{crate_name}` without a direct dependency declaration"
+                    ));
+                }
+            }
+        }
+    }
+
     Ok(defects)
 }
 
@@ -296,6 +592,59 @@ fn collect_rust_files(root: &Path, output: &mut Vec<PathBuf>) -> Result<(), Stri
 }
 
 fn allowed_planes(plane: Plane) -> &'static [Plane] {
+    match plane {
+        Plane::Enterprise => &[Plane::Enterprise, Plane::Schemas, Plane::Shared],
+        Plane::Schemas => &[Plane::Schemas, Plane::Enterprise, Plane::Shared],
+        Plane::Shared => &[Plane::Shared, Plane::Schemas, Plane::Enterprise],
+        Plane::Platform => &[Plane::Platform, Plane::Schemas, Plane::Shared],
+        Plane::Services => &[
+            Plane::Services,
+            Plane::Platform,
+            Plane::Schemas,
+            Plane::Shared,
+            Plane::Enterprise,
+        ],
+        Plane::Workflows => &[
+            Plane::Workflows,
+            Plane::Services,
+            Plane::Platform,
+            Plane::Schemas,
+            Plane::Shared,
+            Plane::Enterprise,
+        ],
+        Plane::Ui => &[Plane::Ui, Plane::Platform, Plane::Schemas, Plane::Shared],
+        Plane::Infrastructure => &[Plane::Infrastructure],
+        Plane::Agents => &[
+            Plane::Agents,
+            Plane::Platform,
+            Plane::Schemas,
+            Plane::Shared,
+            Plane::Enterprise,
+            Plane::Workflows,
+        ],
+        Plane::Testing => &[
+            Plane::Enterprise,
+            Plane::Schemas,
+            Plane::Shared,
+            Plane::Platform,
+            Plane::Services,
+            Plane::Workflows,
+            Plane::Ui,
+            Plane::Infrastructure,
+            Plane::Agents,
+            Plane::Testing,
+            Plane::Xtask,
+        ],
+        Plane::Docs => &[Plane::Docs],
+        Plane::Github => &[Plane::Github],
+        Plane::Xtask => &[Plane::Xtask, Plane::Platform, Plane::Schemas, Plane::Shared],
+        Plane::WorkItems => &[Plane::WorkItems],
+        Plane::Root => &[Plane::Root],
+        Plane::Unknown => &[],
+    }
+}
+
+fn allowed_transitive_planes(plane: Plane) -> &'static [Plane] {
     match plane {
         Plane::Enterprise => &[Plane::Enterprise, Plane::Schemas, Plane::Shared],
         Plane::Schemas => &[Plane::Schemas, Plane::Enterprise, Plane::Shared],
@@ -438,7 +787,9 @@ fn help() -> String {
 #[cfg(test)]
 mod tests {
     use super::{
-        audit_workspace_members, classify_member_path, classify_repo_path, planes_for_paths, Plane,
+        audit_workspace_members, build_metadata_workspace, classify_member_path,
+        classify_repo_path, planes_for_paths, scan_for_transitive_workspace_violations,
+        scan_for_workspace_import_violations, CargoMetadata, Plane,
     };
     use std::collections::BTreeSet;
     use std::fs;
@@ -462,6 +813,38 @@ mod tests {
             fs::create_dir_all(parent).expect("create parent");
         }
         fs::write(path, contents).expect("write file");
+    }
+
+    fn fixture_package(
+        id: &str,
+        name: &str,
+        manifest_path: &str,
+        lib_name: &str,
+    ) -> serde_json::Value {
+        serde_json::json!({
+            "id": id,
+            "name": name,
+            "manifest_path": manifest_path,
+            "targets": [
+                {
+                    "kind": ["lib"],
+                    "name": lib_name
+                }
+            ]
+        })
+    }
+
+    fn fixture_metadata(
+        root: &Path,
+        packages: Vec<serde_json::Value>,
+        nodes: Vec<serde_json::Value>,
+    ) -> CargoMetadata {
+        serde_json::from_value(serde_json::json!({
+            "packages": packages,
+            "resolve": { "nodes": nodes },
+            "workspace_root": root.display().to_string()
+        }))
+        .expect("fixture metadata")
     }
 
     #[test]
@@ -578,5 +961,166 @@ edition = "2021"
             .find(|audit| audit.member_path == "ui/app")
             .expect("ui audit");
         assert_eq!(ui_audit.dependencies[0].plane, Plane::Services);
+    }
+
+    #[test]
+    fn transitive_audit_rejects_ui_reaching_enterprise_plane() {
+        let root = unique_temp_dir("transitive");
+        let metadata = fixture_metadata(
+            &root,
+            vec![
+                fixture_package(
+                    "ui",
+                    "site",
+                    &root.join("ui/site/Cargo.toml").display().to_string(),
+                    "site",
+                ),
+                fixture_package(
+                    "platform",
+                    "sdk-rs",
+                    &root.join("platform/sdk/Cargo.toml").display().to_string(),
+                    "sdk_rs",
+                ),
+                fixture_package(
+                    "shared",
+                    "identity",
+                    &root
+                        .join("shared/identity/Cargo.toml")
+                        .display()
+                        .to_string(),
+                    "identity",
+                ),
+                fixture_package(
+                    "enterprise",
+                    "ontology-model",
+                    &root
+                        .join("enterprise/model/Cargo.toml")
+                        .display()
+                        .to_string(),
+                    "ontology_model",
+                ),
+            ],
+            vec![
+                serde_json::json!({
+                    "id": "ui",
+                    "deps": [{ "name": "sdk_rs", "pkg": "platform" }]
+                }),
+                serde_json::json!({
+                    "id": "platform",
+                    "deps": [{ "name": "identity", "pkg": "shared" }]
+                }),
+                serde_json::json!({
+                    "id": "shared",
+                    "deps": [{ "name": "ontology_model", "pkg": "enterprise" }]
+                }),
+                serde_json::json!({
+                    "id": "enterprise",
+                    "deps": []
+                }),
+            ],
+        );
+
+        let workspace = build_metadata_workspace(&metadata).expect("workspace");
+        let defects = scan_for_transitive_workspace_violations(&workspace);
+        assert!(
+            defects
+                .iter()
+                .any(|defect| defect.contains("disallowed transitive plane `enterprise`")),
+            "expected enterprise transitive defect, got {defects:?}"
+        );
+    }
+
+    #[test]
+    fn source_import_audit_rejects_ui_import_of_service_crate() {
+        let root = unique_temp_dir("imports");
+        write_file(
+            &root.join("ui/site/src/lib.rs"),
+            "use finance_service::FinanceService;\n",
+        );
+        write_file(
+            &root.join("services/finance/src/lib.rs"),
+            "pub struct FinanceService;\n",
+        );
+
+        let metadata = fixture_metadata(
+            &root,
+            vec![
+                fixture_package(
+                    "ui",
+                    "site",
+                    &root.join("ui/site/Cargo.toml").display().to_string(),
+                    "site",
+                ),
+                fixture_package(
+                    "services",
+                    "finance-service",
+                    &root
+                        .join("services/finance/Cargo.toml")
+                        .display()
+                        .to_string(),
+                    "finance_service",
+                ),
+            ],
+            vec![
+                serde_json::json!({ "id": "ui", "deps": [] }),
+                serde_json::json!({ "id": "services", "deps": [] }),
+            ],
+        );
+
+        let workspace = build_metadata_workspace(&metadata).expect("workspace");
+        let defects = scan_for_workspace_import_violations(&root, &workspace).expect("scan");
+        assert!(
+            defects
+                .iter()
+                .any(|defect| defect.contains("disallowed plane `services`")),
+            "expected import defect, got {defects:?}"
+        );
+    }
+
+    #[test]
+    fn source_import_audit_rejects_workspace_crate_without_direct_dependency() {
+        let root = unique_temp_dir("undeclared");
+        write_file(
+            &root.join("platform/sdk/src/lib.rs"),
+            "use identity::ActorRef;\n",
+        );
+        write_file(
+            &root.join("shared/identity/src/lib.rs"),
+            "pub struct ActorRef;\n",
+        );
+
+        let metadata = fixture_metadata(
+            &root,
+            vec![
+                fixture_package(
+                    "platform",
+                    "sdk-rs",
+                    &root.join("platform/sdk/Cargo.toml").display().to_string(),
+                    "sdk_rs",
+                ),
+                fixture_package(
+                    "shared",
+                    "identity",
+                    &root
+                        .join("shared/identity/Cargo.toml")
+                        .display()
+                        .to_string(),
+                    "identity",
+                ),
+            ],
+            vec![
+                serde_json::json!({ "id": "platform", "deps": [] }),
+                serde_json::json!({ "id": "shared", "deps": [] }),
+            ],
+        );
+
+        let workspace = build_metadata_workspace(&metadata).expect("workspace");
+        let defects = scan_for_workspace_import_violations(&root, &workspace).expect("scan");
+        assert!(
+            defects
+                .iter()
+                .any(|defect| defect.contains("without a direct dependency declaration")),
+            "expected undeclared direct dependency defect, got {defects:?}"
+        );
     }
 }
