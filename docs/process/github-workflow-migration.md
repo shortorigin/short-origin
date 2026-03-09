@@ -31,6 +31,7 @@ process audit artifacts from `cargo xtask github audit-process`.
 Run these from the repository root when you want local parity with the enforced automation:
 
 ```bash
+cargo xtask architecture audit-boundaries
 cargo xtask github audit-process
 cargo xtask verify profile core
 cargo xtask verify profile ui

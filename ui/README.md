@@ -1,7 +1,11 @@
 # Origin OS UI Shell
 
 ## Purpose
-`ui/` is the Origin OS UI shell runtime and application composition layer. It owns shell presentation, Leptos-based runtime composition, built-in app mounting, and host-facing adapters required to run the interface in either the Tauri desktop runtime or the browser/WASM preview. The module is Rust-first: UI behavior, state transitions, and host integration are defined in Rust and exposed through typed contracts.
+`ui/` is the Origin OS UI shell runtime and application composition layer. It owns shell
+presentation, Leptos-based runtime composition, built-in app mounting, governed plugin app
+registration, and host-facing adapters required to run the interface in either the baseline
+browser/PWA runtime or the Tauri-enhanced desktop host. The module is Rust-first: UI behavior,
+state transitions, and host integration are defined in Rust and exposed through typed contracts.
 
 ## Scope
 In scope: shell presentation primitives and components, desktop runtime state and reducers, built-in shell app composition, Tauri host integration, browser/WASM preview entrypoints, and typed host adapter wiring for UI-facing platform services.
@@ -13,8 +17,8 @@ Out of scope: canonical business-domain models, schema ownership, service or wor
 
 - `system_ui` provides design tokens, primitives, and reusable shell components.
 - `desktop_runtime` owns shared shell state, reducer logic, compositor orchestration, window manager behavior, persistence hooks, and Leptos runtime composition.
-- `site` is the browser/WASM entrypoint used for preview and parity validation.
-- `desktop_tauri` is the desktop host and distribution wrapper for the Tauri runtime.
+- `site` is the browser/WASM entrypoint used for the baseline PWA runtime and parity validation.
+- `desktop_tauri` is the desktop host and distribution wrapper for the Tauri enhancement runtime.
 - `platform_host` defines typed host-service contracts used by the runtime and app crates.
 - `platform_host_web` provides browser and desktop-webview adapter wiring behind the `platform_host` contracts.
 - `desktop_app_contract`, `system_shell_contract`, `system_shell`, and the built-in app crates define the managed shell app boundary and shell command surface.
@@ -37,16 +41,18 @@ Primary dependencies for this module are Rust workspace crates plus the Leptos a
 
 - Rust workspace crates under `platform/`, `schemas/`, and `shared/` provide typed contracts and reusable support code.
 - Leptos provides the WASM UI runtime and component model.
-- Tauri provides the authoritative desktop runtime and packaging layer.
-- Browser/WASM support exists for preview, standards validation, and parity checks against the desktop shell.
+- Browser/WASM support is the baseline platform runtime.
+- Tauri provides the capability-extending desktop host and packaging layer for the same shell.
 
 `ui/` must depend on typed SDK and contract crates rather than redefining models locally. UI code must not couple directly to SurrealDB or service-private APIs.
 
 ## Runtime Model
 The shell supports two runtime targets with a shared Rust composition core:
 
-- Desktop: `desktop_tauri` hosts the Leptos shell through Tauri and uses the typed host contracts to expose desktop capabilities.
-- Browser preview: `site` mounts the same shell runtime for `wasm32` builds and uses browser-compatible host adapters for preview behavior.
+- Browser/PWA baseline: `site` mounts the shared shell runtime for `wasm32` builds, provides the
+  installable PWA surface, and uses browser-compatible host adapters.
+- Desktop enhancement: `desktop_tauri` hosts the same shell through Tauri and exposes additional
+  host capabilities through the typed host contracts.
 
 `desktop_runtime` is the common execution core for both targets. It keeps reducer-owned state, effect generation, compositor behavior, and shell composition in one Rust runtime while host capabilities vary by adapter selection.
 
@@ -86,7 +92,9 @@ Prohibited patterns:
 - non-test `unwrap`/`expect` on recoverable runtime and host paths
 
 ## Development Workflow
-Use the browser/WASM preview for fast shell iteration and parity checks. Use the Tauri path to validate desktop-only integrations and packaged behavior. Keep all new UI integration behind typed contracts and place presentation-specific models only in `ui/`.
+Use the browser/PWA workflow for fast shell iteration and parity checks. Use the Tauri path to
+validate desktop-only integrations and packaged behavior. Keep all new UI integration behind typed
+contracts and place presentation-specific models only in `ui/`.
 
 When extending the shell:
 
@@ -107,7 +115,11 @@ cargo check -p site
 cargo check -p desktop_tauri
 ```
 
-`cargo ui-dev` is the preferred browser/WASM preview workflow. `cargo ui-build` drives the corresponding build pipeline. `cargo verify-ui` now exercises the preview toolchain with a real `site_app` wasm build, Trunk packaging, and a localhost smoke probe so wasm-only browser regressions are caught before merge. Use the crate-level `cargo check` commands for focused iteration in the shared runtime, browser entrypoint, and desktop host.
+`cargo ui-dev` is the preferred browser/PWA workflow. `cargo ui-build` drives the corresponding
+build pipeline. `cargo verify-ui` now exercises the preview toolchain with a real `site_app` wasm
+build, Trunk packaging, and a localhost smoke probe so baseline browser regressions are caught
+before merge. Use the crate-level `cargo check` commands for focused iteration in the shared
+runtime, browser entrypoint, and desktop host.
 
 ## Integration Patterns
 All UI-to-platform integration must flow through typed contracts.

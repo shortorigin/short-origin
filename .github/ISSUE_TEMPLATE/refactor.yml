@@ -27,12 +27,64 @@ body:
       description: Describe the intended refactor boundary and behavior-preservation strategy.
     validations:
       required: true
+  - type: dropdown
+    id: primary_architectural_plane
+    attributes:
+      label: Primary Architectural Plane
+      description: Select the dominant repository plane for this work.
+      options:
+        - enterprise
+        - schemas
+        - shared
+        - platform
+        - services
+        - workflows
+        - ui
+        - infrastructure
+        - agents
+        - testing
+        - docs
+        - cross-layer
+    validations:
+      required: true
+  - type: textarea
+    id: scope_in
+    attributes:
+      label: Scope In
+      description: List what is explicitly in scope for this issue.
+      placeholder: "- [ ] In-scope item"
+    validations:
+      required: true
+  - type: textarea
+    id: scope_out
+    attributes:
+      label: Scope Out
+      description: List what is explicitly out of scope for this issue.
+      placeholder: "- [ ] Out-of-scope item"
+    validations:
+      required: true
   - type: textarea
     id: acceptance_criteria
     attributes:
       label: Acceptance Criteria
       description: List the verification points that must remain true after the refactor.
       placeholder: "- [ ] Criterion 1"
+    validations:
+      required: true
+  - type: textarea
+    id: validation_requirements
+    attributes:
+      label: Validation Requirements
+      description: List the commands, tests, or review evidence required before merge.
+      placeholder: "- [ ] Validation step"
+    validations:
+      required: true
+  - type: textarea
+    id: rollback_considerations
+    attributes:
+      label: Rollback Considerations
+      description: Describe rollback expectations or state that rollback is not applicable.
+      placeholder: "Describe rollback or write `Not applicable`."
     validations:
       required: true
   - type: textarea

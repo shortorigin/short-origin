@@ -1,13 +1,16 @@
 # Infrastructure
 
 ## Purpose
-`infrastructure/` defines deployment, runtime, and platform-environment automation for AWS, Cloudflare, Nomad, and Pulumi targets. It standardizes how wasmCloud workloads, supporting lattice services, and observability components are provisioned.
+`infrastructure/` defines deployment, runtime, and platform-environment automation for AWS,
+Cloudflare, Nomad, and Pulumi targets. It standardizes how AWS-hosted wasmCloud workloads,
+supporting lattice services, and Cloudflare-mediated ingress/network policy are provisioned.
 
 ## Scope
 In scope:
 - Environment definitions under `infrastructure/aws`, `infrastructure/cloudflare`, `infrastructure/nomad`, and `infrastructure/pulumi`.
 - Provisioning workflows and runtime wiring.
 - Environment-level secrets and policy integration patterns.
+- Digest-pinned deployment manifests consumed by the delivery and release workflows.
 
 Out of scope:
 - Business-domain logic.

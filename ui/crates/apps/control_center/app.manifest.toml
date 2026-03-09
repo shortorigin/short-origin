@@ -1,11 +1,28 @@
 schema_version = 1
+plugin_id = "system.control-center"
 app_id = "system.control-center"
 display_name = "Control Center"
 version = "0.1.0"
+platform_contract_version = "1.0.0"
 runtime_contract_version = "2.0.0"
 requested_capabilities = ["window", "state", "theme", "commands"]
+required_platform_contracts = [
+  "schemas/contracts/v1/plugin-module-v1.json",
+  "platform/sdk/v1/dashboard"
+]
+service_dependencies = []
+workflow_dependencies = []
+host_requirements = ["browser-storage:required", "notifications:optional"]
+runtime_targets = ["pwa", "tauri"]
+permissions = ["shell.mount", "shell.window", "shell.commands"]
 single_instance = true
 suspend_policy = "on-minimize"
+
+[ui]
+entry = "desktop_app_control_center"
+routes = ["/apps/control-center", "/projects/:slug"]
+
+[launcher]
 show_in_launcher = true
 show_on_desktop = true
 

@@ -10,17 +10,37 @@ struct WindowDefaults {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+struct UiContribution {
+    entry: String,
+    routes: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct Launcher {
+    show_in_launcher: bool,
+    show_on_desktop: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct AppManifest {
     schema_version: u32,
+    plugin_id: String,
     app_id: String,
     display_name: String,
     version: String,
+    platform_contract_version: String,
     runtime_contract_version: String,
+    ui: UiContribution,
     requested_capabilities: Vec<String>,
+    required_platform_contracts: Vec<String>,
+    service_dependencies: Vec<String>,
+    workflow_dependencies: Vec<String>,
+    host_requirements: Vec<String>,
+    runtime_targets: Vec<String>,
+    permissions: Vec<String>,
     single_instance: bool,
     suspend_policy: String,
-    show_in_launcher: bool,
-    show_on_desktop: bool,
+    launcher: Launcher,
     window_defaults: WindowDefaults,
 }
 
@@ -53,12 +73,63 @@ fn main() {
                 manifest.schema_version
             );
         }
+        if manifest.plugin_id != manifest.app_id {
+            panic!(
+                "plugin/app id mismatch in {}: expected identical v1 ids, found `{}` vs `{}`",
+                path.display(),
+                manifest.plugin_id,
+                manifest.app_id
+            );
+        }
+        if !manifest.platform_contract_version.starts_with("1.") {
+            panic!(
+                "platform contract mismatch in {}: expected 1.x found {}",
+                path.display(),
+                manifest.platform_contract_version
+            );
+        }
         if !manifest.runtime_contract_version.starts_with("2.") {
             panic!(
                 "runtime contract mismatch in {}: expected 2.x found {}",
                 path.display(),
                 manifest.runtime_contract_version
             );
+        }
+        if manifest.ui.entry.trim().is_empty() || manifest.ui.routes.is_empty() {
+            panic!("ui entry and routes must be declared in {}", path.display());
+        }
+        if manifest
+            .ui
+            .routes
+            .iter()
+            .any(|route| route.trim().is_empty())
+        {
+            panic!("ui routes must not be empty in {}", path.display());
+        }
+        if !manifest
+            .required_platform_contracts
+            .iter()
+            .any(|contract| contract == "schemas/contracts/v1/plugin-module-v1.json")
+        {
+            panic!("plugin contract reference missing in {}", path.display());
+        }
+        if manifest
+            .runtime_targets
+            .iter()
+            .any(|target| target != "pwa" && target != "tauri")
+        {
+            panic!(
+                "unsupported runtime target in {}: {:?}",
+                path.display(),
+                manifest.runtime_targets
+            );
+        }
+        if !manifest
+            .runtime_targets
+            .iter()
+            .any(|target| target == "pwa")
+        {
+            panic!("baseline PWA target must be declared in {}", path.display());
         }
         manifests.push(manifest);
     }
@@ -121,11 +192,35 @@ fn render_manifest_metadata_const(manifest: &AppManifest) -> String {
             manifest.app_id
         ),
     };
+    let ui_routes = render_string_array(&manifest.ui.routes);
+    let required_platform_contracts = render_string_array(&manifest.required_platform_contracts);
+    let service_dependencies = render_string_array(&manifest.service_dependencies);
+    let workflow_dependencies = render_string_array(&manifest.workflow_dependencies);
+    let host_requirements = render_string_array(&manifest.host_requirements);
+    let runtime_targets = render_string_array(&manifest.runtime_targets);
+    let permissions = render_string_array(&manifest.permissions);
+    let plugin_id = format!("{:?}", manifest.plugin_id);
+    let version = format!("{:?}", manifest.version);
+    let platform_contract_version = format!("{:?}", manifest.platform_contract_version);
+    let runtime_contract_version = format!("{:?}", manifest.runtime_contract_version);
+    let ui_entry = format!("{:?}", manifest.ui.entry);
 
     format!(
         "const {ident}_MANIFEST: GeneratedAppManifestMetadata = GeneratedAppManifestMetadata {{
+    plugin_id: {plugin_id},
     display_name: \"{display_name}\",
+    version: {version},
+    platform_contract_version: {platform_contract_version},
+    runtime_contract_version: {runtime_contract_version},
+    ui_entry: {ui_entry},
+    ui_routes: &{ui_routes},
     requested_capabilities: &[{requested_capabilities}],
+    required_platform_contracts: &{required_platform_contracts},
+    service_dependencies: &{service_dependencies},
+    workflow_dependencies: &{workflow_dependencies},
+    host_requirements: &{host_requirements},
+    runtime_targets: &{runtime_targets},
+    permissions: &{permissions},
     single_instance: {single_instance},
     suspend_policy: {suspend_policy},
     show_in_launcher: {show_in_launcher},
@@ -133,13 +228,34 @@ fn render_manifest_metadata_const(manifest: &AppManifest) -> String {
     window_defaults: ({window_width}, {window_height}),
 }};",
         ident = ident,
+        plugin_id = plugin_id,
         display_name = manifest.display_name,
+        version = version,
+        platform_contract_version = platform_contract_version,
+        runtime_contract_version = runtime_contract_version,
+        ui_entry = ui_entry,
+        ui_routes = ui_routes,
         requested_capabilities = requested_capabilities,
+        required_platform_contracts = required_platform_contracts,
+        service_dependencies = service_dependencies,
+        workflow_dependencies = workflow_dependencies,
+        host_requirements = host_requirements,
+        runtime_targets = runtime_targets,
+        permissions = permissions,
         single_instance = manifest.single_instance,
         suspend_policy = suspend_policy,
-        show_in_launcher = manifest.show_in_launcher,
-        show_on_desktop = manifest.show_on_desktop,
+        show_in_launcher = manifest.launcher.show_in_launcher,
+        show_on_desktop = manifest.launcher.show_on_desktop,
         window_width = manifest.window_defaults.width,
         window_height = manifest.window_defaults.height,
     )
+}
+
+fn render_string_array(values: &[String]) -> String {
+    let values = values
+        .iter()
+        .map(|value| format!("{value:?}"))
+        .collect::<Vec<_>>()
+        .join(", ");
+    format!("[{values}]")
 }

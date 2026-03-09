@@ -4,7 +4,8 @@ use std::sync::OnceLock;
 
 use crate::model::{DesktopState, OpenWindowRequest, DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH};
 use desktop_app_contract::{
-    AppCapability, AppModule, AppMountContext, ApplicationId, SuspendPolicy,
+    AppCapability, AppModule, AppMountContext, AppRegistration, ApplicationId,
+    PluginLauncherRegistration, PluginUiRegistration, PluginWindowDefaults, SuspendPolicy,
 };
 use desktop_app_control_center::ControlCenterApp;
 use desktop_app_settings::SettingsApp;
@@ -28,8 +29,20 @@ const ALL_APP_CAPABILITIES: &[AppCapability] = &[
 
 #[derive(Debug, Clone, Copy)]
 struct GeneratedAppManifestMetadata {
+    plugin_id: &'static str,
     display_name: &'static str,
+    version: &'static str,
+    platform_contract_version: &'static str,
+    runtime_contract_version: &'static str,
+    ui_entry: &'static str,
+    ui_routes: &'static [&'static str],
     requested_capabilities: &'static [AppCapability],
+    required_platform_contracts: &'static [&'static str],
+    service_dependencies: &'static [&'static str],
+    workflow_dependencies: &'static [&'static str],
+    host_requirements: &'static [&'static str],
+    runtime_targets: &'static [&'static str],
+    permissions: &'static [&'static str],
     single_instance: bool,
     suspend_policy: SuspendPolicy,
     show_in_launcher: bool,
@@ -53,6 +66,8 @@ pub fn app_manifest_catalog_json() -> &'static str {
 pub struct AppDescriptor {
     /// Stable runtime application identifier.
     pub app_id: ApplicationId,
+    /// Governed plugin/app registration metadata.
+    pub registration: AppRegistration,
     /// Label shown in the start/launcher menu.
     pub launcher_label: &'static str,
     /// Label shown under the desktop icon.
@@ -77,8 +92,68 @@ fn build_app_descriptor(
     metadata: GeneratedAppManifestMetadata,
     module: AppModule,
 ) -> AppDescriptor {
+    let app_id = builtin_app_id(app_id);
     AppDescriptor {
-        app_id: builtin_app_id(app_id),
+        app_id: app_id.clone(),
+        registration: AppRegistration {
+            plugin_id: metadata.plugin_id.to_string(),
+            app_id,
+            display_name: metadata.display_name.to_string(),
+            version: metadata.version.to_string(),
+            platform_contract_version: metadata.platform_contract_version.to_string(),
+            runtime_contract_version: metadata.runtime_contract_version.to_string(),
+            ui: PluginUiRegistration {
+                entry: metadata.ui_entry.to_string(),
+                routes: metadata
+                    .ui_routes
+                    .iter()
+                    .map(|route| (*route).to_string())
+                    .collect(),
+            },
+            requested_capabilities: metadata.requested_capabilities.to_vec(),
+            required_platform_contracts: metadata
+                .required_platform_contracts
+                .iter()
+                .map(|value| (*value).to_string())
+                .collect(),
+            service_dependencies: metadata
+                .service_dependencies
+                .iter()
+                .map(|value| (*value).to_string())
+                .collect(),
+            workflow_dependencies: metadata
+                .workflow_dependencies
+                .iter()
+                .map(|value| (*value).to_string())
+                .collect(),
+            host_requirements: metadata
+                .host_requirements
+                .iter()
+                .map(|value| (*value).to_string())
+                .collect(),
+            runtime_targets: metadata
+                .runtime_targets
+                .iter()
+                .map(|value| (*value).to_string())
+                .collect(),
+            permissions: metadata
+                .permissions
+                .iter()
+                .map(|value| (*value).to_string())
+                .collect(),
+            single_instance: metadata.single_instance,
+            suspend_policy: metadata.suspend_policy,
+            launcher: PluginLauncherRegistration {
+                show_in_launcher: metadata.show_in_launcher,
+                show_on_desktop: metadata.show_on_desktop,
+            },
+            show_in_launcher: metadata.show_in_launcher,
+            show_on_desktop: metadata.show_on_desktop,
+            window_defaults: PluginWindowDefaults {
+                width: metadata.window_defaults.0,
+                height: metadata.window_defaults.1,
+            },
+        },
         launcher_label: metadata.display_name,
         desktop_icon_label,
         show_in_launcher: metadata.show_in_launcher,
@@ -175,6 +250,11 @@ pub fn app_suspend_policy_by_id(app_id: &ApplicationId) -> SuspendPolicy {
 /// Returns declared capability scopes for one canonical app id.
 pub fn app_requested_capabilities_by_id(app_id: &ApplicationId) -> &'static [AppCapability] {
     app_descriptor_by_id(app_id).requested_capabilities
+}
+
+/// Returns the governed app registration for one canonical application id.
+pub fn app_registration_by_id(app_id: &ApplicationId) -> AppRegistration {
+    app_descriptor_by_id(app_id).registration.clone()
 }
 
 /// Returns whether `app_id` is privileged in shell policy.
@@ -356,6 +436,31 @@ fn mount_settings_app(context: AppMountContext) -> View {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde::Deserialize;
+
+    #[derive(Debug, Deserialize)]
+    struct CatalogUi {
+        entry: String,
+        routes: Vec<String>,
+    }
+
+    #[derive(Debug, Deserialize)]
+    struct CatalogLauncher {
+        show_in_launcher: bool,
+        show_on_desktop: bool,
+    }
+
+    #[derive(Debug, Deserialize)]
+    struct CatalogManifest {
+        plugin_id: String,
+        app_id: String,
+        platform_contract_version: String,
+        runtime_contract_version: String,
+        ui: CatalogUi,
+        required_platform_contracts: Vec<String>,
+        runtime_targets: Vec<String>,
+        launcher: CatalogLauncher,
+    }
 
     #[test]
     fn launcher_and_desktop_registry_only_ship_supported_apps() {
@@ -413,5 +518,46 @@ mod tests {
 
         assert!(control_center.w > terminal.w);
         assert!(control_center.h >= terminal.h);
+    }
+
+    #[test]
+    fn built_in_apps_expose_governed_registration_metadata() {
+        let registration = app_registration_by_id(&builtin_app_id(APP_ID_CONTROL_CENTER));
+        assert_eq!(registration.plugin_id, APP_ID_CONTROL_CENTER);
+        assert_eq!(registration.ui.entry, "desktop_app_control_center");
+        assert_eq!(
+            registration.required_platform_contracts,
+            vec![
+                "schemas/contracts/v1/plugin-module-v1.json".to_string(),
+                "platform/sdk/v1/dashboard".to_string()
+            ]
+        );
+        assert_eq!(registration.runtime_targets, vec!["pwa", "tauri"]);
+        assert!(registration.launcher.show_on_desktop);
+    }
+
+    #[test]
+    fn manifest_catalog_includes_required_plugin_fields() {
+        let catalog: Vec<CatalogManifest> =
+            serde_json::from_str(app_manifest_catalog_json()).expect("manifest catalog json");
+        let control_center = catalog
+            .iter()
+            .find(|manifest| manifest.app_id == APP_ID_CONTROL_CENTER)
+            .expect("control center manifest");
+
+        assert_eq!(control_center.plugin_id, APP_ID_CONTROL_CENTER);
+        assert_eq!(control_center.platform_contract_version, "1.0.0");
+        assert_eq!(control_center.runtime_contract_version, "2.0.0");
+        assert_eq!(control_center.ui.entry, "desktop_app_control_center");
+        assert!(control_center
+            .ui
+            .routes
+            .contains(&"/apps/control-center".to_string()));
+        assert!(control_center
+            .required_platform_contracts
+            .contains(&"schemas/contracts/v1/plugin-module-v1.json".to_string()));
+        assert_eq!(control_center.runtime_targets, vec!["pwa", "tauri"]);
+        assert!(control_center.launcher.show_in_launcher);
+        assert!(control_center.launcher.show_on_desktop);
     }
 }

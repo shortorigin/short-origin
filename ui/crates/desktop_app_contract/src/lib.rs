@@ -1207,26 +1207,75 @@ impl AppModule {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+/// Declared plugin UI contribution metadata.
+pub struct PluginUiRegistration {
+    /// Stable entry identifier used by the shell runtime.
+    pub entry: String,
+    /// Routes contributed by the plugin.
+    pub routes: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+/// Launcher and desktop-visibility metadata for a plugin.
+pub struct PluginLauncherRegistration {
+    /// Whether the plugin appears in launcher surfaces.
+    pub show_in_launcher: bool,
+    /// Whether the plugin appears on the desktop surface.
+    pub show_on_desktop: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+/// Default window geometry for a plugin application.
+pub struct PluginWindowDefaults {
+    /// Default window width in pixels.
+    pub width: i32,
+    /// Default window height in pixels.
+    pub height: i32,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 /// Manifest-backed registration metadata for a runtime app entry.
 pub struct AppRegistration {
+    /// Stable plugin module identifier.
+    pub plugin_id: String,
     /// Canonical app id.
     pub app_id: ApplicationId,
     /// Human-readable display name.
     pub display_name: String,
     /// Package semantic version.
     pub version: String,
+    /// Platform contract version string.
+    pub platform_contract_version: String,
     /// Runtime contract version string.
     pub runtime_contract_version: String,
+    /// Declared plugin UI metadata.
+    pub ui: PluginUiRegistration,
     /// Declared requested capabilities.
     pub requested_capabilities: Vec<AppCapability>,
+    /// Required platform contract identifiers.
+    pub required_platform_contracts: Vec<String>,
+    /// Declared service contract dependencies.
+    pub service_dependencies: Vec<String>,
+    /// Declared workflow contract dependencies.
+    pub workflow_dependencies: Vec<String>,
+    /// Required or optional host capabilities for the plugin.
+    pub host_requirements: Vec<String>,
+    /// Supported runtime targets such as `pwa` and `tauri`.
+    pub runtime_targets: Vec<String>,
+    /// Declared platform permissions.
+    pub permissions: Vec<String>,
     /// Whether only one instance should be active.
     pub single_instance: bool,
     /// Suspend policy for minimized windows.
     pub suspend_policy: SuspendPolicy,
+    /// Launcher metadata.
+    pub launcher: PluginLauncherRegistration,
     /// Launcher visibility flag.
     pub show_in_launcher: bool,
     /// Desktop icon visibility flag.
     pub show_on_desktop: bool,
+    /// Default window geometry.
+    pub window_defaults: PluginWindowDefaults,
 }
 
 #[cfg(test)]
@@ -1274,6 +1323,48 @@ mod tests {
         );
         assert!(!capabilities.can_use(AppCapability::Notifications));
         assert!(!capabilities.supports_terminal_process());
+    }
+
+    #[test]
+    fn app_registration_tracks_governed_plugin_metadata() {
+        let registration = AppRegistration {
+            plugin_id: "system.control-center".to_string(),
+            app_id: ApplicationId::trusted("system.control-center"),
+            display_name: "Control Center".to_string(),
+            version: "0.1.0".to_string(),
+            platform_contract_version: "1.0.0".to_string(),
+            runtime_contract_version: "2.0.0".to_string(),
+            ui: PluginUiRegistration {
+                entry: "desktop_app_control_center".to_string(),
+                routes: vec!["/apps/control-center".to_string()],
+            },
+            requested_capabilities: vec![AppCapability::Window, AppCapability::State],
+            required_platform_contracts: vec![
+                "schemas/contracts/v1/plugin-module-v1.json".to_string()
+            ],
+            service_dependencies: Vec::new(),
+            workflow_dependencies: Vec::new(),
+            host_requirements: vec!["browser-storage:required".to_string()],
+            runtime_targets: vec!["pwa".to_string(), "tauri".to_string()],
+            permissions: vec!["shell.mount".to_string()],
+            single_instance: true,
+            suspend_policy: SuspendPolicy::OnMinimize,
+            launcher: PluginLauncherRegistration {
+                show_in_launcher: true,
+                show_on_desktop: true,
+            },
+            show_in_launcher: true,
+            show_on_desktop: true,
+            window_defaults: PluginWindowDefaults {
+                width: 900,
+                height: 620,
+            },
+        };
+
+        assert_eq!(registration.plugin_id, "system.control-center");
+        assert_eq!(registration.ui.entry, "desktop_app_control_center");
+        assert_eq!(registration.runtime_targets, vec!["pwa", "tauri"]);
+        assert_eq!(registration.window_defaults.width, 900);
     }
 
     #[test]

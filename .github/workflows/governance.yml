@@ -15,9 +15,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
+
+      - name: Audit architecture boundaries
+        run: cargo xtask architecture audit-boundaries
 
       - name: Audit documented process against automation
         run: cargo xtask github audit-process

@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PluginModuleV1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "plugin_id",
+    "app_id",
+    "display_name",
+    "version",
+    "platform_contract_version",
+    "runtime_contract_version",
+    "ui",
+    "requested_capabilities",
+    "required_platform_contracts",
+    "service_dependencies",
+    "workflow_dependencies",
+    "host_requirements",
+    "runtime_targets",
+    "permissions",
+    "single_instance",
+    "suspend_policy",
+    "launcher",
+    "window_defaults"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "plugin_id": {
+      "type": "string"
+    },
+    "app_id": {
+      "type": "string"
+    },
+    "display_name": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "platform_contract_version": {
+      "type": "string"
+    },
+    "runtime_contract_version": {
+      "type": "string"
+    },
+    "ui": {
+      "type": "object",
+      "required": ["entry", "routes"],
+      "properties": {
+        "entry": {
+          "type": "string"
+        },
+        "routes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "requested_capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "required_platform_contracts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "service_dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "workflow_dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "host_requirements": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "runtime_targets": {
+      "type": "array",
+      "items": {
+        "enum": ["pwa", "tauri"]
+      }
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "single_instance": {
+      "type": "boolean"
+    },
+    "suspend_policy": {
+      "enum": ["never", "on-minimize"]
+    },
+    "launcher": {
+      "type": "object",
+      "required": ["show_in_launcher", "show_on_desktop"],
+      "properties": {
+        "show_in_launcher": {
+          "type": "boolean"
+        },
+        "show_on_desktop": {
+          "type": "boolean"
+        }
+      }
+    },
+    "window_defaults": {
+      "type": "object",
+      "required": ["width", "height"],
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 320
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 240
+        }
+      }
+    }
+  }
+}

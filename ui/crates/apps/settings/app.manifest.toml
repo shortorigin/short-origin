@@ -1,11 +1,25 @@
 schema_version = 1
+plugin_id = "system.settings"
 app_id = "system.settings"
 display_name = "System Settings"
 version = "0.1.0"
+platform_contract_version = "1.0.0"
 runtime_contract_version = "2.0.0"
 requested_capabilities = ["window", "state", "theme"]
+required_platform_contracts = ["schemas/contracts/v1/plugin-module-v1.json"]
+service_dependencies = []
+workflow_dependencies = []
+host_requirements = ["browser-storage:required"]
+runtime_targets = ["pwa", "tauri"]
+permissions = ["shell.mount", "shell.window", "shell.theme"]
 single_instance = true
 suspend_policy = "on-minimize"
+
+[ui]
+entry = "desktop_app_settings"
+routes = ["/apps/settings", "/notes/:slug"]
+
+[launcher]
 show_in_launcher = true
 show_on_desktop = false
 

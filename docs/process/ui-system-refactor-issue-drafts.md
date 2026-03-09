@@ -331,7 +331,9 @@ The issue is architectural as much as functional: the browser path should be ano
 
 **Why this matters now**
 
-The repository explicitly keeps browser/WASM preview support for parity checks while treating the Tauri desktop shell as authoritative. To make that stance credible, parity-critical routing and deep-link behavior need to be explicit, tested, and free of placeholder drift.
+The repository keeps browser/PWA support as the baseline runtime while using the Tauri desktop host
+as a capability extension over the same shell. To make that stance credible, parity-critical
+routing and deep-link behavior need to be explicit, tested, and free of placeholder drift.
 
 **Relevant Context**
 
@@ -356,7 +358,7 @@ Strengthen the routing/deep-link boundary and remove placeholder behavior that w
 
 **Technical Notes**
 
-- Keep Tauri desktop as the authoritative runtime while preserving browser/WASM parity checks.
+- Keep the browser/PWA surface as the baseline runtime while preserving parity across the Tauri host.
 - This issue can proceed after the core shell substrate issues because it depends more on routing ownership than on reducer internals.
 
 **Related Issues**

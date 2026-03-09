@@ -8,6 +8,7 @@ In scope:
 - SurrealDB-focused schema definitions under `schemas/surrealdb`.
 - Event contracts under `schemas/events`.
 - Service and integration contracts under `schemas/contracts`.
+- Plugin/module manifest contracts for governed platform applications.
 - WIT packages for wasmCloud component boundaries under `schemas/wit`.
 - Capital-markets contract families for market data, execution lifecycle, research, portfolio, risk, promotion, and compliance payloads.
 
@@ -20,6 +21,8 @@ Out of scope:
 - Database interface: SurrealDB record shapes, relation constraints, and query assumptions.
 - Event interface: typed, versioned event payload definitions.
 - Contract interface: request/response and capability contracts shared by services, SDKs, and UI shells.
+- Plugin manifest interface: governed module metadata shared by the shell runtime, build tooling, and
+  contributor documentation.
 - Component interface: WIT worlds used to generate wasmCloud-compatible bindings.
 
 ## Dependencies

@@ -41,7 +41,12 @@ Every issue should capture:
 - Summary
 - Problem Statement
 - Proposed Solution
+- Primary Architectural Plane
+- Scope In
+- Scope Out
 - Acceptance Criteria
+- Validation Requirements
+- Rollback Considerations
 - Technical Notes
 - Related Issues
 
@@ -51,6 +56,8 @@ Issue creation protocol:
 2. Confirm the issue title is specific enough to support branch and PR naming.
 3. Record enough context that another contributor can execute the change without private side-channel knowledge.
 4. Keep acceptance criteria concrete and testable.
+5. Declare one primary architectural plane even when the work spans multiple modules.
+6. Record explicit out-of-scope items so follow-on work can be sequenced cleanly.
 
 ## Branching and Commits
 
@@ -68,7 +75,9 @@ Branch protocol:
 1. Branch from the latest `main`.
 2. Include the GitHub issue identifier in the branch name.
 3. Use one primary issue per branch.
-4. Delete the branch after merge.
+4. Keep the branch scoped to one dominant subsystem or one explicitly sequenced cross-layer
+   objective.
+5. Delete the branch after merge.
 
 PR titles and squash-merge commit messages must use conventional commits:
 
@@ -86,11 +95,22 @@ Every PR must include:
 
 - a linked issue
 - a concise summary
+- layers touched
+- contracts changed
+- tests added or updated
+- refresh-from-main declaration
+- risk class
 - technical changes
 - testing strategy
 - deployment impact
 - a closing directive in the PR body such as `Closes #123`
 - repository-native language with no leaked Codex, OpenAI, ChatGPT, or other assistant/vendor branding unless required for an external reference or legal attribution
+
+PRs that touch multiple architectural planes must also include:
+
+- an `Architecture Delta` section,
+- the dominant plane and why the change could not be split further,
+- explicit merge-fresh confirmation against the latest target branch.
 
 Merge policy:
 
@@ -140,6 +160,7 @@ Required status checks:
 Documentation-to-automation drift is enforced by:
 
 ```bash
+cargo xtask architecture audit-boundaries
 cargo xtask github audit-process
 ```
 
@@ -164,6 +185,7 @@ Reviews evaluate:
 - maintainability
 - performance implications
 - alignment with repository architecture boundaries
+- merge freshness for conflict-prone shared planes
 
 Reviewers should confirm:
 
@@ -171,6 +193,7 @@ Reviewers should confirm:
 - tests or relevant checks pass
 - error handling is explicit
 - contracts and docs are updated when needed
+- multi-plane changes include an `Architecture Delta`
 - assistant/vendor branding has not leaked into code, documentation, UI text, fixtures, commits, issues, or PR content
 
 ## Work-In-Progress Limits

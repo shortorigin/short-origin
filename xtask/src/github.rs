@@ -1,3 +1,4 @@
+use crate::architecture::{planes_for_paths, Plane};
 use crate::common::workspace_root;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
@@ -92,7 +93,10 @@ struct DocumentedProcess {
     required_checks: Vec<String>,
     release_flow: Vec<String>,
     module_invariants: Vec<String>,
+    required_pr_sections: Vec<String>,
+    required_issue_fields: Vec<String>,
     automatic_dev_promotion: bool,
+    architecture_validation_documented: bool,
 }
 
 #[derive(Debug, Serialize)]
@@ -294,6 +298,11 @@ fn load_documented_process(workspace_root: &Path) -> Result<DocumentedProcess, S
         "CONTRIBUTING.md".to_string(),
         "DEVELOPMENT_MODEL.md".to_string(),
         "ARCHITECTURE.md".to_string(),
+        "docs/architecture/layer-boundaries.md".to_string(),
+        "docs/architecture/plugin-application-model.md".to_string(),
+        "docs/architecture/runtime-composition.md".to_string(),
+        "docs/process/platform-regression-guardrails.md".to_string(),
+        ".github/PULL_REQUEST_TEMPLATE.md".to_string(),
         ".github/governance.toml".to_string(),
     ];
     let read = |path: &str| {
@@ -304,6 +313,7 @@ fn load_documented_process(workspace_root: &Path) -> Result<DocumentedProcess, S
     let contributing = read("CONTRIBUTING.md")?;
     let development = read("DEVELOPMENT_MODEL.md")?;
     let architecture = read("ARCHITECTURE.md")?;
+    let workflow_migration = read("docs/process/github-workflow-migration.md")?;
     let governance = load_config(&workspace_root.join(".github/governance.toml"))?;
 
     let branch_model = if development.contains("main` is the only long-lived branch")
@@ -328,6 +338,28 @@ fn load_documented_process(workspace_root: &Path) -> Result<DocumentedProcess, S
         .filter(|line| line.starts_with("- "))
         .map(|line| line.trim_start_matches("- ").trim().to_owned())
         .collect::<Vec<_>>();
+    let required_pr_sections = vec![
+        "Summary".to_string(),
+        "Linked Issue".to_string(),
+        "Layers Touched".to_string(),
+        "Contracts Changed".to_string(),
+        "Tests Added or Updated".to_string(),
+        "Refreshed from Main".to_string(),
+        "Risk Class".to_string(),
+        "Architecture Delta".to_string(),
+        "Workflow Checklist".to_string(),
+        "Technical Changes".to_string(),
+        "Testing Strategy".to_string(),
+        "Deployment Impact".to_string(),
+    ];
+    let required_issue_fields = vec![
+        "primary_architectural_plane".to_string(),
+        "scope_in".to_string(),
+        "scope_out".to_string(),
+        "acceptance_criteria".to_string(),
+        "validation_requirements".to_string(),
+        "rollback_considerations".to_string(),
+    ];
 
     Ok(DocumentedProcess {
         source_files,
@@ -335,8 +367,15 @@ fn load_documented_process(workspace_root: &Path) -> Result<DocumentedProcess, S
         required_checks,
         release_flow,
         module_invariants,
+        required_pr_sections,
+        required_issue_fields,
         automatic_dev_promotion: readme.contains("auto-promote the `dev` environment")
             || development.contains("auto-deploys `dev`"),
+        architecture_validation_documented: readme
+            .contains("cargo xtask architecture audit-boundaries")
+            && contributing.contains("cargo xtask architecture audit-boundaries")
+            && development.contains("cargo xtask architecture audit-boundaries")
+            && workflow_migration.contains("cargo xtask architecture audit-boundaries"),
     })
 }
 
@@ -569,6 +608,87 @@ fn collect_audit_defects(
         );
     }
 
+    if !documented.architecture_validation_documented {
+        defects.push(
+            "contributor docs must reference `cargo xtask architecture audit-boundaries`"
+                .to_owned(),
+        );
+    }
+
+    defects.extend(audit_issue_templates(&documented.required_issue_fields)?);
+    defects.extend(audit_pr_template(&documented.required_pr_sections)?);
+    defects.extend(audit_governance_workflow_for_architecture_step()?);
+
+    Ok(defects)
+}
+
+fn audit_issue_templates(required_fields: &[String]) -> Result<Vec<String>, String> {
+    let templates = [
+        ".github/ISSUE_TEMPLATE/feature.yml",
+        ".github/ISSUE_TEMPLATE/bug.yml",
+        ".github/ISSUE_TEMPLATE/docs.yml",
+        ".github/ISSUE_TEMPLATE/infra.yml",
+        ".github/ISSUE_TEMPLATE/refactor.yml",
+        ".github/ISSUE_TEMPLATE/research.yml",
+    ];
+    let workspace_root = workspace_root()?;
+    let mut defects = Vec::new();
+
+    for template in templates {
+        let raw = fs::read_to_string(workspace_root.join(template))
+            .map_err(|error| format!("failed to read `{template}`: {error}"))?;
+        let yaml: YamlValue = serde_yaml::from_str(&raw)
+            .map_err(|error| format!("failed to parse `{template}`: {error}"))?;
+        let Some(body) = yaml.get("body").and_then(YamlValue::as_sequence) else {
+            defects.push(format!(
+                "issue template `{template}` is missing a body sequence"
+            ));
+            continue;
+        };
+        let ids = body
+            .iter()
+            .filter_map(|entry| entry.get("id").and_then(YamlValue::as_str))
+            .collect::<BTreeSet<_>>();
+        for field in required_fields {
+            if !ids.contains(field.as_str()) {
+                defects.push(format!(
+                    "issue template `{template}` is missing required field `{field}`"
+                ));
+            }
+        }
+    }
+
+    Ok(defects)
+}
+
+fn audit_pr_template(required_sections: &[String]) -> Result<Vec<String>, String> {
+    let workspace_root = workspace_root()?;
+    let template_path = ".github/PULL_REQUEST_TEMPLATE.md";
+    let raw = fs::read_to_string(workspace_root.join(template_path))
+        .map_err(|error| format!("failed to read `{template_path}`: {error}"))?;
+    let mut defects = Vec::new();
+    for section in required_sections {
+        let heading = format!("## {section}");
+        if !raw.contains(&heading) {
+            defects.push(format!(
+                "pull request template is missing required section `{section}`"
+            ));
+        }
+    }
+    Ok(defects)
+}
+
+fn audit_governance_workflow_for_architecture_step() -> Result<Vec<String>, String> {
+    let workspace_root = workspace_root()?;
+    let path = ".github/workflows/governance.yml";
+    let raw = fs::read_to_string(workspace_root.join(path))
+        .map_err(|error| format!("failed to read `{path}`: {error}"))?;
+    let mut defects = Vec::new();
+    if !raw.contains("cargo xtask architecture audit-boundaries") {
+        defects.push(
+            "governance workflow must run `cargo xtask architecture audit-boundaries`".to_owned(),
+        );
+    }
     Ok(defects)
 }
 
@@ -630,6 +750,22 @@ fn build_drift_matrix(
         details: "must trigger on push to main; manual-only dispatch is drift".to_owned(),
     });
 
+    rows.push(DriftRow {
+        expectation: "Governance validates architecture boundaries".to_owned(),
+        documented_source: "README.md + CONTRIBUTING.md + docs/process/*".to_owned(),
+        automation_source: ".github/workflows/governance.yml".to_owned(),
+        status: if defects
+            .iter()
+            .any(|defect| defect.contains("architecture audit-boundaries"))
+        {
+            "fail".to_owned()
+        } else {
+            "pass".to_owned()
+        },
+        details: "governance workflow should run `cargo xtask architecture audit-boundaries`"
+            .to_owned(),
+    });
+
     rows
 }
 
@@ -680,12 +816,19 @@ fn render_process_audit_markdown(report: &ProcessAuditReport) -> String {
     }
 
     format!(
-        "# Process Flow Audit Report\n\n## Documented Source of Truth\n- source files: {}\n- branch model: {}\n- required checks: {}\n- automatic dev promotion: {}\n\n## Defects\n{}\
+        "# Process Flow Audit Report\n\n## Documented Source of Truth\n- source files: {}\n- branch model: {}\n- required checks: {}\n- required PR sections: {}\n- required issue fields: {}\n- architecture validation documented: {}\n- automatic dev promotion: {}\n\n## Defects\n{}\
 \n## Workflow Baseline\n{}\
 \n## Drift Matrix\n{}",
         report.documented.source_files.join(", "),
         report.documented.branch_model,
         report.documented.required_checks.join(", "),
+        report.documented.required_pr_sections.join(", "),
+        report.documented.required_issue_fields.join(", "),
+        if report.documented.architecture_validation_documented {
+            "yes"
+        } else {
+            "no"
+        },
         if report.documented.automatic_dev_promotion {
             "yes"
         } else {
@@ -1287,12 +1430,23 @@ fn load_pr_event(path: &Path) -> Result<PullRequestEvent, String> {
         .and_then(Value::as_str)
         .ok_or_else(|| "event payload is missing repository.full_name".to_owned())?
         .to_owned();
+    let base_sha = value
+        .pointer("/pull_request/base/sha")
+        .and_then(Value::as_str)
+        .map(str::to_owned);
+    let head_sha = value
+        .pointer("/pull_request/head/sha")
+        .and_then(Value::as_str)
+        .map(str::to_owned);
 
     Ok(PullRequestEvent {
         title,
         body,
         branch,
         repository,
+        base_sha,
+        head_sha,
+        changed_files: Vec::new(),
     })
 }
 
@@ -1302,6 +1456,9 @@ struct PullRequestEvent {
     body: String,
     branch: String,
     repository: String,
+    base_sha: Option<String>,
+    head_sha: Option<String>,
+    changed_files: Vec<String>,
 }
 
 fn validate_pr_event(config: &GovernanceConfig, event: &PullRequestEvent) -> Result<(), String> {
@@ -1334,12 +1491,108 @@ fn validate_pr_event(config: &GovernanceConfig, event: &PullRequestEvent) -> Res
                 .to_owned(),
         );
     }
+    for section in [
+        "Summary",
+        "Linked Issue",
+        "Layers Touched",
+        "Contracts Changed",
+        "Tests Added or Updated",
+        "Refreshed from Main",
+        "Risk Class",
+        "Architecture Delta",
+        "Workflow Checklist",
+        "Technical Changes",
+        "Testing Strategy",
+        "Deployment Impact",
+    ] {
+        match markdown_section(&event.body, section) {
+            Some(contents) if !contents.trim().is_empty() => {}
+            _ => failures.push(format!(
+                "PR body must include a non-empty `{section}` section"
+            )),
+        }
+    }
+
+    let changed_files = if event.changed_files.is_empty() {
+        match (&event.base_sha, &event.head_sha) {
+            (Some(base), Some(head)) => changed_files_between(base, head)?,
+            _ => Vec::new(),
+        }
+    } else {
+        event.changed_files.clone()
+    };
+    let planes = planes_for_paths(changed_files.iter().map(String::as_str));
+    let non_trivial_planes = planes
+        .iter()
+        .filter(|plane| !matches!(plane, Plane::Docs | Plane::Github | Plane::WorkItems))
+        .copied()
+        .collect::<BTreeSet<_>>();
+    if non_trivial_planes.len() > 1 {
+        let architecture_delta = markdown_section(&event.body, "Architecture Delta")
+            .unwrap_or_default()
+            .to_lowercase();
+        if architecture_delta.contains("single-plane")
+            || architecture_delta.contains("single plane")
+            || architecture_delta.contains("n/a")
+            || architecture_delta.contains("none")
+        {
+            failures.push(
+                "multi-plane PRs must provide a substantive `Architecture Delta` section"
+                    .to_owned(),
+            );
+        }
+    }
 
     if failures.is_empty() {
         Ok(())
     } else {
         Err(failures.join("; "))
     }
+}
+
+fn markdown_section(body: &str, heading: &str) -> Option<String> {
+    let heading_prefix = format!("## {heading}");
+    let mut capture = false;
+    let mut lines = Vec::new();
+    for line in body.lines() {
+        if line.trim() == heading_prefix {
+            capture = true;
+            continue;
+        }
+        if capture && line.starts_with("## ") {
+            break;
+        }
+        if capture {
+            lines.push(line);
+        }
+    }
+
+    if capture {
+        Some(lines.join("\n").trim().to_string())
+    } else {
+        None
+    }
+}
+
+fn changed_files_between(base: &str, head: &str) -> Result<Vec<String>, String> {
+    let workspace_root = workspace_root()?;
+    let output = Command::new("git")
+        .current_dir(workspace_root)
+        .args(["diff", "--name-only", &format!("{base}..{head}")])
+        .output()
+        .map_err(|error| format!("failed to run `git diff --name-only {base}..{head}`: {error}"))?;
+    if !output.status.success() {
+        return Err(format!(
+            "`git diff --name-only {base}..{head}` exited with status {}",
+            output.status
+        ));
+    }
+    Ok(String::from_utf8_lossy(&output.stdout)
+        .lines()
+        .map(str::trim)
+        .filter(|line| !line.is_empty())
+        .map(str::to_owned)
+        .collect())
 }
 
 fn default_repository(config: &GovernanceConfig) -> String {
@@ -1562,9 +1815,12 @@ mod tests {
         let config = load_config(&config_path()).expect("governance config should parse");
         let event = PullRequestEvent {
             title: "feat(db): add provider".to_owned(),
-            body: "## Linked Issue\n#142".to_owned(),
+            body: "## Summary\nAdd provider\n\n## Linked Issue\nCloses #142\n\n## Layers Touched\n- platform\n\n## Contracts Changed\n- None.\n\n## Tests Added or Updated\n- cargo test\n\n## Refreshed from Main\n- yes\n\n## Risk Class\n- low\n\n## Architecture Delta\n- Single-plane platform change.\n\n## Workflow Checklist\n- [x] refreshed\n\n## Technical Changes\n- added provider\n\n## Testing Strategy\n- cargo test\n\n## Deployment Impact\n- none\n".to_owned(),
             branch: "feature/142-surrealdb-provider".to_owned(),
             repository: "shortorigin/origin".to_owned(),
+            base_sha: None,
+            head_sha: None,
+            changed_files: vec!["platform/sdk/sdk-rs/src/lib.rs".to_owned()],
         };
 
         validate_pr_event(&config, &event)
@@ -1576,9 +1832,12 @@ mod tests {
         let config = load_config(&config_path()).expect("governance config should parse");
         let event = PullRequestEvent {
             title: "feat(db): add provider".to_owned(),
-            body: "## Linked Issue\nTBD".to_owned(),
+            body: "## Summary\nAdd provider\n\n## Linked Issue\nTBD\n\n## Layers Touched\n- platform\n\n## Contracts Changed\n- None.\n\n## Tests Added or Updated\n- cargo test\n\n## Refreshed from Main\n- yes\n\n## Risk Class\n- low\n\n## Architecture Delta\n- Single-plane platform change.\n\n## Workflow Checklist\n- [x] refreshed\n\n## Technical Changes\n- added provider\n\n## Testing Strategy\n- cargo test\n\n## Deployment Impact\n- none\n".to_owned(),
             branch: "feature/142-surrealdb-provider".to_owned(),
             repository: "shortorigin/origin".to_owned(),
+            base_sha: None,
+            head_sha: None,
+            changed_files: vec!["platform/sdk/sdk-rs/src/lib.rs".to_owned()],
         };
 
         let error = validate_pr_event(&config, &event)
@@ -1637,5 +1896,26 @@ mod tests {
             "| Expectation | Documented Source | Automation Source | Status | Details |"
         ));
         assert!(markdown.contains("| required check | docs | workflow | pass | found |"));
+    }
+
+    #[test]
+    fn validate_pr_rejects_multi_plane_delta_placeholder() {
+        let config = load_config(&config_path()).expect("governance config should parse");
+        let event = PullRequestEvent {
+            title: "refactor(platform): align shell boundary".to_owned(),
+            body: "## Summary\nAlign boundaries\n\n## Linked Issue\nCloses #89\n\n## Layers Touched\n- platform\n- ui\n\n## Contracts Changed\n- plugin manifest\n\n## Tests Added or Updated\n- cargo test\n\n## Refreshed from Main\n- yes\n\n## Risk Class\n- high\n\n## Architecture Delta\n- Single-plane change.\n\n## Workflow Checklist\n- [x] refreshed\n\n## Technical Changes\n- aligned layers\n\n## Testing Strategy\n- cargo test\n\n## Deployment Impact\n- none\n".to_owned(),
+            branch: "refactor/89-platform-boundary".to_owned(),
+            repository: "shortorigin/origin".to_owned(),
+            base_sha: None,
+            head_sha: None,
+            changed_files: vec![
+                "platform/sdk/sdk-rs/src/lib.rs".to_owned(),
+                "ui/crates/site/src/lib.rs".to_owned(),
+            ],
+        };
+
+        let error = validate_pr_event(&config, &event)
+            .expect_err("placeholder architecture delta should fail for multi-plane change");
+        assert!(error.contains("Architecture Delta"));
     }
 }

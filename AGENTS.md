@@ -30,6 +30,8 @@
 - `platform/` MUST expose reusable runtime/SDK interfaces and avoid domain-specific policy branching.
 - `ui/` MUST be the only owner of Leptos/Tauri-specific models and host-facing presentation adapters.
 - `ui/` MUST NOT connect directly to SurrealDB; all governed data flows through typed SDK/contracts.
+- Plugin application modules MUST integrate through governed manifests and platform contracts rather
+  than ad hoc imports into core shell code.
 
 ## Shared Libraries and Reuse Strategy
 - Before adding new code, search for existing reusable modules; duplication requires explicit rationale in PR notes.
@@ -65,8 +67,13 @@ cargo test --workspace --all-targets
 - Every material code, docs, schema, workflow, or infrastructure change MUST begin with a same-repository GitHub issue before implementation starts.
 - The issue is the system of record and MUST include:
   - a concise summary of the proposed change, defect, or enhancement,
+  - the primary architectural plane touched,
+  - scope in,
+  - scope out,
   - background and scope,
   - acceptance criteria,
+  - validation requirements,
+  - rollback considerations for risky changes,
   - implementation notes, constraints, or linked context when needed.
 - Work MUST proceed on a dedicated short-lived branch created from the latest `main`.
 - Branch names MUST follow `<type>/<issue-id>-<short-kebab-summary>`.
@@ -79,7 +86,9 @@ cargo test --workspace --all-targets
   - `research/`
 - Each branch MUST map to one primary issue and MUST reference the GitHub issue identifier in the branch name.
 - Pull requests MUST target `main`, reference the originating issue, and include a closing directive in the PR body such as `Closes #123`.
-- Pull requests MUST summarize the change, testing performed, and any rollout or migration impact.
+- Pull requests MUST summarize the change, layers touched, contracts changed, tests added or
+  updated, refresh-from-main status, risk class, and any rollout or migration impact.
+- Pull requests touching multiple architectural planes MUST include an `Architecture Delta` section.
 - Direct commits to `main` are prohibited. All merges flow through reviewed pull requests after required checks pass.
 - Squash merge is the default merge strategy unless repository governance explicitly requires another merge mode.
 - The final merge action MUST preserve the issue-closing directive so GitHub automatically closes the linked issue when the PR lands.
@@ -102,7 +111,9 @@ cargo test --workspace --all-targets
 - UI-specific models should adapt from shared contracts instead of redefining domain structures.
 - Client interactions must preserve event/contract version expectations and error semantics.
 - Desktop/web shell concerns remain separate from business orchestration logic.
-- Browser/WASM preview remains supported for parity checks, but Tauri desktop is the authoritative runtime and distribution target.
+- The browser-delivered PWA is the baseline runtime surface.
+- Tauri extends the same surface as a capability-enhancing host runtime; it must not fork the
+  platform or introduce a separate contract model.
 
 ## Service-to-Service and Event Integration Patterns
 - Prefer asynchronous, event-driven integration for cross-service coordination.
@@ -135,3 +146,5 @@ cargo test --workspace --all-targets
   - use an issue-derived branch name,
   - open a PR with `Closes #<issue-id>` in the body,
   - never bypass review or protected-branch policy.
+- Agents changing architecture, governance, or contracts SHOULD run repository-owned boundary and
+  process validation commands before handing work off.

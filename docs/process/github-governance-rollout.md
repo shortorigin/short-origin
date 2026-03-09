@@ -83,6 +83,7 @@ The GitHub CLI currently does not cover all project-view and workflow configurat
 After applying or changing governance, run:
 
 ```bash
+cargo xtask architecture audit-boundaries
 cargo xtask github audit-process
 ```
 

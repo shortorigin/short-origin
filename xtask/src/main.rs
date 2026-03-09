@@ -1,3 +1,4 @@
+mod architecture;
 mod common;
 mod delivery;
 mod github;
@@ -58,6 +59,7 @@ fn main() {
 fn run() -> Result<(), String> {
     let mut args = env::args().skip(1);
     match args.next().as_deref() {
+        Some("architecture") => architecture::run(args.collect()),
         Some("github") => github::run(args.collect()),
         Some("delivery") => delivery::run(args.collect()),
         Some("wasmcloud") => run_wasmcloud(args.collect()),
@@ -605,6 +607,7 @@ fn help() -> String {
 usage: cargo xtask <command> ...
 
 Commands:
+  architecture   Architecture boundary and dependency auditing
   github        GitHub governance sync, PR validation, and process auditing
   verify        Workspace verification profiles
   delivery      Delivery manifest and component rendering

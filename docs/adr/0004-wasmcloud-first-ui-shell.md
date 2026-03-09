@@ -10,7 +10,7 @@ The repository already centered Rust, SurrealDB, and wasmCloud-compatible servic
 We standardize on the following:
 
 1. Backend workloads deploy through wasmCloud on Wasmtime. Services and workflows remain pure Rust crates, and each deployable workload exposes an adjacent wasmCloud component adapter plus versioned lattice metadata.
-2. `ui/` is a first-class top-level module that owns all Leptos/Tauri code, browser preview entrypoints, and desktop host composition. Tauri is the authoritative runtime; browser/WASM remains for parity checks and development.
+2. `ui/` is a first-class top-level module that owns all Leptos/Tauri code, browser preview entrypoints, and desktop host composition. The browser/PWA runtime is the baseline surface; Tauri extends that surface as a capability-enhancing desktop host.
 3. SurrealDB remains the system of record, but data access is centralized in shared Rust repository/query abstractions. UI code never talks to SurrealDB directly.
 4. `platform/sdk` is the typed boundary for UI commands, queries, dashboard snapshots, and event streams. Host-only concerns continue through Tauri/web adapters.
 5. Strategy execution sandboxes use Wasmtime by default. In-memory execution is retained only as a test/feature-gated compatibility path.
