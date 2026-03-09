@@ -41,12 +41,18 @@ Every issue should capture:
 - Summary
 - Problem Statement
 - Proposed Solution
+- ADR References
+- Impacted Domains
+- Affected Consistency Class
+- Affected Risk Tier
 - Primary Architectural Plane
 - Scope In
 - Scope Out
 - Acceptance Criteria
 - Validation Requirements
+- Validation Artifacts
 - Rollback Considerations
+- Rollback Path
 - Technical Notes
 - Related Issues
 
@@ -94,12 +100,18 @@ Examples:
 Every PR must include:
 
 - a linked issue
+- ADR references
+- impacted domains
 - a concise summary
 - layers touched
+- affected consistency class
+- affected risk tier
 - contracts changed
 - tests added or updated
 - refresh-from-main declaration
 - risk class
+- rollback path
+- validation artifacts
 - technical changes
 - testing strategy
 - deployment impact

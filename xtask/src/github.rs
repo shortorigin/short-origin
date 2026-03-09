@@ -111,6 +111,29 @@ struct WorkflowAudit {
     reusable_logic_candidates: Vec<String>,
 }
 
+#[derive(Debug, Deserialize)]
+struct AdrFrontMatter {
+    adr_id: String,
+    title: String,
+    status: String,
+    date_adopted: String,
+    owners: Vec<String>,
+    architectural_planes: Vec<String>,
+    impacted_domains: Vec<String>,
+    source_report: Option<String>,
+    roadmap_phases: Vec<String>,
+    supersedes: Vec<String>,
+    superseded_by: Vec<String>,
+    review_cadence: String,
+    tags: Vec<String>,
+}
+
+#[derive(Debug)]
+struct ParsedAdrDocument {
+    front_matter: AdrFrontMatter,
+    body: String,
+}
+
 #[derive(Debug, Serialize)]
 struct JobAudit {
     job_id: String,
@@ -132,6 +155,85 @@ enum SyncTarget {
     Org,
     Repo,
 }
+
+const REQUIRED_ADR_BODY_SECTIONS: [&str; 8] = [
+    "Context",
+    "Decision",
+    "Constraints",
+    "Alternatives Considered",
+    "Rationale",
+    "Implementation Implications",
+    "Acceptance Checks",
+    "Traceability",
+];
+
+const FIRST_PRINCIPLES_ADR_MAPPINGS: [(&str, &str, &str); 13] = [
+    (
+        "ADR-000",
+        "ADR-0005",
+        "docs/adr/0005-domain-bounded-platform-topology.md",
+    ),
+    (
+        "ADR-001",
+        "ADR-0006",
+        "docs/adr/0006-canonical-event-substrate.md",
+    ),
+    (
+        "ADR-002",
+        "ADR-0007",
+        "docs/adr/0007-consistency-semantics-by-criticality.md",
+    ),
+    (
+        "ADR-003",
+        "ADR-0008",
+        "docs/adr/0008-domain-owned-data-products-with-contracts.md",
+    ),
+    (
+        "ADR-004",
+        "ADR-0009",
+        "docs/adr/0009-lakehouse-open-format-analytical-foundation.md",
+    ),
+    (
+        "ADR-005",
+        "ADR-0010",
+        "docs/adr/0010-durable-workflow-execution-plane.md",
+    ),
+    (
+        "ADR-006",
+        "ADR-0011",
+        "docs/adr/0011-ai-as-planner-over-typed-tools.md",
+    ),
+    (
+        "ADR-007",
+        "ADR-0012",
+        "docs/adr/0012-layered-intelligence-behind-stable-retrieval.md",
+    ),
+    (
+        "ADR-008",
+        "ADR-0013",
+        "docs/adr/0013-zero-trust-ai-governance-control-plane.md",
+    ),
+    (
+        "ADR-009",
+        "ADR-0014",
+        "docs/adr/0014-observability-slos-and-error-budgets.md",
+    ),
+    (
+        "ADR-010",
+        "ADR-0015",
+        "docs/adr/0015-gitops-and-policy-as-code-control-artifacts.md",
+    ),
+    (
+        "ADR-011",
+        "ADR-0016",
+        "docs/adr/0016-finops-unit-economics-and-autonomy-budgets.md",
+    ),
+    (
+        "ADR-012",
+        "ADR-0017",
+        "docs/adr/0017-replaceable-compute-and-governed-state.md",
+    ),
+];
 
 struct SyncArgs {
     target: SyncTarget,
@@ -299,9 +401,14 @@ fn load_documented_process(workspace_root: &Path) -> Result<DocumentedProcess, S
         "CONTRIBUTING.md".to_string(),
         "DEVELOPMENT_MODEL.md".to_string(),
         "ARCHITECTURE.md".to_string(),
+        "docs/architecture/first-principles-systems-architecture-report.md".to_string(),
+        "docs/architecture/first-principles-implementation-roadmap.md".to_string(),
+        "docs/adr/README.md".to_string(),
         "docs/architecture/layer-boundaries.md".to_string(),
         "docs/architecture/plugin-application-model.md".to_string(),
         "docs/architecture/runtime-composition.md".to_string(),
+        "docs/process/github-governance-rollout.md".to_string(),
+        "docs/process/github-workflow-migration.md".to_string(),
         "docs/process/platform-regression-guardrails.md".to_string(),
         ".github/PULL_REQUEST_TEMPLATE.md".to_string(),
         ".github/governance.toml".to_string(),
@@ -342,24 +449,36 @@ fn load_documented_process(workspace_root: &Path) -> Result<DocumentedProcess, S
     let required_pr_sections = vec![
         "Summary".to_string(),
         "Linked Issue".to_string(),
+        "ADR References".to_string(),
+        "Impacted Domains".to_string(),
         "Layers Touched".to_string(),
         "Contracts Changed".to_string(),
         "Tests Added or Updated".to_string(),
         "Refreshed from Main".to_string(),
         "Risk Class".to_string(),
+        "Affected Consistency Class".to_string(),
+        "Affected Risk Tier".to_string(),
         "Architecture Delta".to_string(),
         "Workflow Checklist".to_string(),
         "Technical Changes".to_string(),
         "Testing Strategy".to_string(),
+        "Rollback Path".to_string(),
+        "Validation Artifacts".to_string(),
         "Deployment Impact".to_string(),
     ];
     let required_issue_fields = vec![
         "primary_architectural_plane".to_string(),
+        "adr_references".to_string(),
+        "impacted_domains".to_string(),
+        "affected_consistency_class".to_string(),
+        "affected_risk_tier".to_string(),
         "scope_in".to_string(),
         "scope_out".to_string(),
         "acceptance_criteria".to_string(),
         "validation_requirements".to_string(),
+        "validation_artifacts".to_string(),
         "rollback_considerations".to_string(),
+        "rollback_path".to_string(),
     ];
 
     Ok(DocumentedProcess {
@@ -628,6 +747,7 @@ fn collect_audit_defects(
     defects.extend(audit_issue_templates(&documented.required_issue_fields)?);
     defects.extend(audit_pr_template(&documented.required_pr_sections)?);
     defects.extend(audit_governance_workflow_for_architecture_step()?);
+    defects.extend(audit_adr_corpus(&workspace_root()?)?);
 
     Ok(defects)
 }
@@ -705,6 +825,327 @@ fn audit_governance_workflow_for_architecture_step() -> Result<Vec<String>, Stri
         );
     }
     Ok(defects)
+}
+
+fn audit_adr_corpus(workspace_root: &Path) -> Result<Vec<String>, String> {
+    let root_regex = Regex::new(r"^(?P<number>\d{4})-.*\.md$")
+        .map_err(|error| format!("failed to build root ADR filename regex: {error}"))?;
+    let ui_regex = Regex::new(r".*\.md$")
+        .map_err(|error| format!("failed to build UI ADR filename regex: {error}"))?;
+    let allowed_statuses = ["Adopted", "Superseded", "Deprecated"];
+    let date_regex = Regex::new(r"^\d{4}-\d{2}-\d{2}$")
+        .map_err(|error| format!("failed to build ADR date regex: {error}"))?;
+    let mut defects = Vec::new();
+    let mut adr_ids = BTreeMap::new();
+    let mut parsed_root_docs = BTreeMap::new();
+
+    let root_docs = collect_adr_paths(workspace_root.join("docs/adr"), &root_regex)?;
+    let ui_docs = collect_adr_paths(workspace_root.join("ui/docs/adr"), &ui_regex)?;
+
+    let mut root_numbers = Vec::new();
+    for path in root_docs {
+        let relative = relative_path(workspace_root, &path);
+        let file_name = path
+            .file_name()
+            .and_then(|name| name.to_str())
+            .ok_or_else(|| format!("failed to read file name for `{}`", path.display()))?;
+        let captures = root_regex
+            .captures(file_name)
+            .ok_or_else(|| format!("root ADR path `{relative}` does not match numbering rule"))?;
+        let number = captures["number"]
+            .parse::<u32>()
+            .map_err(|error| format!("failed to parse ADR number from `{relative}`: {error}"))?;
+        let parsed = parse_adr_document(&path)?;
+        defects.extend(validate_adr_document(
+            workspace_root,
+            &relative,
+            &parsed,
+            &allowed_statuses,
+            &date_regex,
+        ));
+        let expected_adr_id = format!("ADR-{number:04}");
+        if parsed.front_matter.adr_id != expected_adr_id {
+            defects.push(format!(
+                "ADR `{relative}` must declare adr_id `{expected_adr_id}`, found `{}`",
+                parsed.front_matter.adr_id
+            ));
+        }
+        if let Some(previous) = adr_ids.insert(parsed.front_matter.adr_id.clone(), relative.clone())
+        {
+            defects.push(format!(
+                "duplicate ADR id `{}` found in `{previous}` and `{relative}`",
+                parsed.front_matter.adr_id
+            ));
+        }
+        root_numbers.push(number);
+        parsed_root_docs.insert(relative, parsed);
+    }
+
+    root_numbers.sort_unstable();
+    if let Some(first) = root_numbers.first().copied() {
+        for (offset, number) in root_numbers.iter().enumerate() {
+            let expected = first
+                + u32::try_from(offset)
+                    .map_err(|_| "ADR corpus size exceeded supported u32 range".to_owned())?;
+            if *number != expected {
+                defects.push(format!(
+                    "root ADR corpus must be contiguous; expected `{:04}` but found `{:04}`",
+                    expected, number
+                ));
+                break;
+            }
+        }
+        if first != 1 {
+            defects.push(format!(
+                "root ADR corpus must start at `0001`, found `{:04}`",
+                first
+            ));
+        }
+    } else {
+        defects.push("root ADR corpus is empty".to_owned());
+    }
+
+    for path in ui_docs {
+        let relative = relative_path(workspace_root, &path);
+        let parsed = parse_adr_document(&path)?;
+        defects.extend(validate_adr_document(
+            workspace_root,
+            &relative,
+            &parsed,
+            &allowed_statuses,
+            &date_regex,
+        ));
+        if !parsed.front_matter.adr_id.starts_with("UI-ADR-") {
+            defects.push(format!(
+                "UI ADR `{relative}` must use a `UI-ADR-` namespaced adr_id"
+            ));
+        }
+        if let Some(previous) = adr_ids.insert(parsed.front_matter.adr_id.clone(), relative.clone())
+        {
+            defects.push(format!(
+                "duplicate ADR id `{}` found in `{previous}` and `{relative}`",
+                parsed.front_matter.adr_id
+            ));
+        }
+    }
+
+    defects.extend(audit_first_principles_mapping(
+        workspace_root,
+        &parsed_root_docs,
+    )?);
+
+    Ok(defects)
+}
+
+fn collect_adr_paths(dir: PathBuf, name_regex: &Regex) -> Result<Vec<PathBuf>, String> {
+    let mut paths = fs::read_dir(&dir)
+        .map_err(|error| format!("failed to read ADR directory `{}`: {error}", dir.display()))?
+        .filter_map(Result::ok)
+        .filter(|entry| {
+            entry
+                .file_type()
+                .map(|kind| kind.is_file())
+                .unwrap_or(false)
+        })
+        .map(|entry| entry.path())
+        .filter(|path| {
+            path.file_name()
+                .and_then(|name| name.to_str())
+                .is_some_and(|name| name_regex.is_match(name))
+        })
+        .collect::<Vec<_>>();
+    paths.sort();
+    Ok(paths)
+}
+
+fn parse_adr_document(path: &Path) -> Result<ParsedAdrDocument, String> {
+    let raw = fs::read_to_string(path)
+        .map_err(|error| format!("failed to read ADR `{}`: {error}", path.display()))?;
+    let (front_matter_raw, body) = split_front_matter(&raw).map_err(|error| {
+        format!(
+            "failed to parse front matter for ADR `{}`: {error}",
+            path.display()
+        )
+    })?;
+    let front_matter: AdrFrontMatter =
+        serde_yaml::from_str(&front_matter_raw).map_err(|error| {
+            format!(
+                "failed to parse ADR front matter `{}`: {error}",
+                path.display()
+            )
+        })?;
+    Ok(ParsedAdrDocument { front_matter, body })
+}
+
+fn split_front_matter(raw: &str) -> Result<(String, String), String> {
+    let normalized = raw.replace("\r\n", "\n");
+    let Some(remainder) = normalized.strip_prefix("---\n") else {
+        return Err("missing opening `---` front matter delimiter".to_owned());
+    };
+    let Some((front_matter, body)) = remainder.split_once("\n---\n") else {
+        return Err("missing closing `---` front matter delimiter".to_owned());
+    };
+    Ok((front_matter.to_owned(), body.trim_start().to_owned()))
+}
+
+fn validate_adr_document(
+    workspace_root: &Path,
+    relative: &str,
+    parsed: &ParsedAdrDocument,
+    allowed_statuses: &[&str],
+    date_regex: &Regex,
+) -> Vec<String> {
+    let mut defects = Vec::new();
+    let front_matter = &parsed.front_matter;
+
+    if front_matter.adr_id.trim().is_empty() {
+        defects.push(format!("ADR `{relative}` is missing a non-empty `adr_id`"));
+    }
+    if front_matter.title.trim().is_empty() {
+        defects.push(format!("ADR `{relative}` is missing a non-empty `title`"));
+    }
+    if !allowed_statuses.contains(&front_matter.status.as_str()) {
+        defects.push(format!(
+            "ADR `{relative}` has unsupported status `{}`",
+            front_matter.status
+        ));
+    }
+    if !date_regex.is_match(front_matter.date_adopted.trim()) {
+        defects.push(format!(
+            "ADR `{relative}` must use YYYY-MM-DD `date_adopted`, found `{}`",
+            front_matter.date_adopted
+        ));
+    }
+    if front_matter.owners.is_empty() {
+        defects.push(format!("ADR `{relative}` must declare at least one owner"));
+    }
+    if front_matter.architectural_planes.is_empty() {
+        defects.push(format!(
+            "ADR `{relative}` must declare at least one architectural plane"
+        ));
+    }
+    if front_matter.impacted_domains.is_empty() {
+        defects.push(format!(
+            "ADR `{relative}` must declare at least one impacted domain"
+        ));
+    }
+    if front_matter.review_cadence.trim().is_empty() {
+        defects.push(format!("ADR `{relative}` must declare `review_cadence`"));
+    }
+    if front_matter.tags.is_empty() {
+        defects.push(format!("ADR `{relative}` must declare at least one tag"));
+    }
+    if let Some(source_report) = &front_matter.source_report {
+        if !workspace_root.join(source_report).exists() {
+            defects.push(format!(
+                "ADR `{relative}` references missing source_report `{source_report}`"
+            ));
+        }
+    }
+    let _ = (&front_matter.supersedes, &front_matter.superseded_by);
+
+    let mut last_position = 0usize;
+    for section in REQUIRED_ADR_BODY_SECTIONS {
+        let heading = format!("## {section}");
+        let Some(position) = parsed.body.find(&heading) else {
+            defects.push(format!(
+                "ADR `{relative}` is missing required section `{section}`"
+            ));
+            continue;
+        };
+        if position < last_position {
+            defects.push(format!(
+                "ADR `{relative}` must keep required sections in the documented order"
+            ));
+            break;
+        }
+        last_position = position;
+        match markdown_section(&parsed.body, section) {
+            Some(contents) if !contents.trim().is_empty() => {}
+            _ => defects.push(format!(
+                "ADR `{relative}` must include non-empty contents for section `{section}`"
+            )),
+        }
+    }
+
+    defects
+}
+
+fn audit_first_principles_mapping(
+    workspace_root: &Path,
+    parsed_root_docs: &BTreeMap<String, ParsedAdrDocument>,
+) -> Result<Vec<String>, String> {
+    let read = |path: &str| {
+        fs::read_to_string(workspace_root.join(path))
+            .map_err(|error| format!("failed to read `{path}`: {error}"))
+    };
+    let report = read("docs/architecture/first-principles-systems-architecture-report.md")?;
+    let roadmap = read("docs/architecture/first-principles-implementation-roadmap.md")?;
+    let readme = read("docs/adr/README.md")?;
+    let mut defects = Vec::new();
+
+    for phase in 0..=9 {
+        let phase_heading = format!("Phase {phase}");
+        if !roadmap.contains(&phase_heading) {
+            defects.push(format!(
+                "first-principles roadmap must include `{phase_heading}`"
+            ));
+        }
+    }
+
+    if !report.contains("ADR-0005") || !report.contains("Phase 0") || !report.contains("Phase 9") {
+        defects.push(
+            "first-principles baseline report must reference the ratified ADR pack and roadmap phases"
+                .to_owned(),
+        );
+    }
+
+    for (blueprint_adr, repo_adr, path) in FIRST_PRINCIPLES_ADR_MAPPINGS {
+        let Some(parsed) = parsed_root_docs.get(path) else {
+            defects.push(format!(
+                "first-principles mapping references missing ADR document `{path}`"
+            ));
+            continue;
+        };
+        if parsed.front_matter.adr_id != repo_adr {
+            defects.push(format!(
+                "ADR mapping for blueprint `{blueprint_adr}` expected repo id `{repo_adr}`, found `{}`",
+                parsed.front_matter.adr_id
+            ));
+        }
+        let traceability = markdown_section(&parsed.body, "Traceability").unwrap_or_default();
+        if !traceability.contains(blueprint_adr) {
+            defects.push(format!(
+                "ADR `{repo_adr}` must reference blueprint `{blueprint_adr}` in Traceability"
+            ));
+        }
+        if !readme.contains(blueprint_adr) || !readme.contains(repo_adr) || !readme.contains(path) {
+            defects.push(format!(
+                "ADR README must map blueprint `{blueprint_adr}` to `{repo_adr}` and `{path}`"
+            ));
+        }
+        if !report.contains(repo_adr) {
+            defects.push(format!(
+                "first-principles baseline report must reference ratified ADR `{repo_adr}`"
+            ));
+        }
+        for phase in &parsed.front_matter.roadmap_phases {
+            if !phase.is_empty() && !roadmap.contains(phase) {
+                defects.push(format!(
+                    "ADR `{repo_adr}` references roadmap phase `{phase}` that is missing from the roadmap document"
+                ));
+            }
+        }
+    }
+
+    Ok(defects)
+}
+
+fn relative_path(workspace_root: &Path, path: &Path) -> String {
+    path.strip_prefix(workspace_root)
+        .unwrap_or(path)
+        .to_string_lossy()
+        .replace('\\', "/")
 }
 
 fn workflow_targets_main(workflow: &WorkflowAudit) -> bool {
@@ -1530,15 +1971,21 @@ fn validate_pr_event(config: &GovernanceConfig, event: &PullRequestEvent) -> Res
     for section in [
         "Summary",
         "Linked Issue",
+        "ADR References",
+        "Impacted Domains",
         "Layers Touched",
         "Contracts Changed",
         "Tests Added or Updated",
         "Refreshed from Main",
         "Risk Class",
+        "Affected Consistency Class",
+        "Affected Risk Tier",
         "Architecture Delta",
         "Workflow Checklist",
         "Technical Changes",
         "Testing Strategy",
+        "Rollback Path",
+        "Validation Artifacts",
         "Deployment Impact",
     ] {
         match markdown_section(&event.body, section) {
@@ -1812,8 +2259,9 @@ Subcommands:
 #[cfg(test)]
 mod tests {
     use super::{
-        branch_ruleset_payload, extract_trigger_names, load_config, main_ruleset_payload,
-        render_drift_matrix_markdown, validate_pr_event, DriftRow, PullRequestEvent,
+        audit_adr_corpus, branch_ruleset_payload, extract_trigger_names, load_config,
+        main_ruleset_payload, render_drift_matrix_markdown, split_front_matter, validate_pr_event,
+        DriftRow, PullRequestEvent,
     };
     use serde_yaml::Value as YamlValue;
     use std::path::PathBuf;
@@ -1851,7 +2299,7 @@ mod tests {
         let config = load_config(&config_path()).expect("governance config should parse");
         let event = PullRequestEvent {
             title: "feat(db): add provider".to_owned(),
-            body: "## Summary\nAdd provider\n\n## Linked Issue\nCloses #142\n\n## Layers Touched\n- platform\n\n## Contracts Changed\n- None.\n\n## Tests Added or Updated\n- cargo test\n\n## Refreshed from Main\n- yes\n\n## Risk Class\n- low\n\n## Architecture Delta\n- Single-plane platform change.\n\n## Workflow Checklist\n- [x] refreshed\n\n## Technical Changes\n- added provider\n\n## Testing Strategy\n- cargo test\n\n## Deployment Impact\n- none\n".to_owned(),
+            body: "## Summary\nAdd provider\n\n## Linked Issue\nCloses #142\n\n## ADR References\n- ADR-0015\n\n## Impacted Domains\n- platform\n\n## Layers Touched\n- platform\n\n## Contracts Changed\n- None.\n\n## Tests Added or Updated\n- cargo test\n\n## Refreshed from Main\n- yes\n\n## Risk Class\n- low\n\n## Affected Consistency Class\n- Class B\n\n## Affected Risk Tier\n- low\n\n## Architecture Delta\n- Single-plane platform change.\n\n## Workflow Checklist\n- [x] refreshed\n\n## Technical Changes\n- added provider\n\n## Testing Strategy\n- cargo test\n\n## Rollback Path\n- revert the provider integration commit\n\n## Validation Artifacts\n- cargo test\n\n## Deployment Impact\n- none\n".to_owned(),
             branch: "feature/142-surrealdb-provider".to_owned(),
             repository: "shortorigin/origin".to_owned(),
             base_sha: None,
@@ -1868,7 +2316,7 @@ mod tests {
         let config = load_config(&config_path()).expect("governance config should parse");
         let event = PullRequestEvent {
             title: "feat(db): add provider".to_owned(),
-            body: "## Summary\nAdd provider\n\n## Linked Issue\nTBD\n\n## Layers Touched\n- platform\n\n## Contracts Changed\n- None.\n\n## Tests Added or Updated\n- cargo test\n\n## Refreshed from Main\n- yes\n\n## Risk Class\n- low\n\n## Architecture Delta\n- Single-plane platform change.\n\n## Workflow Checklist\n- [x] refreshed\n\n## Technical Changes\n- added provider\n\n## Testing Strategy\n- cargo test\n\n## Deployment Impact\n- none\n".to_owned(),
+            body: "## Summary\nAdd provider\n\n## Linked Issue\nTBD\n\n## ADR References\n- ADR-0015\n\n## Impacted Domains\n- platform\n\n## Layers Touched\n- platform\n\n## Contracts Changed\n- None.\n\n## Tests Added or Updated\n- cargo test\n\n## Refreshed from Main\n- yes\n\n## Risk Class\n- low\n\n## Affected Consistency Class\n- Class B\n\n## Affected Risk Tier\n- low\n\n## Architecture Delta\n- Single-plane platform change.\n\n## Workflow Checklist\n- [x] refreshed\n\n## Technical Changes\n- added provider\n\n## Testing Strategy\n- cargo test\n\n## Rollback Path\n- revert the provider integration commit\n\n## Validation Artifacts\n- cargo test\n\n## Deployment Impact\n- none\n".to_owned(),
             branch: "feature/142-surrealdb-provider".to_owned(),
             repository: "shortorigin/origin".to_owned(),
             base_sha: None,
@@ -1939,7 +2387,7 @@ mod tests {
         let config = load_config(&config_path()).expect("governance config should parse");
         let event = PullRequestEvent {
             title: "refactor(platform): align shell boundary".to_owned(),
-            body: "## Summary\nAlign boundaries\n\n## Linked Issue\nCloses #89\n\n## Layers Touched\n- platform\n- ui\n\n## Contracts Changed\n- plugin manifest\n\n## Tests Added or Updated\n- cargo test\n\n## Refreshed from Main\n- yes\n\n## Risk Class\n- high\n\n## Architecture Delta\n- Single-plane change.\n\n## Workflow Checklist\n- [x] refreshed\n\n## Technical Changes\n- aligned layers\n\n## Testing Strategy\n- cargo test\n\n## Deployment Impact\n- none\n".to_owned(),
+            body: "## Summary\nAlign boundaries\n\n## Linked Issue\nCloses #89\n\n## ADR References\n- ADR-0004\n- ADR-0015\n\n## Impacted Domains\n- platform-shell\n\n## Layers Touched\n- platform\n- ui\n\n## Contracts Changed\n- plugin manifest\n\n## Tests Added or Updated\n- cargo test\n\n## Refreshed from Main\n- yes\n\n## Risk Class\n- high\n\n## Affected Consistency Class\n- Class B\n\n## Affected Risk Tier\n- high\n\n## Architecture Delta\n- Single-plane change.\n\n## Workflow Checklist\n- [x] refreshed\n\n## Technical Changes\n- aligned layers\n\n## Testing Strategy\n- cargo test\n\n## Rollback Path\n- revert the shell boundary refactor\n\n## Validation Artifacts\n- cargo test\n\n## Deployment Impact\n- none\n".to_owned(),
             branch: "refactor/89-platform-boundary".to_owned(),
             repository: "shortorigin/origin".to_owned(),
             base_sha: None,
@@ -1953,5 +2401,23 @@ mod tests {
         let error = validate_pr_event(&config, &event)
             .expect_err("placeholder architecture delta should fail for multi-plane change");
         assert!(error.contains("Architecture Delta"));
+    }
+
+    #[test]
+    fn split_front_matter_reads_yaml_and_body() {
+        let raw = "---\nadr_id: ADR-0001\nstatus: Adopted\n---\n# Title\n\n## Context\ntext\n";
+        let (front_matter, body) = split_front_matter(raw).expect("front matter should parse");
+        assert!(front_matter.contains("adr_id: ADR-0001"));
+        assert!(body.starts_with("# Title"));
+    }
+
+    #[test]
+    fn adr_corpus_audit_passes_for_workspace() {
+        let workspace_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .parent()
+            .expect("xtask crate should be nested under the workspace root")
+            .to_path_buf();
+        let defects = audit_adr_corpus(&workspace_root).expect("ADR corpus audit should run");
+        assert!(defects.is_empty(), "ADR corpus defects: {defects:?}");
     }
 }

@@ -48,6 +48,46 @@ body:
     validations:
       required: true
   - type: textarea
+    id: adr_references
+    attributes:
+      label: ADR References
+      description: List the ADR IDs that govern this refactor or write `None`.
+      placeholder: "- ADR-0005"
+    validations:
+      required: true
+  - type: textarea
+    id: impacted_domains
+    attributes:
+      label: Impacted Domains
+      description: List the domains or bounded contexts affected by the refactor.
+      placeholder: "- [ ] Domain or bounded context"
+    validations:
+      required: true
+  - type: dropdown
+    id: affected_consistency_class
+    attributes:
+      label: Affected Consistency Class
+      description: Select the strongest applicable consistency class.
+      options:
+        - Class A
+        - Class B
+        - Class C
+        - Not Applicable
+    validations:
+      required: true
+  - type: dropdown
+    id: affected_risk_tier
+    attributes:
+      label: Affected Risk Tier
+      description: Select the applicable delivery or runtime risk tier.
+      options:
+        - low
+        - medium
+        - high
+        - not applicable
+    validations:
+      required: true
+  - type: textarea
     id: scope_in
     attributes:
       label: Scope In
@@ -80,11 +120,27 @@ body:
     validations:
       required: true
   - type: textarea
+    id: validation_artifacts
+    attributes:
+      label: Validation Artifacts
+      description: List the commands, reports, or review evidence expected for completion.
+      placeholder: "- [ ] Evidence artifact"
+    validations:
+      required: true
+  - type: textarea
     id: rollback_considerations
     attributes:
       label: Rollback Considerations
       description: Describe rollback expectations or state that rollback is not applicable.
       placeholder: "Describe rollback or write `Not applicable`."
+    validations:
+      required: true
+  - type: textarea
+    id: rollback_path
+    attributes:
+      label: Rollback Path
+      description: Describe the concrete rollback sequence or state that rollback is not applicable.
+      placeholder: "Describe the rollback path or write `Not applicable`."
     validations:
       required: true
   - type: textarea

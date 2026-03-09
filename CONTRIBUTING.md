@@ -7,11 +7,17 @@ All material changes are issue-driven and must follow the same GitHub workflow:
 1. Create or refine a same-repository GitHub issue before writing code.
 2. Ensure the issue captures:
    - the change, defect, or enhancement being proposed,
+   - the governing ADR references,
+   - the impacted domains,
+   - the affected consistency class,
+   - the affected risk tier,
    - the primary architectural plane touched,
    - explicit scope in and scope out boundaries,
    - explicit acceptance criteria,
    - validation requirements,
+   - validation artifacts,
    - rollback considerations for risky changes,
+   - rollback path,
    - supporting technical notes, constraints, and related links where needed.
 3. Move the issue onto the organization Project in the correct `Status` column.
 4. Fetch the current remote branch tips before creating a working branch: `git fetch origin`.
@@ -31,7 +37,10 @@ All material changes are issue-driven and must follow the same GitHub workflow:
 10. Rebase on the current target branch before requesting merge, and rebase again if the target branch moves while the PR is open.
 11. Open a pull request targeting `main` or the parent branch in a stack that:
    - references the originating issue,
+   - records ADR references and impacted domains,
+   - records the affected consistency class and affected risk tier,
    - explains the technical change,
+   - records the rollback path and validation artifacts,
    - documents the testing strategy,
    - records the risk class,
    - includes an `Architecture Delta` section when the PR spans multiple architectural planes,
@@ -52,6 +61,7 @@ gh pr create --fill
 - No direct commits to `main`.
 - PR titles must use conventional commits: `type(scope): description`.
 - The PR body must reference a same-repository issue with `Closes #<issue-id>` or an equivalent issue URL.
+- The PR body must include ADR references, impacted domains, affected consistency class, affected risk tier, rollback path, and validation artifacts.
 - Source files, docs, UI strings, fixtures, generated assets, commit messages, PR text, and issue text must use repository/product terminology only; do not leak Codex, OpenAI, ChatGPT, or other assistant/vendor branding unless a third-party reference or legal attribution requires it.
 - Required checks must pass before merge.
 - At least one reviewer approval is required before merge.

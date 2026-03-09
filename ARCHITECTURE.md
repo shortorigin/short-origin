@@ -84,6 +84,9 @@ Each top-level module has one primary concern:
 
 ## Authoritative References
 
+- [First-Principles Systems Architecture Baseline](docs/architecture/first-principles-systems-architecture-report.md)
+- [First-Principles Implementation Roadmap](docs/architecture/first-principles-implementation-roadmap.md)
+- [ADR Catalog](docs/adr/README.md)
 - [Layer Boundaries](docs/architecture/layer-boundaries.md)
 - [Plugin Application Model](docs/architecture/plugin-application-model.md)
 - [Runtime Composition and Delivery](docs/architecture/runtime-composition.md)

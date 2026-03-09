@@ -4,6 +4,14 @@
 
 Closes #
 
+## ADR References
+
+-
+
+## Impacted Domains
+
+-
+
 ## Layers Touched
 
 - [ ] `enterprise`
@@ -36,6 +44,14 @@ Closes #
 
 - low | medium | high
 
+## Affected Consistency Class
+
+- Class A | Class B | Class C | Not Applicable
+
+## Affected Risk Tier
+
+- low | medium | high | not applicable
+
 ## Architecture Delta
 
 - Single-plane change or why a multi-plane sequence was required.
@@ -51,5 +67,13 @@ Closes #
 ## Technical Changes
 
 ## Testing Strategy
+
+## Rollback Path
+
+- Describe the rollback path or write `Not applicable`.
+
+## Validation Artifacts
+
+- List commands, reports, or review evidence.
 
 ## Deployment Impact

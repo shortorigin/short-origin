@@ -10,7 +10,8 @@ manual-only entrypoints.
 - `Security / security-gate`
 
 These checks run automatically on pull requests. `Governance / validate` also emits the generated
-process audit artifacts from `cargo xtask github audit-process`.
+process audit artifacts from `cargo xtask github audit-process`, including ADR corpus and
+traceability-field validation.
 
 ## Main-Branch Delivery
 

@@ -16,11 +16,15 @@ This repository is the pilot adopter for the `shortorigin` GitHub-native Scrumba
 Every material repository change follows the same GitHub lifecycle:
 
 1. Create a GitHub issue with context, scope, and acceptance criteria.
+   Issues must also include ADR references, impacted domains, affected consistency class, affected
+   risk tier, rollback path, and validation artifacts.
 2. Run `git fetch origin` before creating the working branch.
 3. Create a dedicated issue branch from `origin/main` named `<type>/<issue-id>-<summary>`.
 4. If the work is stacked, branch from the parent branch and target the child PR to that parent branch until it lands.
 5. Rebase on the current target branch before requesting merge.
 6. Open a pull request that references the issue and includes `Closes #<issue-id>` in the body.
+   The PR body must also include ADR references, impacted domains, affected consistency class,
+   affected risk tier, rollback path, and validation artifacts.
 7. Merge only after review and required checks pass so GitHub closes the linked issue automatically.
 
 ## Bootstrap Commands
