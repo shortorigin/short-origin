@@ -8,7 +8,7 @@ use contracts::{
     KnowledgeSourceIngestRequestV1, MacroFinancialAnalysisRequestV1, MacroFinancialAnalysisV1,
     MarketDataBatchV1, PromotionRecommendationV1, QuantStrategyPromotionRequestV1,
     ServiceBoundaryV1, WeatherAlertFeedV1, WeatherAvailabilityV1, WeatherFeatureSliceV1,
-    WeatherViewV1, WorkflowBoundaryV1,
+    WeatherMapSceneV1, WeatherViewV1, WorkflowBoundaryV1,
 };
 use error_model::{InstitutionalError, InstitutionalResult, OperationContext};
 use events::EventEnvelopeV1;
@@ -40,6 +40,7 @@ pub struct WeatherPlatformSnapshotV1 {
     pub view: Option<WeatherViewV1>,
     pub feature_slices: Vec<WeatherFeatureSliceV1>,
     pub alerts: Option<WeatherAlertFeedV1>,
+    pub map_scene: Option<WeatherMapSceneV1>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -75,6 +76,7 @@ pub enum PlatformQueryV1 {
     GetWeatherView { region_id: String },
     GetWeatherFeatureSlices { region_id: String },
     GetWeatherAlertFeed { region_id: String },
+    GetWeatherMapScene { region_id: String },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -89,6 +91,7 @@ pub enum PlatformQueryResultV1 {
     WeatherView(Option<WeatherViewV1>),
     WeatherFeatureSlices(Vec<WeatherFeatureSliceV1>),
     WeatherAlertFeed(Option<WeatherAlertFeedV1>),
+    WeatherMapScene(Option<WeatherMapSceneV1>),
 }
 
 pub trait InstitutionalPlatformTransport: Send + Sync {
@@ -416,12 +419,30 @@ where
         }
     }
 
+    pub async fn query_map_scene(&self) -> InstitutionalResult<Option<WeatherMapSceneV1>> {
+        match self
+            .inner
+            .transport
+            .execute_query(PlatformQueryV1::GetWeatherMapScene {
+                region_id: self.region_id.clone(),
+            })
+            .await?
+        {
+            PlatformQueryResultV1::WeatherMapScene(scene) => Ok(scene),
+            _ => Err(InstitutionalError::invariant(
+                OperationContext::new("platform/sdk/sdk-rs", "query_weather_map_scene"),
+                "weather map scene query returned non-weather payload",
+            )),
+        }
+    }
+
     pub async fn query_snapshot(&self) -> InstitutionalResult<WeatherPlatformSnapshotV1> {
         Ok(WeatherPlatformSnapshotV1 {
             availability: self.query_availability().await?,
             view: self.query_view().await?,
             feature_slices: self.query_feature_slices().await?,
             alerts: self.query_alert_feed().await?,
+            map_scene: self.query_map_scene().await?,
         })
     }
 }
@@ -527,6 +548,13 @@ impl InstitutionalPlatformTransport for LocalHarnessPlatformTransport {
                     self.weather_snapshots
                         .get(&region_id)
                         .and_then(|snapshot| snapshot.alerts.clone()),
+                )
+            }
+            PlatformQueryV1::GetWeatherMapScene { region_id } => {
+                PlatformQueryResultV1::WeatherMapScene(
+                    self.weather_snapshots
+                        .get(&region_id)
+                        .and_then(|snapshot| snapshot.map_scene.clone()),
                 )
             }
         };
@@ -876,6 +904,16 @@ mod tests {
                 .alerts
                 .len(),
             1
+        );
+        assert_eq!(
+            weather
+                .query_map_scene()
+                .await
+                .expect("map scene")
+                .expect("map scene")
+                .sources
+                .len(),
+            7
         );
     }
 }

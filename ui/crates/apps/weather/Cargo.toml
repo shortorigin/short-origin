@@ -17,6 +17,10 @@ sdk-rs = { path = "../../../../platform/sdk/sdk-rs" }
 serde.workspace = true
 serde_json.workspace = true
 system_ui = { path = "../../system_ui", default-features = false }
+wasm-bindgen = "0.2"
+
+[dev-dependencies]
+chrono.workspace = true
 
 [lints]
 workspace = true

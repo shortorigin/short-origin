@@ -24,6 +24,7 @@
     "weather_feature_product_record",
     "weather_alert_record",
     "weather_view_product_record",
+    "weather_map_scene_record",
     "experiment_result_record",
     "order_record",
     "fill_record",

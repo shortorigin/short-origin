@@ -1,9 +1,11 @@
 use chrono::{TimeZone, Utc};
 use contracts::{
-    GeoBoundsV1, WeatherAlertFeedV1, WeatherAlertV1, WeatherArtifactKindV1, WeatherAvailabilityV1,
-    WeatherFeatureKindV1, WeatherFeatureSliceV1, WeatherFeatureValueV1, WeatherLayerAvailabilityV1,
-    WeatherLayerKindV1, WeatherProvenanceV1, WeatherQcFlagV1, WeatherSourceKindV1,
-    WeatherViewLayerV1, WeatherViewV1,
+    GeoBoundsV1, GeoPointV1, WeatherAlertFeedV1, WeatherAlertV1, WeatherArtifactKindV1,
+    WeatherAvailabilityV1, WeatherFeatureKindV1, WeatherFeatureSliceV1, WeatherFeatureValueV1,
+    WeatherLayerAvailabilityV1, WeatherLayerKindV1, WeatherMapFrameSourceBindingV1,
+    WeatherMapFrameV1, WeatherMapInteractionV1, WeatherMapLayerRenderModeV1, WeatherMapLayerV1,
+    WeatherMapLegendStopV1, WeatherMapSceneV1, WeatherMapSourceEncodingV1, WeatherMapSourceV1,
+    WeatherProvenanceV1, WeatherQcFlagV1, WeatherSourceKindV1, WeatherViewLayerV1, WeatherViewV1,
 };
 
 #[test]
@@ -93,12 +95,73 @@ fn weather_contracts_round_trip_through_json() {
             provenance: vec![provenance],
         }],
     };
+    let map_scene = WeatherMapSceneV1 {
+        scene_id: "map-west".to_string(),
+        region_id: "us-west".to_string(),
+        scene_revision: "scene-rev-1".to_string(),
+        bounds: availability.bounds.clone(),
+        default_center: GeoPointV1 {
+            longitude: -122.0,
+            latitude: 39.0,
+        },
+        default_zoom: 4.5,
+        generated_at: availability.generated_at,
+        active_frame_id: "frame-1".to_string(),
+        refresh_interval_seconds: 300,
+        frames: vec![WeatherMapFrameV1 {
+            frame_id: "frame-1".to_string(),
+            label: "15:00Z".to_string(),
+            event_time: availability.available_layers[0].latest_event_time,
+            valid_time: availability.available_layers[0].latest_valid_time,
+            horizon_hours: 4,
+            source_bindings: vec![WeatherMapFrameSourceBindingV1 {
+                source_id: "precip-raster".to_string(),
+                revision: "precip-1".to_string(),
+                tilejson_url: Some(
+                    "/api/weather/maps/scenes/map-west/sources/precip-raster/frames/frame-1/tilejson.json"
+                        .to_string(),
+                ),
+                data_url: None,
+            }],
+        }],
+        sources: vec![WeatherMapSourceV1 {
+            source_id: "precip-raster".to_string(),
+            layer: WeatherLayerKindV1::Precipitation,
+            title: "Precipitation".to_string(),
+            encoding: WeatherMapSourceEncodingV1::RasterTile,
+            min_zoom: 0,
+            max_zoom: 9,
+            attribution: "NOAA".to_string(),
+            promote_id: None,
+            cluster: false,
+        }],
+        layers: vec![WeatherMapLayerV1 {
+            layer_id: "precip-raster".to_string(),
+            source_id: "precip-raster".to_string(),
+            layer: WeatherLayerKindV1::Precipitation,
+            title: "Precipitation".to_string(),
+            render_mode: WeatherMapLayerRenderModeV1::Raster,
+            source_layer: None,
+            visible_by_default: true,
+            legend: vec![WeatherMapLegendStopV1 {
+                label: "Light".to_string(),
+                color: "#6baed6".to_string(),
+                min_value: Some(0.0),
+                max_value: Some(2.0),
+            }],
+            interaction: Some(WeatherMapInteractionV1 {
+                popup_title: "Precipitation".to_string(),
+                property_keys: vec!["value".to_string(), "units".to_string()],
+            }),
+        }],
+    };
 
     for value in [
         serde_json::to_value(&availability).expect("availability"),
         serde_json::to_value(&view).expect("view"),
         serde_json::to_value(&feature_slice).expect("feature"),
         serde_json::to_value(&alerts).expect("alerts"),
+        serde_json::to_value(&map_scene).expect("map scene"),
         serde_json::to_value(WeatherArtifactKindV1::ForecastGrid).expect("artifact"),
     ] {
         let encoded = serde_json::to_string(&value).expect("stringify");

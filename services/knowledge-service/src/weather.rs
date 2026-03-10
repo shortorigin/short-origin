@@ -12,12 +12,10 @@ pub fn weather_feature_register_entries(
                 .map(move |feature| DataRegisterEntryV1 {
                     series_name: format!("{:?}", feature.feature),
                     country_area: slice.region_id.clone(),
-                    source: slice
-                        .provenance
-                        .first()
-                        .map_or_else(|| "weather".to_string(), |record| {
-                            record.source_dataset.clone()
-                        }),
+                    source: slice.provenance.first().map_or_else(
+                        || "weather".to_string(),
+                        |record| record.source_dataset.clone(),
+                    ),
                     frequency: if slice.lead_hours == 0 {
                         "Observation".to_string()
                     } else {

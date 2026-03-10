@@ -2082,6 +2082,7 @@ dependencies = [
 name = "desktop_app_weather"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "contracts",
  "desktop_app_contract",
  "leptos",
@@ -2089,6 +2090,7 @@ dependencies = [
  "serde",
  "serde_json",
  "system_ui",
+ "wasm-bindgen",
 ]
 
 [[package]]

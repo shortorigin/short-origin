@@ -8,7 +8,7 @@ pub struct EmbeddedSchema {
     pub document: Value,
 }
 
-const CONTRACT_FILES: [(&str, &str); 53] = [
+const CONTRACT_FILES: [(&str, &str); 54] = [
     (
         "command-v1",
         include_str!("../../../contracts/v1/command-v1.json"),
@@ -220,6 +220,10 @@ const CONTRACT_FILES: [(&str, &str); 53] = [
     (
         "weather-alert-feed-v1",
         include_str!("../../../contracts/v1/weather-alert-feed-v1.json"),
+    ),
+    (
+        "weather-map-scene-v1",
+        include_str!("../../../contracts/v1/weather-map-scene-v1.json"),
     ),
 ];
 

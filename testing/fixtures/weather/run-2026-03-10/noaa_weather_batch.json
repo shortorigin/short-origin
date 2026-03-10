@@ -114,6 +114,13 @@
       "event_time": "2026-03-10T11:00:00Z",
       "valid_time": "2026-03-10T15:00:00Z",
       "lead_hours": 4,
+      "bounds": {
+        "north": 49.0,
+        "south": 31.0,
+        "east": -109.0,
+        "west": -125.0
+      },
+      "location": null,
       "raw_asset_ids": ["raw-hrrr-001"],
       "qc_flags": ["passed"],
       "provenance": [
@@ -136,6 +143,13 @@
       "event_time": "2026-03-10T11:06:00Z",
       "valid_time": "2026-03-10T11:10:00Z",
       "lead_hours": 0,
+      "bounds": {
+        "north": 49.0,
+        "south": 31.0,
+        "east": -109.0,
+        "west": -125.0
+      },
+      "location": null,
       "raw_asset_ids": ["raw-goes-001"],
       "qc_flags": ["passed"],
       "provenance": [
@@ -158,6 +172,13 @@
       "event_time": "2026-03-10T11:07:00Z",
       "valid_time": "2026-03-10T11:12:00Z",
       "lead_hours": 0,
+      "bounds": {
+        "north": 49.0,
+        "south": 31.0,
+        "east": -109.0,
+        "west": -125.0
+      },
+      "location": null,
       "raw_asset_ids": ["raw-nexrad-001"],
       "qc_flags": ["passed"],
       "provenance": [
@@ -180,6 +201,16 @@
       "event_time": "2026-03-10T11:08:00Z",
       "valid_time": "2026-03-10T11:08:00Z",
       "lead_hours": 0,
+      "bounds": {
+        "north": 37.8,
+        "south": 37.5,
+        "east": -122.2,
+        "west": -122.6
+      },
+      "location": {
+        "longitude": -122.375,
+        "latitude": 37.618999
+      },
       "raw_asset_ids": ["raw-surface-001"],
       "qc_flags": ["passed"],
       "provenance": [

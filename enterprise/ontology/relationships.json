@@ -12,6 +12,7 @@
     { "from": "weather_feature_product", "to": "experiment_result", "relationship": "feeds" },
     { "from": "weather_feature_product", "to": "knowledge_analysis", "relationship": "supports" },
     { "from": "weather_alert", "to": "workflow_execution", "relationship": "activates" },
+    { "from": "weather_dataset", "to": "weather_map_scene", "relationship": "publishes" },
     { "from": "experiment_result", "to": "promotion_recommendation", "relationship": "supports" },
     { "from": "execution_session", "to": "portfolio_snapshot", "relationship": "updates" },
     { "from": "execution_session", "to": "trading_risk_state", "relationship": "constrains" },

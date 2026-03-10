@@ -17,6 +17,7 @@
     { "name": "weather_dataset", "domain": "meteorological_intelligence" },
     { "name": "weather_feature_product", "domain": "meteorological_intelligence" },
     { "name": "weather_alert", "domain": "meteorological_intelligence" },
+    { "name": "weather_map_scene", "domain": "meteorological_intelligence" },
     { "name": "experiment_result", "domain": "capital_markets_research" },
     { "name": "execution_session", "domain": "capital_markets_execution" },
     { "name": "portfolio_snapshot", "domain": "capital_markets_portfolio" },

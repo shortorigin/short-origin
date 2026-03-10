@@ -1,5 +1,5 @@
 {
   "version": "v1",
-  "entities": ["weather_dataset", "weather_feature_product", "weather_alert"],
-  "relationships": ["publishes", "supports", "alerts"]
+  "entities": ["weather_dataset", "weather_feature_product", "weather_alert", "weather_map_scene"],
+  "relationships": ["publishes", "supports", "alerts", "visualizes"]
 }

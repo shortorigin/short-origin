@@ -5,7 +5,7 @@ display_name = "Weather"
 version = "0.1.0"
 platform_contract_version = "1.0.0"
 runtime_contract_version = "2.0.0"
-requested_capabilities = ["window", "state", "theme"]
+requested_capabilities = ["window", "state", "config", "theme"]
 required_platform_contracts = [
   "schemas/contracts/v1/plugin-module-v1.json",
   "platform/sdk/v1/weather"
@@ -13,7 +13,8 @@ required_platform_contracts = [
 service_dependencies = [
   "schemas/contracts/v1/weather-view-v1.json",
   "schemas/contracts/v1/weather-feature-slice-v1.json",
-  "schemas/contracts/v1/weather-alert-feed-v1.json"
+  "schemas/contracts/v1/weather-alert-feed-v1.json",
+  "schemas/contracts/v1/weather-map-scene-v1.json"
 ]
 workflow_dependencies = []
 host_requirements = ["browser-storage:required"]

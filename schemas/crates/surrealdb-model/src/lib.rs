@@ -3,7 +3,8 @@ use contracts::{
     EvidenceManifestV1, ExceptionRecordV1, ExperimentResultV1, FillV1, MarketDataBatchV1,
     ModelApprovalV1, OrderRequestV1, PolicyDecisionV1, PortfolioSnapshotV1,
     PromotionRecommendationV1, RiskRecordV1, TradingRiskSnapshotV1, TreasuryDisbursementRecordedV1,
-    WeatherAlertFeedV1, WeatherAvailabilityV1, WeatherFeatureSliceV1, WeatherViewV1,
+    WeatherAlertFeedV1, WeatherAvailabilityV1, WeatherFeatureSliceV1, WeatherMapSceneV1,
+    WeatherViewV1,
 };
 use events::RecordedEventV1;
 use identity::ActorV1;
@@ -104,6 +105,12 @@ pub struct WeatherAlertRecordV1 {
 pub struct WeatherViewProductRecordV1 {
     pub id: String,
     pub view: WeatherViewV1,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct WeatherMapSceneRecordV1 {
+    pub id: String,
+    pub scene: WeatherMapSceneV1,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

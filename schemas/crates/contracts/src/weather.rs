@@ -30,6 +30,7 @@ pub enum WeatherLayerKindV1 {
     Wind,
     RadarReflectivity,
     CloudCover,
+    SurfaceObservations,
     AlertOverlay,
 }
 
@@ -60,6 +61,12 @@ pub struct GeoBoundsV1 {
     pub south: f64,
     pub east: f64,
     pub west: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct GeoPointV1 {
+    pub longitude: f64,
+    pub latitude: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -156,4 +163,96 @@ pub struct WeatherAlertFeedV1 {
     pub region_id: String,
     pub generated_at: DateTime<Utc>,
     pub alerts: Vec<WeatherAlertV1>,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[serde(rename_all = "snake_case")]
+pub enum WeatherMapSourceEncodingV1 {
+    RasterTile,
+    VectorTile,
+    GeoJson,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[serde(rename_all = "snake_case")]
+pub enum WeatherMapLayerRenderModeV1 {
+    Raster,
+    Fill,
+    Line,
+    Circle,
+    Symbol,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct WeatherMapLegendStopV1 {
+    pub label: String,
+    pub color: String,
+    pub min_value: Option<f64>,
+    pub max_value: Option<f64>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct WeatherMapInteractionV1 {
+    pub popup_title: String,
+    pub property_keys: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct WeatherMapSourceV1 {
+    pub source_id: String,
+    pub layer: WeatherLayerKindV1,
+    pub title: String,
+    pub encoding: WeatherMapSourceEncodingV1,
+    pub min_zoom: u8,
+    pub max_zoom: u8,
+    pub attribution: String,
+    pub promote_id: Option<String>,
+    pub cluster: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct WeatherMapFrameSourceBindingV1 {
+    pub source_id: String,
+    pub revision: String,
+    pub tilejson_url: Option<String>,
+    pub data_url: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct WeatherMapFrameV1 {
+    pub frame_id: String,
+    pub label: String,
+    pub event_time: DateTime<Utc>,
+    pub valid_time: DateTime<Utc>,
+    pub horizon_hours: u16,
+    pub source_bindings: Vec<WeatherMapFrameSourceBindingV1>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct WeatherMapLayerV1 {
+    pub layer_id: String,
+    pub source_id: String,
+    pub layer: WeatherLayerKindV1,
+    pub title: String,
+    pub render_mode: WeatherMapLayerRenderModeV1,
+    pub source_layer: Option<String>,
+    pub visible_by_default: bool,
+    pub legend: Vec<WeatherMapLegendStopV1>,
+    pub interaction: Option<WeatherMapInteractionV1>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct WeatherMapSceneV1 {
+    pub scene_id: String,
+    pub region_id: String,
+    pub scene_revision: String,
+    pub bounds: GeoBoundsV1,
+    pub default_center: GeoPointV1,
+    pub default_zoom: f64,
+    pub generated_at: DateTime<Utc>,
+    pub active_frame_id: String,
+    pub refresh_interval_seconds: u16,
+    pub frames: Vec<WeatherMapFrameV1>,
+    pub sources: Vec<WeatherMapSourceV1>,
+    pub layers: Vec<WeatherMapLayerV1>,
 }
