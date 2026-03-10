@@ -25,8 +25,11 @@ Every material repository change follows the same GitHub lifecycle:
 5. Rebase on the current target branch before requesting merge.
 6. Open a pull request that references the issue and includes `Closes #<issue-id>` in the body.
    The PR body must also include ADR references, impacted domains, affected consistency class,
-   affected risk tier, rollback path, and validation artifacts.
+   affected risk tier, rollback path, validation artifacts, and execution artifact status.
 7. Merge only after review and required checks pass so GitHub closes the linked issue automatically.
+
+For multi-plane or `high` risk-class work, add `plans/<issue-id>-<slug>/task-contract.json` and
+`plans/<issue-id>-<slug>/EXEC_PLAN.md` before opening the PR.
 
 ## Bootstrap Commands
 
@@ -88,9 +91,7 @@ The GitHub CLI currently does not cover all project-view and workflow configurat
 After applying or changing governance, run:
 
 ```bash
-cargo xtask architecture audit-boundaries
-cargo xtask plugin validate-manifests
-cargo xtask github audit-process
+cargo verify-repo
 ```
 
 Use the audit output to confirm that the live ruleset still matches `.github/governance.toml`, especially for required approvals, merge method restrictions, and status check enforcement.

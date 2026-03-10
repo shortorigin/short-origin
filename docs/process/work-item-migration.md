@@ -1,6 +1,6 @@
 # Work Item Migration
 
-The repository previously tracked work through committed `work-items/` artifacts and a dedicated validator. That process is archived. GitHub issues, pull requests, milestones, and the organization Project are now the active system of record.
+The repository previously tracked work through committed `work-items/` artifacts and a dedicated validator. That process is archived. GitHub issues, pull requests, milestones, and the organization Project are now the active system of record. Repo-linked execution artifacts under `plans/` are an active companion surface for long or high-risk work, not a reactivation of `work-items/`.
 
 ## Active Item Migration
 

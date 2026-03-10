@@ -32,11 +32,10 @@ traceability-field validation.
 Run these from the repository root when you want local parity with the enforced automation:
 
 ```bash
-cargo xtask architecture audit-boundaries
-cargo xtask plugin validate-manifests
-cargo xtask github audit-process
-cargo xtask verify profile core
+cargo verify-repo
 cargo xtask verify profile ui
 ```
 
-The audit command writes JSON and Markdown evidence under `target/process-audit/`.
+For long or high-risk work, keep the matching `plans/<issue-id>-<slug>/` execution artifacts in
+git as part of the same change set. The audit command writes JSON and Markdown evidence under
+`target/process-audit/`.

@@ -8,6 +8,7 @@ In scope:
 - SurrealDB-focused schema definitions under `schemas/surrealdb`.
 - Event contracts under `schemas/events`.
 - Service and integration contracts under `schemas/contracts`.
+- Repository execution contracts such as task-contract validation artifacts under `schemas/contracts`.
 - Plugin/module manifest contracts for governed platform applications.
 - WIT packages for wasmCloud component boundaries under `schemas/wit`.
 - Capital-markets contract families for market data, execution lifecycle, research, portfolio, risk, promotion, and compliance payloads.

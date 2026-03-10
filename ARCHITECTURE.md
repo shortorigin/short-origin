@@ -50,6 +50,7 @@ Each top-level module has one primary concern:
 - `infrastructure/`: environment automation, manifests, and provider configuration.
 - `agents/`: governed agent roles and runtime integration surfaces.
 - `testing/`: fixtures and cross-plane regression support.
+- `plans/`: repo-linked execution artifacts for long, multi-step, or high-risk delivery work.
 - `xtask/`: repository-owned validation and workflow tooling.
 
 ## Runtime and Deployment Model
@@ -98,6 +99,7 @@ Each top-level module has one primary concern:
 
 - [First-Principles Systems Architecture Baseline](docs/architecture/first-principles-systems-architecture-report.md)
 - [First-Principles Implementation Roadmap](docs/architecture/first-principles-implementation-roadmap.md)
+- [Docs Index](docs/README.md)
 - [ADR Catalog](docs/adr/README.md)
 - [Layer Boundaries](docs/architecture/layer-boundaries.md)
 - [Plugin Application Model](docs/architecture/plugin-application-model.md)
@@ -110,6 +112,7 @@ Each top-level module has one primary concern:
 Engineering delivery is GitHub-native and issue-driven. See
 [`DEVELOPMENT_MODEL.md`](DEVELOPMENT_MODEL.md) for the operating model,
 [`docs/process/github-workflow-migration.md`](docs/process/github-workflow-migration.md) for the
-current automation flow, and [`AGENTS.md`](AGENTS.md) for repository-specific architecture and
-agent constraints. Repository-local validation includes both process audit and architecture boundary
-audit through `xtask`.
+current automation flow, [`docs/process/execution-artifacts.md`](docs/process/execution-artifacts.md)
+for repo-linked execution artifacts, and [`AGENTS.md`](AGENTS.md) for repository-specific
+architecture and agent constraints. Repository-local validation includes both process audit and
+architecture boundary audit through `xtask`.

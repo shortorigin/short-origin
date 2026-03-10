@@ -165,7 +165,7 @@ fn run_verify(args: Vec<String>) -> Result<(), String> {
     let profile = match args.as_slice() {
         [profile] => profile.as_str(),
         [first, profile] if first == "profile" => profile.as_str(),
-        _ => return Err("expected `verify profile <core|fast|ui|ui-ci|full>`".to_string()),
+        _ => return Err("expected `verify profile <core|fast|repo|ui|ui-ci|full>`".to_string()),
     };
 
     let workspace_root = workspace_root()?;
@@ -188,6 +188,31 @@ fn run_verify(args: Vec<String>) -> Result<(), String> {
                     &[],
                 ),
             )?;
+        }
+        "repo" => {
+            cargo(&workspace_root, &["fmt", "--all", "--check"])?;
+            cargo(
+                &workspace_root,
+                &workspace_command_with_excludes(
+                    &["clippy", "--workspace", "--all-targets", "--all-features"],
+                    CORE_EXCLUDED_PACKAGES,
+                    &["--", "-D", "warnings"],
+                ),
+            )?;
+            cargo(
+                &workspace_root,
+                &workspace_command_with_excludes(
+                    &["test", "--workspace", "--all-targets"],
+                    CORE_EXCLUDED_PACKAGES,
+                    &[],
+                ),
+            )?;
+            cargo(
+                &workspace_root,
+                &["xtask", "architecture", "audit-boundaries"],
+            )?;
+            cargo(&workspace_root, &["xtask", "plugin", "validate-manifests"])?;
+            cargo(&workspace_root, &["xtask", "github", "audit-process"])?;
         }
         "ui" | "ui-ci" => {
             cargo(
@@ -612,7 +637,7 @@ Commands:
   architecture   Architecture boundary and dependency auditing
   github        GitHub governance sync, PR validation, and process auditing
   plugin        Governed plugin manifest validation
-  verify        Workspace verification profiles
+  verify        Workspace verification profiles, including `repo` for canonical non-UI validation
   delivery      Delivery manifest and component rendering
   ui-hardening  Deterministic UI/browser hardening verification
   ui            Compatibility shim for Trunk browser workflows

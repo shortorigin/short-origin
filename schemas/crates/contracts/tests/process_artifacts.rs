@@ -2,7 +2,8 @@ use chrono::{TimeZone, Utc};
 use contracts::{
     ArchitectureDesignV1, ChangeBatchV1, ImplementationPlanV1, OpenQuestionV1,
     ProcessTraceabilityV1, ProfileEvidenceV1, QuestionSeverityV1, RefinementRecordV1,
-    RequirementsSpecV1, ResearchSynthesisV1, ValidationReportV1, VerificationStatusV1, WorkItemV1,
+    RequirementsSpecV1, ResearchSynthesisV1, TaskContractV1, ValidationReportV1,
+    VerificationStatusV1, WorkItemV1,
 };
 
 fn traceability(work_item_id: &str) -> ProcessTraceabilityV1 {
@@ -45,6 +46,27 @@ fn process_artifacts_round_trip_through_json() {
         current_stage: "refinement".to_owned(),
         child_work_item_ids: vec!["short-origin-process-child".to_owned()],
         decomposition_reason: Some("cross-module initiative".to_owned()),
+    };
+    let task_contract = TaskContractV1 {
+        issue_id: 117,
+        issue_url: "https://github.com/shortorigin/origin/issues/117".to_owned(),
+        branch: "infra/117-execution-discipline-traceability".to_owned(),
+        primary_architectural_plane: "cross-layer".to_owned(),
+        owning_subsystem: ".github governance and xtask validation".to_owned(),
+        architectural_references: vec![
+            "docs/adr/0015-gitops-and-policy-as-code-control-artifacts.md".to_owned(),
+        ],
+        allowed_touchpoints: vec![".github/".to_owned(), "xtask/".to_owned()],
+        non_goals: vec!["do not replace github issues".to_owned()],
+        scope_in: vec!["add execution artifacts".to_owned()],
+        scope_out: vec!["runtime redesign".to_owned()],
+        target_paths: vec!["plans/".to_owned(), "xtask/".to_owned()],
+        acceptance_criteria: vec!["artifacts validate deterministically".to_owned()],
+        validation_commands: vec!["cargo xtask verify profile repo".to_owned()],
+        validation_artifacts: vec!["passing xtask output".to_owned()],
+        rollback_path: "revert the repository-governance changes".to_owned(),
+        exec_plan_required: true,
+        exec_plan_path: "plans/117-execution-discipline-traceability/EXEC_PLAN.md".to_owned(),
     };
     let research = ResearchSynthesisV1 {
         traceability: traceability("short-origin-process"),
@@ -122,6 +144,7 @@ fn process_artifacts_round_trip_through_json() {
     };
 
     let artifacts = [
+        serde_json::to_value(&task_contract).expect("serialize task contract"),
         serde_json::to_value(&work_item).expect("serialize work item"),
         serde_json::to_value(&research).expect("serialize research"),
         serde_json::to_value(&requirements).expect("serialize requirements"),
@@ -132,21 +155,23 @@ fn process_artifacts_round_trip_through_json() {
         serde_json::to_value(&refinement).expect("serialize refinement"),
     ];
 
-    let _: WorkItemV1 = serde_json::from_value(artifacts[0].clone()).expect("parse work item");
+    let _: TaskContractV1 =
+        serde_json::from_value(artifacts[0].clone()).expect("parse task contract");
+    let _: WorkItemV1 = serde_json::from_value(artifacts[1].clone()).expect("parse work item");
     let _: ResearchSynthesisV1 =
-        serde_json::from_value(artifacts[1].clone()).expect("parse research");
+        serde_json::from_value(artifacts[2].clone()).expect("parse research");
     let _: RequirementsSpecV1 =
-        serde_json::from_value(artifacts[2].clone()).expect("parse requirements");
+        serde_json::from_value(artifacts[3].clone()).expect("parse requirements");
     let _: ArchitectureDesignV1 =
-        serde_json::from_value(artifacts[3].clone()).expect("parse architecture");
+        serde_json::from_value(artifacts[4].clone()).expect("parse architecture");
     let _: ImplementationPlanV1 =
-        serde_json::from_value(artifacts[4].clone()).expect("parse implementation plan");
+        serde_json::from_value(artifacts[5].clone()).expect("parse implementation plan");
     let _: ChangeBatchV1 =
-        serde_json::from_value(artifacts[5].clone()).expect("parse change batch");
+        serde_json::from_value(artifacts[6].clone()).expect("parse change batch");
     let _: ValidationReportV1 =
-        serde_json::from_value(artifacts[6].clone()).expect("parse validation report");
+        serde_json::from_value(artifacts[7].clone()).expect("parse validation report");
     let _: RefinementRecordV1 =
-        serde_json::from_value(artifacts[7].clone()).expect("parse refinement record");
+        serde_json::from_value(artifacts[8].clone()).expect("parse refinement record");
 }
 
 #[test]

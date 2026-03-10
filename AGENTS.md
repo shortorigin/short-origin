@@ -1,5 +1,26 @@
 # AGENTS
 
+## Read Order
+- Start with `AGENTS.md`, `ARCHITECTURE.md`, and `docs/architecture/layer-boundaries.md`.
+- Then read the module-local guide or README for the dominant plane you are changing.
+- Use `docs/README.md` for indexed architecture and process references.
+- For long, multi-step, or high-risk work, treat `plans/<issue-id>-<slug>/task-contract.json` and `plans/<issue-id>-<slug>/EXEC_PLAN.md` as the active bounded execution artifacts.
+
+## Instruction Locality
+- Root policy and contributor workflow live in `AGENTS.md`, `CONTRIBUTING.md`, `DEVELOPMENT_MODEL.md`, and `.github/`.
+- Plane-local execution rules live in:
+  - `.github/AGENTS.md`
+  - `schemas/AGENTS.md`
+  - `xtask/AGENTS.md`
+- Module ownership and technical integration details remain in module `README.md` files.
+- Archived `work-items/` artifacts are historical context only.
+
+## Active Execution Artifacts
+- GitHub issues and pull requests remain the system of record.
+- `plans/` is the active repo-local companion surface for long, multi-step, or high-risk work.
+- Multi-plane or `high` risk-class changes must carry a matching `task-contract.json` and `EXEC_PLAN.md`.
+- `complex-task.txt`, `completion-todo.txt`, and other ad hoc root files are not authoritative unless the active issue, task contract, or ExecPlan explicitly references them.
+
 ## Architecture Principles
 - Use Rust as the default implementation language for backend, orchestration, SDK, and tooling components.
 - Treat contracts (`schemas/`) and ontology (`enterprise/ontology`) as source-of-truth interfaces.
@@ -9,7 +30,7 @@
 
 ## Repository Organization
 - Current top-level modules are authoritative:
-  - `enterprise/`, `services/`, `infrastructure/`, `agents/`, `schemas/`, `workflows/`, `platform/`, `ui/`, `shared/`, `testing/`, `docs/`.
+  - `enterprise/`, `services/`, `infrastructure/`, `agents/`, `schemas/`, `workflows/`, `platform/`, `ui/`, `shared/`, `testing/`, `docs/`, `plans/`.
 - Keep ownership local:
   - Domain and policy semantics in `enterprise/`.
   - Runtime service implementation in `services/`.
@@ -18,6 +39,7 @@
   - Runtime/SDK integration in `platform/`.
   - Leptos/Tauri shells, UI adaptation models, and desktop/web host composition in `ui/`.
   - Shared data access, validation, telemetry, and reusable Rust support crates in `shared/`.
+  - Active long-task execution artifacts and templates in `plans/`.
 - Future top-level directories are allowed and recommended for reuse when justified:
   - `contracts/` (generated bindings).
 
@@ -55,10 +77,10 @@
 ## Build, Lint, and Test Standards
 - Required pre-merge quality gates from repository root:
 ```bash
-cargo fmt --all --check
-cargo clippy --workspace --all-targets --all-features -- -D warnings
-cargo test --workspace --all-targets
+cargo verify-repo
 ```
+- `cargo verify-repo` is the canonical non-UI validation surface and expands to repository-owned composition.
+- Run `cargo xtask verify profile ui` and `cargo xtask ui-hardening` when the change touches `ui/`.
 - Changes affecting integration boundaries MUST include integration tests.
 - Contract or schema changes MUST include compatibility tests or fixture updates.
 - CI failures block merge; no bypass without documented incident approval.

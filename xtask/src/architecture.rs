@@ -976,6 +976,7 @@ pub(crate) fn classify_repo_path(path: &str) -> Plane {
         return Plane::Github;
     }
     if path.starts_with("docs/")
+        || path.starts_with("plans/")
         || matches!(
             path,
             "README.md"
@@ -1109,6 +1110,10 @@ mod tests {
     #[test]
     fn classify_repo_path_maps_docs_and_github_files() {
         assert_eq!(classify_repo_path("README.md"), Plane::Docs);
+        assert_eq!(
+            classify_repo_path("plans/117-example/EXEC_PLAN.md"),
+            Plane::Docs
+        );
         assert_eq!(
             classify_repo_path(".github/workflows/governance.yml"),
             Plane::Github

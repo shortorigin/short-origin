@@ -25,6 +25,14 @@ allow_merge_commit = false
 allow_rebase_merge = false
 delete_branch_on_merge = true
 
+[execution_artifacts]
+root = "plans"
+task_contract_filename = "task-contract.json"
+exec_plan_filename = "EXEC_PLAN.md"
+require_for_multi_plane = true
+require_for_risk_classes = ["high"]
+recommend_for_risk_classes = ["medium"]
+
 [project]
 title = "Engineering Flow"
 short_description = "Organization-wide GitHub-native Scrumban board for issue-driven delivery and release milestones."

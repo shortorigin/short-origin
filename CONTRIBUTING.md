@@ -35,10 +35,13 @@ All material changes are issue-driven and must follow the same GitHub workflow:
    merge quickly.
 8. Keep each branch focused on one dominant subsystem or one explicitly sequenced cross-layer
    objective.
-9. If the work is stacked, create the child branch from its parent branch and open the child PR against the parent branch until the base PR lands.
-10. Rebase on the current target branch before requesting merge, and rebase again if the target branch moves while the PR is open.
-11. Open a pull request targeting `main` or the parent branch in a stack that:
+9. For long, multi-step, multi-plane, or `high` risk-class work, add execution artifacts under
+   `plans/<issue-id>-<slug>/` using the templates in `plans/templates/`.
+10. If the work is stacked, create the child branch from its parent branch and open the child PR against the parent branch until the base PR lands.
+11. Rebase on the current target branch before requesting merge, and rebase again if the target branch moves while the PR is open.
+12. Open a pull request targeting `main` or the parent branch in a stack that:
    - references the originating issue,
+   - records the execution artifact status or matching plan bundle path,
    - records ADR references and impacted domains,
    - records the affected consistency class and affected risk tier,
    - explains the technical change,
@@ -47,7 +50,7 @@ All material changes are issue-driven and must follow the same GitHub workflow:
    - records the risk class,
    - includes an `Architecture Delta` section when the PR spans multiple architectural planes,
    - includes a closing directive such as `Closes #<issue-id>`.
-12. Merge only after review and required checks pass so GitHub automatically closes the linked issue.
+13. Merge only after review and required checks pass so GitHub automatically closes the linked issue.
 
 Example commands:
 
@@ -55,6 +58,9 @@ Example commands:
 gh issue create
 git fetch origin
 git switch -c fix/123-runtime-error-contract origin/main
+mkdir -p plans/123-runtime-error-contract
+cp plans/templates/task-contract.template.json plans/123-runtime-error-contract/task-contract.json
+cp plans/templates/EXEC_PLAN.template.md plans/123-runtime-error-contract/EXEC_PLAN.md
 gh pr create --fill
 ```
 
@@ -63,6 +69,9 @@ gh pr create --fill
 - No direct commits to `main`.
 - PR titles must use conventional commits: `type(scope): description`.
 - The PR body must reference a same-repository issue with `Closes #<issue-id>` or an equivalent issue URL.
+- The PR body must include an `Execution Artifacts` section.
+- The issue id in the branch name must match the issue closed in the PR body.
+- Multi-plane or `high` risk-class PRs must include exactly one matching `plans/<issue-id>-<slug>/task-contract.json` and `plans/<issue-id>-<slug>/EXEC_PLAN.md`.
 - The PR body must include ADR references, impacted domains, affected consistency class, affected risk tier, rollback path, and validation artifacts.
 - Source files, docs, UI strings, fixtures, generated assets, commit messages, PR text, and issue text must use repository/product terminology only; do not leak Codex, OpenAI, ChatGPT, or other assistant/vendor branding unless a third-party reference or legal attribution requires it.
 - Required checks must pass before merge.
@@ -111,12 +120,14 @@ Use milestones to group issues into release objectives such as `v0.1 - MVP` and 
 Run the baseline checks from the repository root:
 
 ```bash
-cargo fmt --all --check
-cargo clippy --workspace --all-targets --all-features -- -D warnings
-cargo test --workspace --all-targets
-cargo xtask architecture audit-boundaries
-cargo xtask plugin validate-manifests
-cargo xtask github audit-process
+cargo verify-repo
+```
+
+If the change touches `ui/`, also run:
+
+```bash
+cargo xtask verify profile ui
+cargo xtask ui-hardening
 ```
 
 If your change affects dependency security posture, validate `cargo audit` locally or rely on the `Security Scan` workflow in CI.

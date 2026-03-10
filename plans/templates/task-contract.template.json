@@ -1,0 +1,50 @@
+{
+  "issue_id": 123,
+  "issue_url": "https://github.com/shortorigin/origin/issues/123",
+  "branch": "infra/123-example-execution-scope",
+  "primary_architectural_plane": "cross-layer",
+  "owning_subsystem": ".github governance and xtask validation",
+  "architectural_references": [
+    "docs/adr/0011-ai-as-planner-over-typed-tools.md",
+    "docs/adr/0015-gitops-and-policy-as-code-control-artifacts.md"
+  ],
+  "allowed_touchpoints": [
+    ".github/",
+    "xtask/",
+    "schemas/",
+    "plans/",
+    "docs/"
+  ],
+  "non_goals": [
+    "Do not redesign product runtime architecture.",
+    "Do not replace GitHub issues or pull requests as the system of record."
+  ],
+  "scope_in": [
+    "Define the bounded implementation surface.",
+    "Record the exact validation commands and review artifacts."
+  ],
+  "scope_out": [
+    "Unrelated refactors outside the issue scope."
+  ],
+  "target_paths": [
+    ".github/",
+    "xtask/",
+    "schemas/",
+    "plans/"
+  ],
+  "acceptance_criteria": [
+    "Repository guidance is locally discoverable.",
+    "Execution artifacts are machine-checkable."
+  ],
+  "validation_commands": [
+    "cargo xtask verify profile repo",
+    "cargo xtask github audit-process"
+  ],
+  "validation_artifacts": [
+    "Passing xtask output",
+    "Reviewed execution artifact files"
+  ],
+  "rollback_path": "Revert the governance, xtask, schema, and docs changes together.",
+  "exec_plan_required": true,
+  "exec_plan_path": "plans/123-example-execution-scope/EXEC_PLAN.md"
+}

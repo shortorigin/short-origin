@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TaskContractV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "issue_id",
+    "issue_url",
+    "branch",
+    "primary_architectural_plane",
+    "owning_subsystem",
+    "architectural_references",
+    "allowed_touchpoints",
+    "non_goals",
+    "scope_in",
+    "scope_out",
+    "target_paths",
+    "acceptance_criteria",
+    "validation_commands",
+    "validation_artifacts",
+    "rollback_path",
+    "exec_plan_required",
+    "exec_plan_path"
+  ],
+  "properties": {
+    "issue_id": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "issue_url": {
+      "type": "string",
+      "pattern": "^https://github\\.com/[^/]+/[^/]+/issues/[0-9]+$"
+    },
+    "branch": {
+      "type": "string",
+      "pattern": "^(feature|fix|infra|docs|refactor|research)/[0-9]+-[a-z0-9-]+$"
+    },
+    "primary_architectural_plane": {
+      "type": "string",
+      "enum": [
+        "enterprise",
+        "schemas",
+        "shared",
+        "platform",
+        "services",
+        "workflows",
+        "ui",
+        "infrastructure",
+        "agents",
+        "testing",
+        "docs",
+        ".github",
+        "xtask",
+        "cross-layer"
+      ]
+    },
+    "owning_subsystem": {
+      "type": "string",
+      "minLength": 1
+    },
+    "architectural_references": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "allowed_touchpoints": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "non_goals": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "scope_in": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "scope_out": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "target_paths": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "validation_commands": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "validation_artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "rollback_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "exec_plan_required": {
+      "type": "boolean"
+    },
+    "exec_plan_path": {
+      "type": "string",
+      "pattern": "^plans/[0-9]+-[a-z0-9-]+/EXEC_PLAN\\.md$"
+    }
+  }
+}

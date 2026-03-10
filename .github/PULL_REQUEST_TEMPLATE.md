@@ -4,6 +4,11 @@
 
 Closes #
 
+## Execution Artifacts
+
+- Task contract: `plans/<issue-id>-<slug>/task-contract.json` | `Not required`
+- Exec plan: `plans/<issue-id>-<slug>/EXEC_PLAN.md` | `Not required`
+
 ## ADR References
 
 -

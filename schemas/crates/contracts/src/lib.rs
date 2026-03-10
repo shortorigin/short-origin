@@ -233,6 +233,27 @@ impl ProcessTraceabilityV1 {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct TaskContractV1 {
+    pub issue_id: u64,
+    pub issue_url: String,
+    pub branch: String,
+    pub primary_architectural_plane: String,
+    pub owning_subsystem: String,
+    pub architectural_references: Vec<String>,
+    pub allowed_touchpoints: Vec<String>,
+    pub non_goals: Vec<String>,
+    pub scope_in: Vec<String>,
+    pub scope_out: Vec<String>,
+    pub target_paths: Vec<String>,
+    pub acceptance_criteria: Vec<String>,
+    pub validation_commands: Vec<String>,
+    pub validation_artifacts: Vec<String>,
+    pub rollback_path: String,
+    pub exec_plan_required: bool,
+    pub exec_plan_path: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct WorkItemV1 {
     #[serde(flatten)]
     pub traceability: ProcessTraceabilityV1,

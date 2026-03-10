@@ -1,5 +1,6 @@
 use crate::architecture::{planes_for_paths, Plane};
 use crate::common::workspace_root;
+use jsonschema::JSONSchema;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -19,6 +20,7 @@ struct GovernanceConfig {
     version: u32,
     organization: OrganizationConfig,
     repository_defaults: RepositoryDefaults,
+    execution_artifacts: ExecutionArtifactsConfig,
     project: ProjectConfig,
     labels: Vec<LabelConfig>,
     milestones: Vec<MilestoneConfig>,
@@ -47,6 +49,16 @@ struct RepositoryDefaults {
     allow_merge_commit: bool,
     allow_rebase_merge: bool,
     delete_branch_on_merge: bool,
+}
+
+#[derive(Debug, Deserialize)]
+struct ExecutionArtifactsConfig {
+    root: String,
+    task_contract_filename: String,
+    exec_plan_filename: String,
+    require_for_multi_plane: bool,
+    require_for_risk_classes: Vec<String>,
+    recommend_for_risk_classes: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -109,6 +121,23 @@ struct WorkflowAudit {
     environment_targets: Vec<String>,
     shared_setup_steps: Vec<String>,
     reusable_logic_candidates: Vec<String>,
+}
+
+#[derive(Debug)]
+struct ExecutionArtifactsValidationInput {
+    issue_id: u64,
+    branch: String,
+    risk_class: String,
+    changed_files: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct TaskContractDocument {
+    issue_id: u64,
+    issue_url: String,
+    branch: String,
+    exec_plan_required: bool,
+    exec_plan_path: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -246,6 +275,9 @@ pub fn run(args: Vec<String>) -> Result<(), String> {
     match args.split_first() {
         Some((command, rest)) if command == "sync" => sync(rest),
         Some((command, rest)) if command == "validate-pr" => validate_pr(rest),
+        Some((command, rest)) if command == "validate-execution-artifacts" => {
+            validate_execution_artifacts(rest)
+        }
         Some((command, rest)) if command == "audit-process" => audit_process(rest),
         Some((command, _)) => Err(format!("unknown github xtask command `{command}`")),
         None => Err(help()),
@@ -314,6 +346,82 @@ fn validate_pr(args: &[String]) -> Result<(), String> {
     println!(
         "validated PR governance for branch `{}` with title `{}`",
         event.branch, event.title
+    );
+    Ok(())
+}
+
+fn validate_execution_artifacts(args: &[String]) -> Result<(), String> {
+    let mut config_path = PathBuf::from(".github/governance.toml");
+    let mut issue_id: Option<u64> = None;
+    let mut branch: Option<String> = None;
+    let mut risk_class: Option<String> = None;
+    let mut changed_files = Vec::new();
+    let mut index = 0usize;
+
+    while index < args.len() {
+        match args[index].as_str() {
+            "--config" => {
+                let Some(path) = args.get(index + 1) else {
+                    return Err("missing value for --config".to_owned());
+                };
+                config_path = PathBuf::from(path);
+                index += 2;
+            }
+            "--issue-id" => {
+                let Some(value) = args.get(index + 1) else {
+                    return Err("missing value for --issue-id".to_owned());
+                };
+                issue_id = Some(
+                    value
+                        .parse::<u64>()
+                        .map_err(|error| format!("invalid --issue-id `{value}`: {error}"))?,
+                );
+                index += 2;
+            }
+            "--branch" => {
+                let Some(value) = args.get(index + 1) else {
+                    return Err("missing value for --branch".to_owned());
+                };
+                branch = Some(value.clone());
+                index += 2;
+            }
+            "--risk-class" => {
+                let Some(value) = args.get(index + 1) else {
+                    return Err("missing value for --risk-class".to_owned());
+                };
+                risk_class = Some(value.clone());
+                index += 2;
+            }
+            "--changed-file" => {
+                let Some(value) = args.get(index + 1) else {
+                    return Err("missing value for --changed-file".to_owned());
+                };
+                changed_files.push(value.clone());
+                index += 2;
+            }
+            other => {
+                return Err(format!(
+                    "unknown validate-execution-artifacts argument `{other}`"
+                ))
+            }
+        }
+    }
+
+    let risk_class = risk_class.ok_or_else(|| "missing --risk-class".to_owned())?;
+    let risk_class = normalized_risk_class(&risk_class).ok_or_else(|| {
+        "invalid --risk-class; expected one of `low`, `medium`, or `high`".to_owned()
+    })?;
+    let input = ExecutionArtifactsValidationInput {
+        issue_id: issue_id.ok_or_else(|| "missing --issue-id".to_owned())?,
+        branch: branch.ok_or_else(|| "missing --branch".to_owned())?,
+        risk_class,
+        changed_files,
+    };
+    let config = load_config(&config_path)?;
+    validate_execution_artifacts_in_workspace(&workspace_root()?, &config, &input)?;
+    println!(
+        "validated execution artifacts for branch `{}` and issue `#{}`",
+        input.branch, input.issue_id
     );
     Ok(())
 }
@@ -401,15 +509,21 @@ fn load_documented_process(workspace_root: &Path) -> Result<DocumentedProcess, S
         "CONTRIBUTING.md".to_string(),
         "DEVELOPMENT_MODEL.md".to_string(),
         "ARCHITECTURE.md".to_string(),
+        "docs/README.md".to_string(),
         "docs/architecture/first-principles-systems-architecture-report.md".to_string(),
         "docs/architecture/first-principles-implementation-roadmap.md".to_string(),
         "docs/adr/README.md".to_string(),
         "docs/architecture/layer-boundaries.md".to_string(),
         "docs/architecture/plugin-application-model.md".to_string(),
         "docs/architecture/runtime-composition.md".to_string(),
+        "docs/process/execution-artifacts.md".to_string(),
         "docs/process/github-governance-rollout.md".to_string(),
         "docs/process/github-workflow-migration.md".to_string(),
         "docs/process/platform-regression-guardrails.md".to_string(),
+        "plans/README.md".to_string(),
+        ".github/AGENTS.md".to_string(),
+        "schemas/AGENTS.md".to_string(),
+        "xtask/AGENTS.md".to_string(),
         ".github/PULL_REQUEST_TEMPLATE.md".to_string(),
         ".github/governance.toml".to_string(),
     ];
@@ -423,6 +537,9 @@ fn load_documented_process(workspace_root: &Path) -> Result<DocumentedProcess, S
     let architecture = read("ARCHITECTURE.md")?;
     let workflow_migration = read("docs/process/github-workflow-migration.md")?;
     let governance = load_config(&workspace_root.join(".github/governance.toml"))?;
+    let documents_reference = |document: &str, command: &str| {
+        document.contains(command) || document.contains("cargo verify-repo")
+    };
 
     let branch_model = if development.contains("main` is the only long-lived branch")
         && contributing.contains("No direct commits to `main`")
@@ -449,6 +566,7 @@ fn load_documented_process(workspace_root: &Path) -> Result<DocumentedProcess, S
     let required_pr_sections = vec![
         "Summary".to_string(),
         "Linked Issue".to_string(),
+        "Execution Artifacts".to_string(),
         "ADR References".to_string(),
         "Impacted Domains".to_string(),
         "Layers Touched".to_string(),
@@ -493,15 +611,32 @@ fn load_documented_process(workspace_root: &Path) -> Result<DocumentedProcess, S
         required_issue_fields,
         automatic_dev_promotion: readme.contains("auto-promote the `dev` environment")
             || development.contains("auto-deploys `dev`"),
-        architecture_validation_documented: readme
-            .contains("cargo xtask architecture audit-boundaries")
-            && contributing.contains("cargo xtask architecture audit-boundaries")
-            && development.contains("cargo xtask architecture audit-boundaries")
-            && workflow_migration.contains("cargo xtask architecture audit-boundaries"),
-        plugin_validation_documented: readme.contains("cargo xtask plugin validate-manifests")
-            && contributing.contains("cargo xtask plugin validate-manifests")
-            && development.contains("cargo xtask plugin validate-manifests")
-            && workflow_migration.contains("cargo xtask plugin validate-manifests"),
+        architecture_validation_documented: documents_reference(
+            &readme,
+            "cargo xtask architecture audit-boundaries",
+        ) && documents_reference(
+            &contributing,
+            "cargo xtask architecture audit-boundaries",
+        ) && documents_reference(
+            &development,
+            "cargo xtask architecture audit-boundaries",
+        ) && documents_reference(
+            &workflow_migration,
+            "cargo xtask architecture audit-boundaries",
+        ),
+        plugin_validation_documented: documents_reference(
+            &readme,
+            "cargo xtask plugin validate-manifests",
+        ) && documents_reference(
+            &contributing,
+            "cargo xtask plugin validate-manifests",
+        ) && documents_reference(
+            &development,
+            "cargo xtask plugin validate-manifests",
+        ) && documents_reference(
+            &workflow_migration,
+            "cargo xtask plugin validate-manifests",
+        ),
     })
 }
 
@@ -736,18 +871,21 @@ fn collect_audit_defects(
 
     if !documented.architecture_validation_documented {
         defects.push(
-            "contributor docs must reference `cargo xtask architecture audit-boundaries`"
+            "contributor docs must reference the architecture audit directly or through `cargo verify-repo`"
                 .to_owned(),
         );
     }
     if !documented.plugin_validation_documented {
         defects.push(
-            "contributor docs must reference `cargo xtask plugin validate-manifests`".to_owned(),
+            "contributor docs must reference plugin validation directly or through `cargo verify-repo`"
+                .to_owned(),
         );
     }
 
     defects.extend(audit_issue_templates(&documented.required_issue_fields)?);
     defects.extend(audit_pr_template(&documented.required_pr_sections)?);
+    defects.extend(audit_nested_agent_guides()?);
+    defects.extend(audit_docs_indexes()?);
     defects.extend(audit_governance_workflow_for_architecture_step()?);
     defects.extend(audit_adr_corpus(&workspace_root()?)?);
 
@@ -810,6 +948,56 @@ fn audit_pr_template(required_sections: &[String]) -> Result<Vec<String>, String
     Ok(defects)
 }
 
+fn audit_nested_agent_guides() -> Result<Vec<String>, String> {
+    let workspace_root = workspace_root()?;
+    let root_agents = fs::read_to_string(workspace_root.join("AGENTS.md"))
+        .map_err(|error| format!("failed to read `AGENTS.md`: {error}"))?;
+    let mut defects = Vec::new();
+    for path in [".github/AGENTS.md", "schemas/AGENTS.md", "xtask/AGENTS.md"] {
+        if !workspace_root.join(path).is_file() {
+            defects.push(format!("required nested agent guide `{path}` is missing"));
+        }
+        if !root_agents.contains(path) {
+            defects.push(format!(
+                "top-level `AGENTS.md` must reference nested guide `{path}`"
+            ));
+        }
+    }
+    Ok(defects)
+}
+
+fn audit_docs_indexes() -> Result<Vec<String>, String> {
+    let workspace_root = workspace_root()?;
+    let root_readme = fs::read_to_string(workspace_root.join("README.md"))
+        .map_err(|error| format!("failed to read `README.md`: {error}"))?;
+    let docs_index_path = workspace_root.join("docs/README.md");
+    if !docs_index_path.is_file() {
+        return Ok(vec![
+            "required docs index `docs/README.md` is missing".to_owned()
+        ]);
+    }
+
+    let docs_index = fs::read_to_string(&docs_index_path)
+        .map_err(|error| format!("failed to read `{}`: {error}", docs_index_path.display()))?;
+    let mut defects = Vec::new();
+    if !root_readme.contains("docs/README.md") {
+        defects.push("root `README.md` must reference `docs/README.md`".to_owned());
+    }
+    for required in [
+        "architecture/layer-boundaries.md",
+        "process/execution-artifacts.md",
+        "process/github-governance-rollout.md",
+        "adr/README.md",
+    ] {
+        if !docs_index.contains(required) {
+            defects.push(format!(
+                "`docs/README.md` must reference `{required}` for discoverability"
+            ));
+        }
+    }
+    Ok(defects)
+}
+
 fn audit_governance_workflow_for_architecture_step() -> Result<Vec<String>, String> {
     let workspace_root = workspace_root()?;
     let path = ".github/workflows/governance.yml";
@@ -824,6 +1012,12 @@ fn audit_governance_workflow_for_architecture_step() -> Result<Vec<String>, Stri
     if !raw.contains("cargo xtask plugin validate-manifests") {
         defects.push(
             "governance workflow must run `cargo xtask plugin validate-manifests`".to_owned(),
+        );
+    }
+    if !raw.contains("cargo xtask github validate-pr") {
+        defects.push(
+            "governance workflow must run `cargo xtask github validate-pr` for PR traceability enforcement"
+                .to_owned(),
         );
     }
     Ok(defects)
@@ -1488,6 +1682,12 @@ fn render_repo_plan(config: &GovernanceConfig, repository: &str) -> String {
             config.repository_defaults.branch_name_pattern
         ),
         format!(
+            "- execution artifacts live under `{}`; required for multi-plane work and risk classes [{}], recommended for risk classes [{}]",
+            config.execution_artifacts.root,
+            config.execution_artifacts.require_for_risk_classes.join(", "),
+            config.execution_artifacts.recommend_for_risk_classes.join(", ")
+        ),
+        format!(
             "- governance workflow validates PR title regex `{}` and linked issue references",
             config.repository_defaults.pr_title_pattern
         ),
@@ -1945,11 +2145,6 @@ fn validate_pr_event(config: &GovernanceConfig, event: &PullRequestEvent) -> Res
         .map_err(|error| format!("invalid branch_name_pattern regex in config: {error}"))?;
     let title_regex = Regex::new(&config.repository_defaults.pr_title_pattern)
         .map_err(|error| format!("invalid pr_title_pattern regex in config: {error}"))?;
-    let same_repo_issue_regex = Regex::new(&format!(
-        "(?m)(#[0-9]+\\b|https://github\\.com/{}/issues/[0-9]+\\b)",
-        regex::escape(&event.repository)
-    ))
-    .map_err(|error| format!("failed to build same-repo issue regex: {error}"))?;
 
     let mut failures = Vec::new();
     if !branch_regex.is_match(&event.branch) {
@@ -1964,15 +2159,10 @@ fn validate_pr_event(config: &GovernanceConfig, event: &PullRequestEvent) -> Res
             event.title, config.repository_defaults.pr_title_pattern
         ));
     }
-    if !same_repo_issue_regex.is_match(&event.body) {
-        failures.push(
-            "PR body must reference a same-repository issue using `#123` or a full issue URL"
-                .to_owned(),
-        );
-    }
     for section in [
         "Summary",
         "Linked Issue",
+        "Execution Artifacts",
         "ADR References",
         "Impacted Domains",
         "Layers Touched",
@@ -1995,6 +2185,27 @@ fn validate_pr_event(config: &GovernanceConfig, event: &PullRequestEvent) -> Res
             _ => failures.push(format!(
                 "PR body must include a non-empty `{section}` section"
             )),
+        }
+    }
+
+    let linked_issue_section = markdown_section(&event.body, "Linked Issue").unwrap_or_default();
+    let linked_issue_ids = extract_closing_issue_ids(&linked_issue_section, &event.repository)?;
+    if linked_issue_ids.is_empty() {
+        failures.push(
+            "Linked Issue section must include exactly one same-repository closing directive such as `Closes #123`"
+                .to_owned(),
+        );
+    } else if linked_issue_ids.len() > 1 {
+        failures.push(
+            "Linked Issue section must close exactly one same-repository issue for the branch"
+                .to_owned(),
+        );
+    }
+    if let Some(branch_issue_id) = issue_id_from_branch(&event.branch) {
+        if linked_issue_ids.len() == 1 && !linked_issue_ids.contains(&branch_issue_id) {
+            failures.push(format!(
+                "branch issue id `#{branch_issue_id}` must match the issue closed in the Linked Issue section"
+            ));
         }
     }
 
@@ -2028,11 +2239,314 @@ fn validate_pr_event(config: &GovernanceConfig, event: &PullRequestEvent) -> Res
         }
     }
 
+    let risk_class_section = markdown_section(&event.body, "Risk Class").unwrap_or_default();
+    let Some(risk_class) = normalized_risk_class(&risk_class_section) else {
+        failures.push(
+            "Risk Class section must contain exactly one of `low`, `medium`, or `high`".to_owned(),
+        );
+        return Err(failures.join("; "));
+    };
+
+    if let Some(issue_id) = issue_id_from_branch(&event.branch) {
+        let input = ExecutionArtifactsValidationInput {
+            issue_id,
+            branch: event.branch.clone(),
+            risk_class,
+            changed_files: changed_files.clone(),
+        };
+        if let Err(error) =
+            validate_execution_artifacts_in_workspace(&workspace_root()?, config, &input)
+        {
+            failures.push(error);
+        }
+    }
+
     if failures.is_empty() {
         Ok(())
     } else {
         Err(failures.join("; "))
     }
+}
+
+fn issue_id_from_branch(branch: &str) -> Option<u64> {
+    let (_, rest) = branch.split_once('/')?;
+    let (issue_id, _) = rest.split_once('-')?;
+    issue_id.parse().ok()
+}
+
+fn extract_closing_issue_ids(body: &str, repository: &str) -> Result<BTreeSet<u64>, String> {
+    let regex = Regex::new(&format!(
+        "(?im)\\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\\b\\s+(?:https://github\\.com/{repo}/issues/(?P<full>[0-9]+)|#(?P<short>[0-9]+))",
+        repo = regex::escape(repository)
+    ))
+    .map_err(|error| format!("failed to build issue extraction regex: {error}"))?;
+
+    Ok(regex
+        .captures_iter(body)
+        .filter_map(|captures| {
+            captures
+                .name("full")
+                .or_else(|| captures.name("short"))
+                .and_then(|capture| capture.as_str().parse::<u64>().ok())
+        })
+        .collect())
+}
+
+fn normalized_risk_class(section: &str) -> Option<String> {
+    let regex = Regex::new(r"(?i)\b(low|medium|high)\b").ok()?;
+    let matches = regex
+        .captures_iter(section)
+        .filter_map(|captures| {
+            captures
+                .get(1)
+                .map(|capture| capture.as_str().to_ascii_lowercase())
+        })
+        .collect::<BTreeSet<_>>();
+    if matches.len() == 1 {
+        matches.into_iter().next()
+    } else {
+        None
+    }
+}
+
+fn validate_execution_artifacts_in_workspace(
+    workspace_root: &Path,
+    config: &GovernanceConfig,
+    input: &ExecutionArtifactsValidationInput,
+) -> Result<(), String> {
+    let require_artifacts = execution_artifacts_required(
+        &config.execution_artifacts,
+        &input.risk_class,
+        &input.changed_files,
+    );
+    let artifact_root = workspace_root.join(&config.execution_artifacts.root);
+    let matching_dirs = matching_execution_artifact_dirs(&artifact_root, input.issue_id)?;
+
+    if !require_artifacts && matching_dirs.is_empty() {
+        return Ok(());
+    }
+
+    if matching_dirs.len() != 1 {
+        let requirement = if require_artifacts {
+            "required"
+        } else {
+            "present"
+        };
+        return Err(format!(
+            "execution artifacts are {requirement} for issue `#{}`; expected exactly one directory under `{}` matching `{}-*`, found {}",
+            input.issue_id,
+            config.execution_artifacts.root,
+            input.issue_id,
+            matching_dirs.len()
+        ));
+    }
+
+    let artifact_dir = &matching_dirs[0];
+    let task_contract_path = artifact_dir.join(&config.execution_artifacts.task_contract_filename);
+    let exec_plan_path = artifact_dir.join(&config.execution_artifacts.exec_plan_filename);
+    if !task_contract_path.is_file() {
+        return Err(format!(
+            "execution artifact `{}` is missing",
+            relative_path(workspace_root, &task_contract_path)
+        ));
+    }
+    if !exec_plan_path.is_file() {
+        return Err(format!(
+            "execution artifact `{}` is missing",
+            relative_path(workspace_root, &exec_plan_path)
+        ));
+    }
+
+    validate_task_contract_file(
+        workspace_root,
+        config,
+        &task_contract_path,
+        &exec_plan_path,
+        input,
+        require_artifacts,
+    )?;
+    validate_exec_plan_file(&exec_plan_path)?;
+    Ok(())
+}
+
+fn execution_artifacts_required(
+    config: &ExecutionArtifactsConfig,
+    risk_class: &str,
+    changed_files: &[String],
+) -> bool {
+    let non_trivial_planes = planes_for_paths(changed_files.iter().map(String::as_str))
+        .into_iter()
+        .filter(|plane| !matches!(plane, Plane::Docs | Plane::Github | Plane::WorkItems))
+        .collect::<BTreeSet<_>>();
+    (config.require_for_multi_plane && non_trivial_planes.len() > 1)
+        || config
+            .require_for_risk_classes
+            .iter()
+            .any(|candidate| candidate.eq_ignore_ascii_case(risk_class))
+}
+
+fn matching_execution_artifact_dirs(root: &Path, issue_id: u64) -> Result<Vec<PathBuf>, String> {
+    if !root.exists() {
+        return Ok(Vec::new());
+    }
+
+    let prefix = format!("{issue_id}-");
+    let mut matches = Vec::new();
+    for entry in fs::read_dir(root).map_err(|error| {
+        format!(
+            "failed to read execution artifact root `{}`: {error}",
+            root.display()
+        )
+    })? {
+        let entry = entry.map_err(|error| {
+            format!(
+                "failed to read execution artifact entry in `{}`: {error}",
+                root.display()
+            )
+        })?;
+        if entry
+            .file_type()
+            .map_err(|error| format!("failed to inspect `{}`: {error}", entry.path().display()))?
+            .is_dir()
+        {
+            let name = entry.file_name();
+            if name.to_string_lossy().starts_with(&prefix) {
+                matches.push(entry.path());
+            }
+        }
+    }
+
+    matches.sort();
+    Ok(matches)
+}
+
+fn validate_task_contract_file(
+    workspace_root: &Path,
+    config: &GovernanceConfig,
+    task_contract_path: &Path,
+    exec_plan_path: &Path,
+    input: &ExecutionArtifactsValidationInput,
+    require_artifacts: bool,
+) -> Result<(), String> {
+    let schema_path = workspace_root.join("schemas/contracts/v1/task-contract-v1.json");
+    let schema_raw = fs::read_to_string(&schema_path)
+        .map_err(|error| format!("failed to read `{}`: {error}", schema_path.display()))?;
+    let schema_json: Value = serde_json::from_str(&schema_raw)
+        .map_err(|error| format!("failed to parse `{}`: {error}", schema_path.display()))?;
+    let validator =
+        JSONSchema::compile(&schema_json).map_err(|error| format!("schema error: {error}"))?;
+
+    let raw = fs::read_to_string(task_contract_path)
+        .map_err(|error| format!("failed to read `{}`: {error}", task_contract_path.display()))?;
+    let json_value: Value = serde_json::from_str(&raw).map_err(|error| {
+        format!(
+            "failed to parse `{}`: {error}",
+            task_contract_path.display()
+        )
+    })?;
+    if let Err(errors) = validator.validate(&json_value) {
+        let details = errors
+            .map(|error| format!("{}: {}", error.instance_path, error))
+            .collect::<Vec<_>>()
+            .join("; ");
+        return Err(format!(
+            "task contract `{}` failed schema validation: {details}",
+            relative_path(workspace_root, task_contract_path)
+        ));
+    }
+
+    let contract: TaskContractDocument = serde_json::from_value(json_value).map_err(|error| {
+        format!(
+            "failed to deserialize task contract `{}`: {error}",
+            relative_path(workspace_root, task_contract_path)
+        )
+    })?;
+    if contract.issue_id != input.issue_id {
+        return Err(format!(
+            "task contract `{}` must declare issue id `#{}`, found `#{}`",
+            relative_path(workspace_root, task_contract_path),
+            input.issue_id,
+            contract.issue_id
+        ));
+    }
+    if contract.branch != input.branch {
+        return Err(format!(
+            "task contract `{}` must declare branch `{}`, found `{}`",
+            relative_path(workspace_root, task_contract_path),
+            input.branch,
+            contract.branch
+        ));
+    }
+    let expected_issue_url = format!(
+        "https://github.com/{}/issues/{}",
+        default_repository(config),
+        input.issue_id
+    );
+    if contract.issue_url != expected_issue_url {
+        return Err(format!(
+            "task contract `{}` must declare issue URL `{expected_issue_url}`, found `{}`",
+            relative_path(workspace_root, task_contract_path),
+            contract.issue_url
+        ));
+    }
+    let expected_exec_plan_path = relative_path(workspace_root, exec_plan_path);
+    if contract.exec_plan_path != expected_exec_plan_path {
+        return Err(format!(
+            "task contract `{}` must point `exec_plan_path` at `{expected_exec_plan_path}`, found `{}`",
+            relative_path(workspace_root, task_contract_path),
+            contract.exec_plan_path
+        ));
+    }
+    if require_artifacts && !contract.exec_plan_required {
+        return Err(format!(
+            "task contract `{}` must set `exec_plan_required` to true when execution artifacts are required",
+            relative_path(workspace_root, task_contract_path)
+        ));
+    }
+
+    Ok(())
+}
+
+fn validate_exec_plan_file(path: &Path) -> Result<(), String> {
+    const REQUIRED_HEADINGS: [&str; 7] = [
+        "Summary",
+        "Task Contract",
+        "Scope Boundaries",
+        "Implementation Slices",
+        "Validation Plan",
+        "Rollout and Rollback",
+        "Open Questions",
+    ];
+
+    let raw = fs::read_to_string(path)
+        .map_err(|error| format!("failed to read `{}`: {error}", path.display()))?;
+    let headings = raw
+        .lines()
+        .filter_map(|line| line.strip_prefix("## "))
+        .map(str::trim)
+        .collect::<Vec<_>>();
+    if headings != REQUIRED_HEADINGS {
+        return Err(format!(
+            "execution plan `{}` must use exact headings {:?}, found {:?}",
+            path.display(),
+            REQUIRED_HEADINGS,
+            headings
+        ));
+    }
+
+    for heading in REQUIRED_HEADINGS {
+        match markdown_section(&raw, heading) {
+            Some(contents) if !contents.trim().is_empty() => {}
+            _ => {
+                return Err(format!(
+                    "execution plan `{}` must include non-empty `{heading}` content",
+                    path.display()
+                ))
+            }
+        }
+    }
+
+    Ok(())
 }
 
 fn markdown_section(body: &str, heading: &str) -> Option<String> {
@@ -2252,6 +2766,7 @@ usage: cargo xtask github <subcommand> ...
 
 Subcommands:
   sync           Sync repository governance settings from .github/governance.toml
+  validate-execution-artifacts  Validate plan/task-contract artifacts for an issue branch
   validate-pr    Validate pull request title, branch, and issue linkage
   audit-process  Audit contributor docs, governance config, and workflow enforcement
 "
@@ -2262,10 +2777,12 @@ Subcommands:
 mod tests {
     use super::{
         audit_adr_corpus, branch_ruleset_payload, extract_trigger_names, load_config,
-        main_ruleset_payload, render_drift_matrix_markdown, split_front_matter, validate_pr_event,
-        DriftRow, PullRequestEvent,
+        main_ruleset_payload, render_drift_matrix_markdown, split_front_matter,
+        validate_exec_plan_file, validate_execution_artifacts_in_workspace, validate_pr_event,
+        DriftRow, ExecutionArtifactsValidationInput, PullRequestEvent,
     };
     use serde_yaml::Value as YamlValue;
+    use std::fs;
     use std::path::PathBuf;
 
     fn config_path() -> PathBuf {
@@ -2282,6 +2799,7 @@ mod tests {
         assert_eq!(config.project.title, "Engineering Flow");
         assert!(config.repository_defaults.allow_auto_merge);
         assert!(config.repository_defaults.require_code_owner_review);
+        assert_eq!(config.execution_artifacts.root, "plans");
         assert_eq!(
             config.repository_defaults.required_status_checks,
             vec![
@@ -2301,7 +2819,7 @@ mod tests {
         let config = load_config(&config_path()).expect("governance config should parse");
         let event = PullRequestEvent {
             title: "feat(db): add provider".to_owned(),
-            body: "## Summary\nAdd provider\n\n## Linked Issue\nCloses #142\n\n## ADR References\n- ADR-0015\n\n## Impacted Domains\n- platform\n\n## Layers Touched\n- platform\n\n## Contracts Changed\n- None.\n\n## Tests Added or Updated\n- cargo test\n\n## Refreshed from Main\n- yes\n\n## Risk Class\n- low\n\n## Affected Consistency Class\n- Class B\n\n## Affected Risk Tier\n- low\n\n## Architecture Delta\n- Single-plane platform change.\n\n## Workflow Checklist\n- [x] refreshed\n\n## Technical Changes\n- added provider\n\n## Testing Strategy\n- cargo test\n\n## Rollback Path\n- revert the provider integration commit\n\n## Validation Artifacts\n- cargo test\n\n## Deployment Impact\n- none\n".to_owned(),
+            body: "## Summary\nAdd provider\n\n## Linked Issue\nCloses #142\n\n## Execution Artifacts\n- Not required for this single-plane low-risk change.\n\n## ADR References\n- ADR-0015\n\n## Impacted Domains\n- platform\n\n## Layers Touched\n- platform\n\n## Contracts Changed\n- None.\n\n## Tests Added or Updated\n- cargo test\n\n## Refreshed from Main\n- yes\n\n## Risk Class\n- low\n\n## Affected Consistency Class\n- Class B\n\n## Affected Risk Tier\n- low\n\n## Architecture Delta\n- Single-plane platform change.\n\n## Workflow Checklist\n- [x] refreshed\n\n## Technical Changes\n- added provider\n\n## Testing Strategy\n- cargo test\n\n## Rollback Path\n- revert the provider integration commit\n\n## Validation Artifacts\n- cargo test\n\n## Deployment Impact\n- none\n".to_owned(),
             branch: "feature/142-surrealdb-provider".to_owned(),
             repository: "shortorigin/origin".to_owned(),
             base_sha: None,
@@ -2318,7 +2836,7 @@ mod tests {
         let config = load_config(&config_path()).expect("governance config should parse");
         let event = PullRequestEvent {
             title: "feat(db): add provider".to_owned(),
-            body: "## Summary\nAdd provider\n\n## Linked Issue\nTBD\n\n## ADR References\n- ADR-0015\n\n## Impacted Domains\n- platform\n\n## Layers Touched\n- platform\n\n## Contracts Changed\n- None.\n\n## Tests Added or Updated\n- cargo test\n\n## Refreshed from Main\n- yes\n\n## Risk Class\n- low\n\n## Affected Consistency Class\n- Class B\n\n## Affected Risk Tier\n- low\n\n## Architecture Delta\n- Single-plane platform change.\n\n## Workflow Checklist\n- [x] refreshed\n\n## Technical Changes\n- added provider\n\n## Testing Strategy\n- cargo test\n\n## Rollback Path\n- revert the provider integration commit\n\n## Validation Artifacts\n- cargo test\n\n## Deployment Impact\n- none\n".to_owned(),
+            body: "## Summary\nAdd provider\n\n## Linked Issue\nTBD\n\n## Execution Artifacts\n- Not required for this single-plane low-risk change.\n\n## ADR References\n- ADR-0015\n\n## Impacted Domains\n- platform\n\n## Layers Touched\n- platform\n\n## Contracts Changed\n- None.\n\n## Tests Added or Updated\n- cargo test\n\n## Refreshed from Main\n- yes\n\n## Risk Class\n- low\n\n## Affected Consistency Class\n- Class B\n\n## Affected Risk Tier\n- low\n\n## Architecture Delta\n- Single-plane platform change.\n\n## Workflow Checklist\n- [x] refreshed\n\n## Technical Changes\n- added provider\n\n## Testing Strategy\n- cargo test\n\n## Rollback Path\n- revert the provider integration commit\n\n## Validation Artifacts\n- cargo test\n\n## Deployment Impact\n- none\n".to_owned(),
             branch: "feature/142-surrealdb-provider".to_owned(),
             repository: "shortorigin/origin".to_owned(),
             base_sha: None,
@@ -2328,7 +2846,7 @@ mod tests {
 
         let error = validate_pr_event(&config, &event)
             .expect_err("missing issue reference should fail governance validation");
-        assert!(error.contains("same-repository issue"));
+        assert!(error.contains("Linked Issue section"));
     }
 
     #[test]
@@ -2389,7 +2907,7 @@ mod tests {
         let config = load_config(&config_path()).expect("governance config should parse");
         let event = PullRequestEvent {
             title: "refactor(platform): align shell boundary".to_owned(),
-            body: "## Summary\nAlign boundaries\n\n## Linked Issue\nCloses #89\n\n## ADR References\n- ADR-0004\n- ADR-0015\n\n## Impacted Domains\n- platform-shell\n\n## Layers Touched\n- platform\n- ui\n\n## Contracts Changed\n- plugin manifest\n\n## Tests Added or Updated\n- cargo test\n\n## Refreshed from Main\n- yes\n\n## Risk Class\n- high\n\n## Affected Consistency Class\n- Class B\n\n## Affected Risk Tier\n- high\n\n## Architecture Delta\n- Single-plane change.\n\n## Workflow Checklist\n- [x] refreshed\n\n## Technical Changes\n- aligned layers\n\n## Testing Strategy\n- cargo test\n\n## Rollback Path\n- revert the shell boundary refactor\n\n## Validation Artifacts\n- cargo test\n\n## Deployment Impact\n- none\n".to_owned(),
+            body: "## Summary\nAlign boundaries\n\n## Linked Issue\nCloses #89\n\n## Execution Artifacts\n- Required for this high-risk multi-plane change.\n\n## ADR References\n- ADR-0004\n- ADR-0015\n\n## Impacted Domains\n- platform-shell\n\n## Layers Touched\n- platform\n- ui\n\n## Contracts Changed\n- plugin manifest\n\n## Tests Added or Updated\n- cargo test\n\n## Refreshed from Main\n- yes\n\n## Risk Class\n- high\n\n## Affected Consistency Class\n- Class B\n\n## Affected Risk Tier\n- high\n\n## Architecture Delta\n- Single-plane change.\n\n## Workflow Checklist\n- [x] refreshed\n\n## Technical Changes\n- aligned layers\n\n## Testing Strategy\n- cargo test\n\n## Rollback Path\n- revert the shell boundary refactor\n\n## Validation Artifacts\n- cargo test\n\n## Deployment Impact\n- none\n".to_owned(),
             branch: "refactor/89-platform-boundary".to_owned(),
             repository: "shortorigin/origin".to_owned(),
             base_sha: None,
@@ -2403,6 +2921,178 @@ mod tests {
         let error = validate_pr_event(&config, &event)
             .expect_err("placeholder architecture delta should fail for multi-plane change");
         assert!(error.contains("Architecture Delta"));
+    }
+
+    fn unique_temp_dir(label: &str) -> PathBuf {
+        let base = std::env::temp_dir().join(format!(
+            "xtask-github-{label}-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("clock drift")
+                .as_nanos()
+        ));
+        fs::create_dir_all(&base).expect("create temp dir");
+        base
+    }
+
+    fn write_file(path: PathBuf, contents: &str) {
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent).expect("create parent");
+        }
+        fs::write(path, contents).expect("write file");
+    }
+
+    fn make_temp_workspace() -> PathBuf {
+        let workspace = unique_temp_dir("workspace");
+        let schema = fs::read_to_string(
+            PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .parent()
+                .expect("workspace root")
+                .join("schemas/contracts/v1/task-contract-v1.json"),
+        )
+        .expect("read task contract schema");
+        write_file(
+            workspace.join("schemas/contracts/v1/task-contract-v1.json"),
+            &schema,
+        );
+        fs::create_dir_all(workspace.join("plans")).expect("create plans root");
+        workspace
+    }
+
+    fn write_plan_bundle(
+        workspace: &std::path::Path,
+        dir_name: &str,
+        task_contract: &str,
+        exec_plan: &str,
+    ) {
+        write_file(
+            workspace.join(format!("plans/{dir_name}/task-contract.json")),
+            task_contract,
+        );
+        write_file(
+            workspace.join(format!("plans/{dir_name}/EXEC_PLAN.md")),
+            exec_plan,
+        );
+    }
+
+    fn valid_exec_plan() -> &'static str {
+        "# Execution Plan\n\n## Summary\n- Summary.\n\n## Task Contract\n- Contract.\n\n## Scope Boundaries\n- Boundaries.\n\n## Implementation Slices\n- Slice.\n\n## Validation Plan\n- Validate.\n\n## Rollout and Rollback\n- Roll back.\n\n## Open Questions\n- None.\n"
+    }
+
+    fn valid_task_contract(issue_id: u64, dir_name: &str, branch: &str) -> String {
+        format!(
+            "{{\n  \"issue_id\": {issue_id},\n  \"issue_url\": \"https://github.com/shortorigin/origin/issues/{issue_id}\",\n  \"branch\": \"{branch}\",\n  \"primary_architectural_plane\": \"cross-layer\",\n  \"owning_subsystem\": \"xtask governance\",\n  \"architectural_references\": [\"docs/adr/0015-gitops-and-policy-as-code-control-artifacts.md\"],\n  \"allowed_touchpoints\": [\"xtask/\", \"plans/\"],\n  \"non_goals\": [\"no runtime redesign\"],\n  \"scope_in\": [\"validate execution artifacts\"],\n  \"scope_out\": [\"unrelated work\"],\n  \"target_paths\": [\"xtask/\", \"plans/\"],\n  \"acceptance_criteria\": [\"artifacts validate\"],\n  \"validation_commands\": [\"cargo xtask verify profile repo\"],\n  \"validation_artifacts\": [\"passing xtask output\"],\n  \"rollback_path\": \"revert the workflow changes\",\n  \"exec_plan_required\": true,\n  \"exec_plan_path\": \"plans/{dir_name}/EXEC_PLAN.md\"\n}}\n"
+        )
+    }
+
+    #[test]
+    fn validate_pr_rejects_branch_issue_id_mismatch() {
+        let config = load_config(&config_path()).expect("governance config should parse");
+        let event = PullRequestEvent {
+            title: "fix(governance): tighten traceability".to_owned(),
+            body: "## Summary\nTighten traceability\n\n## Linked Issue\nCloses #118\n\n## Execution Artifacts\n- Not required for this single-plane low-risk change.\n\n## ADR References\n- ADR-0015\n\n## Impacted Domains\n- governance\n\n## Layers Touched\n- .github\n\n## Contracts Changed\n- None.\n\n## Tests Added or Updated\n- cargo test\n\n## Refreshed from Main\n- yes\n\n## Risk Class\n- low\n\n## Affected Consistency Class\n- Not Applicable\n\n## Affected Risk Tier\n- low\n\n## Architecture Delta\n- Single-plane governance change.\n\n## Workflow Checklist\n- [x] refreshed\n\n## Technical Changes\n- tightened checks\n\n## Testing Strategy\n- cargo test\n\n## Rollback Path\n- revert\n\n## Validation Artifacts\n- cargo test\n\n## Deployment Impact\n- none\n".to_owned(),
+            branch: "fix/117-traceability-check".to_owned(),
+            repository: "shortorigin/origin".to_owned(),
+            base_sha: None,
+            head_sha: None,
+            changed_files: vec![".github/PULL_REQUEST_TEMPLATE.md".to_owned()],
+        };
+
+        let error = validate_pr_event(&config, &event)
+            .expect_err("mismatched issue id should fail validation");
+        assert!(error.contains("branch issue id"));
+    }
+
+    #[test]
+    fn validate_execution_artifacts_rejects_missing_required_bundle() {
+        let config = load_config(&config_path()).expect("governance config should parse");
+        let workspace = make_temp_workspace();
+        let input = ExecutionArtifactsValidationInput {
+            issue_id: 117,
+            branch: "infra/117-execution-discipline-traceability".to_owned(),
+            risk_class: "high".to_owned(),
+            changed_files: vec![
+                "xtask/src/github.rs".to_owned(),
+                "schemas/contracts/v1/task-contract-v1.json".to_owned(),
+            ],
+        };
+
+        let error = validate_execution_artifacts_in_workspace(&workspace, &config, &input)
+            .expect_err("missing required artifacts should fail");
+        assert!(error.contains("expected exactly one directory"));
+    }
+
+    #[test]
+    fn validate_execution_artifacts_accepts_optional_single_plane_bundle() {
+        let config = load_config(&config_path()).expect("governance config should parse");
+        let workspace = make_temp_workspace();
+        write_plan_bundle(
+            &workspace,
+            "142-surrealdb-provider",
+            &valid_task_contract(
+                142,
+                "142-surrealdb-provider",
+                "feature/142-surrealdb-provider",
+            ),
+            valid_exec_plan(),
+        );
+        let input = ExecutionArtifactsValidationInput {
+            issue_id: 142,
+            branch: "feature/142-surrealdb-provider".to_owned(),
+            risk_class: "medium".to_owned(),
+            changed_files: vec!["platform/sdk/sdk-rs/src/lib.rs".to_owned()],
+        };
+
+        validate_execution_artifacts_in_workspace(&workspace, &config, &input)
+            .expect("optional single-plane bundle should validate");
+    }
+
+    #[test]
+    fn validate_execution_artifacts_rejects_mismatched_exec_plan_path() {
+        let config = load_config(&config_path()).expect("governance config should parse");
+        let workspace = make_temp_workspace();
+        let broken_task_contract = valid_task_contract(
+            117,
+            "117-execution-discipline-traceability",
+            "infra/117-execution-discipline-traceability",
+        )
+        .replace(
+            "\"plans/117-execution-discipline-traceability/EXEC_PLAN.md\"",
+            "\"plans/117-execution-discipline-traceability/WRONG.md\"",
+        );
+        write_plan_bundle(
+            &workspace,
+            "117-execution-discipline-traceability",
+            &broken_task_contract,
+            valid_exec_plan(),
+        );
+        let input = ExecutionArtifactsValidationInput {
+            issue_id: 117,
+            branch: "infra/117-execution-discipline-traceability".to_owned(),
+            risk_class: "high".to_owned(),
+            changed_files: vec![
+                "xtask/src/github.rs".to_owned(),
+                "schemas/contracts/v1/task-contract-v1.json".to_owned(),
+            ],
+        };
+
+        let error = validate_execution_artifacts_in_workspace(&workspace, &config, &input)
+            .expect_err("mismatched exec plan path should fail");
+        assert!(error.contains("exec_plan_path"));
+    }
+
+    #[test]
+    fn validate_exec_plan_rejects_invalid_heading_set() {
+        let workspace = unique_temp_dir("exec-plan");
+        let path = workspace.join("EXEC_PLAN.md");
+        write_file(
+            path.clone(),
+            "# Execution Plan\n\n## Summary\n- Summary.\n\n## Task Contract\n- Contract.\n\n## Wrong Heading\n- Wrong.\n",
+        );
+
+        let error = validate_exec_plan_file(&path).expect_err("invalid heading set should fail");
+        assert!(error.contains("exact headings"));
     }
 
     #[test]

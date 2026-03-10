@@ -114,12 +114,14 @@ After the rebase:
 Recommended validation:
 
 ```bash
-cargo xtask architecture audit-boundaries
-cargo xtask plugin validate-manifests
-cargo xtask github audit-process
-cargo fmt --all --check
-cargo clippy --workspace --all-targets --all-features -- -D warnings
-cargo test --workspace --all-targets
+cargo verify-repo
+```
+
+If the rebased change touches `ui/`, also run:
+
+```bash
+cargo xtask verify profile ui
+cargo xtask ui-hardening
 ```
 
 ## Governance And Review Expectations

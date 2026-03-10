@@ -1,0 +1,79 @@
+{
+  "issue_id": 117,
+  "issue_url": "https://github.com/shortorigin/origin/issues/117",
+  "branch": "infra/117-execution-discipline-traceability",
+  "primary_architectural_plane": "cross-layer",
+  "owning_subsystem": ".github governance, xtask validation, and schemas/contracts",
+  "architectural_references": [
+    "docs/adr/0011-ai-as-planner-over-typed-tools.md",
+    "docs/adr/0015-gitops-and-policy-as-code-control-artifacts.md",
+    "ARCHITECTURE.md",
+    "docs/architecture/layer-boundaries.md",
+    "docs/process/github-governance-rollout.md"
+  ],
+  "allowed_touchpoints": [
+    ".github/",
+    "xtask/",
+    "schemas/",
+    "plans/",
+    "docs/",
+    "README.md",
+    "CONTRIBUTING.md",
+    "DEVELOPMENT_MODEL.md",
+    "ARCHITECTURE.md",
+    "AGENTS.md",
+    ".cargo/config.toml"
+  ],
+  "non_goals": [
+    "Do not reactivate archived work-items.",
+    "Do not redesign runtime, service, or UI architecture.",
+    "Do not weaken existing validation gates."
+  ],
+  "scope_in": [
+    "Strengthen instruction locality and nested AGENTS guidance.",
+    "Define active task-contract and ExecPlan conventions under plans/.",
+    "Add task-contract schema coverage in schemas/contracts.",
+    "Extend xtask and governance validation for issue-branch-PR-plan traceability.",
+    "Normalize the canonical non-UI validation command surface."
+  ],
+  "scope_out": [
+    "Product feature delivery.",
+    "Separate issue-event validation outside the existing governance PR flow."
+  ],
+  "target_paths": [
+    ".github/",
+    "xtask/",
+    "schemas/",
+    "plans/",
+    "docs/",
+    "README.md",
+    "CONTRIBUTING.md",
+    "DEVELOPMENT_MODEL.md",
+    "ARCHITECTURE.md",
+    "AGENTS.md",
+    ".cargo/config.toml"
+  ],
+  "acceptance_criteria": [
+    "The repository documents a deterministic read order and instruction-locality map.",
+    "Long or high-risk work can be described with a machine-readable task contract and fixed ExecPlan headings.",
+    "PR validation enforces branch issue id and linked issue consistency plus required execution artifacts for high-risk or multi-plane work.",
+    "A canonical repo-owned non-UI validation profile is available."
+  ],
+  "validation_commands": [
+    "cargo xtask verify profile repo",
+    "cargo xtask architecture audit-boundaries",
+    "cargo xtask plugin validate-manifests",
+    "cargo xtask github audit-process",
+    "cargo test -p xtask --all-targets",
+    "cargo test -p contracts --all-targets"
+  ],
+  "validation_artifacts": [
+    "Passing xtask verification output",
+    "Passing xtask governance tests",
+    "Passing contracts schema tests",
+    "Committed plan and task-contract artifacts"
+  ],
+  "rollback_path": "Revert the governance, xtask, schema, plans, and documentation changes together so the repository returns to the previous issue/PR-only workflow.",
+  "exec_plan_required": true,
+  "exec_plan_path": "plans/117-execution-discipline-traceability/EXEC_PLAN.md"
+}

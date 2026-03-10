@@ -12,6 +12,7 @@ This repository uses a GitHub-native Scrumban workflow built around issues, pull
 4. Required checks must pass before merge.
 5. Work stays visible on the organization Project board.
 6. Every pull request must retain a GitHub issue closing directive so merge closes the originating issue automatically.
+7. Long, multi-step, or high-risk work uses repo-linked execution artifacts under `plans/` in addition to the GitHub issue and PR.
 
 ## Flow
 
@@ -88,6 +89,7 @@ Branch protocol:
 4. Keep the branch scoped to one dominant subsystem or one explicitly sequenced cross-layer
    objective.
 5. Delete the branch after merge.
+6. If the work is multi-plane or `high` risk-class, create `plans/<issue-id>-<slug>/task-contract.json` and `plans/<issue-id>-<slug>/EXEC_PLAN.md` before opening the PR.
 
 PR titles and squash-merge commit messages must use conventional commits:
 
@@ -104,6 +106,7 @@ Examples:
 Every PR must include:
 
 - a linked issue
+- execution artifact status or the matching `plans/<issue-id>-<slug>/` bundle path
 - ADR references
 - impacted domains
 - a concise summary
@@ -179,6 +182,12 @@ Documentation-to-automation drift is enforced by:
 cargo xtask architecture audit-boundaries
 cargo xtask plugin validate-manifests
 cargo xtask github audit-process
+```
+
+The canonical non-UI local validation surface is:
+
+```bash
+cargo verify-repo
 ```
 
 ## Rust Boundary Invariants

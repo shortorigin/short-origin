@@ -17,6 +17,7 @@ shell, typed platform APIs, wasmCloud service workloads, and workflow-gated muta
 - `agents/`: governed agent procedures and role definitions.
 - `testing/`: fixtures and integration-test support.
 - `docs/`: ADRs, process guidance, and rollout documentation.
+- `plans/`: active execution artifacts for long or high-risk repository work.
 
 ## Platform Model
 
@@ -54,9 +55,11 @@ Origin uses a GitHub-native Scrumban model.
 
 Primary contributor docs:
 
+- [Docs Index](docs/README.md)
 - [ARCHITECTURE.md](ARCHITECTURE.md)
 - [CONTRIBUTING.md](CONTRIBUTING.md)
 - [DEVELOPMENT_MODEL.md](DEVELOPMENT_MODEL.md)
+- [Execution Artifacts](docs/process/execution-artifacts.md)
 - [Layer Boundaries](docs/architecture/layer-boundaries.md)
 - [Plugin Application Model](docs/architecture/plugin-application-model.md)
 - [Runtime Composition and Delivery](docs/architecture/runtime-composition.md)
@@ -71,19 +74,17 @@ Primary contributor docs:
 Run from the repository root:
 
 ```bash
-cargo fmt --all --check
-cargo clippy --workspace --all-targets --all-features -- -D warnings
-cargo test --workspace --all-targets
+cargo verify-repo
 ```
 
-The GitHub CI baseline also includes `cargo audit`.
+`cargo verify-repo` is the canonical non-UI validation surface. The GitHub CI baseline also
+includes `cargo audit`.
 
 For local enforcement parity, also run:
 
 ```bash
-cargo xtask architecture audit-boundaries
-cargo xtask plugin validate-manifests
-cargo xtask github audit-process
+cargo xtask verify profile ui
+cargo xtask ui-hardening
 ```
 
 ## Delivery and Release

@@ -83,10 +83,12 @@ Refreshing from the latest target branch and rerunning validation is mandatory w
 Recommended commands:
 
 ```bash
-cargo fmt --all --check
-cargo clippy --workspace --all-targets --all-features -- -D warnings
-cargo test --workspace --all-targets
-cargo xtask architecture audit-boundaries
-cargo xtask plugin validate-manifests
-cargo xtask github audit-process
+cargo verify-repo
+```
+
+If the change touches `ui/`, also run:
+
+```bash
+cargo xtask verify profile ui
+cargo xtask ui-hardening
 ```
