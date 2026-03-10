@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::time::Instant;
 
 use chrono::{DateTime, Utc};
 use contracts::{MarketEventV1, SignalV1, StrategyConfigV1, StrategyStateSnapshotV1};
@@ -9,22 +8,64 @@ use serde::{Deserialize, Serialize};
 use trading_core::StrategyModule;
 use trading_core::{Clock, SystemClock};
 use trading_errors::{TradingError, TradingResult};
-use wasmtime::{Engine, Instance, Memory, Module, Store, TypedFunc};
+use wasmtime::{
+    Config, Engine, Instance, Memory, Module, Store, StoreLimits, StoreLimitsBuilder, Trap,
+    TypedFunc,
+};
 
 const WASM_PAGE_BYTES: usize = 65_536;
 const INPUT_OFFSET_BYTES: usize = 8 * 1024;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub enum SandboxExecutionBudget {
+    Fuel(u64),
+}
+
+impl Default for SandboxExecutionBudget {
+    fn default() -> Self {
+        Self::Fuel(100_000)
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct WasmRuntimePolicy {
     pub max_memory_bytes: usize,
-    pub max_execution_ms: u64,
+    pub max_snapshot_bytes: usize,
+    pub execution_budget: SandboxExecutionBudget,
 }
 
 impl Default for WasmRuntimePolicy {
     fn default() -> Self {
         Self {
             max_memory_bytes: 1_048_576,
-            max_execution_ms: 250,
+            max_snapshot_bytes: 1_048_576,
+            execution_budget: SandboxExecutionBudget::default(),
+        }
+    }
+}
+
+#[derive(Debug)]
+struct SandboxStoreState {
+    limits: StoreLimits,
+}
+
+#[derive(Debug, Clone, Copy)]
+enum SandboxGuestCall {
+    Instantiate,
+    Init,
+    OnMarketEvent,
+    OnTimer,
+    SnapshotState,
+}
+
+impl SandboxGuestCall {
+    fn operation(self) -> &'static str {
+        match self {
+            Self::Instantiate => "instantiate",
+            Self::Init => "init",
+            Self::OnMarketEvent => "on-market-event",
+            Self::OnTimer => "on-timer",
+            Self::SnapshotState => "snapshot-state",
         }
     }
 }
@@ -43,6 +84,7 @@ struct SandboxedStrategy {
 
 pub struct StrategySandbox {
     policy: WasmRuntimePolicy,
+    engine: Engine,
     modules: HashMap<String, SandboxedStrategy>,
     clock: Arc<dyn Clock>,
 }
@@ -58,17 +100,16 @@ impl std::fmt::Debug for StrategySandbox {
 }
 
 impl StrategySandbox {
-    #[must_use]
-    pub fn new(policy: WasmRuntimePolicy, clock: Arc<dyn Clock>) -> Self {
-        Self {
+    pub fn new(policy: WasmRuntimePolicy, clock: Arc<dyn Clock>) -> TradingResult<Self> {
+        Ok(Self {
+            engine: build_engine(&policy)?,
             policy,
             modules: HashMap::new(),
             clock,
-        }
+        })
     }
 
-    #[must_use]
-    pub fn with_system_clock(policy: WasmRuntimePolicy) -> Self {
+    pub fn with_system_clock(policy: WasmRuntimePolicy) -> TradingResult<Self> {
         Self::new(policy, Arc::new(SystemClock))
     }
 
@@ -85,9 +126,9 @@ impl StrategySandbox {
             });
         }
 
-        let mut module = WasmtimeGuestStrategy::new(wasm_bytes)?;
+        let mut module = WasmtimeGuestStrategy::new(&self.engine, &self.policy, wasm_bytes)?;
         module.init(config)?;
-        Self::enforce_memory_limit(&self.policy, &module.snapshot_state()?)?;
+        Self::enforce_snapshot_limit(&self.policy, &module.snapshot_state()?)?;
         self.modules.insert(
             module_id,
             SandboxedStrategy {
@@ -127,7 +168,7 @@ impl StrategySandbox {
         }
 
         module.init(config)?;
-        Self::enforce_memory_limit(&self.policy, &module.snapshot_state(self.clock.now()))?;
+        Self::enforce_snapshot_limit(&self.policy, &module.snapshot_state(self.clock.now()))?;
         self.modules.insert(
             module_id,
             SandboxedStrategy {
@@ -156,7 +197,6 @@ impl StrategySandbox {
     ) -> TradingResult<Vec<SignalV1>> {
         #[cfg(any(test, feature = "in-memory"))]
         let clock = Arc::clone(&self.clock);
-        let policy = self.policy.clone();
         let entry = self
             .modules
             .get_mut(module_id)
@@ -164,21 +204,18 @@ impl StrategySandbox {
                 resource: "module not found".to_string(),
             })?;
 
-        let started = Instant::now();
         let signals = match &mut entry.executor {
             StrategyExecutor::Wasmtime(module) => module.on_market_event(event, key)?,
             #[cfg(any(test, feature = "in-memory"))]
             StrategyExecutor::InMemory(module) => module.on_market_event(event, key)?,
         };
-        let elapsed_ms = u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX);
-        Self::enforce_runtime(&policy, elapsed_ms)?;
         entry.calls += 1;
         let snapshot = match &mut entry.executor {
             StrategyExecutor::Wasmtime(module) => module.snapshot_state()?,
             #[cfg(any(test, feature = "in-memory"))]
             StrategyExecutor::InMemory(module) => module.snapshot_state(clock.now()),
         };
-        Self::enforce_memory_limit(&policy, &snapshot)?;
+        Self::enforce_snapshot_limit(&self.policy, &snapshot)?;
         Ok(signals)
     }
 
@@ -190,7 +227,6 @@ impl StrategySandbox {
     ) -> TradingResult<Vec<SignalV1>> {
         #[cfg(any(test, feature = "in-memory"))]
         let clock = Arc::clone(&self.clock);
-        let policy = self.policy.clone();
         let entry = self
             .modules
             .get_mut(module_id)
@@ -198,21 +234,18 @@ impl StrategySandbox {
                 resource: "module not found".to_string(),
             })?;
 
-        let started = Instant::now();
         let signals = match &mut entry.executor {
             StrategyExecutor::Wasmtime(module) => module.on_timer(now, key)?,
             #[cfg(any(test, feature = "in-memory"))]
             StrategyExecutor::InMemory(module) => module.on_timer(now, key)?,
         };
-        let elapsed_ms = u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX);
-        Self::enforce_runtime(&policy, elapsed_ms)?;
         entry.calls += 1;
         let snapshot = match &mut entry.executor {
             StrategyExecutor::Wasmtime(module) => module.snapshot_state()?,
             #[cfg(any(test, feature = "in-memory"))]
             StrategyExecutor::InMemory(module) => module.snapshot_state(clock.now()),
         };
-        Self::enforce_memory_limit(&policy, &snapshot)?;
+        Self::enforce_snapshot_limit(&self.policy, &snapshot)?;
         Ok(signals)
     }
 
@@ -241,23 +274,17 @@ impl StrategySandbox {
         Ok((entry.loaded_at, entry.calls))
     }
 
-    fn enforce_memory_limit(
+    fn enforce_snapshot_limit(
         policy: &WasmRuntimePolicy,
         snapshot: &StrategyStateSnapshotV1,
     ) -> TradingResult<()> {
         let bytes = serde_json::to_vec(snapshot)?.len();
-        if bytes > policy.max_memory_bytes {
+        if bytes > policy.max_snapshot_bytes {
             return Err(TradingError::RuntimePolicyViolation {
-                details: "strategy state exceeds memory policy".to_string(),
-            });
-        }
-        Ok(())
-    }
-
-    fn enforce_runtime(policy: &WasmRuntimePolicy, elapsed_ms: u64) -> TradingResult<()> {
-        if elapsed_ms > policy.max_execution_ms {
-            return Err(TradingError::RuntimePolicyViolation {
-                details: "execution time exceeded runtime policy".to_string(),
+                details: format!(
+                    "strategy state exceeds snapshot policy: {} bytes > {} bytes",
+                    bytes, policy.max_snapshot_bytes
+                ),
             });
         }
         Ok(())
@@ -306,20 +333,39 @@ pub fn demo_strategy_wat(strategy_id: &str) -> String {
 }
 
 struct WasmtimeGuestStrategy {
-    store: Store<()>,
+    store: Store<SandboxStoreState>,
     memory: Memory,
     init: TypedFunc<(i32, i32), i32>,
     on_market_event: TypedFunc<(i32, i32), i64>,
     on_timer: TypedFunc<(i32, i32), i64>,
     snapshot_state: TypedFunc<(), i64>,
+    execution_budget: SandboxExecutionBudget,
+}
+
+#[derive(Serialize)]
+struct MarketEventPayload<'a> {
+    event: &'a MarketEventV1,
+    determinism: contracts::DeterminismKeyV1,
+}
+
+#[derive(Serialize)]
+struct TimerPayload {
+    now: DateTime<Utc>,
+    determinism: contracts::DeterminismKeyV1,
 }
 
 impl WasmtimeGuestStrategy {
-    fn new(wasm_bytes: &[u8]) -> TradingResult<Self> {
-        let engine = Engine::default();
-        let module = Module::new(&engine, wasm_bytes).map_err(wasmtime_error)?;
-        let mut store = Store::new(&engine, ());
-        let instance = Instance::new(&mut store, &module, &[]).map_err(wasmtime_error)?;
+    fn new(engine: &Engine, policy: &WasmRuntimePolicy, wasm_bytes: &[u8]) -> TradingResult<Self> {
+        let module = Module::new(engine, wasm_bytes).map_err(wasmtime_parse_error)?;
+        let limits = StoreLimitsBuilder::new()
+            .memory_size(policy.max_memory_bytes)
+            .trap_on_grow_failure(true)
+            .build();
+        let mut store = Store::new(engine, SandboxStoreState { limits });
+        store.limiter(|state| &mut state.limits);
+        configure_execution_budget(&mut store, &policy.execution_budget)?;
+        let instance = Instance::new(&mut store, &module, &[])
+            .map_err(|error| classify_wasmtime_error(SandboxGuestCall::Instantiate, error))?;
         let memory =
             instance
                 .get_memory(&mut store, "memory")
@@ -329,16 +375,16 @@ impl WasmtimeGuestStrategy {
                 })?;
         let init = instance
             .get_typed_func::<(i32, i32), i32>(&mut store, "init")
-            .map_err(wasmtime_error)?;
+            .map_err(wasmtime_parse_error)?;
         let on_market_event = instance
             .get_typed_func::<(i32, i32), i64>(&mut store, "on-market-event")
-            .map_err(wasmtime_error)?;
+            .map_err(wasmtime_parse_error)?;
         let on_timer = instance
             .get_typed_func::<(i32, i32), i64>(&mut store, "on-timer")
-            .map_err(wasmtime_error)?;
+            .map_err(wasmtime_parse_error)?;
         let snapshot_state = instance
             .get_typed_func::<(), i64>(&mut store, "snapshot-state")
-            .map_err(wasmtime_error)?;
+            .map_err(wasmtime_parse_error)?;
 
         Ok(Self {
             store,
@@ -347,16 +393,18 @@ impl WasmtimeGuestStrategy {
             on_market_event,
             on_timer,
             snapshot_state,
+            execution_budget: policy.execution_budget.clone(),
         })
     }
 
     fn init(&mut self, config: StrategyConfigV1) -> TradingResult<()> {
+        self.reset_execution_budget()?;
         let payload = serde_json::to_vec(&config)?;
         let (ptr, len) = self.write_input(&payload)?;
         let status = self
             .init
             .call(&mut self.store, (ptr, len))
-            .map_err(wasmtime_error)?;
+            .map_err(|error| classify_wasmtime_error(SandboxGuestCall::Init, error))?;
         if status == 0 {
             Ok(())
         } else {
@@ -371,13 +419,8 @@ impl WasmtimeGuestStrategy {
         event: &MarketEventV1,
         key: contracts::DeterminismKeyV1,
     ) -> TradingResult<Vec<SignalV1>> {
-        #[derive(Serialize)]
-        struct Payload<'a> {
-            event: &'a MarketEventV1,
-            determinism: contracts::DeterminismKeyV1,
-        }
-
-        let payload = serde_json::to_vec(&Payload {
+        self.reset_execution_budget()?;
+        let payload = serde_json::to_vec(&MarketEventPayload {
             event,
             determinism: key,
         })?;
@@ -385,7 +428,7 @@ impl WasmtimeGuestStrategy {
         let handle = self
             .on_market_event
             .call(&mut self.store, (ptr, len))
-            .map_err(wasmtime_error)?;
+            .map_err(|error| classify_wasmtime_error(SandboxGuestCall::OnMarketEvent, error))?;
         self.read_json_output(handle, "on-market-event")
     }
 
@@ -394,13 +437,8 @@ impl WasmtimeGuestStrategy {
         now: DateTime<Utc>,
         key: contracts::DeterminismKeyV1,
     ) -> TradingResult<Vec<SignalV1>> {
-        #[derive(Serialize)]
-        struct Payload {
-            now: DateTime<Utc>,
-            determinism: contracts::DeterminismKeyV1,
-        }
-
-        let payload = serde_json::to_vec(&Payload {
+        self.reset_execution_budget()?;
+        let payload = serde_json::to_vec(&TimerPayload {
             now,
             determinism: key,
         })?;
@@ -408,16 +446,21 @@ impl WasmtimeGuestStrategy {
         let handle = self
             .on_timer
             .call(&mut self.store, (ptr, len))
-            .map_err(wasmtime_error)?;
+            .map_err(|error| classify_wasmtime_error(SandboxGuestCall::OnTimer, error))?;
         self.read_json_output(handle, "on-timer")
     }
 
     fn snapshot_state(&mut self) -> TradingResult<StrategyStateSnapshotV1> {
+        self.reset_execution_budget()?;
         let handle = self
             .snapshot_state
             .call(&mut self.store, ())
-            .map_err(wasmtime_error)?;
+            .map_err(|error| classify_wasmtime_error(SandboxGuestCall::SnapshotState, error))?;
         self.read_json_output(handle, "snapshot-state")
+    }
+
+    fn reset_execution_budget(&mut self) -> TradingResult<()> {
+        configure_execution_budget(&mut self.store, &self.execution_budget)
     }
 
     fn write_input(&mut self, input: &[u8]) -> TradingResult<(i32, i32)> {
@@ -440,12 +483,12 @@ impl WasmtimeGuestStrategy {
                 })?;
             self.memory
                 .grow(&mut self.store, additional_pages)
-                .map_err(wasmtime_error)?;
+                .map_err(|error| classify_wasmtime_error(SandboxGuestCall::Instantiate, error))?;
         }
 
         self.memory
             .write(&mut self.store, INPUT_OFFSET_BYTES, input)
-            .map_err(wasmtime_error)?;
+            .map_err(wasmtime_parse_error)?;
         Ok((
             i32::try_from(INPUT_OFFSET_BYTES).unwrap_or(i32::MAX),
             i32::try_from(input.len()).unwrap_or(i32::MAX),
@@ -507,7 +550,64 @@ fn wat_string_literal(bytes: &[u8]) -> String {
     output
 }
 
-fn wasmtime_error(error: impl std::fmt::Display) -> TradingError {
+fn build_engine(policy: &WasmRuntimePolicy) -> TradingResult<Engine> {
+    let mut config = Config::new();
+    if matches!(policy.execution_budget, SandboxExecutionBudget::Fuel(_)) {
+        config.consume_fuel(true);
+    }
+    Engine::new(&config).map_err(wasmtime_parse_error)
+}
+
+fn configure_execution_budget(
+    store: &mut Store<SandboxStoreState>,
+    budget: &SandboxExecutionBudget,
+) -> TradingResult<()> {
+    match budget {
+        SandboxExecutionBudget::Fuel(fuel) => {
+            store
+                .set_fuel(*fuel)
+                .map_err(|error| TradingError::RuntimePolicyViolation {
+                    details: format!("failed to apply fuel budget: {error}"),
+                })
+        }
+    }
+}
+
+fn classify_wasmtime_error(call: SandboxGuestCall, error: wasmtime::Error) -> TradingError {
+    if let Some(trap) = error.downcast_ref::<Trap>() {
+        return match trap {
+            Trap::OutOfFuel | Trap::Interrupt => TradingError::RuntimePolicyViolation {
+                details: format!("{} exceeded execution budget: {trap}", call.operation()),
+            },
+            _ => TradingError::GuestTrap {
+                operation: call.operation().to_string(),
+                details: trap.to_string(),
+            },
+        };
+    }
+
+    let causes = error
+        .chain()
+        .map(std::string::ToString::to_string)
+        .collect::<Vec<_>>();
+    let details = causes.join(": ");
+    if causes.iter().any(|cause| {
+        cause.contains("forcing trap when growing memory")
+            || cause.contains("failed to grow memory")
+            || cause.contains("resource limit")
+    }) {
+        return TradingError::RuntimePolicyViolation {
+            details: format!("{} exceeded store limits: {details}", call.operation()),
+        };
+    }
+
+    TradingError::Parse {
+        source_name: "wasmtime".to_string(),
+        details: format!("{} failed: {details}", call.operation()),
+    }
+}
+
+fn wasmtime_parse_error(error: impl std::fmt::Display) -> TradingError {
     TradingError::Parse {
         source_name: "wasmtime".to_string(),
         details: error.to_string(),
@@ -521,53 +621,104 @@ mod tests {
     use chrono::TimeZone;
     use contracts::{AssetClassV1, MarketEventV1, OhlcvBarV1, StrategyConfigV1, SymbolV1, VenueV1};
     use trading_core::FixedClock;
+    use trading_errors::TradingError;
     use trading_sim::TrendFollower;
 
-    use super::{demo_strategy_wat, StrategySandbox, WasmRuntimePolicy};
+    use super::{
+        demo_strategy_wat, pack_output_handle, SandboxExecutionBudget, StrategySandbox,
+        WasmRuntimePolicy, WASM_PAGE_BYTES,
+    };
 
-    #[test]
-    fn wasmtime_runtime_loads_inline_module() {
-        let clock = Arc::new(FixedClock::new(
+    fn fixed_clock() -> Arc<FixedClock> {
+        Arc::new(FixedClock::new(
             chrono::Utc
                 .with_ymd_and_hms(2026, 3, 1, 0, 0, 0)
                 .single()
                 .expect("clock"),
-        ));
-        let mut runtime = StrategySandbox::new(WasmRuntimePolicy::default(), clock);
+        ))
+    }
+
+    fn strategy_config() -> StrategyConfigV1 {
+        StrategyConfigV1 {
+            strategy_id: "trend".to_string(),
+            model_version: "v1".to_string(),
+            config_hash: "abc".to_string(),
+            parameters: serde_json::json!({}),
+        }
+    }
+
+    fn sample_event() -> MarketEventV1 {
+        MarketEventV1::Bar(OhlcvBarV1 {
+            symbol: SymbolV1::new(VenueV1::Coinbase, AssetClassV1::Crypto, "BTC", "USD"),
+            open_time: chrono::Utc
+                .with_ymd_and_hms(2026, 3, 1, 0, 0, 0)
+                .single()
+                .expect("open"),
+            close_time: chrono::Utc
+                .with_ymd_and_hms(2026, 3, 1, 0, 1, 0)
+                .single()
+                .expect("close"),
+            open: 100.0,
+            high: 101.0,
+            low: 99.0,
+            close: 100.2,
+            volume: 100.0,
+        })
+    }
+
+    fn custom_event_wat(on_market_event_body: &str) -> String {
+        let signals = "[]";
+        let snapshot = serde_json::json!({
+            "strategy_id": "trend",
+            "timestamp": "2026-03-05T00:00:00Z",
+            "state": {
+                "runtime": "wasmtime",
+                "strategy_id": "trend",
+            }
+        })
+        .to_string();
+        let signals_ptr = 64usize;
+        let snapshot_ptr = 256usize;
+        let signals_handle = pack_output_handle(signals_ptr, signals.len());
+        let snapshot_handle = pack_output_handle(snapshot_ptr, snapshot.len());
+        format!(
+            r#"(module
+  (memory (export "memory") 1)
+  (data (i32.const {signals_ptr}) "{signals_data}")
+  (data (i32.const {snapshot_ptr}) "{snapshot_data}")
+  (func (export "init") (param i32 i32) (result i32)
+    i32.const 0)
+  (func (export "on-market-event") (param i32 i32) (result i64)
+    {on_market_event_body})
+  (func (export "on-timer") (param i32 i32) (result i64)
+    i64.const {signals_handle})
+  (func (export "snapshot-state") (result i64)
+    i64.const {snapshot_handle})
+)"#,
+            signals_ptr = signals_ptr,
+            snapshot_ptr = snapshot_ptr,
+            signals_data = super::wat_string_literal(signals.as_bytes()),
+            snapshot_data = super::wat_string_literal(snapshot.as_bytes()),
+            on_market_event_body = on_market_event_body,
+            signals_handle = signals_handle,
+            snapshot_handle = snapshot_handle,
+        )
+    }
+
+    #[test]
+    fn wasmtime_runtime_loads_inline_module() {
+        let mut runtime =
+            StrategySandbox::new(WasmRuntimePolicy::default(), fixed_clock()).expect("runtime");
         let wat = demo_strategy_wat("trend");
 
         runtime
-            .load_wat(
-                "trend_v1",
-                &wat,
-                StrategyConfigV1 {
-                    strategy_id: "trend".to_string(),
-                    model_version: "v1".to_string(),
-                    config_hash: "abc".to_string(),
-                    parameters: serde_json::json!({}),
-                },
-            )
+            .load_wat("trend_v1", &wat, strategy_config())
             .expect("load");
 
         let signals = runtime
             .on_market_event(
                 "trend_v1",
-                &MarketEventV1::Bar(OhlcvBarV1 {
-                    symbol: SymbolV1::new(VenueV1::Coinbase, AssetClassV1::Crypto, "BTC", "USD"),
-                    open_time: chrono::Utc
-                        .with_ymd_and_hms(2026, 3, 1, 0, 0, 0)
-                        .single()
-                        .expect("open"),
-                    close_time: chrono::Utc
-                        .with_ymd_and_hms(2026, 3, 1, 0, 1, 0)
-                        .single()
-                        .expect("close"),
-                    open: 100.0,
-                    high: 101.0,
-                    low: 99.0,
-                    close: 100.2,
-                    volume: 100.0,
-                }),
+                &sample_event(),
                 contracts::DeterminismKeyV1::new("event-1", "v1", "abc"),
             )
             .expect("event");
@@ -578,28 +729,110 @@ mod tests {
 
     #[test]
     fn in_memory_loader_remains_available_for_tests() {
-        let clock = Arc::new(FixedClock::new(
-            chrono::Utc
-                .with_ymd_and_hms(2026, 3, 1, 0, 0, 0)
-                .single()
-                .expect("clock"),
-        ));
-        let mut runtime = StrategySandbox::new(WasmRuntimePolicy::default(), clock);
+        let mut runtime =
+            StrategySandbox::new(WasmRuntimePolicy::default(), fixed_clock()).expect("runtime");
         let strategy = TrendFollower::new("trend", 5, 0.1);
 
         runtime
-            .load_in_memory(
-                "trend_v1",
-                Box::new(strategy),
-                StrategyConfigV1 {
-                    strategy_id: "trend".to_string(),
-                    model_version: "v1".to_string(),
-                    config_hash: "abc".to_string(),
-                    parameters: serde_json::json!({}),
-                },
-            )
+            .load_in_memory("trend_v1", Box::new(strategy), strategy_config())
             .expect("load");
 
         runtime.unload("trend_v1").expect("unload");
+    }
+
+    #[test]
+    fn malformed_module_is_reported_as_parse_error() {
+        let mut runtime =
+            StrategySandbox::new(WasmRuntimePolicy::default(), fixed_clock()).expect("runtime");
+        let error = runtime
+            .load_component_bytes("bad", b"not valid wasm", strategy_config())
+            .expect_err("invalid module should fail");
+
+        assert!(matches!(error, TradingError::Parse { .. }));
+    }
+
+    #[test]
+    fn guest_trap_is_reported_separately_from_policy_violations() {
+        let mut runtime =
+            StrategySandbox::new(WasmRuntimePolicy::default(), fixed_clock()).expect("runtime");
+        runtime
+            .load_wat(
+                "trapper",
+                &custom_event_wat("unreachable\n    i64.const 0"),
+                strategy_config(),
+            )
+            .expect("load");
+
+        let error = runtime
+            .on_market_event(
+                "trapper",
+                &sample_event(),
+                contracts::DeterminismKeyV1::new("event-1", "v1", "abc"),
+            )
+            .expect_err("guest trap should fail");
+
+        assert!(matches!(error, TradingError::GuestTrap { .. }));
+    }
+
+    #[test]
+    fn fuel_budget_interrupts_runaway_guest() {
+        let policy = WasmRuntimePolicy {
+            execution_budget: SandboxExecutionBudget::Fuel(10),
+            ..WasmRuntimePolicy::default()
+        };
+        let mut runtime = StrategySandbox::new(policy, fixed_clock()).expect("runtime");
+        runtime
+            .load_wat(
+                "runaway",
+                &custom_event_wat("(loop\n      br 0\n    )\n    i64.const 0"),
+                strategy_config(),
+            )
+            .expect("load");
+
+        let error = runtime
+            .on_market_event(
+                "runaway",
+                &sample_event(),
+                contracts::DeterminismKeyV1::new("event-1", "v1", "abc"),
+            )
+            .expect_err("runaway guest should exhaust fuel");
+
+        assert!(
+            matches!(error, TradingError::RuntimePolicyViolation { .. }),
+            "{error:?}"
+        );
+    }
+
+    #[test]
+    fn memory_growth_beyond_store_limit_is_rejected() {
+        let policy = WasmRuntimePolicy {
+            max_memory_bytes: WASM_PAGE_BYTES,
+            ..WasmRuntimePolicy::default()
+        };
+        let mut runtime = StrategySandbox::new(policy, fixed_clock()).expect("runtime");
+        let event_body = format!(
+            "i32.const 32\n    memory.grow\n    drop\n    i64.const {}",
+            pack_output_handle(64, 2)
+        );
+        runtime
+            .load_wat(
+                "memory_hog",
+                &custom_event_wat(&event_body),
+                strategy_config(),
+            )
+            .expect("load");
+
+        let error = runtime
+            .on_market_event(
+                "memory_hog",
+                &sample_event(),
+                contracts::DeterminismKeyV1::new("event-1", "v1", "abc"),
+            )
+            .expect_err("memory growth beyond the store limit should fail");
+
+        assert!(
+            matches!(error, TradingError::RuntimePolicyViolation { .. }),
+            "{error:?}"
+        );
     }
 }

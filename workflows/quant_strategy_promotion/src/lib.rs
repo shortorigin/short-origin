@@ -345,7 +345,8 @@ where
         "controls_checked": compliance_report.daily_control_attestation.controls_checked,
     }))?;
 
-    let mut sandbox = StrategySandbox::new(WasmRuntimePolicy::default(), Arc::clone(&clock));
+    let mut sandbox = StrategySandbox::new(WasmRuntimePolicy::default(), Arc::clone(&clock))
+        .map_err(invariant_error)?;
     sandbox
         .load_wat(
             "trend_wasm_v1",

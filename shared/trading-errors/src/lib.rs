@@ -14,6 +14,8 @@ pub enum TradingError {
     LimitBreached { details: String },
     #[error("runtime policy violation: {details}")]
     RuntimePolicyViolation { details: String },
+    #[error("guest trap during `{operation}`: {details}")]
+    GuestTrap { operation: String, details: String },
     #[error("replay violation: {details}")]
     ReplayViolation { details: String },
     #[error("parse error in `{source_name}`: {details}")]

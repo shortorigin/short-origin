@@ -252,10 +252,7 @@ where
             related_decision_refs: vec![DecisionRef::new(decision.decision_id.as_str())],
         };
 
-        self.evidence_sink
-            .record(manifest)
-            .await
-            .map_err(traced)
+        self.evidence_sink.record(manifest).await.map_err(traced)
     }
 }
 
