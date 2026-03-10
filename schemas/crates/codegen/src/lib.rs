@@ -8,7 +8,7 @@ pub struct EmbeddedSchema {
     pub document: Value,
 }
 
-const CONTRACT_FILES: [(&str, &str); 36] = [
+const CONTRACT_FILES: [(&str, &str); 46] = [
     (
         "command-v1",
         include_str!("../../../contracts/v1/command-v1.json"),
@@ -20,6 +20,46 @@ const CONTRACT_FILES: [(&str, &str); 36] = [
     (
         "policy-decision-v1",
         include_str!("../../../contracts/v1/policy-decision-v1.json"),
+    ),
+    (
+        "decision-context-v1",
+        include_str!("../../../contracts/v1/decision-context-v1.json"),
+    ),
+    (
+        "decision-option-v1",
+        include_str!("../../../contracts/v1/decision-option-v1.json"),
+    ),
+    (
+        "decision-constraint-v1",
+        include_str!("../../../contracts/v1/decision-constraint-v1.json"),
+    ),
+    (
+        "outcome-estimate-v1",
+        include_str!("../../../contracts/v1/outcome-estimate-v1.json"),
+    ),
+    (
+        "outcome-distribution-v1",
+        include_str!("../../../contracts/v1/outcome-distribution-v1.json"),
+    ),
+    (
+        "risk-assessment-v1",
+        include_str!("../../../contracts/v1/risk-assessment-v1.json"),
+    ),
+    (
+        "utility-breakdown-v1",
+        include_str!("../../../contracts/v1/utility-breakdown-v1.json"),
+    ),
+    (
+        "decision-recommendation-v1",
+        include_str!("../../../contracts/v1/decision-recommendation-v1.json"),
+    ),
+    (
+        "decision-audit-record-v1",
+        include_str!("../../../contracts/v1/decision-audit-record-v1.json"),
+    ),
+    (
+        "policy-gate-result-v1",
+        include_str!("../../../contracts/v1/policy-gate-result-v1.json"),
     ),
     (
         "approval-v1",

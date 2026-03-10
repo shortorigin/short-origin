@@ -83,6 +83,12 @@ The supporting narrative and phase sequence live in:
 - [First-Principles Systems Architecture Baseline](../architecture/first-principles-systems-architecture-report.md)
 - [First-Principles Implementation Roadmap](../architecture/first-principles-implementation-roadmap.md)
 
+## Additional Adopted ADRs
+
+| ADR | File |
+| --- | --- |
+| `ADR-0018` | [`docs/adr/0018-adopt-quantitative-decision-architecture-for-governed-platform-automation.md`](0018-adopt-quantitative-decision-architecture-for-governed-platform-automation.md) |
+
 ## Authoring Rules
 
 - Reference one or more source reports, baseline documents, or predecessor ADRs.

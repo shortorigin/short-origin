@@ -1,0 +1,12 @@
+{
+  "name": "OutcomeDistributionV1",
+  "version": "v1",
+  "fields": [
+    "distribution_id",
+    "scenarios",
+    "expected_value",
+    "variance",
+    "downside_probability",
+    "rationale"
+  ]
+}

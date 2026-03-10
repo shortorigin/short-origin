@@ -1,0 +1,12 @@
+{
+  "name": "RiskAssessmentV1",
+  "version": "v1",
+  "fields": [
+    "risk_score",
+    "downside_probability",
+    "tail_risk_score",
+    "confidence",
+    "rationale",
+    "mitigation"
+  ]
+}

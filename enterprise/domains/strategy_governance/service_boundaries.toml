@@ -1,4 +1,4 @@
 version = "v1"
 primary_service = "governance-service"
-approved_workflows = ["strategy_review", "policy_exception", "quant_strategy_promotion"]
-owned_aggregates = ["governance_decision", "institutional_invariant", "promotion_recommendation", "model_approval"]
+approved_workflows = ["strategy_review", "policy_exception", "quant_strategy_promotion", "decision_evaluation"]
+owned_aggregates = ["governance_decision", "institutional_invariant", "promotion_recommendation", "model_approval", "decision_recommendation", "decision_audit_record"]

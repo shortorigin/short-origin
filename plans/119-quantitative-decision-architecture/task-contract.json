@@ -1,0 +1,82 @@
+{
+  "issue_id": 119,
+  "issue_url": "https://github.com/shortorigin/origin/issues/119",
+  "branch": "feature/119-quantitative-decision-architecture",
+  "primary_architectural_plane": "cross-layer",
+  "owning_subsystem": "governed quantitative decision substrate across enterprise, schemas, shared, services, workflows, and agents",
+  "architectural_references": [
+    "ARCHITECTURE.md",
+    "docs/architecture/layer-boundaries.md",
+    "docs/architecture/quantitative-decision-architecture.md",
+    "docs/adr/0010-durable-workflow-execution-plane.md",
+    "docs/adr/0013-zero-trust-ai-governance-control-plane.md",
+    "docs/adr/0015-gitops-and-policy-as-code-control-artifacts.md",
+    "docs/adr/0018-adopt-quantitative-decision-architecture-for-governed-platform-automation.md"
+  ],
+  "allowed_touchpoints": [
+    "enterprise/",
+    "schemas/",
+    "shared/",
+    "services/",
+    "workflows/",
+    "agents/",
+    "testing/",
+    "docs/",
+    "plans/",
+    "Cargo.toml",
+    "Cargo.lock",
+    "README.md"
+  ],
+  "non_goals": [
+    "Do not move decision logic into ui/ or infrastructure/.",
+    "Do not add remote inference, online training, or opaque autonomous mutation paths.",
+    "Do not bypass schemas/ contracts or workflow policy gates."
+  ],
+  "scope_in": [
+    "Add versioned decision contracts and SurrealDB representability.",
+    "Add shared deterministic decision primitives, probabilistic baselines, game analysis, and policy-gated composition.",
+    "Expose read-only evaluation through governance-service, decision_evaluation workflow, and strategist agent inputs.",
+    "Add architecture and ADR documentation plus fixture-backed integration coverage."
+  ],
+  "scope_out": [
+    "Durable persistence for decision artifacts beyond representability.",
+    "Production model serving, remote inference, or training pipelines.",
+    "UI decision-management surfaces."
+  ],
+  "target_paths": [
+    "enterprise/",
+    "schemas/",
+    "shared/",
+    "services/",
+    "workflows/",
+    "agents/",
+    "testing/",
+    "docs/",
+    "plans/",
+    "Cargo.toml",
+    "Cargo.lock",
+    "README.md"
+  ],
+  "acceptance_criteria": [
+    "Decision evaluation returns structured recommendation, policy-gate verdict, and audit record artifacts.",
+    "Probabilistic and game-theoretic baselines are deterministic under an explicit evaluation seed.",
+    "Policy gates remain authoritative for executable outcomes and learned adapters stay advisory-only when unconfigured.",
+    "Cross-plane tests cover rollout selection, policy rejection, ranked audit output, and unconfigured learned-adapter behavior."
+  ],
+  "validation_commands": [
+    "cargo fmt --all --check",
+    "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+    "cargo test --workspace --all-targets",
+    "cargo verify-repo",
+    "cargo xtask verify profile ui",
+    "cargo xtask ui-hardening"
+  ],
+  "validation_artifacts": [
+    "Passing contract, shared, service, and workflow tests for decisioning",
+    "Fixture-backed recommendation and audit outputs under testing/fixtures/decisioning/run-2026-03-10/",
+    "Committed ADR, architecture document, and execution plan bundle"
+  ],
+  "rollback_path": "Revert the cross-layer decisioning contracts, shared engine, governance-service/workflow integration, agent alignment, fixture updates, and supporting docs together so the repository returns to the previous governed workflow baseline.",
+  "exec_plan_required": true,
+  "exec_plan_path": "plans/119-quantitative-decision-architecture/EXEC_PLAN.md"
+}

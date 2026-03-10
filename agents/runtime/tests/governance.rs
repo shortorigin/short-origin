@@ -39,3 +39,17 @@ fn agent_runtime_denies_workflows_outside_allowlist() {
         Err(error_model::InstitutionalError::PolicyDenied { .. })
     ));
 }
+
+#[test]
+fn strategist_can_request_read_only_decision_evaluation() {
+    let registry = AgentRegistry::load_default().unwrap();
+    let authorization = registry
+        .authorize_action("strategist", &architect_action("decision_evaluation"))
+        .unwrap();
+
+    assert_eq!(
+        authorization.requested_workflow.as_str(),
+        "decision_evaluation"
+    );
+    assert!(authorization.requires_human_approval);
+}

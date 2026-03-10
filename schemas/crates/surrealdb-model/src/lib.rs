@@ -1,8 +1,8 @@
 use contracts::{
-    ApprovalDecisionV1, ComplianceReportV1, EvidenceManifestV1, ExceptionRecordV1,
-    ExperimentResultV1, FillV1, MarketDataBatchV1, ModelApprovalV1, OrderRequestV1,
-    PolicyDecisionV1, PortfolioSnapshotV1, PromotionRecommendationV1, RiskRecordV1,
-    TradingRiskSnapshotV1, TreasuryDisbursementRecordedV1,
+    ApprovalDecisionV1, ComplianceReportV1, DecisionAuditRecordV1, DecisionRecommendationV1,
+    EvidenceManifestV1, ExceptionRecordV1, ExperimentResultV1, FillV1, MarketDataBatchV1,
+    ModelApprovalV1, OrderRequestV1, PolicyDecisionV1, PortfolioSnapshotV1,
+    PromotionRecommendationV1, RiskRecordV1, TradingRiskSnapshotV1, TreasuryDisbursementRecordedV1,
 };
 use events::RecordedEventV1;
 use identity::ActorV1;
@@ -127,4 +127,16 @@ pub struct ModelApprovalRecordV1 {
 pub struct PromotionRecommendationRecordV1 {
     pub id: String,
     pub recommendation: PromotionRecommendationV1,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct DecisionRecommendationRecordV1 {
+    pub id: String,
+    pub recommendation: DecisionRecommendationV1,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct DecisionAuditRecordStoreV1 {
+    pub id: String,
+    pub audit_record: DecisionAuditRecordV1,
 }

@@ -1,0 +1,23 @@
+{
+  "name": "DecisionContextV1",
+  "version": "v1",
+  "fields": [
+    "decision_id",
+    "created_at",
+    "decision_class",
+    "state",
+    "actor_ref",
+    "subject",
+    "objective",
+    "evaluation_seed",
+    "risk_tier",
+    "approval_requirement",
+    "policy_refs",
+    "reversibility",
+    "requested_learned_support",
+    "options",
+    "constraints",
+    "normal_form_game",
+    "provenance"
+  ]
+}

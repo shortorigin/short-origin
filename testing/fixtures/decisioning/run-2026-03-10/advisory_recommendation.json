@@ -1,0 +1,51 @@
+{
+  "recommendation_id": "recommendation::decision::rollout::advisory",
+  "decision_id": "decision::rollout::advisory",
+  "generated_at": "2026-03-10T16:00:00Z",
+  "status": "advisory",
+  "selected_option_id": "staged",
+  "ranked_options": [
+    {
+      "option_id": "staged",
+      "rank": 1,
+      "expected_value": 1.455,
+      "sampled_value": 0.790625,
+      "thompson_score": 0.796115178089,
+      "aggregated_confidence": 0.805781183252,
+      "aggregated_risk": 0.26171875,
+      "final_utility": 0.918204612581,
+      "strategic_summary": "No strategic interaction model supplied.",
+      "constraint_violations": []
+    },
+    {
+      "option_id": "immediate",
+      "rank": 2,
+      "expected_value": 1.505,
+      "sampled_value": 0.6046875,
+      "thompson_score": 0.627071918129,
+      "aggregated_confidence": 0.70182868586,
+      "aggregated_risk": 0.615625,
+      "final_utility": 0.613061007962,
+      "strategic_summary": "No strategic interaction model supplied.",
+      "constraint_violations": []
+    }
+  ],
+  "rationale": "Selected `staged` with utility 0.918, risk 0.262, and confidence 0.806. No strategic interaction model supplied.",
+  "confidence": 0.805781183252,
+  "uncertainty": 0.194218816748,
+  "risk": 0.26171875,
+  "utility": 0.918204612581,
+  "reversibility": "guarded_rollback",
+  "rollback_plan": "Pause promotion and redeploy prior manifest.",
+  "policy_status": "advisory",
+  "provenance": {
+    "source_system": "tests",
+    "source_refs": [
+      "fixture://decisioning"
+    ],
+    "generated_by": "decision-evaluation-tests",
+    "assumptions": [
+      "bounded scenarios"
+    ]
+  }
+}

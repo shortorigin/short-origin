@@ -1,0 +1,39 @@
+{
+  "recommendation_id": "recommendation::decision::policy-rejection",
+  "decision_id": "decision::policy-rejection",
+  "generated_at": "2026-03-10T17:00:00Z",
+  "status": "rejected",
+  "selected_option_id": "aggressive",
+  "ranked_options": [
+    {
+      "option_id": "aggressive",
+      "rank": 1,
+      "expected_value": 1.7475,
+      "sampled_value": 0.890625,
+      "thompson_score": 0.824265842903,
+      "aggregated_confidence": 0.755781183252,
+      "aggregated_risk": 0.739765625,
+      "final_utility": 0.785849024293,
+      "strategic_summary": "No strategic interaction model supplied.",
+      "constraint_violations": []
+    }
+  ],
+  "rationale": "Selected `aggressive` with utility 0.786, risk 0.740, and confidence 0.756. No strategic interaction model supplied.",
+  "confidence": 0.755781183252,
+  "uncertainty": 0.244218816748,
+  "risk": 0.739765625,
+  "utility": 0.785849024293,
+  "reversibility": "guarded_rollback",
+  "rollback_plan": "Manual rollback after incident review.",
+  "policy_status": "rejected",
+  "provenance": {
+    "source_system": "tests",
+    "source_refs": [
+      "fixture://decisioning"
+    ],
+    "generated_by": "decision-evaluation-tests",
+    "assumptions": [
+      "bounded scenarios"
+    ]
+  }
+}

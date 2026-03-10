@@ -1,0 +1,12 @@
+{
+  "name": "DecisionConstraintV1",
+  "version": "v1",
+  "fields": [
+    "constraint_id",
+    "kind",
+    "description",
+    "threshold",
+    "hard",
+    "rationale"
+  ]
+}

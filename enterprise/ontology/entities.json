@@ -5,6 +5,8 @@
     { "name": "control", "domain": "compliance" },
     { "name": "approval_request", "domain": "strategy_governance" },
     { "name": "approval_decision", "domain": "strategy_governance" },
+    { "name": "decision_recommendation", "domain": "strategy_governance" },
+    { "name": "decision_audit_record", "domain": "strategy_governance" },
     { "name": "promotion_recommendation", "domain": "strategy_governance" },
     { "name": "risk_record", "domain": "compliance" },
     { "name": "compliance_pack", "domain": "compliance" },

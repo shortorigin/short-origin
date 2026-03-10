@@ -15,6 +15,7 @@ workflow.
 - [Layer Boundaries](architecture/layer-boundaries.md)
 - [Runtime Composition and Delivery](architecture/runtime-composition.md)
 - [Plugin Application Model](architecture/plugin-application-model.md)
+- [Quantitative Decision Architecture](architecture/quantitative-decision-architecture.md)
 - [First-Principles Systems Architecture Baseline](architecture/first-principles-systems-architecture-report.md)
 - [First-Principles Implementation Roadmap](architecture/first-principles-implementation-roadmap.md)
 
@@ -30,6 +31,7 @@ workflow.
 ## ADRs
 
 - [ADR Catalog](adr/README.md)
+- [ADR 0018: Adopt Quantitative Decision Architecture for Governed Platform Automation](adr/0018-adopt-quantitative-decision-architecture-for-governed-platform-automation.md)
 
 ## Module Guides
 

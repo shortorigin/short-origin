@@ -1,1 +1,1 @@
-allowed_workflows = ["strategy_review", "policy_exception", "continuity_activation"]
+allowed_workflows = ["strategy_review", "policy_exception", "continuity_activation", "decision_evaluation"]

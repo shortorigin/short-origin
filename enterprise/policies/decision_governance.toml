@@ -1,0 +1,16 @@
+version = "v1"
+decision_classes = [
+  "strategic_prioritization",
+  "release_risk_assessment",
+  "resource_allocation",
+  "anomaly_escalation_routing",
+  "policy_constrained_action_selection"
+]
+risk_tiers = ["tier0", "tier1", "tier2", "tier3"]
+approval_requirements = [
+  "none",
+  "domain_owner",
+  "dual_approval",
+  "institutional_council"
+]
+reversibility_classes = ["reversible", "guarded_rollback", "irreversible"]

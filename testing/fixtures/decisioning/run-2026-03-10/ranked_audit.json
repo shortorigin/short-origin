@@ -1,0 +1,227 @@
+{
+  "audit_id": "audit::decision::rollout",
+  "decision_id": "decision::rollout",
+  "recorded_at": "2026-03-10T16:00:00Z",
+  "context": {
+    "decision_id": "decision::rollout",
+    "created_at": "2026-03-10T16:00:00Z",
+    "decision_class": "release_risk_assessment",
+    "state": "pending",
+    "actor_ref": "agent.strategist",
+    "subject": "release-candidate",
+    "objective": "Select a release rollout option",
+    "evaluation_seed": 101,
+    "risk_tier": "tier1",
+    "approval_requirement": "none",
+    "policy_refs": [
+      "policy.release.risk.v1"
+    ],
+    "reversibility": "guarded_rollback",
+    "requested_learned_support": false,
+    "options": [
+      {
+        "option_id": "immediate",
+        "title": "Immediate rollout",
+        "description": "Promote to full traffic immediately.",
+        "expected_outcomes": [
+          {
+            "estimate_id": "estimate-immediate",
+            "description": "Faster delivery",
+            "probability": 0.9,
+            "expected_utility": 0.9,
+            "risk_adjustment": -0.3,
+            "confidence": 0.7,
+            "rationale": "Delivery is faster but less bounded."
+          }
+        ],
+        "outcome_distribution": {
+          "distribution_id": "distribution-immediate",
+          "scenarios": [
+            {
+              "label": "fast",
+              "probability": 0.7,
+              "utility": 0.95,
+              "risk": 0.5
+            },
+            {
+              "label": "incident",
+              "probability": 0.3,
+              "utility": 0.1,
+              "risk": 0.9
+            }
+          ],
+          "expected_value": 0.695,
+          "variance": 0.2,
+          "downside_probability": 0.3,
+          "rationale": "Faster but more variable"
+        },
+        "risk_assessment": {
+          "risk_score": 0.7,
+          "downside_probability": 0.3,
+          "tail_risk_score": 0.8,
+          "confidence": 0.7,
+          "rationale": "Higher blast radius if the release regresses.",
+          "mitigation": "Manual rollback only"
+        },
+        "utility_breakdown": {
+          "value_score": 0.9,
+          "resilience_score": 0.5,
+          "compliance_score": 0.7,
+          "cost_score": 0.7,
+          "reversibility_score": 0.5,
+          "strategic_fit_score": 0.8,
+          "rationale": "Maximizes delivery speed"
+        },
+        "rollback_plan": "Redeploy prior manifest after incident response review.",
+        "reversibility": "guarded_rollback",
+        "historical_successes": 9,
+        "historical_failures": 3
+      },
+      {
+        "option_id": "staged",
+        "title": "Staged rollout",
+        "description": "Promote traffic gradually with rollback guardrails.",
+        "expected_outcomes": [
+          {
+            "estimate_id": "estimate-staged",
+            "description": "Lower blast radius",
+            "probability": 0.8,
+            "expected_utility": 0.8,
+            "risk_adjustment": -0.1,
+            "confidence": 0.82,
+            "rationale": "Prior controlled releases performed well."
+          }
+        ],
+        "outcome_distribution": {
+          "distribution_id": "distribution-staged",
+          "scenarios": [
+            {
+              "label": "rollback",
+              "probability": 0.2,
+              "utility": 0.2,
+              "risk": 0.5
+            },
+            {
+              "label": "smooth",
+              "probability": 0.8,
+              "utility": 0.9,
+              "risk": 0.2
+            }
+          ],
+          "expected_value": 0.76,
+          "variance": 0.05,
+          "downside_probability": 0.2,
+          "rationale": "Bounded rollout scenarios"
+        },
+        "risk_assessment": {
+          "risk_score": 0.3,
+          "downside_probability": 0.2,
+          "tail_risk_score": 0.3,
+          "confidence": 0.8,
+          "rationale": "Traffic can be halted quickly.",
+          "mitigation": "Canary checks and automated rollback"
+        },
+        "utility_breakdown": {
+          "value_score": 0.8,
+          "resilience_score": 0.9,
+          "compliance_score": 0.8,
+          "cost_score": 0.6,
+          "reversibility_score": 0.9,
+          "strategic_fit_score": 0.8,
+          "rationale": "Strong balance of speed and control."
+        },
+        "rollback_plan": "Pause promotion and redeploy prior manifest.",
+        "reversibility": "guarded_rollback",
+        "historical_successes": 8,
+        "historical_failures": 2
+      }
+    ],
+    "constraints": [
+      {
+        "constraint_id": "risk-threshold",
+        "kind": "max_risk_score",
+        "description": "Risk must stay below 0.8",
+        "threshold": 0.8,
+        "hard": true,
+        "rationale": "Release guardrail"
+      }
+    ],
+    "normal_form_game": null,
+    "provenance": {
+      "source_system": "tests",
+      "source_refs": [
+        "fixture://decisioning"
+      ],
+      "generated_by": "decision-evaluation-tests",
+      "assumptions": [
+        "bounded scenarios"
+      ]
+    }
+  },
+  "evaluated_options": [
+    {
+      "option_id": "staged",
+      "rank": 1,
+      "expected_value": 1.455,
+      "sampled_value": 0.790625,
+      "thompson_score": 0.796115178089,
+      "aggregated_confidence": 0.805781183252,
+      "aggregated_risk": 0.26171875,
+      "final_utility": 0.918204612581,
+      "strategic_summary": "No strategic interaction model supplied.",
+      "constraint_violations": []
+    },
+    {
+      "option_id": "immediate",
+      "rank": 2,
+      "expected_value": 1.505,
+      "sampled_value": 0.6046875,
+      "thompson_score": 0.627071918129,
+      "aggregated_confidence": 0.70182868586,
+      "aggregated_risk": 0.615625,
+      "final_utility": 0.613061007962,
+      "strategic_summary": "No strategic interaction model supplied.",
+      "constraint_violations": []
+    }
+  ],
+  "selected_option_id": "staged",
+  "gate_result": {
+    "gate_id": "gate::decision::rollout",
+    "decision_id": "decision::rollout",
+    "evaluated_at": "2026-03-10T16:00:00Z",
+    "verdict": "passed",
+    "executable": true,
+    "required_approval_actions": [],
+    "rationale": "Policy gate passed.",
+    "rejection_reasons": [],
+    "policy_refs": [
+      "policy.release.risk.v1"
+    ]
+  },
+  "assumptions": [
+    "bounded scenarios"
+  ],
+  "rejection_rationale": [],
+  "learned_status": "not_requested",
+  "engine_trace": [
+    "context_ingestion",
+    "option_normalization",
+    "constraint_checking",
+    "probabilistic_scoring",
+    "game_analysis",
+    "utility_aggregation",
+    "recommendation_selection",
+    "policy_gating",
+    "audit_record_creation"
+  ],
+  "provenance": {
+    "source_system": "tests",
+    "source_refs": [
+      "fixture://decisioning"
+    ],
+    "generated_by": "decision-evaluation-tests",
+    "assumptions": [
+      "bounded scenarios"
+    ]
+  }
+}

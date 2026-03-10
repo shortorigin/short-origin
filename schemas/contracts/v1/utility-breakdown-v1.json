@@ -1,0 +1,13 @@
+{
+  "name": "UtilityBreakdownV1",
+  "version": "v1",
+  "fields": [
+    "value_score",
+    "resilience_score",
+    "compliance_score",
+    "cost_score",
+    "reversibility_score",
+    "strategic_fit_score",
+    "rationale"
+  ]
+}

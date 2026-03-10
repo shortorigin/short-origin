@@ -36,10 +36,16 @@ Authoritative supporting architecture documents:
 - [ARCHITECTURE.md](ARCHITECTURE.md)
 - [First-Principles Systems Architecture Baseline](docs/architecture/first-principles-systems-architecture-report.md)
 - [First-Principles Implementation Roadmap](docs/architecture/first-principles-implementation-roadmap.md)
+- [Quantitative Decision Architecture](docs/architecture/quantitative-decision-architecture.md)
 - [ADR Catalog](docs/adr/README.md)
 - [Layer Boundaries](docs/architecture/layer-boundaries.md)
 - [Plugin Application Model](docs/architecture/plugin-application-model.md)
 - [Runtime Composition and Delivery](docs/architecture/runtime-composition.md)
+
+The quantitative decision substrate is a read-only, workflow-gated evaluation path in Phase 1:
+decision contracts live in `schemas/`, deterministic scoring and strategic analysis live in
+`shared/decision-core`, pure evaluation lives in `services/governance-service`, and the canonical
+orchestration surface is `workflows/decision_evaluation`.
 
 ## Development
 

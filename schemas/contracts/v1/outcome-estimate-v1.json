@@ -1,0 +1,13 @@
+{
+  "name": "OutcomeEstimateV1",
+  "version": "v1",
+  "fields": [
+    "estimate_id",
+    "description",
+    "probability",
+    "expected_utility",
+    "risk_adjustment",
+    "confidence",
+    "rationale"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "DecisionOptionV1",
+  "version": "v1",
+  "fields": [
+    "option_id",
+    "title",
+    "description",
+    "expected_outcomes",
+    "outcome_distribution",
+    "risk_assessment",
+    "utility_breakdown",
+    "rollback_plan",
+    "reversibility",
+    "historical_successes",
+    "historical_failures"
+  ]
+}

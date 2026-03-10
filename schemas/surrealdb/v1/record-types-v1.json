@@ -24,6 +24,8 @@
     "trading_risk_snapshot_record",
     "compliance_report_record",
     "model_approval_record",
-    "promotion_recommendation_record"
+    "promotion_recommendation_record",
+    "decision_recommendation_record",
+    "decision_audit_record"
   ]
 }

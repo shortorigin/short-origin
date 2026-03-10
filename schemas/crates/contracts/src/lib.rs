@@ -10,8 +10,10 @@ use serde_json::Value;
 use telemetry::DecisionRef;
 use uuid::Uuid;
 
+mod decision;
 mod knowledge;
 
+pub use decision::*;
 pub use knowledge::*;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]

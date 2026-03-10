@@ -1,0 +1,21 @@
+{
+  "name": "DecisionRecommendationV1",
+  "version": "v1",
+  "fields": [
+    "recommendation_id",
+    "decision_id",
+    "generated_at",
+    "status",
+    "selected_option_id",
+    "ranked_options",
+    "rationale",
+    "confidence",
+    "uncertainty",
+    "risk",
+    "utility",
+    "reversibility",
+    "rollback_plan",
+    "policy_status",
+    "provenance"
+  ]
+}

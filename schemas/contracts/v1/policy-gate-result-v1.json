@@ -1,0 +1,15 @@
+{
+  "name": "PolicyGateResultV1",
+  "version": "v1",
+  "fields": [
+    "gate_id",
+    "decision_id",
+    "evaluated_at",
+    "verdict",
+    "executable",
+    "required_approval_actions",
+    "rationale",
+    "rejection_reasons",
+    "policy_refs"
+  ]
+}
