@@ -1,6 +1,6 @@
 use leptos::prelude::*;
 
-use crate::foundation::{merge_layout_class, ElevationRole, LayoutPadding, SurfaceRole};
+use crate::foundation::{ElevationRole, LayoutPadding, SurfaceRole, merge_layout_class};
 
 #[component]
 pub fn Layer(

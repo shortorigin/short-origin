@@ -66,10 +66,10 @@ pub fn SettingsApp(
     let services = services.expect("settings requires app services");
     let settings_state = RwSignal::new(SettingsAppState::default());
 
-    if let Some(restored_state) = restored_state {
-        if let Ok(restored) = serde_json::from_value::<SettingsAppState>(restored_state) {
-            settings_state.set(restored);
-        }
+    if let Some(restored_state) = restored_state
+        && let Ok(restored) = serde_json::from_value::<SettingsAppState>(restored_state)
+    {
+        settings_state.set(restored);
     }
 
     if let Some(section) = launch_params

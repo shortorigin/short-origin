@@ -2,7 +2,7 @@
 
 use std::{cell::RefCell, collections::HashMap, future::Future, pin::Pin, rc::Rc};
 
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use serde_json::Value;
 
 /// Version for [`AppStateEnvelope`] metadata serialization.

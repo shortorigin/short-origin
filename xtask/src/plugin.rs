@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use jsonschema::{validator_for, Validator};
+use jsonschema::{Validator, validator_for};
 use serde::Deserialize;
 use serde_json::Value;
 
@@ -243,8 +243,8 @@ fn help() -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{validate_manifest_path, PluginManifest};
-    use jsonschema::{validator_for, Validator};
+    use super::{PluginManifest, validate_manifest_path};
+    use jsonschema::{Validator, validator_for};
     use serde_json::Value;
     use std::fs;
     use std::path::{Path, PathBuf};

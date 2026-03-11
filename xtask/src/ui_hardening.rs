@@ -498,10 +498,10 @@ fn run_browser_validation(
 
     let kill_result = server.kill();
     let _wait_result = server.wait();
-    if let Err(error) = kill_result {
-        if error.kind() != io::ErrorKind::InvalidInput {
-            return Err(format!("failed to stop static server: {error}"));
-        }
+    if let Err(error) = kill_result
+        && error.kind() != io::ErrorKind::InvalidInput
+    {
+        return Err(format!("failed to stop static server: {error}"));
     }
 
     browser_result?;
@@ -872,12 +872,14 @@ fn build_checklist(
         ),
         checklist_item(
             "dependency version consistency",
-            APPROVED_CRATE_VERSIONS.iter().all(|(crate_name, expected)| {
-                dependency_audit
-                    .versions
-                    .get(*crate_name)
-                    .is_some_and(|versions| versions.len() == 1 && versions.contains(*expected))
-            }),
+            APPROVED_CRATE_VERSIONS
+                .iter()
+                .all(|(crate_name, expected)| {
+                    dependency_audit
+                        .versions
+                        .get(*crate_name)
+                        .is_some_and(|versions| versions.len() == 1 && versions.contains(*expected))
+                }),
             "critical browser-facing dependencies match the approved release set",
         ),
         checklist_item(
@@ -924,11 +926,10 @@ fn build_checklist(
                 Path::new(&artifact.relative_path)
                     .extension()
                     .is_some_and(|ext| ext.eq_ignore_ascii_case("js"))
-            })
-                && build_a
-                    .files
-                    .iter()
-                    .any(|artifact| artifact.relative_path.contains("snippets/")),
+            }) && build_a
+                .files
+                .iter()
+                .any(|artifact| artifact.relative_path.contains("snippets/")),
             "the verifier captured JS, WASM, snippet, and copied assets",
         ),
         checklist_item(
@@ -968,10 +969,10 @@ fn build_checklist(
         ),
         checklist_item(
             "CI/CD enforcement steps",
-            config_audit
-                .workflows
-                .iter()
-                .all(|(_path, contents)| contents.contains("cargo xtask ui-hardening") || !contents.contains("xtask ui build")),
+            config_audit.workflows.iter().all(|(_path, contents)| {
+                contents.contains("cargo xtask ui-hardening")
+                    || !contents.contains("xtask ui build")
+            }),
             "release-oriented workflows reference the hardened verification path where browser artifacts are involved",
         ),
     ]

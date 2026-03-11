@@ -10,7 +10,6 @@ chrono.workspace = true
 contracts = { path = "../../schemas/crates/contracts" }
 error-model = { path = "../../shared/error-model" }
 evidence-sdk = { path = "../../shared/evidence-sdk" }
-futures.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 trading-core = { path = "../../shared/trading-core" }

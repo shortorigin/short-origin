@@ -4,7 +4,7 @@ use leptos::html;
 use leptos::prelude::*;
 use leptos::web_sys;
 
-use crate::foundation::{bool_token, merge_layout_class, FieldVariant};
+use crate::foundation::{FieldVariant, bool_token, merge_layout_class};
 
 #[component]
 pub fn TextField(

@@ -9,7 +9,6 @@ version.workspace = true
 chrono.workspace = true
 contracts = { path = "../../schemas/crates/contracts" }
 error-model = { path = "../error-model" }
-futures.workspace = true
 identity = { path = "../identity" }
 uuid.workspace = true
 

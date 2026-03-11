@@ -97,13 +97,13 @@ impl ScopedCacheStore {
             return Ok(Some(value));
         }
 
-        if cache_name == EXPLORER_CACHE_NAME {
-            if let Some(legacy_domain) = map.remove(LEGACY_EXPLORER_CACHE_NAME) {
-                let value = legacy_domain.get(key).cloned();
-                map.insert(cache_name.to_string(), legacy_domain);
-                save_cache_map(&self.file, &map)?;
-                return Ok(value);
-            }
+        if cache_name == EXPLORER_CACHE_NAME
+            && let Some(legacy_domain) = map.remove(LEGACY_EXPLORER_CACHE_NAME)
+        {
+            let value = legacy_domain.get(key).cloned();
+            map.insert(cache_name.to_string(), legacy_domain);
+            save_cache_map(&self.file, &map)?;
+            return Ok(value);
         }
 
         Ok(None)
@@ -119,12 +119,12 @@ impl ScopedCacheStore {
                 map.remove(cache_name);
             }
         }
-        if cache_name == EXPLORER_CACHE_NAME {
-            if let Some(domain) = map.get_mut(LEGACY_EXPLORER_CACHE_NAME) {
-                domain.remove(key);
-                if domain.is_empty() {
-                    map.remove(LEGACY_EXPLORER_CACHE_NAME);
-                }
+        if cache_name == EXPLORER_CACHE_NAME
+            && let Some(domain) = map.get_mut(LEGACY_EXPLORER_CACHE_NAME)
+        {
+            domain.remove(key);
+            if domain.is_empty() {
+                map.remove(LEGACY_EXPLORER_CACHE_NAME);
             }
         }
         save_cache_map(&self.file, &map)
@@ -160,7 +160,7 @@ pub fn cache_delete(app: tauri::AppHandle, cache_name: String, key: String) -> R
 
 #[cfg(test)]
 mod tests {
-    use super::{load_cache_map, save_cache_map, CacheMap, ScopedCacheStore};
+    use super::{CacheMap, ScopedCacheStore, load_cache_map, save_cache_map};
     use std::fs;
     use std::path::PathBuf;
     use std::process;

@@ -180,10 +180,10 @@ pub(super) fn Taskbar() -> impl IntoView {
         });
 
         window_context_menu.update(|menu| {
-            if let Some(current) = *menu {
-                if running.iter().all(|win| win.id != current.window_id) {
-                    *menu = None;
-                }
+            if let Some(current) = *menu
+                && running.iter().all(|win| win.id != current.window_id)
+            {
+                *menu = None;
             }
         });
     });
@@ -276,29 +276,29 @@ pub(super) fn Taskbar() -> impl IntoView {
                         overflow_menu_open.set(false);
                         runtime.dispatch_action(DesktopAction::ToggleTaskbarWindow { window_id });
                     }
-                } else if is_context_menu_shortcut(&ev) {
-                    if let Some(window_id) = selected_running_window.get_untracked() {
-                        ev.prevent_default();
-                        ev.stop_propagation();
-                        window_context_menu.set(None);
-                        overflow_menu_open.set(false);
-                        runtime.dispatch_action(DesktopAction::CloseStartMenu);
-                        runtime.dispatch_action(DesktopAction::CloseControlCenter);
-                        runtime.dispatch_action(DesktopAction::CloseNotificationCenter);
-                        let viewport = runtime
-                            .host
-                            .get_value()
-                            .desktop_viewport_rect(TASKBAR_HEIGHT_PX);
-                        let x = (viewport.w / 2).max(24);
-                        let y = (viewport.h + TASKBAR_HEIGHT_PX - 180).max(24);
-                        open_taskbar_window_context_menu(
-                            runtime.host.get_value(),
-                            window_context_menu,
-                            window_id,
-                            x,
-                            y,
-                        );
-                    }
+                } else if is_context_menu_shortcut(&ev)
+                    && let Some(window_id) = selected_running_window.get_untracked()
+                {
+                    ev.prevent_default();
+                    ev.stop_propagation();
+                    window_context_menu.set(None);
+                    overflow_menu_open.set(false);
+                    runtime.dispatch_action(DesktopAction::CloseStartMenu);
+                    runtime.dispatch_action(DesktopAction::CloseControlCenter);
+                    runtime.dispatch_action(DesktopAction::CloseNotificationCenter);
+                    let viewport = runtime
+                        .host
+                        .get_value()
+                        .desktop_viewport_rect(TASKBAR_HEIGHT_PX);
+                    let x = (viewport.w / 2).max(24);
+                    let y = (viewport.h + TASKBAR_HEIGHT_PX - 180).max(24);
+                    open_taskbar_window_context_menu(
+                        runtime.host.get_value(),
+                        window_context_menu,
+                        window_id,
+                        x,
+                        y,
+                    );
                 }
             }
         }

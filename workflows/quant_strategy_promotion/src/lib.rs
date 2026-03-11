@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use chrono::{TimeZone, Timelike, Utc};
 use compliance_service::{
-    validate_compliance_pack, CapitalLimits, ComplianceService, TradeSurveillance,
+    CapitalLimits, ComplianceService, TradeSurveillance, validate_compliance_pack,
 };
 use contracts::{
     AgentActionRequestV1, AssetClassV1, BestExecutionRecordV1, ExperimentConfigV1,
@@ -20,16 +20,16 @@ use market_data_service::{CoinbaseAdapter, MarketDataService, OandaAdapter};
 use orchestrator::WorkflowEngine;
 use policy_sdk::{ApprovalVerificationPort, PolicyDecisionPort};
 use portfolio_service::PortfolioService;
-use quant_research_service::{ai_assisted_summary, QuantResearchService};
+use quant_research_service::{QuantResearchService, ai_assisted_summary};
 use strategy_sandbox::{StrategySandbox, WasmRuntimePolicy};
 use trading_core::{
-    build_feature_rows, experiment_config_hash, walk_forward, BasicLinearModel, Clock, FixedClock,
-    IdGenerator, LimitConfig, SequenceIdGenerator, StrategyAllocationRule,
+    BasicLinearModel, Clock, FixedClock, IdGenerator, LimitConfig, SequenceIdGenerator,
+    StrategyAllocationRule, build_feature_rows, experiment_config_hash, walk_forward,
 };
 use trading_risk_service::TradingRiskService;
 use trading_sim::{
-    run_agent_market_simulation, AgentBehavior, DeterministicBacktestEngine, MeanReversion,
-    PaperVenueAdapter, PaperVenueConfig, SweepJob, TrendFollower,
+    AgentBehavior, DeterministicBacktestEngine, MeanReversion, PaperVenueAdapter, PaperVenueConfig,
+    SweepJob, TrendFollower, run_agent_market_simulation,
 };
 
 const SEED: u64 = 20_260_305;

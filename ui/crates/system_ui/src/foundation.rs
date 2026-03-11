@@ -416,9 +416,5 @@ pub(crate) fn merge_layout_class(base: &'static str, layout_class: Option<&'stat
 }
 
 pub(crate) fn bool_token(value: bool) -> &'static str {
-    if value {
-        "true"
-    } else {
-        "false"
-    }
+    if value { "true" } else { "false" }
 }

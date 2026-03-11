@@ -31,16 +31,16 @@ pub mod pwa;
 pub mod storage;
 
 pub use adapters::{
-    app_state_store, build_host_services, content_cache, explorer_fs_service, external_url_service,
-    host_capabilities, host_strategy_name, notification_service, prefs_store,
-    selected_host_strategy, AppStateStoreAdapter, ContentCacheAdapter, ExplorerFsServiceAdapter,
-    ExternalUrlServiceAdapter, NotificationServiceAdapter, PrefsStoreAdapter,
+    AppStateStoreAdapter, ContentCacheAdapter, ExplorerFsServiceAdapter, ExternalUrlServiceAdapter,
+    NotificationServiceAdapter, PrefsStoreAdapter, app_state_store, build_host_services,
+    content_cache, explorer_fs_service, external_url_service, host_capabilities,
+    host_strategy_name, notification_service, prefs_store, selected_host_strategy,
 };
 pub use cache::cache_api::WebContentCache;
 pub use cache::tauri_cache_api::TauriContentCache;
 pub use cross_context::{
-    broadcast_channel_supported, decode_shell_sync_event, publish_shell_sync_event,
-    shell_sync_sender_id, should_apply_shell_sync_event, ShellSyncEvent, ShellSyncKind,
+    ShellSyncEvent, ShellSyncKind, broadcast_channel_supported, decode_shell_sync_event,
+    publish_shell_sync_event, shell_sync_sender_id, should_apply_shell_sync_event,
 };
 pub use external_url::{TauriExternalUrlService, WebExternalUrlService};
 pub use fs::explorer::{TauriExplorerFsService, WebExplorerFsService};

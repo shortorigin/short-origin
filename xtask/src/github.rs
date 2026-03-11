@@ -1,9 +1,9 @@
-use crate::architecture::{planes_for_paths, Plane};
+use crate::architecture::{Plane, planes_for_paths};
 use crate::common::workspace_root;
 use jsonschema::validator_for;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use serde_yaml_ng::Value as YamlValue;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Write as _;
@@ -402,7 +402,7 @@ fn validate_execution_artifacts(args: &[String]) -> Result<(), String> {
             other => {
                 return Err(format!(
                     "unknown validate-execution-artifacts argument `{other}`"
-                ))
+                ));
             }
         }
     }
@@ -848,13 +848,14 @@ fn collect_audit_defects(
             .iter()
             .any(|trigger| trigger == "pull_request");
         for job in &workflow.jobs {
-            if let Some(condition) = &job.condition {
-                if condition.contains("pull_request") && !has_pull_request_trigger {
-                    defects.push(format!(
-                        "workflow `{}` job `{}` has PR-only condition `{condition}` without a pull_request trigger",
-                        workflow.workflow_name, job.job_name
-                    ));
-                }
+            if let Some(condition) = &job.condition
+                && condition.contains("pull_request")
+                && !has_pull_request_trigger
+            {
+                defects.push(format!(
+                    "workflow `{}` job `{}` has PR-only condition `{condition}` without a pull_request trigger",
+                    workflow.workflow_name, job.job_name
+                ));
             }
         }
     }
@@ -973,7 +974,7 @@ fn audit_docs_indexes() -> Result<Vec<String>, String> {
     let docs_index_path = workspace_root.join("docs/README.md");
     if !docs_index_path.is_file() {
         return Ok(vec![
-            "required docs index `docs/README.md` is missing".to_owned()
+            "required docs index `docs/README.md` is missing".to_owned(),
         ]);
     }
 
@@ -1231,12 +1232,12 @@ fn validate_adr_document(
     if front_matter.tags.is_empty() {
         defects.push(format!("ADR `{relative}` must declare at least one tag"));
     }
-    if let Some(source_report) = &front_matter.source_report {
-        if !workspace_root.join(source_report).exists() {
-            defects.push(format!(
-                "ADR `{relative}` references missing source_report `{source_report}`"
-            ));
-        }
+    if let Some(source_report) = &front_matter.source_report
+        && !workspace_root.join(source_report).exists()
+    {
+        defects.push(format!(
+            "ADR `{relative}` references missing source_report `{source_report}`"
+        ));
     }
     let _ = (&front_matter.supersedes, &front_matter.superseded_by);
 
@@ -1684,8 +1685,14 @@ fn render_repo_plan(config: &GovernanceConfig, repository: &str) -> String {
         format!(
             "- execution artifacts live under `{}`; required for multi-plane work and risk classes [{}], recommended for risk classes [{}]",
             config.execution_artifacts.root,
-            config.execution_artifacts.require_for_risk_classes.join(", "),
-            config.execution_artifacts.recommend_for_risk_classes.join(", ")
+            config
+                .execution_artifacts
+                .require_for_risk_classes
+                .join(", "),
+            config
+                .execution_artifacts
+                .recommend_for_risk_classes
+                .join(", ")
         ),
         format!(
             "- governance workflow validates PR title regex `{}` and linked issue references",
@@ -2201,12 +2208,13 @@ fn validate_pr_event(config: &GovernanceConfig, event: &PullRequestEvent) -> Res
                 .to_owned(),
         );
     }
-    if let Some(branch_issue_id) = issue_id_from_branch(&event.branch) {
-        if linked_issue_ids.len() == 1 && !linked_issue_ids.contains(&branch_issue_id) {
-            failures.push(format!(
-                "branch issue id `#{branch_issue_id}` must match the issue closed in the Linked Issue section"
-            ));
-        }
+    if let Some(branch_issue_id) = issue_id_from_branch(&event.branch)
+        && linked_issue_ids.len() == 1
+        && !linked_issue_ids.contains(&branch_issue_id)
+    {
+        failures.push(format!(
+            "branch issue id `#{branch_issue_id}` must match the issue closed in the Linked Issue section"
+        ));
     }
 
     let changed_files = if event.changed_files.is_empty() {
@@ -2543,7 +2551,7 @@ fn validate_exec_plan_file(path: &Path) -> Result<(), String> {
                 return Err(format!(
                     "execution plan `{}` must include non-empty `{heading}` content",
                     path.display()
-                ))
+                ));
             }
         }
     }
@@ -2778,10 +2786,10 @@ Subcommands:
 #[cfg(test)]
 mod tests {
     use super::{
-        audit_adr_corpus, branch_ruleset_payload, extract_trigger_names, load_config,
-        main_ruleset_payload, render_drift_matrix_markdown, split_front_matter,
-        validate_exec_plan_file, validate_execution_artifacts_in_workspace, validate_pr_event,
-        DriftRow, ExecutionArtifactsValidationInput, PullRequestEvent,
+        DriftRow, ExecutionArtifactsValidationInput, PullRequestEvent, audit_adr_corpus,
+        branch_ruleset_payload, extract_trigger_names, load_config, main_ruleset_payload,
+        render_drift_matrix_markdown, split_front_matter, validate_exec_plan_file,
+        validate_execution_artifacts_in_workspace, validate_pr_event,
     };
     use serde_yaml_ng::Value as YamlValue;
     use std::fs;
@@ -2810,10 +2818,12 @@ mod tests {
                 "Security / security-gate",
             ]
         );
-        assert!(config
-            .labels
-            .iter()
-            .any(|label| label.name == "type:feature"));
+        assert!(
+            config
+                .labels
+                .iter()
+                .any(|label| label.name == "type:feature")
+        );
     }
 
     #[test]
@@ -2865,16 +2875,20 @@ mod tests {
             .expect("branch ruleset should expose a rules array");
 
         assert!(main_rules.iter().any(|rule| rule["type"] == "pull_request"));
-        assert!(main_rules
-            .iter()
-            .any(|rule| rule["type"] == "required_status_checks"));
+        assert!(
+            main_rules
+                .iter()
+                .any(|rule| rule["type"] == "required_status_checks")
+        );
         assert!(main_rules.iter().any(|rule| {
             rule["type"] == "pull_request"
                 && rule["parameters"]["require_code_owner_review"] == serde_json::Value::Bool(true)
         }));
-        assert!(branch_rules
-            .iter()
-            .any(|rule| rule["type"] == "branch_name_pattern"));
+        assert!(
+            branch_rules
+                .iter()
+                .any(|rule| rule["type"] == "branch_name_pattern")
+        );
     }
 
     #[test]

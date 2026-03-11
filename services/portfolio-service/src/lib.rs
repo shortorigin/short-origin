@@ -5,8 +5,8 @@ use contracts::{
     FillV1, LedgerEntryV1, PortfolioSnapshotV1, ServiceBoundaryV1, SignalV1, SymbolV1,
 };
 use trading_core::{
-    reconcile_snapshot, AllocatedSignal, Clock, DoubleEntryLedger, MultiStrategyAllocator,
-    PortfolioLedger, StrategyAllocationRule,
+    AllocatedSignal, Clock, DoubleEntryLedger, MultiStrategyAllocator, PortfolioLedger,
+    StrategyAllocationRule, reconcile_snapshot,
 };
 use trading_errors::TradingResult;
 

@@ -57,10 +57,10 @@ pub fn normalize_window_stack(state: &mut DesktopState) {
         }
     }
 
-    if !has_focused {
-        if let Some(last_non_minimized) = state.windows.iter_mut().rev().find(|w| !w.minimized) {
-            last_non_minimized.is_focused = true;
-        }
+    if !has_focused
+        && let Some(last_non_minimized) = state.windows.iter_mut().rev().find(|w| !w.minimized)
+    {
+        last_non_minimized.is_focused = true;
     }
 }
 

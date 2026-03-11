@@ -1,10 +1,10 @@
 use std::collections::BTreeSet;
+use std::future::{Future, ready};
 
 use contracts::{
     ImpactTier, PolicyDecisionOutcome, PolicyDecisionRequestV1, PolicyDecisionV1, ServiceBoundaryV1,
 };
 use error_model::InstitutionalResult;
-use futures::future::BoxFuture;
 use identity::{DecisionId, EvidenceId};
 use policy_sdk::PolicyDecisionPort;
 
@@ -38,51 +38,49 @@ impl PolicyDecisionPort for PolicyService {
     fn evaluate(
         &self,
         request: &PolicyDecisionRequestV1,
-    ) -> BoxFuture<'_, InstitutionalResult<PolicyDecisionV1>> {
+    ) -> impl Future<Output = InstitutionalResult<PolicyDecisionV1>> + Send + '_ {
         let request = request.clone();
-        Box::pin(async move {
-            let mut denial_reasons = Vec::new();
-            if request.policy_refs.is_empty() {
-                denial_reasons.push("policy_refs must not be empty".to_owned());
-            }
-            if self.freeze_active && request.impact_tier != ImpactTier::Tier0 {
-                denial_reasons.push("change freeze is active".to_owned());
-            }
-            if request
-                .exception_refs
-                .iter()
-                .any(|exception_ref| self.expired_exceptions.contains(exception_ref))
-            {
-                denial_reasons.push("expired exception reference supplied".to_owned());
-            }
+        let mut denial_reasons = Vec::new();
+        if request.policy_refs.is_empty() {
+            denial_reasons.push("policy_refs must not be empty".to_owned());
+        }
+        if self.freeze_active && request.impact_tier != ImpactTier::Tier0 {
+            denial_reasons.push("change freeze is active".to_owned());
+        }
+        if request
+            .exception_refs
+            .iter()
+            .any(|exception_ref| self.expired_exceptions.contains(exception_ref))
+        {
+            denial_reasons.push("expired exception reference supplied".to_owned());
+        }
 
-            let allowed = denial_reasons.is_empty();
-            let obligations = if allowed {
-                let mut obligations = vec!["record_evidence".to_owned()];
-                if request.impact_tier != ImpactTier::Tier0 {
-                    obligations.push("require_human_approval".to_owned());
-                }
-                obligations
+        let allowed = denial_reasons.is_empty();
+        let obligations = if allowed {
+            let mut obligations = vec!["record_evidence".to_owned()];
+            if request.impact_tier != ImpactTier::Tier0 {
+                obligations.push("require_human_approval".to_owned());
+            }
+            obligations
+        } else {
+            Vec::new()
+        };
+
+        ready(Ok(PolicyDecisionV1 {
+            decision_id: DecisionId::from(format!("decision::{}", request.request_id)),
+            request_id: request.request_id.clone(),
+            decision: if allowed {
+                PolicyDecisionOutcome::Allow
             } else {
-                Vec::new()
-            };
-
-            Ok(PolicyDecisionV1 {
-                decision_id: DecisionId::from(format!("decision::{}", request.request_id)),
-                request_id: request.request_id.clone(),
-                decision: if allowed {
-                    PolicyDecisionOutcome::Allow
-                } else {
-                    PolicyDecisionOutcome::Deny
-                },
-                obligations,
-                denial_reasons,
-                evidence_refs: vec![EvidenceId::from(format!(
-                    "evidence::{}",
-                    request.request_id
-                ))],
-            })
-        })
+                PolicyDecisionOutcome::Deny
+            },
+            obligations,
+            denial_reasons,
+            evidence_refs: vec![EvidenceId::from(format!(
+                "evidence::{}",
+                request.request_id
+            ))],
+        }))
     }
 }
 

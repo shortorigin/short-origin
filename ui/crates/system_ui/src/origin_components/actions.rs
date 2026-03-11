@@ -4,7 +4,7 @@ use leptos::prelude::*;
 use leptos::web_sys;
 
 use crate::foundation::{
-    bool_token, merge_layout_class, ButtonShape, ButtonSize, ButtonVariant, ControlTone,
+    ButtonShape, ButtonSize, ButtonVariant, ControlTone, bool_token, merge_layout_class,
 };
 use crate::origin_primitives::{Icon, IconName, IconSize};
 

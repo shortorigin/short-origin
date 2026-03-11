@@ -617,16 +617,28 @@ fn drop_no_open_arg(args: &mut Vec<String>) {
     args.retain(|arg| arg != "--no-open");
 }
 
-fn sanitize_trunk_environment(command: &mut Command) {
-    if env::var_os("NO_COLOR").is_some() {
+fn sanitize_trunk_environment_with(
+    command: &mut Command,
+    no_color_present: bool,
+    env_keys: impl IntoIterator<Item = std::ffi::OsString>,
+) {
+    if no_color_present {
         command.env_remove("NO_COLOR");
     }
-    for key in env::vars_os().map(|(key, _)| key) {
+    for key in env_keys {
         let key = key.to_string_lossy();
         if key.starts_with("CARGO_") && key != "CARGO_HOME" {
             command.env_remove(key.as_ref());
         }
     }
+}
+
+fn sanitize_trunk_environment(command: &mut Command) {
+    sanitize_trunk_environment_with(
+        command,
+        env::var_os("NO_COLOR").is_some(),
+        env::vars_os().map(|(key, _)| key),
+    );
 }
 
 fn help() -> String {
@@ -652,7 +664,7 @@ Commands:
 mod tests {
     use super::{
         args_include_lattice, drop_no_open_arg, normalize_dist_arg, prepend_get_hosts,
-        probe_http_root, sanitize_trunk_environment, verify_ui_browser_manifest_hygiene,
+        probe_http_root, sanitize_trunk_environment_with, verify_ui_browser_manifest_hygiene,
         verify_ui_shell_style_hygiene,
     };
     use std::fs;
@@ -704,23 +716,21 @@ mod tests {
 
     #[test]
     fn sanitize_trunk_environment_removes_no_color() {
-        let original = std::env::var_os("NO_COLOR");
-        std::env::set_var("NO_COLOR", "1");
-
         let mut command = Command::new("trunk");
-        sanitize_trunk_environment(&mut command);
+        sanitize_trunk_environment_with(
+            &mut command,
+            true,
+            [
+                std::ffi::OsString::from("CARGO_BUILD_TARGET"),
+                std::ffi::OsString::from("CARGO_HOME"),
+            ],
+        );
 
         let no_color = command
             .get_envs()
             .find(|(key, _)| *key == "NO_COLOR")
             .and_then(|(_, value)| value);
         assert_eq!(no_color, None);
-
-        if let Some(value) = original {
-            std::env::set_var("NO_COLOR", value);
-        } else {
-            std::env::remove_var("NO_COLOR");
-        }
     }
 
     #[test]

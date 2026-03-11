@@ -1,0 +1,73 @@
+{
+  "issue_id": 131,
+  "issue_url": "https://github.com/shortorigin/origin/issues/131",
+  "branch": "refactor/131-edition-2024-rust-modernization",
+  "primary_architectural_plane": "cross-layer",
+  "owning_subsystem": "workspace language/tooling baseline and internal async interface modernization",
+  "architectural_references": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "docs/architecture/layer-boundaries.md",
+    "xtask/AGENTS.md"
+  ],
+  "allowed_touchpoints": [
+    "Cargo.toml",
+    "Cargo.lock",
+    "shared/",
+    "platform/",
+    "services/",
+    "workflows/",
+    "ui/",
+    "xtask/",
+    "plans/",
+    "docs/"
+  ],
+  "non_goals": [
+    "Do not redesign product contracts as part of the edition uplift.",
+    "Do not remove object-safe async boundaries required for dyn dispatch in UI host APIs.",
+    "Do not perform unrelated feature work."
+  ],
+  "scope_in": [
+    "Set the workspace edition to 2024 and remove local Edition 2021 overrides unless a tool-specific exception is proven necessary.",
+    "Fix compiler, formatter, clippy, and macro fallout introduced by the edition change.",
+    "Replace eligible internal BoxFuture-based trait methods with native async fn or RPITIT where dyn dispatch is not required.",
+    "Preserve boxed async interfaces for AppStateStore, PrefsStore, and closure-based UI host APIs."
+  ],
+  "scope_out": [
+    "Contract or schema version redesign.",
+    "Non-modernization feature work.",
+    "Removing object-safe boxed async boundaries needed by runtime host abstractions."
+  ],
+  "target_paths": [
+    "Cargo.toml",
+    "Cargo.lock",
+    "shared/",
+    "platform/",
+    "services/",
+    "workflows/",
+    "ui/",
+    "xtask/",
+    "plans/"
+  ],
+  "acceptance_criteria": [
+    "The workspace builds, tests, and passes clippy with Edition 2024 enabled.",
+    "Local edition overrides are removed unless a proven exception remains necessary.",
+    "Eligible internal async interfaces are modernized without breaking trait-object boundaries that must stay boxed.",
+    "cargo verify-repo, cargo xtask verify profile ui, and cargo xtask ui-hardening all pass."
+  ],
+  "validation_commands": [
+    "cargo fmt --all --check",
+    "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+    "cargo verify-repo",
+    "cargo xtask verify profile ui",
+    "cargo xtask ui-hardening"
+  ],
+  "validation_artifacts": [
+    "Passing fmt, clippy, verify-repo, UI verification, and UI hardening output",
+    "Edition 2024 workspace manifest updates",
+    "Committed async interface modernization limited to eligible internal traits"
+  ],
+  "rollback_path": "Revert the edition uplift, lockfile refresh, and async-interface modernization together so the workspace does not retain mixed edition or async-style assumptions.",
+  "exec_plan_required": true,
+  "exec_plan_path": "plans/131-edition-2024-rust-modernization/EXEC_PLAN.md"
+}

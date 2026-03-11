@@ -1,6 +1,6 @@
 use leptos::prelude::*;
 
-use crate::foundation::{merge_layout_class, LayoutAlign, LayoutGap, LayoutJustify, LayoutPadding};
+use crate::foundation::{LayoutAlign, LayoutGap, LayoutJustify, LayoutPadding, merge_layout_class};
 
 #[component]
 pub fn Inline(

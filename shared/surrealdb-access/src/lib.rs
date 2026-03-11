@@ -835,12 +835,14 @@ mod tests {
             .await
             .expect("store capsule");
         assert_eq!(capsule.capsule.storage_ref, "memvid:capsule-1");
-        assert!(context
-            .knowledge_capsules()
-            .latest_status()
-            .await
-            .expect("latest status")
-            .is_some());
+        assert!(
+            context
+                .knowledge_capsules()
+                .latest_status()
+                .await
+                .expect("latest status")
+                .is_some()
+        );
 
         let analysis = context
             .knowledge_analyses()

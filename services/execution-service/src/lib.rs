@@ -11,8 +11,8 @@ use events::{
 };
 use serde::{Deserialize, Serialize};
 use trading_core::{
-    build_determinism_key, build_order_request, Clock, ExecutionVenueAdapter, IdGenerator,
-    PortfolioLedger, RiskPolicyEngine, StrategyModule,
+    Clock, ExecutionVenueAdapter, IdGenerator, PortfolioLedger, RiskPolicyEngine, StrategyModule,
+    build_determinism_key, build_order_request,
 };
 use trading_errors::TradingError;
 

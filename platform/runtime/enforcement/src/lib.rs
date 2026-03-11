@@ -13,7 +13,7 @@ use policy_sdk::{ApprovalVerificationPort, PolicyDecisionPort};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use telemetry::{DecisionRef, TraceContext};
-use tokio::time::{timeout, Duration};
+use tokio::time::{Duration, timeout};
 use tracing::error;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]

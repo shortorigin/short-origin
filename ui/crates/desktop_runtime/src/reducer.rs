@@ -3,18 +3,19 @@
 mod appearance;
 
 use desktop_app_contract::{AppCapability, AppCommand, AppEvent, AppLifecycleEvent, ApplicationId};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use thiserror::Error;
 
 use crate::apps;
 use crate::model::{
-    DeepLinkOpenTarget, DeepLinkState, DesktopNotification, DesktopSnapshot, DesktopState,
-    DesktopTheme, InteractionState, OpenWindowRequest, PointerPosition, ResizeEdge, ResizeSession,
-    ThemeMode, WindowId, WindowRecord, WindowRect, DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH,
+    DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH, DeepLinkOpenTarget, DeepLinkState,
+    DesktopNotification, DesktopSnapshot, DesktopState, DesktopTheme, InteractionState,
+    OpenWindowRequest, PointerPosition, ResizeEdge, ResizeSession, ThemeMode, WindowId,
+    WindowRecord, WindowRect,
 };
 use crate::window_manager::{
-    focus_window_internal, normalize_window_stack, resize_rect, snap_window_to_viewport_edge,
-    MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH,
+    MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH, focus_window_internal, normalize_window_stack,
+    resize_rect, snap_window_to_viewport_edge,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -402,32 +403,28 @@ pub fn reduce_desktop(
             }
             let descriptor = apps::app_descriptor_by_id(&app_id);
 
-            if descriptor.single_instance {
-                if let Some(window_id) = preferred_window_for_app(state, &app_id) {
-                    let nested = if state
-                        .windows
-                        .iter()
-                        .find(|w| w.id == window_id)
-                        .map(|w| w.minimized)
-                        .unwrap_or(false)
-                    {
-                        reduce_desktop(
-                            state,
-                            interaction,
-                            DesktopAction::RestoreWindow { window_id },
-                        )?
-                    } else if state.focused_window_id() != Some(window_id) {
-                        reduce_desktop(
-                            state,
-                            interaction,
-                            DesktopAction::FocusWindow { window_id },
-                        )?
-                    } else {
-                        Vec::new()
-                    };
-                    effects.extend(nested);
-                    return Ok(effects);
-                }
+            if descriptor.single_instance
+                && let Some(window_id) = preferred_window_for_app(state, &app_id)
+            {
+                let nested = if state
+                    .windows
+                    .iter()
+                    .find(|w| w.id == window_id)
+                    .map(|w| w.minimized)
+                    .unwrap_or(false)
+                {
+                    reduce_desktop(
+                        state,
+                        interaction,
+                        DesktopAction::RestoreWindow { window_id },
+                    )?
+                } else if state.focused_window_id() != Some(window_id) {
+                    reduce_desktop(state, interaction, DesktopAction::FocusWindow { window_id })?
+                } else {
+                    Vec::new()
+                };
+                effects.extend(nested);
+                return Ok(effects);
             }
 
             let nested = reduce_desktop(
@@ -822,20 +819,20 @@ pub fn reduce_desktop(
                 .find(|w| w.id == window_id)
                 .map(|w| w.app_id.clone())
                 .ok_or(ReducerError::WindowNotFound)?;
-            if let Some(required) = command_required_capability(&command) {
-                if !command_allowed_for_app(state, &source_app_id, required) {
-                    return Err(ReducerError::CapabilityDenied {
-                        app_id: source_app_id.to_string(),
-                        capability: required,
-                        window_id,
-                        diagnostic_event: Box::new(AppEvent::capability_denied(
-                            source_app_id.to_string(),
-                            required,
-                            window_id.0,
-                            command_label(&command),
-                        )),
-                    });
-                }
+            if let Some(required) = command_required_capability(&command)
+                && !command_allowed_for_app(state, &source_app_id, required)
+            {
+                return Err(ReducerError::CapabilityDenied {
+                    app_id: source_app_id.to_string(),
+                    capability: required,
+                    window_id,
+                    diagnostic_event: Box::new(AppEvent::capability_denied(
+                        source_app_id.to_string(),
+                        required,
+                        window_id.0,
+                        command_label(&command),
+                    )),
+                });
             }
 
             match command {
@@ -1252,24 +1249,24 @@ fn emit_focus_transition(
         return;
     }
 
-    if let Some(previous) = previous_focus {
-        if state.windows.iter().any(|window| window.id == previous) {
-            record_window_lifecycle(state, previous, AppLifecycleEvent::Blurred);
-            effects.push(RuntimeEffect::DispatchLifecycle {
-                window_id: previous,
-                event: AppLifecycleEvent::Blurred,
-            });
-        }
+    if let Some(previous) = previous_focus
+        && state.windows.iter().any(|window| window.id == previous)
+    {
+        record_window_lifecycle(state, previous, AppLifecycleEvent::Blurred);
+        effects.push(RuntimeEffect::DispatchLifecycle {
+            window_id: previous,
+            event: AppLifecycleEvent::Blurred,
+        });
     }
 
-    if let Some(next) = next_focus {
-        if state.windows.iter().any(|window| window.id == next) {
-            record_window_lifecycle(state, next, AppLifecycleEvent::Focused);
-            effects.push(RuntimeEffect::DispatchLifecycle {
-                window_id: next,
-                event: AppLifecycleEvent::Focused,
-            });
-        }
+    if let Some(next) = next_focus
+        && state.windows.iter().any(|window| window.id == next)
+    {
+        record_window_lifecycle(state, next, AppLifecycleEvent::Focused);
+        effects.push(RuntimeEffect::DispatchLifecycle {
+            window_id: next,
+            event: AppLifecycleEvent::Focused,
+        });
     }
 }
 

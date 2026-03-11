@@ -348,7 +348,7 @@ mod tests {
     use contracts::{AssetClassV1, HistoricalDataRequestV1, RawMarketRecordV1, SymbolV1, VenueV1};
     use trading_core::{FixedClock, MarketDataAdapter, SequenceIdGenerator};
 
-    use super::{service_boundary, CoinbaseAdapter, MarketDataService, OandaAdapter, DOMAIN_NAME};
+    use super::{CoinbaseAdapter, DOMAIN_NAME, MarketDataService, OandaAdapter, service_boundary};
 
     #[test]
     fn service_boundary_matches_enterprise_catalog() {

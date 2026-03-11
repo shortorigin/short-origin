@@ -6,7 +6,7 @@
 
 #![warn(missing_docs, rustdoc::broken_intra_doc_links)]
 
-use desktop_app_contract::{window_primary_input_dom_id, AppServices, WindowRuntimeId};
+use desktop_app_contract::{AppServices, WindowRuntimeId, window_primary_input_dom_id};
 use leptos::ev::KeyboardEvent;
 use leptos::html;
 use leptos::prelude::*;
@@ -456,20 +456,19 @@ pub fn TerminalApp(
             mode_label
         }
     };
-    if let Some(restored_state) = restored_state.as_ref() {
-        if let Ok(restored) =
+    if let Some(restored_state) = restored_state.as_ref()
+        && let Ok(restored) =
             serde_json::from_value::<TerminalPersistedState>(restored_state.clone())
-        {
-            let restored = restore_terminal_state(restored, &launch_cwd);
-            let serialized = serde_json::to_string(&restored).ok();
-            cwd.set(restored.cwd);
-            input.set(restored.input);
-            transcript.set(restored.transcript);
-            history_cursor.set(restored.history_cursor);
-            active_execution.set(restored.active_execution);
-            last_saved.set(serialized);
-            hydrated.set(true);
-        }
+    {
+        let restored = restore_terminal_state(restored, &launch_cwd);
+        let serialized = serde_json::to_string(&restored).ok();
+        cwd.set(restored.cwd);
+        input.set(restored.input);
+        transcript.set(restored.transcript);
+        history_cursor.set(restored.history_cursor);
+        active_execution.set(restored.active_execution);
+        last_saved.set(serialized);
+        hydrated.set(true);
     }
     transcript.update(|entries| {
         entries.push(TerminalTranscriptEntry::System {
@@ -873,8 +872,10 @@ mod tests {
         assert_eq!(processed, 7);
         assert!(active_execution.is_none());
         assert!(pending_command.is_none());
-        assert!(system_texts(&transcript)
-            .contains(&"Older shell session events were evicted from the in-memory log."));
+        assert!(
+            system_texts(&transcript)
+                .contains(&"Older shell session events were evicted from the in-memory log.")
+        );
         assert!(transcript.iter().any(|entry| matches!(
             entry,
             TerminalTranscriptEntry::Notice { execution_id, notice }

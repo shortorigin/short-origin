@@ -1,7 +1,7 @@
 //! Runtime-effect dispatch for the desktop host boundary.
 
 use crate::{
-    host::{app_bus, host_ui, persistence_effects, DesktopHostContext},
+    host::{DesktopHostContext, app_bus, host_ui, persistence_effects},
     reducer::RuntimeEffect,
     runtime_context::DesktopRuntimeContext,
 };

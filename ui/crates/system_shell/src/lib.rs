@@ -526,12 +526,10 @@ impl RegistrySnapshot {
             registered,
             matched_len,
         }) = self.resolve_stage(&base_tokens)
+            && base_tokens.len() >= matched_len
+            && let Some(completion) = registered.completion
         {
-            if base_tokens.len() >= matched_len {
-                if let Some(completion) = registered.completion {
-                    return completion(request).await;
-                }
-            }
+            return completion(request).await;
         }
 
         let mut items = Vec::new();
@@ -922,30 +920,29 @@ fn parse_invocation_arguments(
 
     while index < tokens.len() {
         let token = &tokens[index];
-        if let Some(rest) = token.strip_prefix("--") {
-            if !rest.is_empty() {
-                if let Some((name, raw_value)) = rest.split_once('=') {
-                    options.push(ParsedOption {
-                        name: name.to_string(),
-                        short: None,
-                        value: Some(parse_value(raw_value)),
-                    });
-                } else {
-                    let takes_value =
-                        index + 1 < tokens.len() && !tokens[index + 1].starts_with('-');
-                    let value = takes_value.then(|| {
-                        index += 1;
-                        parse_value(&tokens[index])
-                    });
-                    options.push(ParsedOption {
-                        name: rest.to_string(),
-                        short: None,
-                        value,
-                    });
-                }
-                index += 1;
-                continue;
+        if let Some(rest) = token.strip_prefix("--")
+            && !rest.is_empty()
+        {
+            if let Some((name, raw_value)) = rest.split_once('=') {
+                options.push(ParsedOption {
+                    name: name.to_string(),
+                    short: None,
+                    value: Some(parse_value(raw_value)),
+                });
+            } else {
+                let takes_value = index + 1 < tokens.len() && !tokens[index + 1].starts_with('-');
+                let value = takes_value.then(|| {
+                    index += 1;
+                    parse_value(&tokens[index])
+                });
+                options.push(ParsedOption {
+                    name: rest.to_string(),
+                    short: None,
+                    value,
+                });
             }
+            index += 1;
+            continue;
         }
 
         if token.starts_with('-') && token.len() > 1 {
@@ -1217,9 +1214,11 @@ mod tests {
             }),
             Some("event-263")
         );
-        assert!(events
-            .windows(2)
-            .all(|window| window[0].sequence + 1 == window[1].sequence));
+        assert!(
+            events
+                .windows(2)
+                .all(|window| window[0].sequence + 1 == window[1].sequence)
+        );
         owner.cleanup();
     }
 }

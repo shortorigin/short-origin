@@ -1,44 +1,54 @@
+use std::future::Future;
+
 use contracts::{
     EvidenceManifestV1, KnowledgeCapsuleV1, KnowledgeEdgeV1, KnowledgePublicationStatusV1,
     KnowledgeSourceV1, MacroFinancialAnalysisV1,
 };
 use error_model::InstitutionalResult;
 use events::RecordedEventV1;
-use futures::future::BoxFuture;
 
 pub trait KnowledgeStore: Send + Sync {
     fn store_analysis(
         &self,
         analysis: MacroFinancialAnalysisV1,
-    ) -> BoxFuture<'_, InstitutionalResult<()>>;
+    ) -> impl Future<Output = InstitutionalResult<()>> + Send + '_;
     fn load_analysis(
         &self,
         analysis_id: &str,
-    ) -> BoxFuture<'_, InstitutionalResult<Option<MacroFinancialAnalysisV1>>>;
+    ) -> impl Future<Output = InstitutionalResult<Option<MacroFinancialAnalysisV1>>> + Send + '_;
     fn store_evidence(
         &self,
         id: String,
         manifest: EvidenceManifestV1,
-    ) -> BoxFuture<'_, InstitutionalResult<()>>;
+    ) -> impl Future<Output = InstitutionalResult<()>> + Send + '_;
     fn append_event(
         &self,
         id: String,
         event: RecordedEventV1,
-    ) -> BoxFuture<'_, InstitutionalResult<()>>;
-    fn store_source(&self, source: KnowledgeSourceV1) -> BoxFuture<'_, InstitutionalResult<()>>;
+    ) -> impl Future<Output = InstitutionalResult<()>> + Send + '_;
+    fn store_source(
+        &self,
+        source: KnowledgeSourceV1,
+    ) -> impl Future<Output = InstitutionalResult<()>> + Send + '_;
     fn load_sources(
         &self,
         ids: &[String],
-    ) -> BoxFuture<'_, InstitutionalResult<Vec<KnowledgeSourceV1>>>;
-    fn store_capsule(&self, capsule: KnowledgeCapsuleV1) -> BoxFuture<'_, InstitutionalResult<()>>;
+    ) -> impl Future<Output = InstitutionalResult<Vec<KnowledgeSourceV1>>> + Send + '_;
+    fn store_capsule(
+        &self,
+        capsule: KnowledgeCapsuleV1,
+    ) -> impl Future<Output = InstitutionalResult<()>> + Send + '_;
     fn load_capsule(
         &self,
         capsule_id: &str,
-    ) -> BoxFuture<'_, InstitutionalResult<Option<KnowledgeCapsuleV1>>>;
+    ) -> impl Future<Output = InstitutionalResult<Option<KnowledgeCapsuleV1>>> + Send + '_;
     fn latest_publication_status(
         &self,
-    ) -> BoxFuture<'_, InstitutionalResult<Option<KnowledgePublicationStatusV1>>>;
-    fn store_edge(&self, edge: KnowledgeEdgeV1) -> BoxFuture<'_, InstitutionalResult<()>>;
+    ) -> impl Future<Output = InstitutionalResult<Option<KnowledgePublicationStatusV1>>> + Send + '_;
+    fn store_edge(
+        &self,
+        edge: KnowledgeEdgeV1,
+    ) -> impl Future<Output = InstitutionalResult<()>> + Send + '_;
 }
 
 #[derive(Clone)]
@@ -80,6 +90,96 @@ pub async fn connect_from_env() -> InstitutionalResult<DurableKnowledgeStore> {
     ))
 }
 
+impl<C> GovernedKnowledgeStore<storage_backend::KnowledgeStoreBackend<C>>
+where
+    C: storage_backend::BackendConnection + Send + Sync,
+{
+    async fn store_analysis_inner(
+        &self,
+        analysis: MacroFinancialAnalysisV1,
+    ) -> InstitutionalResult<()> {
+        self.inner.knowledge_analyses().store(analysis).await?;
+        Ok(())
+    }
+
+    async fn load_analysis_inner(
+        &self,
+        analysis_id: String,
+    ) -> InstitutionalResult<Option<MacroFinancialAnalysisV1>> {
+        Ok(self
+            .inner
+            .knowledge_analyses()
+            .load(&analysis_id)
+            .await?
+            .map(|record| record.analysis))
+    }
+
+    async fn store_evidence_inner(
+        &self,
+        id: String,
+        manifest: EvidenceManifestV1,
+    ) -> InstitutionalResult<()> {
+        self.inner.evidence_manifests().store(id, manifest).await?;
+        Ok(())
+    }
+
+    async fn append_event_inner(
+        &self,
+        id: String,
+        event: RecordedEventV1,
+    ) -> InstitutionalResult<()> {
+        self.inner.recorded_events().append(id, event).await?;
+        Ok(())
+    }
+
+    async fn store_source_inner(&self, source: KnowledgeSourceV1) -> InstitutionalResult<()> {
+        self.inner.knowledge_sources().store(source).await?;
+        Ok(())
+    }
+
+    async fn load_sources_inner(
+        &self,
+        ids: Vec<String>,
+    ) -> InstitutionalResult<Vec<KnowledgeSourceV1>> {
+        Ok(self
+            .inner
+            .knowledge_sources()
+            .load_many(&ids)
+            .await?
+            .into_iter()
+            .map(|record| record.source)
+            .collect())
+    }
+
+    async fn store_capsule_inner(&self, capsule: KnowledgeCapsuleV1) -> InstitutionalResult<()> {
+        self.inner.knowledge_capsules().store(capsule).await?;
+        Ok(())
+    }
+
+    async fn load_capsule_inner(
+        &self,
+        capsule_id: String,
+    ) -> InstitutionalResult<Option<KnowledgeCapsuleV1>> {
+        Ok(self
+            .inner
+            .knowledge_capsules()
+            .load(&capsule_id)
+            .await?
+            .map(|record| record.capsule))
+    }
+
+    async fn latest_publication_status_inner(
+        &self,
+    ) -> InstitutionalResult<Option<KnowledgePublicationStatusV1>> {
+        self.inner.knowledge_capsules().latest_status().await
+    }
+
+    async fn store_edge_inner(&self, edge: KnowledgeEdgeV1) -> InstitutionalResult<()> {
+        self.inner.knowledge_edges().store(edge).await?;
+        Ok(())
+    }
+}
+
 impl<C> KnowledgeStore for GovernedKnowledgeStore<storage_backend::KnowledgeStoreBackend<C>>
 where
     C: storage_backend::BackendConnection + Send + Sync,
@@ -87,107 +187,74 @@ where
     fn store_analysis(
         &self,
         analysis: MacroFinancialAnalysisV1,
-    ) -> BoxFuture<'_, InstitutionalResult<()>> {
-        Box::pin(async move {
-            self.inner.knowledge_analyses().store(analysis).await?;
-            Ok(())
-        })
+    ) -> impl Future<Output = InstitutionalResult<()>> + Send + '_ {
+        self.store_analysis_inner(analysis)
     }
 
     fn load_analysis(
         &self,
         analysis_id: &str,
-    ) -> BoxFuture<'_, InstitutionalResult<Option<MacroFinancialAnalysisV1>>> {
-        let analysis_id = analysis_id.to_owned();
-        Box::pin(async move {
-            Ok(self
-                .inner
-                .knowledge_analyses()
-                .load(&analysis_id)
-                .await?
-                .map(|record| record.analysis))
-        })
+    ) -> impl Future<Output = InstitutionalResult<Option<MacroFinancialAnalysisV1>>> + Send + '_
+    {
+        self.load_analysis_inner(analysis_id.to_owned())
     }
 
     fn store_evidence(
         &self,
         id: String,
         manifest: EvidenceManifestV1,
-    ) -> BoxFuture<'_, InstitutionalResult<()>> {
-        Box::pin(async move {
-            self.inner.evidence_manifests().store(id, manifest).await?;
-            Ok(())
-        })
+    ) -> impl Future<Output = InstitutionalResult<()>> + Send + '_ {
+        self.store_evidence_inner(id, manifest)
     }
 
     fn append_event(
         &self,
         id: String,
         event: RecordedEventV1,
-    ) -> BoxFuture<'_, InstitutionalResult<()>> {
-        Box::pin(async move {
-            self.inner.recorded_events().append(id, event).await?;
-            Ok(())
-        })
+    ) -> impl Future<Output = InstitutionalResult<()>> + Send + '_ {
+        self.append_event_inner(id, event)
     }
 
-    fn store_source(&self, source: KnowledgeSourceV1) -> BoxFuture<'_, InstitutionalResult<()>> {
-        Box::pin(async move {
-            self.inner.knowledge_sources().store(source).await?;
-            Ok(())
-        })
+    fn store_source(
+        &self,
+        source: KnowledgeSourceV1,
+    ) -> impl Future<Output = InstitutionalResult<()>> + Send + '_ {
+        self.store_source_inner(source)
     }
 
     fn load_sources(
         &self,
         ids: &[String],
-    ) -> BoxFuture<'_, InstitutionalResult<Vec<KnowledgeSourceV1>>> {
-        let ids = ids.to_vec();
-        Box::pin(async move {
-            Ok(self
-                .inner
-                .knowledge_sources()
-                .load_many(&ids)
-                .await?
-                .into_iter()
-                .map(|record| record.source)
-                .collect())
-        })
+    ) -> impl Future<Output = InstitutionalResult<Vec<KnowledgeSourceV1>>> + Send + '_ {
+        self.load_sources_inner(ids.to_vec())
     }
 
-    fn store_capsule(&self, capsule: KnowledgeCapsuleV1) -> BoxFuture<'_, InstitutionalResult<()>> {
-        Box::pin(async move {
-            self.inner.knowledge_capsules().store(capsule).await?;
-            Ok(())
-        })
+    fn store_capsule(
+        &self,
+        capsule: KnowledgeCapsuleV1,
+    ) -> impl Future<Output = InstitutionalResult<()>> + Send + '_ {
+        self.store_capsule_inner(capsule)
     }
 
     fn load_capsule(
         &self,
         capsule_id: &str,
-    ) -> BoxFuture<'_, InstitutionalResult<Option<KnowledgeCapsuleV1>>> {
-        let capsule_id = capsule_id.to_owned();
-        Box::pin(async move {
-            Ok(self
-                .inner
-                .knowledge_capsules()
-                .load(&capsule_id)
-                .await?
-                .map(|record| record.capsule))
-        })
+    ) -> impl Future<Output = InstitutionalResult<Option<KnowledgeCapsuleV1>>> + Send + '_ {
+        self.load_capsule_inner(capsule_id.to_owned())
     }
 
     fn latest_publication_status(
         &self,
-    ) -> BoxFuture<'_, InstitutionalResult<Option<KnowledgePublicationStatusV1>>> {
-        Box::pin(async move { self.inner.knowledge_capsules().latest_status().await })
+    ) -> impl Future<Output = InstitutionalResult<Option<KnowledgePublicationStatusV1>>> + Send + '_
+    {
+        self.latest_publication_status_inner()
     }
 
-    fn store_edge(&self, edge: KnowledgeEdgeV1) -> BoxFuture<'_, InstitutionalResult<()>> {
-        Box::pin(async move {
-            self.inner.knowledge_edges().store(edge).await?;
-            Ok(())
-        })
+    fn store_edge(
+        &self,
+        edge: KnowledgeEdgeV1,
+    ) -> impl Future<Output = InstitutionalResult<()>> + Send + '_ {
+        self.store_edge_inner(edge)
     }
 }
 

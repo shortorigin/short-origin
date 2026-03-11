@@ -27,10 +27,10 @@ use identity::{ActorRef, EvidenceId, ServiceId, WorkflowId};
 use memory_provider::{
     CapsuleBuildRequest, CapsuleDocument, CapsuleSearchRequest, KnowledgeMemoryProvider,
 };
-use quick_xml::events::Event;
 use quick_xml::Reader;
-use reqwest::header::CONTENT_TYPE;
+use quick_xml::events::Event;
 use reqwest::Client;
+use reqwest::header::CONTENT_TYPE;
 use telemetry::DecisionRef;
 use trading_core::{Clock, IdGenerator, SystemClock, SystemIdGenerator};
 
@@ -575,17 +575,17 @@ where
             }
             return Ok(sources);
         }
-        if let Some(capsule_id) = &request.capsule_id {
-            if let Some(capsule) = repositories.load_capsule(capsule_id).await? {
-                let sources = repositories.load_sources(&capsule.source_ids).await?;
-                if sources.len() != capsule.source_ids.len() {
-                    return Err(InstitutionalError::not_found(
-                        knowledge_context("resolve_sources"),
-                        "one or more capsule knowledge sources",
-                    ));
-                }
-                return Ok(sources);
+        if let Some(capsule_id) = &request.capsule_id
+            && let Some(capsule) = repositories.load_capsule(capsule_id).await?
+        {
+            let sources = repositories.load_sources(&capsule.source_ids).await?;
+            if sources.len() != capsule.source_ids.len() {
+                return Err(InstitutionalError::not_found(
+                    knowledge_context("resolve_sources"),
+                    "one or more capsule knowledge sources",
+                ));
             }
+            return Ok(sources);
         }
         Ok(Vec::new())
     }
@@ -3131,59 +3131,70 @@ mod tests {
             .expect("publish");
         assert_eq!(capsule.source_count, 4);
 
-        let analysis = service
-            .generate_analysis(
-                &repositories,
-                MacroFinancialAnalysisRequestV1 {
-                    analysis_id: "analysis-1".to_string(),
-                    objective: AnalysisObjectiveV1::PolicyEval,
-                    horizon: AnalysisHorizonV1::Nowcast,
-                    coverage: AnalysisCoverageV1 {
-                        countries: vec!["Japan".to_string(), "Brazil".to_string()],
-                        regions: vec!["Asia".to_string(), "Latin America".to_string()],
-                        currencies: vec!["JPY".to_string(), "BRL".to_string()],
-                        fx_pairs: vec!["USD/JPY".to_string(), "USD/BRL".to_string()],
-                        asset_classes: vec!["rates".to_string(), "credit".to_string()],
-                    },
-                    data_vintage: Some("2026-03-09".to_string()),
-                    source_ids: Vec::new(),
-                    capsule_id: Some(capsule.capsule_id.clone()),
-                    direct_inputs: contracts::MacroFinancialDirectInputsV1::default(),
-                    classification: Classification::Internal,
-                    constraints: SourceConstraintsV1::default(),
+        let analysis = Box::pin(service.generate_analysis(
+            &repositories,
+            MacroFinancialAnalysisRequestV1 {
+                analysis_id: "analysis-1".to_string(),
+                objective: AnalysisObjectiveV1::PolicyEval,
+                horizon: AnalysisHorizonV1::Nowcast,
+                coverage: AnalysisCoverageV1 {
+                    countries: vec!["Japan".to_string(), "Brazil".to_string()],
+                    regions: vec!["Asia".to_string(), "Latin America".to_string()],
+                    currencies: vec!["JPY".to_string(), "BRL".to_string()],
+                    fx_pairs: vec!["USD/JPY".to_string(), "USD/BRL".to_string()],
+                    asset_classes: vec!["rates".to_string(), "credit".to_string()],
                 },
-            )
-            .await
-            .expect("analysis");
+                data_vintage: Some("2026-03-09".to_string()),
+                source_ids: Vec::new(),
+                capsule_id: Some(capsule.capsule_id.clone()),
+                direct_inputs: contracts::MacroFinancialDirectInputsV1::default(),
+                classification: Classification::Internal,
+                constraints: SourceConstraintsV1::default(),
+            },
+        ))
+        .await
+        .expect("analysis");
 
         assert_eq!(analysis.scenario_matrix.len(), 4);
-        assert!(analysis
-            .rendered_output
-            .contains("[Output 1: Executive Brief]"));
+        assert!(
+            analysis
+                .rendered_output
+                .contains("[Output 1: Executive Brief]")
+        );
         assert!(analysis.rendered_output.contains("TAIL_LIQUIDITY_EVENT"));
         assert_strict_output_headings(&analysis.rendered_output);
-        assert!(!analysis
-            .policy_regime_diagnosis
-            .monetary_policy_regime
-            .is_empty());
+        assert!(
+            !analysis
+                .policy_regime_diagnosis
+                .monetary_policy_regime
+                .is_empty()
+        );
         assert!(!analysis.policy_regime_diagnosis.frictions.is_empty());
-        assert!(analysis
-            .policy_regime_diagnosis
-            .frictions
-            .iter()
-            .all(|friction| !friction.observable_indicators.is_empty()));
-        assert!(!analysis
-            .sovereign_systemic_risk
-            .debt_sustainability_state
-            .is_empty());
-        assert!(!analysis
-            .sovereign_systemic_risk
-            .cross_border_spillovers
-            .is_empty());
-        assert!(analysis
-            .source_governance
-            .iter()
-            .all(|decision| decision.accepted));
+        assert!(
+            analysis
+                .policy_regime_diagnosis
+                .frictions
+                .iter()
+                .all(|friction| !friction.observable_indicators.is_empty())
+        );
+        assert!(
+            !analysis
+                .sovereign_systemic_risk
+                .debt_sustainability_state
+                .is_empty()
+        );
+        assert!(
+            !analysis
+                .sovereign_systemic_risk
+                .cross_border_spillovers
+                .is_empty()
+        );
+        assert!(
+            analysis
+                .source_governance
+                .iter()
+                .all(|decision| decision.accepted)
+        );
         assert_eq!(
             analysis
                 .inference_steps
@@ -3192,18 +3203,24 @@ mod tests {
                 .collect::<Vec<_>>(),
             vec!["INF-01", "INF-02", "INF-03", "INF-04"]
         );
-        assert!(analysis
-            .claim_evidence
-            .iter()
-            .any(|claim| claim.claim_kind == ClaimKindV1::Fact));
-        assert!(analysis
-            .claim_evidence
-            .iter()
-            .any(|claim| claim.claim_kind == ClaimKindV1::Inference));
-        assert!(analysis
-            .claim_evidence
-            .iter()
-            .any(|claim| claim.claim_kind == ClaimKindV1::Recommendation));
+        assert!(
+            analysis
+                .claim_evidence
+                .iter()
+                .any(|claim| claim.claim_kind == ClaimKindV1::Fact)
+        );
+        assert!(
+            analysis
+                .claim_evidence
+                .iter()
+                .any(|claim| claim.claim_kind == ClaimKindV1::Inference)
+        );
+        assert!(
+            analysis
+                .claim_evidence
+                .iter()
+                .any(|claim| claim.claim_kind == ClaimKindV1::Recommendation)
+        );
         assert_eq!(
             analysis
                 .pipeline_trace
@@ -3221,24 +3238,32 @@ mod tests {
                 PipelineStepIdV1::StepH,
             ]
         );
-        assert!(analysis
-            .claim_evidence
-            .iter()
-            .all(|claim| !claim.source_ids.is_empty() || !claim.inference_ids.is_empty()));
-        assert!(analysis
-            .scenario_matrix
-            .iter()
-            .all(|scenario| scenario.triggers.contains("Watchlist:")));
-        assert!(service
-            .latest_publication_status(&repositories)
-            .await
-            .expect("status")
-            .is_some());
-        assert!(service
-            .load_analysis(&repositories, "analysis-1")
-            .await
-            .expect("load")
-            .is_some());
+        assert!(
+            analysis
+                .claim_evidence
+                .iter()
+                .all(|claim| !claim.source_ids.is_empty() || !claim.inference_ids.is_empty())
+        );
+        assert!(
+            analysis
+                .scenario_matrix
+                .iter()
+                .all(|scenario| scenario.triggers.contains("Watchlist:"))
+        );
+        assert!(
+            service
+                .latest_publication_status(&repositories)
+                .await
+                .expect("status")
+                .is_some()
+        );
+        assert!(
+            service
+                .load_analysis(&repositories, "analysis-1")
+                .await
+                .expect("load")
+                .is_some()
+        );
     }
 
     #[test]
@@ -3340,50 +3365,55 @@ mod tests {
             Arc::new(SequenceIdGenerator::new("knowledge")),
         );
 
-        let analysis = service
-            .generate_analysis(
-                &repositories,
-                MacroFinancialAnalysisRequestV1 {
-                    analysis_id: "analysis-direct".to_string(),
-                    objective: AnalysisObjectiveV1::RiskMgmt,
-                    horizon: AnalysisHorizonV1::OneToThreeMonths,
-                    coverage: AnalysisCoverageV1 {
-                        countries: vec!["Japan".to_string()],
-                        regions: vec!["Asia".to_string()],
-                        currencies: vec!["JPY".to_string()],
-                        fx_pairs: vec!["USD/JPY".to_string()],
-                        asset_classes: vec!["rates".to_string()],
-                    },
-                    data_vintage: None,
-                    source_ids: Vec::new(),
-                    capsule_id: None,
-                    direct_inputs: sample_direct_inputs(),
-                    classification: Classification::Internal,
-                    constraints: SourceConstraintsV1::default(),
+        let analysis = Box::pin(service.generate_analysis(
+            &repositories,
+            MacroFinancialAnalysisRequestV1 {
+                analysis_id: "analysis-direct".to_string(),
+                objective: AnalysisObjectiveV1::RiskMgmt,
+                horizon: AnalysisHorizonV1::OneToThreeMonths,
+                coverage: AnalysisCoverageV1 {
+                    countries: vec!["Japan".to_string()],
+                    regions: vec!["Asia".to_string()],
+                    currencies: vec!["JPY".to_string()],
+                    fx_pairs: vec!["USD/JPY".to_string()],
+                    asset_classes: vec!["rates".to_string()],
                 },
-            )
-            .await
-            .expect("analysis");
+                data_vintage: None,
+                source_ids: Vec::new(),
+                capsule_id: None,
+                direct_inputs: sample_direct_inputs(),
+                classification: Classification::Internal,
+                constraints: SourceConstraintsV1::default(),
+            },
+        ))
+        .await
+        .expect("analysis");
 
         assert_eq!(analysis.executive_brief.as_of_date, ANALYSIS_AS_OF_DATE);
         assert_eq!(analysis.executive_brief.as_of_timezone, ANALYSIS_TIMEZONE);
         assert_eq!(analysis.executive_brief.data_vintage, "UNKNOWN");
-        assert!(analysis
-            .problem_contract
-            .missing_inputs
-            .contains(&"MISSING: provide balance of payments and IIP components.".to_string()));
+        assert!(
+            analysis
+                .problem_contract
+                .missing_inputs
+                .contains(&"MISSING: provide balance of payments and IIP components.".to_string())
+        );
         assert!(analysis.problem_contract.missing_inputs.contains(
             &"MISSING: provide cross-border banking/credit measures or equivalent official series."
                 .to_string()
         ));
-        assert!(analysis
-            .data_register
-            .iter()
-            .any(|entry| entry.source.starts_with("DIRECT_INPUT")));
-        assert!(analysis
-            .claim_evidence
-            .iter()
-            .all(|claim| !claim.source_ids.is_empty() || !claim.inference_ids.is_empty()));
+        assert!(
+            analysis
+                .data_register
+                .iter()
+                .any(|entry| entry.source.starts_with("DIRECT_INPUT"))
+        );
+        assert!(
+            analysis
+                .claim_evidence
+                .iter()
+                .all(|claim| !claim.source_ids.is_empty() || !claim.inference_ids.is_empty())
+        );
         assert_eq!(analysis.pipeline_trace.len(), 8);
         assert!(analysis.source_governance.is_empty());
         assert_strict_output_headings(&analysis.rendered_output);
@@ -3395,10 +3425,12 @@ mod tests {
                 .collect::<Vec<_>>(),
             vec!["INF-01", "INF-02", "INF-03", "INF-04"]
         );
-        assert!(analysis
-            .claim_evidence
-            .iter()
-            .any(|claim| claim.claim_kind == ClaimKindV1::Recommendation));
+        assert!(
+            analysis
+                .claim_evidence
+                .iter()
+                .any(|claim| claim.claim_kind == ClaimKindV1::Recommendation)
+        );
     }
 
     #[tokio::test]
@@ -3513,30 +3545,29 @@ mod tests {
             KnowledgeEvidenceUseV1::ContextOnly
         );
 
-        let secondary_only_error = service
-            .generate_analysis(
-                &repositories,
-                MacroFinancialAnalysisRequestV1 {
-                    analysis_id: "analysis-secondary".to_string(),
-                    objective: AnalysisObjectiveV1::PolicyEval,
-                    horizon: AnalysisHorizonV1::Nowcast,
-                    coverage: AnalysisCoverageV1 {
-                        countries: vec!["Japan".to_string()],
-                        regions: Vec::new(),
-                        currencies: vec!["JPY".to_string()],
-                        fx_pairs: vec!["USD/JPY".to_string()],
-                        asset_classes: vec!["rates".to_string()],
-                    },
-                    data_vintage: Some("2026-03-09".to_string()),
-                    source_ids: vec!["source-secondary".to_string()],
-                    capsule_id: None,
-                    direct_inputs: contracts::MacroFinancialDirectInputsV1::default(),
-                    classification: Classification::Internal,
-                    constraints: SourceConstraintsV1::default(),
+        let secondary_only_error = Box::pin(service.generate_analysis(
+            &repositories,
+            MacroFinancialAnalysisRequestV1 {
+                analysis_id: "analysis-secondary".to_string(),
+                objective: AnalysisObjectiveV1::PolicyEval,
+                horizon: AnalysisHorizonV1::Nowcast,
+                coverage: AnalysisCoverageV1 {
+                    countries: vec!["Japan".to_string()],
+                    regions: Vec::new(),
+                    currencies: vec!["JPY".to_string()],
+                    fx_pairs: vec!["USD/JPY".to_string()],
+                    asset_classes: vec!["rates".to_string()],
                 },
-            )
-            .await
-            .expect_err("secondary-only analysis should fail");
+                data_vintage: Some("2026-03-09".to_string()),
+                source_ids: vec!["source-secondary".to_string()],
+                capsule_id: None,
+                direct_inputs: contracts::MacroFinancialDirectInputsV1::default(),
+                classification: Classification::Internal,
+                constraints: SourceConstraintsV1::default(),
+            },
+        ))
+        .await
+        .expect_err("secondary-only analysis should fail");
         assert!(matches!(
             secondary_only_error,
             InstitutionalError::NotFound { .. }

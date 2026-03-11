@@ -1,8 +1,8 @@
 use std::collections::{BTreeMap, BTreeSet};
+use std::future::{Future, ready};
 
 use contracts::{ApprovalDecisionV1, ApprovalRequestV1, ServiceBoundaryV1};
 use error_model::{InstitutionalError, InstitutionalResult, OperationContext};
-use futures::future::BoxFuture;
 use identity::ActionId;
 use policy_sdk::ApprovalVerificationPort;
 
@@ -50,45 +50,43 @@ impl ApprovalVerificationPort for ApprovalService {
     fn verify(
         &self,
         request: &ApprovalRequestV1,
-    ) -> BoxFuture<'_, InstitutionalResult<Vec<ApprovalDecisionV1>>> {
+    ) -> impl Future<Output = InstitutionalResult<Vec<ApprovalDecisionV1>>> + Send + '_ {
         let request = request.clone();
-        Box::pin(async move {
-            if request.required_approval_count() == 0 {
-                return Ok(Vec::new());
-            }
+        if request.required_approval_count() == 0 {
+            return ready(Ok(Vec::new()));
+        }
 
-            let decisions = self
-                .store
-                .decisions_for(&request.action_id)
-                .into_iter()
-                .filter(|decision| decision.approved && decision.decided_at <= request.expires_at)
-                .collect::<Vec<_>>();
+        let decisions = self
+            .store
+            .decisions_for(&request.action_id)
+            .into_iter()
+            .filter(|decision| decision.approved && decision.decided_at <= request.expires_at)
+            .collect::<Vec<_>>();
 
-            let approved_roles = decisions
-                .iter()
-                .map(|decision| decision.approver_role)
-                .collect::<BTreeSet<_>>();
+        let approved_roles = decisions
+            .iter()
+            .map(|decision| decision.approver_role)
+            .collect::<BTreeSet<_>>();
 
-            let minimum_met = decisions.len() >= request.required_approval_count();
-            let roles_met = request
-                .required_approver_roles
-                .iter()
-                .all(|role| approved_roles.contains(role));
+        let minimum_met = decisions.len() >= request.required_approval_count();
+        let roles_met = request
+            .required_approver_roles
+            .iter()
+            .all(|role| approved_roles.contains(role));
 
-            if minimum_met && roles_met {
-                Ok(decisions)
-            } else {
-                Err(InstitutionalError::approval_denied(
-                    OperationContext::new("services/approval-service", "verify")
-                        .with_workflow_id(request.approval_scope.clone())
-                        .with_correlation_id(request.action_id.as_str()),
-                    format!(
-                        "missing required approvals for action `{}` within workflow `{}`",
-                        request.action_id, request.approval_scope
-                    ),
-                ))
-            }
-        })
+        if minimum_met && roles_met {
+            ready(Ok(decisions))
+        } else {
+            ready(Err(InstitutionalError::approval_denied(
+                OperationContext::new("services/approval-service", "verify")
+                    .with_workflow_id(request.approval_scope.clone())
+                    .with_correlation_id(request.action_id.as_str()),
+                format!(
+                    "missing required approvals for action `{}` within workflow `{}`",
+                    request.action_id, request.approval_scope
+                ),
+            )))
+        }
     }
 }
 

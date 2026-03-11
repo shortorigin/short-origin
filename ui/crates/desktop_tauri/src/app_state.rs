@@ -98,10 +98,10 @@ impl ScopedAppStateStore {
         if path.exists() {
             let raw = fs::read_to_string(&path)
                 .map_err(|err| format!("failed to read existing {}: {err}", path.display()))?;
-            if let Ok(existing) = parse_envelope(&path, &raw) {
-                if existing.updated_at_unix_ms >= envelope.updated_at_unix_ms {
-                    return Ok(());
-                }
+            if let Ok(existing) = parse_envelope(&path, &raw)
+                && existing.updated_at_unix_ms >= envelope.updated_at_unix_ms
+            {
+                return Ok(());
             }
         }
 
@@ -173,8 +173,8 @@ pub fn app_state_namespaces(app: tauri::AppHandle) -> Result<Vec<String>, String
 
 #[cfg(test)]
 mod tests {
-    use super::{namespace_from_file_name, validate_namespace, ScopedAppStateStore};
-    use platform_host::{AppStateEnvelope, APP_STATE_ENVELOPE_VERSION};
+    use super::{ScopedAppStateStore, namespace_from_file_name, validate_namespace};
+    use platform_host::{APP_STATE_ENVELOPE_VERSION, AppStateEnvelope};
     use serde_json::json;
     use std::fs;
     use std::path::{Path, PathBuf};

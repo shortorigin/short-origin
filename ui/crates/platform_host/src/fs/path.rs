@@ -25,11 +25,7 @@ pub fn normalize_virtual_path(path: &str) -> String {
         out.push_str(segment);
     }
 
-    if out.is_empty() {
-        "/".to_string()
-    } else {
-        out
-    }
+    if out.is_empty() { "/".to_string() } else { out }
 }
 
 #[cfg(test)]

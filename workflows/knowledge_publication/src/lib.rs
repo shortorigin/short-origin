@@ -84,7 +84,7 @@ mod tests {
     use approval_service::ApprovalService;
     use chrono::{TimeZone, Utc};
     use evidence_service::EvidenceService;
-    use governed_storage::{connect_in_memory, KnowledgeStore};
+    use governed_storage::{KnowledgeStore, connect_in_memory};
     use memory_provider::MemvidMemoryProvider;
     use orchestrator::WorkflowEngine;
     use policy_service::PolicyService;
@@ -216,11 +216,13 @@ mod tests {
                 .len(),
             1
         );
-        assert!(repositories
-            .load_capsule("capsule-1")
-            .await
-            .expect("load")
-            .is_some());
+        assert!(
+            repositories
+                .load_capsule("capsule-1")
+                .await
+                .expect("load")
+                .is_some()
+        );
         assert_eq!(workflow_boundary().workflow_name, "knowledge_publication");
     }
 }

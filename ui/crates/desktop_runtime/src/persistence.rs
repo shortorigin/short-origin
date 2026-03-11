@@ -5,8 +5,8 @@ use crate::model::{DesktopPreferences, DesktopSnapshot, DesktopState, DesktopThe
 use leptos::logging;
 use platform_host::build_app_state_envelope;
 use platform_host::{
-    load_pref_with, migrate_envelope_payload, save_pref_with, AppStateEnvelope, HostResult,
-    PrefsStore, DESKTOP_STATE_NAMESPACE,
+    AppStateEnvelope, DESKTOP_STATE_NAMESPACE, HostResult, PrefsStore, load_pref_with,
+    migrate_envelope_payload, save_pref_with,
 };
 use serde::{Deserialize, Serialize};
 

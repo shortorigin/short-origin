@@ -1,8 +1,8 @@
 use super::*;
 use js_sys::Promise;
-use serde::de::DeserializeOwned;
 use serde::Serialize;
-use serde_wasm_bindgen::{from_value, Serializer};
+use serde::de::DeserializeOwned;
+use serde_wasm_bindgen::{Serializer, from_value};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 

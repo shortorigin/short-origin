@@ -2,7 +2,7 @@ use leptos::callback::Callable;
 use leptos::prelude::*;
 use leptos::web_sys;
 
-use crate::foundation::{bool_token, merge_layout_class, ElevationRole, SurfaceRole};
+use crate::foundation::{ElevationRole, SurfaceRole, bool_token, merge_layout_class};
 
 #[component]
 pub fn WindowFrame(

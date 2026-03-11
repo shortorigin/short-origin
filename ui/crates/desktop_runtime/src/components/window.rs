@@ -93,19 +93,19 @@ pub(super) fn DesktopWindow(window_id: WindowId) -> impl IntoView {
     let titlebar_double_click = move |ev: web_sys::MouseEvent| {
         ev.prevent_default();
         ev.stop_propagation();
-        if let Some(win) = window.get() {
-            if win.flags.maximizable {
-                if win.maximized {
-                    runtime.dispatch_action(DesktopAction::RestoreWindow { window_id });
-                } else {
-                    runtime.dispatch_action(DesktopAction::MaximizeWindow {
-                        window_id,
-                        viewport: runtime
-                            .host
-                            .get_value()
-                            .desktop_viewport_rect(TASKBAR_HEIGHT_PX),
-                    });
-                }
+        if let Some(win) = window.get()
+            && win.flags.maximizable
+        {
+            if win.maximized {
+                runtime.dispatch_action(DesktopAction::RestoreWindow { window_id });
+            } else {
+                runtime.dispatch_action(DesktopAction::MaximizeWindow {
+                    window_id,
+                    viewport: runtime
+                        .host
+                        .get_value()
+                        .desktop_viewport_rect(TASKBAR_HEIGHT_PX),
+                });
             }
         }
     };

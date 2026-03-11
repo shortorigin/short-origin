@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
+use std::future::{Future, ready};
 
-use futures::future::{self, BoxFuture};
 use futures::stream::{self, BoxStream};
 
 use contracts::{
@@ -14,7 +14,6 @@ use events::EventEnvelopeV1;
 use lattice_config::LatticeConfigV1;
 use serde::{Deserialize, Serialize};
 
-pub type TransportFuture<T> = BoxFuture<'static, InstitutionalResult<T>>;
 pub type EventSubscription = BoxStream<'static, EventEnvelopeV1>;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -76,8 +75,14 @@ pub enum PlatformQueryResultV1 {
 }
 
 pub trait InstitutionalPlatformTransport: Send + Sync {
-    fn execute_command(&self, command: PlatformCommandV1) -> TransportFuture<PlatformCommandAckV1>;
-    fn execute_query(&self, query: PlatformQueryV1) -> TransportFuture<PlatformQueryResultV1>;
+    fn execute_command(
+        &self,
+        command: PlatformCommandV1,
+    ) -> impl Future<Output = InstitutionalResult<PlatformCommandAckV1>> + Send + '_;
+    fn execute_query(
+        &self,
+        query: PlatformQueryV1,
+    ) -> impl Future<Output = InstitutionalResult<PlatformQueryResultV1>> + Send + '_;
     fn subscribe_events(&self) -> EventSubscription;
 }
 
@@ -88,21 +93,20 @@ impl InstitutionalPlatformTransport for NoopPlatformTransport {
     fn execute_command(
         &self,
         _command: PlatformCommandV1,
-    ) -> TransportFuture<PlatformCommandAckV1> {
-        Box::pin(future::ready(Err(
-            InstitutionalError::dependency_unavailable(
-                OperationContext::new("platform/sdk/sdk-rs", "execute_command"),
-                "no platform transport configured",
-            ),
+    ) -> impl Future<Output = InstitutionalResult<PlatformCommandAckV1>> + Send + '_ {
+        ready(Err(InstitutionalError::dependency_unavailable(
+            OperationContext::new("platform/sdk/sdk-rs", "execute_command"),
+            "no platform transport configured",
         )))
     }
 
-    fn execute_query(&self, _query: PlatformQueryV1) -> TransportFuture<PlatformQueryResultV1> {
-        Box::pin(future::ready(Err(
-            InstitutionalError::dependency_unavailable(
-                OperationContext::new("platform/sdk/sdk-rs", "execute_query"),
-                "no platform transport configured",
-            ),
+    fn execute_query(
+        &self,
+        _query: PlatformQueryV1,
+    ) -> impl Future<Output = InstitutionalResult<PlatformQueryResultV1>> + Send + '_ {
+        ready(Err(InstitutionalError::dependency_unavailable(
+            OperationContext::new("platform/sdk/sdk-rs", "execute_query"),
+            "no platform transport configured",
         )))
     }
 
@@ -334,14 +338,17 @@ impl InstitutionalPlatformTransport for LocalHarnessPlatformTransport {
     fn execute_command(
         &self,
         _command: PlatformCommandV1,
-    ) -> TransportFuture<PlatformCommandAckV1> {
-        Box::pin(future::ready(Ok(PlatformCommandAckV1 {
+    ) -> impl Future<Output = InstitutionalResult<PlatformCommandAckV1>> + Send + '_ {
+        ready(Ok(PlatformCommandAckV1 {
             command_id: "memory-ack".to_string(),
             accepted: true,
-        })))
+        }))
     }
 
-    fn execute_query(&self, query: PlatformQueryV1) -> TransportFuture<PlatformQueryResultV1> {
+    fn execute_query(
+        &self,
+        query: PlatformQueryV1,
+    ) -> impl Future<Output = InstitutionalResult<PlatformQueryResultV1>> + Send + '_ {
         let result = match query {
             PlatformQueryV1::Dashboard => PlatformQueryResultV1::Dashboard(self.dashboard.clone()),
             PlatformQueryV1::SupportedWorkflows => {
@@ -361,7 +368,7 @@ impl InstitutionalPlatformTransport for LocalHarnessPlatformTransport {
                 )
             }
         };
-        Box::pin(future::ready(Ok(result)))
+        ready(Ok(result))
     }
 
     fn subscribe_events(&self) -> EventSubscription {
@@ -442,7 +449,7 @@ mod tests {
                 dependent_variables: vec!["FX bilateral".to_string()],
                 required_inputs: vec!["FX levels".to_string()],
                 missing_inputs: vec![
-                    "MISSING: provide balance of payments and IIP components.".to_string()
+                    "MISSING: provide balance of payments and IIP components.".to_string(),
                 ],
             },
             data_vintage: "2026-03-09".to_string(),
@@ -652,11 +659,13 @@ mod tests {
                 .expect("present"),
             analysis
         );
-        assert!(client
-            .query_latest_knowledge_publication_status()
-            .await
-            .expect("status")
-            .is_some());
+        assert!(
+            client
+                .query_latest_knowledge_publication_status()
+                .await
+                .expect("status")
+                .is_some()
+        );
         let events = client.subscribe_events().collect::<Vec<_>>().await;
         assert_eq!(events, vec![event]);
     }

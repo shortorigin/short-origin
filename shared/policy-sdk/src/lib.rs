@@ -1,9 +1,10 @@
+use std::future::Future;
+
 use chrono::{Duration, Utc};
 use contracts::{
     AgentActionRequestV1, ApprovalRequestV1, PolicyDecisionRequestV1, ServiceBoundaryV1,
 };
 use error_model::InstitutionalResult;
-use futures::future::BoxFuture;
 use identity::EnvironmentId;
 use uuid::Uuid;
 
@@ -11,14 +12,14 @@ pub trait PolicyDecisionPort {
     fn evaluate(
         &self,
         request: &PolicyDecisionRequestV1,
-    ) -> BoxFuture<'_, InstitutionalResult<contracts::PolicyDecisionV1>>;
+    ) -> impl Future<Output = InstitutionalResult<contracts::PolicyDecisionV1>> + Send + '_;
 }
 
 pub trait ApprovalVerificationPort {
     fn verify(
         &self,
         request: &ApprovalRequestV1,
-    ) -> BoxFuture<'_, InstitutionalResult<Vec<contracts::ApprovalDecisionV1>>>;
+    ) -> impl Future<Output = InstitutionalResult<Vec<contracts::ApprovalDecisionV1>>> + Send + '_;
 }
 
 #[must_use]

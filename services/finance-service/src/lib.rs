@@ -90,7 +90,7 @@ mod tests {
 
     use contract_parity::assert_service_boundary_matches_catalog;
 
-    use super::{service_boundary, DOMAIN_NAME};
+    use super::{DOMAIN_NAME, service_boundary};
 
     #[test]
     fn service_boundary_matches_enterprise_catalog() {

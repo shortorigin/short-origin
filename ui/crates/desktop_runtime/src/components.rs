@@ -11,7 +11,7 @@ use std::time::Duration;
 use desktop_app_contract::ApplicationId;
 use leptos::ev;
 use leptos::prelude::*;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::{JsCast, JsValue};
 
@@ -56,7 +56,7 @@ fn taskbar_window_button_dom_id(window_id: WindowId) -> String {
     format!("taskbar-window-button-{}", window_id.0)
 }
 
-pub use crate::runtime_context::{use_desktop_runtime, DesktopProvider, DesktopRuntimeContext};
+pub use crate::runtime_context::{DesktopProvider, DesktopRuntimeContext, use_desktop_runtime};
 
 fn browser_e2e_window_request(
     app_id: ApplicationId,
@@ -618,11 +618,11 @@ fn activate_pinned_taskbar_app(runtime: &DesktopRuntimeContext, app_id: Applicat
     let state = runtime.state.get_untracked();
     let descriptor = apps::app_descriptor_by_id(&app_id);
 
-    if descriptor.single_instance {
-        if let Some(window_id) = preferred_window_for_app(&state, &app_id) {
-            focus_or_unminimize_window(runtime, &state, window_id);
-            return;
-        }
+    if descriptor.single_instance
+        && let Some(window_id) = preferred_window_for_app(&state, &app_id)
+    {
+        focus_or_unminimize_window(runtime, &state, window_id);
+        return;
     }
 
     runtime.dispatch_action(DesktopAction::ActivateApp {

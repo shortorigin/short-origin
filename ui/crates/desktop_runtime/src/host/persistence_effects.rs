@@ -1,7 +1,7 @@
 use leptos::prelude::GetUntracked;
 use leptos::{logging, task::spawn_local};
 use platform_host::{next_monotonic_timestamp_ms, save_pref_with};
-use platform_host_web::{publish_shell_sync_event, ShellSyncEvent, ShellSyncKind};
+use platform_host_web::{ShellSyncEvent, ShellSyncKind, publish_shell_sync_event};
 
 use crate::{
     components::DesktopRuntimeContext,
@@ -50,12 +50,11 @@ pub(super) fn persist_theme(host: DesktopHostContext, runtime: DesktopRuntimeCon
         if let Err(err) = persistence::persist_theme(&async_host, &theme).await {
             logging::warn!("persist theme failed: {err}");
         }
-        if let Ok(envelope) = persistence::build_durable_layout_envelope(&snapshot_state) {
-            if let Err(err) =
+        if let Ok(envelope) = persistence::build_durable_layout_envelope(&snapshot_state)
+            && let Err(err) =
                 persistence::save_durable_layout_envelope(&async_host, &envelope).await
-            {
-                logging::warn!("persist theme durable snapshot failed: {err}");
-            }
+        {
+            logging::warn!("persist theme durable snapshot failed: {err}");
         }
         publish_shell_sync_event(&ShellSyncEvent::new(ShellSyncKind::Theme, revision));
     });

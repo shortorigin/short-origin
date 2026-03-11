@@ -5,8 +5,8 @@ use leptos::prelude::*;
 use leptos::web_sys;
 
 use crate::foundation::{
-    merge_layout_class, ButtonVariant, Elevation, LayoutAlign, LayoutGap, LayoutJustify,
-    LayoutPadding, SurfaceVariant, TextTone,
+    ButtonVariant, Elevation, LayoutAlign, LayoutGap, LayoutJustify, LayoutPadding, SurfaceVariant,
+    TextTone, merge_layout_class,
 };
 
 #[component]

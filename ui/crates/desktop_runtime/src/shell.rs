@@ -15,7 +15,7 @@ use leptos::prelude::{GetUntracked, GetValue, ReadSignal, WithValue};
 use nu_ansi_term::{Color, Style};
 use nu_protocol::{Config as NuConfig, Record as NuRecord, Span as NuSpan, Value as NuValue};
 use nu_table::{NuTable, TableTheme, TextStyle};
-use platform_host::{normalize_virtual_path, ExplorerEntry, ExplorerEntryKind};
+use platform_host::{ExplorerEntry, ExplorerEntryKind, normalize_virtual_path};
 use serde_json::Value;
 use system_shell::{CommandExecutionContext, CommandRegistryHandle};
 use system_shell_contract::{

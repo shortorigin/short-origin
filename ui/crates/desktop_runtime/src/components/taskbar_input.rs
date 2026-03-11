@@ -3,8 +3,8 @@
 use leptos::prelude::*;
 
 use super::{
-    activate_taskbar_shortcut_target, build_taskbar_shortcut_targets, DesktopAction,
-    DesktopRuntimeContext, TaskbarWindowContextMenuState,
+    DesktopAction, DesktopRuntimeContext, TaskbarWindowContextMenuState,
+    activate_taskbar_shortcut_target, build_taskbar_shortcut_targets,
 };
 
 fn shortcut_digit_index(ev: &web_sys::KeyboardEvent) -> Option<usize> {
@@ -55,21 +55,23 @@ pub(super) fn try_handle_taskbar_shortcuts(
         return true;
     }
 
-    if ev.alt_key() && !ev.ctrl_key() && !ev.meta_key() {
-        if let Some(index) = shortcut_digit_index(ev) {
-            let desktop = runtime.state.get_untracked();
-            if let Some(target) = build_taskbar_shortcut_targets(&desktop)
-                .into_iter()
-                .nth(index)
-            {
-                ev.prevent_default();
-                ev.stop_propagation();
-                dismiss_taskbar_overlay_menus(window_context_menu, overflow_menu_open);
-                runtime.dispatch_action(DesktopAction::CloseStartMenu);
-                activate_taskbar_shortcut_target(runtime, target);
-            }
-            return true;
+    if ev.alt_key()
+        && !ev.ctrl_key()
+        && !ev.meta_key()
+        && let Some(index) = shortcut_digit_index(ev)
+    {
+        let desktop = runtime.state.get_untracked();
+        if let Some(target) = build_taskbar_shortcut_targets(&desktop)
+            .into_iter()
+            .nth(index)
+        {
+            ev.prevent_default();
+            ev.stop_propagation();
+            dismiss_taskbar_overlay_menus(window_context_menu, overflow_menu_open);
+            runtime.dispatch_action(DesktopAction::CloseStartMenu);
+            activate_taskbar_shortcut_target(runtime, target);
         }
+        return true;
     }
 
     if ev.key() == "Escape"

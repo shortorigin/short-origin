@@ -18,10 +18,10 @@ use leptos::callback::{Callable, Callback};
 use leptos::prelude::{Get, ReadSignal, RwSignal};
 use leptos::tachys::view::any_view::AnyView;
 use platform_host::{
-    load_app_state_with_migration, load_pref_with, save_app_state_with, save_pref_with,
     AppStateEnvelope, AppStateStore, CapabilityStatus, ContentCache, ExplorerBackendStatus,
     ExplorerFileReadResult, ExplorerFsService, ExplorerListResult, ExplorerMetadata,
     ExplorerPermissionMode, ExplorerPermissionState, HostCapabilities, PrefsStore,
+    load_app_state_with_migration, load_pref_with, save_app_state_with, save_pref_with,
 };
 use sdk_rs::UiDashboardSnapshotV1;
 use serde::{Deserialize, Serialize};
@@ -1342,7 +1342,7 @@ mod tests {
             },
             requested_capabilities: vec![AppCapability::Window, AppCapability::State],
             required_platform_contracts: vec![
-                "schemas/contracts/v1/plugin-module-v1.json".to_string()
+                "schemas/contracts/v1/plugin-module-v1.json".to_string(),
             ],
             service_dependencies: Vec::new(),
             workflow_dependencies: Vec::new(),

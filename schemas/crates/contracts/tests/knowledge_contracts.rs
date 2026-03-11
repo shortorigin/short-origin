@@ -71,7 +71,7 @@ fn knowledge_contracts_round_trip_through_json() {
             dependent_variables: vec!["FX bilateral".to_string()],
             required_inputs: vec!["FX levels".to_string()],
             missing_inputs: vec![
-                "MISSING: provide balance of payments and IIP components.".to_string()
+                "MISSING: provide balance of payments and IIP components.".to_string(),
             ],
         },
         data_vintage: "2026-03-09".to_string(),

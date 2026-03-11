@@ -9,7 +9,6 @@ version.workspace = true
 contracts = { path = "../../schemas/crates/contracts" }
 error-model = { path = "../error-model" }
 events = { path = "../../schemas/crates/events" }
-futures.workspace = true
 storage_backend = { package = "surrealdb-access", path = "../surrealdb-access" }
 
 [dev-dependencies]

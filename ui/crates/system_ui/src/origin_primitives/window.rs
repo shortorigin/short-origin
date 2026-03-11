@@ -3,8 +3,8 @@ use leptos::prelude::*;
 use leptos::web_sys;
 
 use crate::foundation::{
-    bool_token, merge_layout_class, ButtonSize, ButtonVariant, ControlTone, ElevationRole,
-    SurfaceRole,
+    ButtonSize, ButtonVariant, ControlTone, ElevationRole, SurfaceRole, bool_token,
+    merge_layout_class,
 };
 
 #[component]

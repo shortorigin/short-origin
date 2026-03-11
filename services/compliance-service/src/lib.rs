@@ -35,16 +35,16 @@ impl CapitalLimits {
             });
         }
 
-        if let Some(limit) = self.strategy_limits.get(strategy_id) {
-            if order_notional > *limit {
-                return Some(LimitBreachRecordV1 {
-                    breach_id: ids.next_id(),
-                    detected_at: clock.now(),
-                    control: "strategy_notional_limit".to_string(),
-                    severity: "medium".to_string(),
-                    details: format!("order {:.2} > strategy {:.2}", order_notional, limit),
-                });
-            }
+        if let Some(limit) = self.strategy_limits.get(strategy_id)
+            && order_notional > *limit
+        {
+            return Some(LimitBreachRecordV1 {
+                breach_id: ids.next_id(),
+                detected_at: clock.now(),
+                control: "strategy_notional_limit".to_string(),
+                severity: "medium".to_string(),
+                details: format!("order {:.2} > strategy {:.2}", order_notional, limit),
+            });
         }
 
         None

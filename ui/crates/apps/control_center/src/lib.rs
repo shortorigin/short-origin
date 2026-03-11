@@ -56,10 +56,10 @@ pub fn ControlCenterApp(
     let services = services.expect("control center requires app services");
     let state = RwSignal::new(ControlCenterState::default());
 
-    if let Some(restored_state) = restored_state {
-        if let Ok(restored) = serde_json::from_value::<ControlCenterState>(restored_state) {
-            state.set(restored);
-        }
+    if let Some(restored_state) = restored_state
+        && let Ok(restored) = serde_json::from_value::<ControlCenterState>(restored_state)
+    {
+        state.set(restored);
     }
 
     if let Some(section) = launch_params.get("section").and_then(Value::as_str) {
@@ -256,11 +256,7 @@ fn GuidanceSection() -> impl IntoView {
 }
 
 fn capability_flag(value: bool) -> &'static str {
-    if value {
-        "available"
-    } else {
-        "unavailable"
-    }
+    if value { "available" } else { "unavailable" }
 }
 
 fn capability_status_text(status: platform_host::CapabilityStatus) -> &'static str {

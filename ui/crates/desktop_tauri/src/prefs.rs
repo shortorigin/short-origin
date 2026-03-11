@@ -80,12 +80,12 @@ impl ScopedPrefsStore {
             return Ok(Some(value));
         }
 
-        if key == EXPLORER_PREFS_KEY {
-            if let Some(value) = map.remove(LEGACY_EXPLORER_PREFS_KEY) {
-                map.insert(key.to_string(), value.clone());
-                save_pref_map(&self.file, &map)?;
-                return Ok(Some(value));
-            }
+        if key == EXPLORER_PREFS_KEY
+            && let Some(value) = map.remove(LEGACY_EXPLORER_PREFS_KEY)
+        {
+            map.insert(key.to_string(), value.clone());
+            save_pref_map(&self.file, &map)?;
+            return Ok(Some(value));
         }
 
         Ok(None)
@@ -134,7 +134,7 @@ pub fn prefs_delete(app: tauri::AppHandle, key: String) -> Result<(), String> {
 
 #[cfg(test)]
 mod tests {
-    use super::{load_pref_map, save_pref_map, PrefMap, ScopedPrefsStore};
+    use super::{PrefMap, ScopedPrefsStore, load_pref_map, save_pref_map};
     use std::fs;
     use std::path::PathBuf;
     use std::process;

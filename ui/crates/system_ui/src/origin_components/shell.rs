@@ -3,7 +3,7 @@ use leptos::ev::KeyboardEvent;
 use leptos::prelude::*;
 
 use crate::foundation::{
-    merge_layout_class, ButtonVariant, ControlTone, ElevationRole, SurfaceRole,
+    ButtonVariant, ControlTone, ElevationRole, SurfaceRole, merge_layout_class,
 };
 
 #[component]

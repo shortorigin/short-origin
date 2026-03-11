@@ -8,7 +8,6 @@ version.workspace = true
 [dependencies]
 contracts = { path = "../../schemas/crates/contracts" }
 error-model = { path = "../../shared/error-model" }
-futures.workspace = true
 identity = { path = "../../shared/identity" }
 policy-sdk = { path = "../../shared/policy-sdk" }
 

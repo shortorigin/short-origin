@@ -13,7 +13,7 @@ use market_data_service::MarketDataService;
 use orchestrator::WorkflowEngine;
 use policy_service::PolicyService;
 use quant_research_service::QuantResearchService;
-use quant_strategy_promotion::{execute, PipelineSummary};
+use quant_strategy_promotion::{PipelineSummary, execute};
 use strategy_review::workflow_boundary as strategy_review_boundary;
 
 fn assert_compliance_report_semantics(
@@ -216,14 +216,18 @@ async fn quant_strategy_promotion_matches_fixture_summary_and_gate() {
     assert_eq!(report.summary, summary_fixture);
     assert_eq!(report.promotion_gate, gate_fixture);
     assert_eq!(report.recommendation.required_workflows.len(), 2);
-    assert!(report
-        .recommendation
-        .required_workflows
-        .contains(&strategy_review_boundary().workflow_name));
-    assert!(report
-        .recommendation
-        .required_workflows
-        .contains(&compliance_attestation_boundary().workflow_name));
+    assert!(
+        report
+            .recommendation
+            .required_workflows
+            .contains(&strategy_review_boundary().workflow_name)
+    );
+    assert!(
+        report
+            .recommendation
+            .required_workflows
+            .contains(&compliance_attestation_boundary().workflow_name)
+    );
     assert_compliance_report_semantics(&report.compliance_report, &compliance_fixture);
     assert_eq!(engine.recorded_evidence().await.unwrap().len(), 1);
     assert_eq!(governance_service.recommendations().len(), 1);

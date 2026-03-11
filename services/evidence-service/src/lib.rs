@@ -1,12 +1,12 @@
+use std::future::Future;
 use std::sync::Arc;
 
 use chrono::{DateTime, Utc};
 use contracts::{EvidenceManifestV1, ServiceBoundaryV1};
 use error_model::{InstitutionalError, InstitutionalResult, OperationContext, SourceErrorInfo};
 use evidence_sdk::{EvidenceSink, MemoryEvidenceSink};
-use futures::future::BoxFuture;
 use serde::{Deserialize, Serialize};
-use trading_core::{hash_payload, Clock, IdGenerator, SystemClock, SystemIdGenerator};
+use trading_core::{Clock, IdGenerator, SystemClock, SystemIdGenerator, hash_payload};
 use trading_errors::TradingError;
 
 const SERVICE_NAME: &str = "evidence-service";
@@ -127,11 +127,16 @@ impl EvidenceService {
 }
 
 impl EvidenceSink for EvidenceService {
-    fn record(&self, manifest: EvidenceManifestV1) -> BoxFuture<'_, InstitutionalResult<()>> {
+    fn record(
+        &self,
+        manifest: EvidenceManifestV1,
+    ) -> impl Future<Output = InstitutionalResult<()>> + Send + '_ {
         self.sink.record(manifest)
     }
 
-    fn recorded(&self) -> BoxFuture<'_, InstitutionalResult<Vec<EvidenceManifestV1>>> {
+    fn recorded(
+        &self,
+    ) -> impl Future<Output = InstitutionalResult<Vec<EvidenceManifestV1>>> + Send + '_ {
         self.sink.recorded()
     }
 }

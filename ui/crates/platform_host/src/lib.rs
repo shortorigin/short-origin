@@ -25,31 +25,30 @@ pub mod terminal_process;
 pub mod time;
 
 pub use cache::{
-    cache_get_json_with, cache_put_json_with, ContentCache, ContentCacheFuture, MemoryContentCache,
-    NoopContentCache,
+    ContentCache, ContentCacheFuture, MemoryContentCache, NoopContentCache, cache_get_json_with,
+    cache_put_json_with,
 };
 pub use external_url::{ExternalUrlFuture, ExternalUrlService, NoopExternalUrlService};
 pub use fs::path::normalize_virtual_path;
 pub use fs::service::{ExplorerFsFuture, ExplorerFsService, NoopExplorerFsService};
 pub use fs::types::{
-    explorer_preview_cache_key, ExplorerBackend, ExplorerBackendStatus, ExplorerEntry,
+    EXPLORER_CACHE_NAME, EXPLORER_PREFS_KEY, ExplorerBackend, ExplorerBackendStatus, ExplorerEntry,
     ExplorerEntryKind, ExplorerFileReadResult, ExplorerListResult, ExplorerMetadata,
-    ExplorerPermissionMode, ExplorerPermissionState, ExplorerPrefs, EXPLORER_CACHE_NAME,
-    EXPLORER_PREFS_KEY,
+    ExplorerPermissionMode, ExplorerPermissionState, ExplorerPrefs, explorer_preview_cache_key,
 };
 pub use host::{CapabilityError, CapabilityStatus, HostCapabilities, HostServices, HostStrategy};
 pub use notifications::{NoopNotificationService, NotificationFuture, NotificationService};
-pub use session::{session_store, MemorySessionStore};
+pub use session::{MemorySessionStore, session_store};
 pub use storage::app_state::{
-    build_app_state_envelope, load_app_state_typed_with, load_app_state_with_migration,
-    migrate_envelope_payload, save_app_state_with, AppStateEnvelope, AppStateSchemaPolicy,
-    AppStateStore, AppStateStoreFuture, MemoryAppStateStore, NoopAppStateStore,
-    APP_STATE_ENVELOPE_VERSION, CALCULATOR_STATE_NAMESPACE, DESKTOP_STATE_NAMESPACE,
-    EXPLORER_STATE_NAMESPACE, NOTEPAD_STATE_NAMESPACE, PAINT_STATE_NAMESPACE,
-    TERMINAL_STATE_NAMESPACE,
+    APP_STATE_ENVELOPE_VERSION, AppStateEnvelope, AppStateSchemaPolicy, AppStateStore,
+    AppStateStoreFuture, CALCULATOR_STATE_NAMESPACE, DESKTOP_STATE_NAMESPACE,
+    EXPLORER_STATE_NAMESPACE, MemoryAppStateStore, NOTEPAD_STATE_NAMESPACE, NoopAppStateStore,
+    PAINT_STATE_NAMESPACE, TERMINAL_STATE_NAMESPACE, build_app_state_envelope,
+    load_app_state_typed_with, load_app_state_with_migration, migrate_envelope_payload,
+    save_app_state_with,
 };
 pub use storage::prefs::{
-    load_pref_with, save_pref_with, MemoryPrefsStore, NoopPrefsStore, PrefsStore, PrefsStoreFuture,
+    MemoryPrefsStore, NoopPrefsStore, PrefsStore, PrefsStoreFuture, load_pref_with, save_pref_with,
 };
 pub use terminal_process::{
     NoopTerminalProcessService, TerminalEvent, TerminalProcessFuture, TerminalProcessService,

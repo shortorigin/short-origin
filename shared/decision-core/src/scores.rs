@@ -132,9 +132,5 @@ fn round_stable(value: f64) -> f64 {
     const SCALE: f64 = 1_000_000_000_000.0;
 
     let rounded = (value * SCALE).round() / SCALE;
-    if rounded == -0.0 {
-        0.0
-    } else {
-        rounded
-    }
+    if rounded == -0.0 { 0.0 } else { rounded }
 }

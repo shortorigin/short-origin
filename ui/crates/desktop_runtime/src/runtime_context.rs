@@ -11,11 +11,11 @@ use leptos::prelude::*;
 use platform_host::HostServices;
 
 use crate::{
-    app_runtime::{sync_runtime_sessions, AppRuntimeState},
+    app_runtime::{AppRuntimeState, sync_runtime_sessions},
     apps, effect_executor,
     host::DesktopHostContext,
     model::{DeepLinkState, DesktopState, InteractionState},
-    reducer::{reduce_desktop, DesktopAction, RuntimeEffect},
+    reducer::{DesktopAction, RuntimeEffect, reduce_desktop},
     shell,
 };
 

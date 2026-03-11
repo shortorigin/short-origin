@@ -4,7 +4,7 @@ use std::collections::VecDeque;
 use contracts::{ExperimentMetadataV1, ExperimentResultV1, ResearchTaskV1, ServiceBoundaryV1};
 use error_model::{InstitutionalError, InstitutionalResult};
 use trading_errors::TradingError;
-use trading_sim::{run_trend_sweep, DeterministicBacktestEngine, SweepJob};
+use trading_sim::{DeterministicBacktestEngine, SweepJob, run_trend_sweep};
 
 const SERVICE_NAME: &str = "quant-research-service";
 const DOMAIN_NAME: &str = "capital_markets_research";
@@ -205,10 +205,10 @@ mod tests {
         PerformanceSummaryV1, ResearchTaskV1, SymbolV1, VenueV1,
     };
     use trading_core::{
-        build_feature_rows, experiment_config_hash, walk_forward, BasicLinearModel,
+        BasicLinearModel, build_feature_rows, experiment_config_hash, walk_forward,
     };
 
-    use super::{ai_assisted_summary, service_boundary, QuantResearchService, DOMAIN_NAME};
+    use super::{DOMAIN_NAME, QuantResearchService, ai_assisted_summary, service_boundary};
 
     #[test]
     fn service_boundary_matches_enterprise_catalog() {

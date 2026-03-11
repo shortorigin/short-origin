@@ -625,8 +625,8 @@ mod tests {
     use trading_sim::TrendFollower;
 
     use super::{
-        demo_strategy_wat, pack_output_handle, SandboxExecutionBudget, StrategySandbox,
-        WasmRuntimePolicy, WASM_PAGE_BYTES,
+        SandboxExecutionBudget, StrategySandbox, WASM_PAGE_BYTES, WasmRuntimePolicy,
+        demo_strategy_wat, pack_output_handle,
     };
 
     fn fixed_clock() -> Arc<FixedClock> {

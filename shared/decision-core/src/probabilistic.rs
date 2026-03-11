@@ -1,4 +1,4 @@
-use rand::{rngs::StdRng, RngExt, SeedableRng};
+use rand::{RngExt, SeedableRng, rngs::StdRng};
 
 use contracts::{DecisionOptionV1, OutcomeDistributionV1};
 
@@ -290,11 +290,7 @@ fn sample_beta(alpha: u32, beta: u32, rng: &mut StdRng) -> f64 {
     let left = sample_erlang(alpha.max(1), rng);
     let right = sample_erlang(beta.max(1), rng);
     let total = left + right;
-    if total > 0.0 {
-        left / total
-    } else {
-        0.5
-    }
+    if total > 0.0 { left / total } else { 0.5 }
 }
 
 fn sample_erlang(shape: u32, rng: &mut StdRng) -> f64 {
@@ -314,8 +310,8 @@ mod tests {
     };
 
     use super::{
-        aggregate_confidence, risk_penalized_utility, MonteCarloScenarioSampler,
-        ThompsonSamplingBandit, WeightedExpectedValueScorer,
+        MonteCarloScenarioSampler, ThompsonSamplingBandit, WeightedExpectedValueScorer,
+        aggregate_confidence, risk_penalized_utility,
     };
     use crate::{ConfidenceScore, RiskScore, UtilityScore};
     use contracts::{DecisionOptionV1, ReversibilityClassV1};

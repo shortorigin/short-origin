@@ -63,24 +63,25 @@ mod shell;
 mod window_manager;
 
 /// Re-exported runtime provider and shell UI entrypoints.
-pub use components::{use_desktop_runtime, DesktopProvider, DesktopRuntimeContext, DesktopShell};
+pub use components::{DesktopProvider, DesktopRuntimeContext, DesktopShell, use_desktop_runtime};
 /// Re-exported app-runtime contract types for managed app integrations.
 pub use desktop_app_contract::{
     AppCapability, AppCommand, AppEvent, AppLifecycleEvent, AppModule, AppMountContext,
     AppRegistration, AppServices, ApplicationId, CapabilitySet, IpcEnvelope, SuspendPolicy,
 };
 /// Re-exported browser E2E scene types used by the site entrypoint and shell.
-pub use e2e::{current_browser_e2e_config, BrowserE2eConfig, BrowserE2eScene};
+pub use e2e::{BrowserE2eConfig, BrowserE2eScene, current_browser_e2e_config};
 /// Re-exported host-side effect execution context.
 pub use host::DesktopHostContext;
 /// Re-exported runtime state model types.
 pub use model::*;
 /// Re-exported persistence entrypoints used by the shell runtime.
 pub use persistence::{
-    load_boot_snapshot, load_durable_boot_snapshot, load_durable_boot_snapshot_record, load_theme,
-    persist_layout_snapshot, persist_terminal_history, persist_theme, DurableDesktopSnapshot,
+    DurableDesktopSnapshot, load_boot_snapshot, load_durable_boot_snapshot,
+    load_durable_boot_snapshot_record, load_theme, persist_layout_snapshot,
+    persist_terminal_history, persist_theme,
 };
 /// Re-exported reducer entrypoint and core action/effect enums.
-pub use reducer::{reduce_desktop, DesktopAction, HydrationMode, RuntimeEffect, SyncDomain};
+pub use reducer::{DesktopAction, HydrationMode, RuntimeEffect, SyncDomain, reduce_desktop};
 /// Re-exported shared UI primitives for runtime-owned shell surfaces.
 pub use system_ui::prelude::{Icon, IconName, IconSize};

@@ -1,6 +1,6 @@
 use std::fmt;
 
-use serde::{de::Error as _, Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer, de::Error as _};
 use thiserror::Error;
 
 #[derive(Debug, Clone, PartialEq, Eq, Error)]

@@ -1,6 +1,6 @@
 use lattice_config::{
-    finance_service_component_binding, treasury_disbursement_component_binding, LatticeConfigV1,
-    RolloutTargetV1,
+    LatticeConfigV1, RolloutTargetV1, finance_service_component_binding,
+    treasury_disbursement_component_binding,
 };
 use sdk_rs::{
     InstitutionalPlatformClientV1, InstitutionalPlatformRuntimeClient,

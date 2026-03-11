@@ -155,11 +155,7 @@ fn data_sort_registration() -> AppCommandRegistration {
                         (None, Some(_)) => Ordering::Less,
                         (None, None) => Ordering::Equal,
                     };
-                    if descending {
-                        ord.reverse()
-                    } else {
-                        ord
-                    }
+                    if descending { ord.reverse() } else { ord }
                 });
                 Ok(system_shell_contract::CommandResult {
                     output: StructuredData::Table(table),

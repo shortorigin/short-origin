@@ -1,6 +1,6 @@
 use leptos::prelude::*;
 
-use crate::foundation::{merge_layout_class, TextRole, TextTone};
+use crate::foundation::{TextRole, TextTone, merge_layout_class};
 
 #[component]
 pub fn Text(

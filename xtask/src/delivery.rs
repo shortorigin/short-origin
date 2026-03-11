@@ -2,8 +2,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use lattice_config::{
-    finance_service_component_binding_with_artifact, rollout_target_for_environment,
-    treasury_disbursement_component_binding_with_artifact, LatticeConfigV1,
+    LatticeConfigV1, finance_service_component_binding_with_artifact,
+    rollout_target_for_environment, treasury_disbursement_component_binding_with_artifact,
 };
 
 const DEFAULT_REGISTRY: &str = "ghcr.io/shortorigin";

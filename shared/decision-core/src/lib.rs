@@ -20,9 +20,9 @@ pub use learned::{
 };
 pub use policy::{BaselinePolicyGate, PolicyGate};
 pub use probabilistic::{
-    aggregate_confidence, risk_penalized_utility, BaselineForecastModel, ForecastModel,
-    MonteCarloScenarioSampler, MonteCarloSummary, ProbabilisticEvaluation, ThompsonSamplingBandit,
-    ThompsonSamplingResult, WeightedExpectedValueScorer,
+    BaselineForecastModel, ForecastModel, MonteCarloScenarioSampler, MonteCarloSummary,
+    ProbabilisticEvaluation, ThompsonSamplingBandit, ThompsonSamplingResult,
+    WeightedExpectedValueScorer, aggregate_confidence, risk_penalized_utility,
 };
 pub use scores::{
     ConfidenceScore, ConstraintViolation, DecisionClass, DecisionId, DecisionState,

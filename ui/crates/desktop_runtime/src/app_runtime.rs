@@ -106,14 +106,14 @@ impl AppRuntimeState {
             }
         }
 
-        if !stale_subscribers.is_empty() {
-            if let Some(topic_subscribers) = self.topic_subscribers.get_mut(topic) {
-                for stale in stale_subscribers {
-                    topic_subscribers.remove(&stale);
-                }
-                if topic_subscribers.is_empty() {
-                    self.topic_subscribers.remove(topic);
-                }
+        if !stale_subscribers.is_empty()
+            && let Some(topic_subscribers) = self.topic_subscribers.get_mut(topic)
+        {
+            for stale in stale_subscribers {
+                topic_subscribers.remove(&stale);
+            }
+            if topic_subscribers.is_empty() {
+                self.topic_subscribers.remove(topic);
             }
         }
     }

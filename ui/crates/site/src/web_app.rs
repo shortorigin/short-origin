@@ -1,23 +1,23 @@
 //! Root route components and browser-first shell boot for the site shell.
 
 use desktop_runtime::{
-    current_browser_e2e_config, use_desktop_runtime, BrowserE2eConfig, DesktopAction,
-    DesktopProvider, DesktopShell,
+    BrowserE2eConfig, DesktopAction, DesktopProvider, DesktopShell, current_browser_e2e_config,
+    use_desktop_runtime,
 };
 use leptos::prelude::*;
 #[cfg(target_arch = "wasm32")]
 use leptos::task::spawn_local;
 use leptos_meta::*;
-use leptos_router::components::{Route, Router, Routes, A};
+use leptos_router::components::{A, Route, Router, Routes};
 use leptos_router::hooks::use_params_map;
 use leptos_router::path;
 use platform_host_web::build_host_services;
 #[cfg(target_arch = "wasm32")]
 use platform_host_web::{
-    decode_shell_sync_event, shell_sync_sender_id, should_apply_shell_sync_event, ShellSyncKind,
+    ShellSyncKind, decode_shell_sync_event, shell_sync_sender_id, should_apply_shell_sync_event,
 };
 
-use crate::browser_navigation::{current_browser_route, BrowserRoute};
+use crate::browser_navigation::{BrowserRoute, current_browser_route};
 
 const DESKTOP_THEME_CSS: &str = concat!(
     include_str!("generated/tokens.css"),
@@ -90,10 +90,10 @@ fn DesktopUrlBoot() -> impl IntoView {
         if !runtime.state.get().boot_hydrated {
             return;
         }
-        if let Some(BrowserRoute::Shell(Some(deep_link))) = current_browser_route() {
-            if !deep_link.open.is_empty() {
-                runtime.dispatch_action(DesktopAction::ApplyDeepLink { deep_link });
-            }
+        if let Some(BrowserRoute::Shell(Some(deep_link))) = current_browser_route()
+            && !deep_link.open.is_empty()
+        {
+            runtime.dispatch_action(DesktopAction::ApplyDeepLink { deep_link });
         }
     });
 
@@ -116,8 +116,8 @@ fn BrowserShellSync() -> impl IntoView {
 
     #[cfg(target_arch = "wasm32")]
     {
-        use desktop_runtime::{load_durable_boot_snapshot, load_theme, HydrationMode};
-        use wasm_bindgen::{closure::Closure, JsCast};
+        use desktop_runtime::{HydrationMode, load_durable_boot_snapshot, load_theme};
+        use wasm_bindgen::{JsCast, closure::Closure};
 
         enum BrowserShellSyncBinding {
             Active {

@@ -11,12 +11,16 @@ fn policy_registry_loads_charter_thresholds_and_invariants() {
 
     assert_eq!(charter.version, "v1");
     assert_eq!(thresholds.thresholds.len(), 4);
-    assert!(invariants
-        .invariants
-        .iter()
-        .any(|invariant| invariant == "workflows_is_the_only_cross_domain_mutation_path"));
-    assert!(decision_governance
-        .decision_classes
-        .iter()
-        .any(|value| value == "policy_constrained_action_selection"));
+    assert!(
+        invariants
+            .invariants
+            .iter()
+            .any(|invariant| invariant == "workflows_is_the_only_cross_domain_mutation_path")
+    );
+    assert!(
+        decision_governance
+            .decision_classes
+            .iter()
+            .any(|value| value == "policy_constrained_action_selection")
+    );
 }

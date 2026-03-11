@@ -9,8 +9,8 @@ use contracts::{
 };
 use serde::{Deserialize, Serialize};
 use trading_core::{
-    build_order_request, BacktestEngine, Clock, DoubleEntryLedger, ExecutionVenueAdapter,
-    IdGenerator, PortfolioLedger, StrategyModule, SystemClock, SystemIdGenerator,
+    BacktestEngine, Clock, DoubleEntryLedger, ExecutionVenueAdapter, IdGenerator, PortfolioLedger,
+    StrategyModule, SystemClock, SystemIdGenerator, build_order_request,
 };
 use trading_errors::TradingResult;
 
@@ -685,8 +685,8 @@ mod tests {
     use trading_core::{BacktestEngine, ExecutionVenueAdapter, FixedClock, SequenceIdGenerator};
 
     use super::{
-        run_agent_market_simulation, run_trend_sweep, AgentBehavior, DeterministicBacktestEngine,
-        PaperVenueAdapter, PaperVenueConfig, SweepJob, TrendFollower,
+        AgentBehavior, DeterministicBacktestEngine, PaperVenueAdapter, PaperVenueConfig, SweepJob,
+        TrendFollower, run_agent_market_simulation, run_trend_sweep,
     };
 
     fn sample_events() -> Vec<MarketEventV1> {

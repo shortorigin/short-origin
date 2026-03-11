@@ -477,18 +477,18 @@ fn collect_boundary_defects(
     for audit in audits {
         let allowed = allowed_planes(audit.plane);
         for dependency in &audit.dependencies {
-            if let (Some(target_path), Some(plane)) = (&dependency.target_path, dependency.plane) {
-                if !allowed.contains(&plane) {
-                    defects.push(format!(
-                        "member `{}` in plane `{}` has disallowed {} dependency `{}` -> `{}` ({})",
-                        audit.member_path,
-                        audit.plane.as_str(),
-                        dependency.section,
-                        dependency.name,
-                        target_path,
-                        plane.as_str()
-                    ));
-                }
+            if let (Some(target_path), Some(plane)) = (&dependency.target_path, dependency.plane)
+                && !allowed.contains(&plane)
+            {
+                defects.push(format!(
+                    "member `{}` in plane `{}` has disallowed {} dependency `{}` -> `{}` ({})",
+                    audit.member_path,
+                    audit.plane.as_str(),
+                    dependency.section,
+                    dependency.name,
+                    target_path,
+                    plane.as_str()
+                ));
             }
         }
     }
@@ -1068,11 +1068,10 @@ fn help() -> String {
 #[cfg(test)]
 mod tests {
     use super::{
-        audit_workspace_members, build_metadata_workspace, classify_member_path,
-        classify_repo_path, planes_for_paths, read_root_workspace_manifest,
+        CargoMetadata, Plane, audit_workspace_members, build_metadata_workspace,
+        classify_member_path, classify_repo_path, planes_for_paths, read_root_workspace_manifest,
         scan_for_invalid_workspace_path_dependencies, scan_for_manifest_governance_defects,
         scan_for_transitive_workspace_violations, scan_for_workspace_import_violations,
-        CargoMetadata, Plane,
     };
     use std::collections::BTreeSet;
     use std::fs;

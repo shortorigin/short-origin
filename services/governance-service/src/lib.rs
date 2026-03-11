@@ -204,7 +204,7 @@ mod tests {
     };
     use identity::{ActorRef, DecisionId};
 
-    use super::{service_boundary, GovernanceService, DOMAIN_NAME};
+    use super::{DOMAIN_NAME, GovernanceService, service_boundary};
 
     #[test]
     fn service_boundary_matches_enterprise_catalog() {

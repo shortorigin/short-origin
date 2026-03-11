@@ -5,10 +5,10 @@ use std::path::{Path, PathBuf};
 use contracts::KnowledgeDocumentFormatV1;
 use error_model::{InstitutionalError, InstitutionalResult, OperationContext};
 use memvid_core::{
-    AclEnforcementMode, DocumentProcessor, Memvid, PutOptions, SearchRequest, MEMVID_CORE_VERSION,
+    AclEnforcementMode, DocumentProcessor, MEMVID_CORE_VERSION, Memvid, PutOptions, SearchRequest,
 };
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 

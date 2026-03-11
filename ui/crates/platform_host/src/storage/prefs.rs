@@ -2,7 +2,7 @@
 
 use std::{cell::RefCell, collections::HashMap, future::Future, pin::Pin, rc::Rc};
 
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
 
 /// Object-safe boxed future used by [`PrefsStore`] async methods.
 pub type PrefsStoreFuture<'a, T> = Pin<Box<dyn Future<Output = T> + 'a>>;
