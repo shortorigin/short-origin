@@ -1,0 +1,5 @@
+{
+  "name": "KnowledgeRetrievalQueryV1",
+  "version": "v1",
+  "fields": ["query_id", "actor_ref", "purpose", "classification", "selector", "query_text", "top_k", "snippet_chars"]
+}

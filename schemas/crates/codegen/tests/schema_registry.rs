@@ -6,9 +6,9 @@ fn schema_registry_embeds_contract_event_and_record_documents() {
     let event_schemas = embedded_event_schemas().unwrap();
     let surrealdb_schemas = embedded_surrealdb_schemas().unwrap();
 
-    assert_eq!(contract_schemas.len(), 46);
+    assert_eq!(contract_schemas.len(), 49);
     assert_eq!(event_schemas.len(), 12);
-    assert_eq!(surrealdb_schemas.len(), 1);
+    assert_eq!(surrealdb_schemas.len(), 3);
 
     assert!(
         contract_schemas
@@ -33,6 +33,21 @@ fn schema_registry_embeds_contract_event_and_record_documents() {
     assert!(
         contract_schemas
             .iter()
+            .any(|schema| schema.name == "knowledge-retrieval-query-v1")
+    );
+    assert!(
+        contract_schemas
+            .iter()
+            .any(|schema| schema.name == "knowledge-retrieval-hit-v1")
+    );
+    assert!(
+        contract_schemas
+            .iter()
+            .any(|schema| schema.name == "knowledge-change-notification-v1")
+    );
+    assert!(
+        contract_schemas
+            .iter()
             .any(|schema| schema.name == "decision-context-v1")
     );
     assert!(
@@ -44,5 +59,15 @@ fn schema_registry_embeds_contract_event_and_record_documents() {
         event_schemas
             .iter()
             .any(|schema| schema.name == "knowledge-analysis-generated-v1")
+    );
+    assert!(
+        surrealdb_schemas
+            .iter()
+            .any(|schema| schema.name == "knowledge-data-plane-v1")
+    );
+    assert!(
+        surrealdb_schemas
+            .iter()
+            .any(|schema| schema.name == "knowledge-projections-v1")
     );
 }

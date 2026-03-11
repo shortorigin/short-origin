@@ -8,7 +8,7 @@ pub struct EmbeddedSchema {
     pub document: Value,
 }
 
-const CONTRACT_FILES: [(&str, &str); 46] = [
+const CONTRACT_FILES: [(&str, &str); 49] = [
     (
         "command-v1",
         include_str!("../../../contracts/v1/command-v1.json"),
@@ -162,6 +162,18 @@ const CONTRACT_FILES: [(&str, &str); 46] = [
         include_str!("../../../contracts/v1/knowledge-publication-v1.json"),
     ),
     (
+        "knowledge-retrieval-query-v1",
+        include_str!("../../../contracts/v1/knowledge-retrieval-query-v1.json"),
+    ),
+    (
+        "knowledge-retrieval-hit-v1",
+        include_str!("../../../contracts/v1/knowledge-retrieval-hit-v1.json"),
+    ),
+    (
+        "knowledge-change-notification-v1",
+        include_str!("../../../contracts/v1/knowledge-change-notification-v1.json"),
+    ),
+    (
         "macro-financial-analysis-request-v1",
         include_str!("../../../contracts/v1/macro-financial-analysis-request-v1.json"),
     ),
@@ -246,10 +258,20 @@ const EVENT_FILES: [(&str, &str); 12] = [
     ),
 ];
 
-const SURREALDB_FILES: [(&str, &str); 1] = [(
-    "record-types-v1",
-    include_str!("../../../surrealdb/v1/record-types-v1.json"),
-)];
+const SURREALDB_FILES: [(&str, &str); 3] = [
+    (
+        "record-types-v1",
+        include_str!("../../../surrealdb/v1/record-types-v1.json"),
+    ),
+    (
+        "knowledge-data-plane-v1",
+        include_str!("../../../surrealdb/v1/knowledge-data-plane-v1.json"),
+    ),
+    (
+        "knowledge-projections-v1",
+        include_str!("../../../surrealdb/v1/knowledge-projections-v1.json"),
+    ),
+];
 
 fn parse(name: &str, document: &str) -> InstitutionalResult<EmbeddedSchema> {
     let parsed = serde_json::from_str(document)

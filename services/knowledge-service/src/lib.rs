@@ -8,29 +8,29 @@ use contracts::{
     Classification, ConfidenceV1, DataRegisterEntryV1, DirectionalBiasV1, DriverBucketV1,
     ExecutiveBriefV1, ExternalAccountsBalanceSheetMapV1, FxDriverAssessmentV1,
     GlobalLiquidityFundingConditionsV1, GlobalLiquidityPhaseV1, InferenceStepV1,
-    KnowledgeAppendixV1, KnowledgeCapsuleV1, KnowledgeDocumentFormatV1, KnowledgeEdgeV1,
-    KnowledgeEvidenceUseV1, KnowledgePublicationRequestV1, KnowledgePublicationStatusV1,
-    KnowledgeRelationshipV1, KnowledgeSourceFetchSpecV1, KnowledgeSourceIngestRequestV1,
-    KnowledgeSourceKindV1, KnowledgeSourceProvenanceV1, KnowledgeSourceV1,
-    MacroFinancialAnalysisRequestV1, MacroFinancialAnalysisV1, MechanismMapV1, PipelineStepIdV1,
-    PipelineStepTraceV1, PolicyFrictionObservationV1, PolicyRegimeDiagnosisV1, ProbabilityV1,
-    ProblemContractV1, RankedRiskV1, RiskRegisterEntryV1, ScenarioCaseV1, ScenarioKindV1,
-    ServiceBoundaryV1, SignalMagnitudeV1, SignalSummaryEntryV1, SourceConstraintsV1,
-    SourceGovernanceDecisionV1, SovereignSystemicRiskV1, TransmissionChannelV1,
-    WatchlistIndicatorV1,
+    KnowledgeAppendixV1, KnowledgeCapsuleV1, KnowledgeChangeKindV1, KnowledgeChangeNotificationV1,
+    KnowledgeDocumentFormatV1, KnowledgeEdgeV1, KnowledgeEvidenceUseV1,
+    KnowledgePublicationRequestV1, KnowledgePublicationStatusV1, KnowledgeRelationshipV1,
+    KnowledgeRetrievalQueryV1, KnowledgeRetrievalSelectorV1, KnowledgeSourceFetchSpecV1,
+    KnowledgeSourceIngestRequestV1, KnowledgeSourceKindV1, KnowledgeSourceProvenanceV1,
+    KnowledgeSourceV1, MacroFinancialAnalysisRequestV1, MacroFinancialAnalysisV1, MechanismMapV1,
+    PipelineStepIdV1, PipelineStepTraceV1, PolicyFrictionObservationV1, PolicyRegimeDiagnosisV1,
+    ProbabilityV1, ProblemContractV1, RankedRiskV1, RiskRegisterEntryV1, ScenarioCaseV1,
+    ScenarioKindV1, ServiceBoundaryV1, SignalMagnitudeV1, SignalSummaryEntryV1,
+    SourceConstraintsV1, SourceGovernanceDecisionV1, SovereignSystemicRiskV1,
+    TransmissionChannelV1, WatchlistIndicatorV1,
 };
 use enforcement::ApprovedMutationContext;
 use error_model::{InstitutionalError, InstitutionalResult, OperationContext};
 use events::{EventEnvelopeV1, RecordedEventV1};
 use governed_storage::KnowledgeStore;
 use identity::{ActorRef, EvidenceId, ServiceId, WorkflowId};
-use memory_provider::{
-    CapsuleBuildRequest, CapsuleDocument, CapsuleSearchRequest, KnowledgeMemoryProvider,
-};
+use memory_provider::{KnowledgeMemoryProvider, extract_document_text};
 use quick_xml::Reader;
 use quick_xml::events::Event;
 use reqwest::Client;
 use reqwest::header::CONTENT_TYPE;
+use surrealdb_model::{EventRecordV1, KnowledgeChunkRecordV1};
 use telemetry::DecisionRef;
 use trading_core::{Clock, IdGenerator, SystemClock, SystemIdGenerator};
 
@@ -66,7 +66,7 @@ where
     M: KnowledgeMemoryProvider + Clone,
 {
     client: Client,
-    memory_provider: M,
+    _memory_provider: M,
     official_document_hosts: BTreeSet<String>,
     clock: Arc<dyn Clock>,
     ids: Arc<dyn IdGenerator>,
@@ -92,7 +92,7 @@ where
     pub fn new(memory_provider: M, clock: Arc<dyn Clock>, ids: Arc<dyn IdGenerator>) -> Self {
         Self {
             client: Client::new(),
-            memory_provider,
+            _memory_provider: memory_provider,
             official_document_hosts: default_official_document_hosts(),
             clock,
             ids,
@@ -158,20 +158,25 @@ where
         validate_required_output_format(&request.constraints)?;
 
         let retrieval_context = if let Some(capsule_id) = &request.capsule_id {
-            self.memory_provider
-                .search_capsule(
-                    capsule_id,
-                    &CapsuleSearchRequest {
-                        query: build_retrieval_query(&request),
-                        top_k: 4,
-                        snippet_chars: 180,
+            repositories
+                .search_capsule(KnowledgeRetrievalQueryV1 {
+                    query_id: format!("analysis-retrieval::{}", request.analysis_id),
+                    actor_ref: ActorRef("knowledge-service".to_string()),
+                    purpose: "macro_financial_analysis".to_string(),
+                    classification: request.classification,
+                    selector: KnowledgeRetrievalSelectorV1 {
+                        capsule_id: Some(capsule_id.clone()),
+                        source_ids: request.source_ids.clone(),
+                        country_areas: request.coverage.countries.clone(),
+                        source_kinds: Vec::new(),
                     },
-                )?
-                .into_iter()
-                .map(|hit| {
-                    let label = hit.title.unwrap_or(hit.uri);
-                    format!("{label}: {}", hit.text)
+                    query_text: build_retrieval_query(&request),
+                    top_k: 4,
+                    snippet_chars: 180,
                 })
+                .await?
+                .into_iter()
+                .map(|hit| format!("{} [{}]: {}", hit.title, hit.source_id, hit.snippet))
                 .collect::<Vec<_>>()
         } else {
             Vec::new()
@@ -293,74 +298,82 @@ where
         };
         analysis.rendered_output = render_analysis(&analysis);
 
-        repositories.store_analysis(analysis.clone()).await?;
-        repositories
-            .store_evidence(
-                format!("evidence::{}", analysis.analysis_id),
-                contracts::EvidenceManifestV1 {
-                    evidence_id: EvidenceId::from(format!("evidence::{}", analysis.analysis_id)),
-                    producer: SERVICE_NAME.to_string(),
-                    artifact_hash: sha256_hex(analysis.rendered_output.as_bytes()),
-                    storage_ref: format!("knowledge-store:analysis/{}", analysis.analysis_id),
-                    retention_class: "institutional_record".to_string(),
-                    classification: request.classification,
-                    related_decision_refs: analysis
-                        .claim_evidence
+        let evidence_manifest = contracts::EvidenceManifestV1 {
+            evidence_id: EvidenceId::from(format!("evidence::{}", analysis.analysis_id)),
+            producer: SERVICE_NAME.to_string(),
+            artifact_hash: sha256_hex(analysis.rendered_output.as_bytes()),
+            storage_ref: format!("surrealdb:analysis/{}", analysis.analysis_id),
+            retention_class: "institutional_record".to_string(),
+            classification: request.classification,
+            related_decision_refs: analysis
+                .claim_evidence
+                .iter()
+                .map(|claim| DecisionRef::from(claim.claim_id.clone()))
+                .chain(
+                    analysis
+                        .inference_steps
                         .iter()
-                        .map(|claim| DecisionRef::from(claim.claim_id.clone()))
-                        .chain(
-                            analysis
-                                .inference_steps
-                                .iter()
-                                .map(|inference| DecisionRef::from(inference.inference_id.clone())),
-                        )
-                        .collect(),
-                },
-            )
-            .await?;
-        repositories
-            .append_event(
-                self.ids.next_id(),
-                RecordedEventV1 {
-                    envelope: EventEnvelopeV1::new(
-                        "knowledge.analysis_generated",
-                        ActorRef("knowledge-service".to_string()),
-                        analysis.analysis_id.clone(),
-                        None,
-                        request.classification,
-                        "schemas/events/data_knowledge/v1/knowledge-analysis-generated-v1.json",
-                        sha256_hex(analysis.rendered_output.as_bytes()),
-                    ),
-                    payload_ref: contracts::PayloadRefV1 {
-                        schema_ref: "schemas/contracts/v1/macro-financial-analysis-v1.json"
-                            .to_string(),
-                        record_id: analysis.analysis_id.clone(),
-                    },
-                },
-            )
-            .await?;
-        for source in &evidence_sources {
-            repositories
-                .store_edge(KnowledgeEdgeV1 {
-                    edge_id: self.ids.next_id(),
-                    from_id: analysis.analysis_id.clone(),
-                    to_id: source.source_id.clone(),
-                    relationship: KnowledgeRelationshipV1::Cites,
-                    rationale: "Analysis cites a governed primary source.".to_string(),
-                })
-                .await?;
-        }
+                        .map(|inference| DecisionRef::from(inference.inference_id.clone())),
+                )
+                .collect(),
+        };
+        let mut edges = evidence_sources
+            .iter()
+            .map(|source| KnowledgeEdgeV1 {
+                edge_id: self.ids.next_id(),
+                from_id: analysis.analysis_id.clone(),
+                to_id: source.source_id.clone(),
+                relationship: KnowledgeRelationshipV1::Cites,
+                rationale: "Analysis cites a governed primary source.".to_string(),
+            })
+            .collect::<Vec<_>>();
         if let Some(capsule_id) = &analysis.capsule_id {
-            repositories
-                .store_edge(KnowledgeEdgeV1 {
-                    edge_id: self.ids.next_id(),
-                    from_id: analysis.analysis_id.clone(),
-                    to_id: capsule_id.clone(),
-                    relationship: KnowledgeRelationshipV1::Supports,
-                    rationale: "Analysis used capsule retrieval context.".to_string(),
-                })
-                .await?;
+            edges.push(KnowledgeEdgeV1 {
+                edge_id: self.ids.next_id(),
+                from_id: analysis.analysis_id.clone(),
+                to_id: capsule_id.clone(),
+                relationship: KnowledgeRelationshipV1::Supports,
+                rationale: "Analysis used capsule retrieval context.".to_string(),
+            });
         }
+        repositories
+            .store_analysis_bundle(
+                analysis.clone(),
+                format!("evidence::{}", analysis.analysis_id),
+                evidence_manifest,
+                vec![EventRecordV1 {
+                    id: self.ids.next_id(),
+                    event: RecordedEventV1 {
+                        envelope: EventEnvelopeV1::new(
+                            "knowledge.analysis_generated",
+                            ActorRef("knowledge-service".to_string()),
+                            analysis.analysis_id.clone(),
+                            None,
+                            request.classification,
+                            "schemas/events/data_knowledge/v1/knowledge-analysis-generated-v1.json",
+                            sha256_hex(analysis.rendered_output.as_bytes()),
+                        ),
+                        payload_ref: contracts::PayloadRefV1 {
+                            schema_ref: "schemas/contracts/v1/macro-financial-analysis-v1.json"
+                                .to_string(),
+                            record_id: analysis.analysis_id.clone(),
+                        },
+                    },
+                }],
+                edges,
+                vec![KnowledgeChangeNotificationV1 {
+                    notification_id: self.ids.next_id(),
+                    kind: KnowledgeChangeKindV1::AnalysisGenerated,
+                    record_id: analysis.analysis_id.clone(),
+                    publication_id: None,
+                    capsule_id: analysis.capsule_id.clone(),
+                    source_id: None,
+                    analysis_id: Some(analysis.analysis_id.clone()),
+                    published_at: analysis.generated_at,
+                    classification: request.classification,
+                }],
+            )
+            .await?;
 
         Ok(analysis)
     }
@@ -395,6 +408,8 @@ where
         R: KnowledgeStore,
     {
         let mut sources = Vec::with_capacity(request.sources.len());
+        let mut events = Vec::with_capacity(request.sources.len());
+        let mut notifications = Vec::with_capacity(request.sources.len());
         for spec in &request.sources {
             validate_source_url(spec, &self.official_document_hosts)?;
             let response = self.client.get(&spec.url).send().await.map_err(|error| {
@@ -434,30 +449,41 @@ where
                 bytes.as_ref(),
                 &mime_type,
             )?;
-            repositories.store_source(source.clone()).await?;
-            repositories
-                .append_event(
-                    self.ids.next_id(),
-                    RecordedEventV1 {
-                        envelope: EventEnvelopeV1::new(
-                            "knowledge.source_ingested",
-                            ActorRef("knowledge-service".to_string()),
-                            request.ingestion_id.clone(),
-                            None,
-                            request.classification,
-                            "schemas/events/data_knowledge/v1/knowledge-source-ingested-v1.json",
-                            source.content_digest.clone(),
-                        ),
-                        payload_ref: contracts::PayloadRefV1 {
-                            schema_ref: "schemas/contracts/v1/knowledge-source-ingest-v1.json"
-                                .to_string(),
-                            record_id: source.source_id.clone(),
-                        },
+            events.push(EventRecordV1 {
+                id: self.ids.next_id(),
+                event: RecordedEventV1 {
+                    envelope: EventEnvelopeV1::new(
+                        "knowledge.source_ingested",
+                        ActorRef("knowledge-service".to_string()),
+                        request.ingestion_id.clone(),
+                        None,
+                        request.classification,
+                        "schemas/events/data_knowledge/v1/knowledge-source-ingested-v1.json",
+                        source.content_digest.clone(),
+                    ),
+                    payload_ref: contracts::PayloadRefV1 {
+                        schema_ref: "schemas/contracts/v1/knowledge-source-ingest-v1.json"
+                            .to_string(),
+                        record_id: source.source_id.clone(),
                     },
-                )
-                .await?;
+                },
+            });
+            notifications.push(KnowledgeChangeNotificationV1 {
+                notification_id: self.ids.next_id(),
+                kind: KnowledgeChangeKindV1::SourceIngested,
+                record_id: source.source_id.clone(),
+                publication_id: None,
+                capsule_id: None,
+                source_id: Some(source.source_id.clone()),
+                analysis_id: None,
+                published_at: source.acquired_at,
+                classification: request.classification,
+            });
             sources.push(source);
         }
+        repositories
+            .store_sources_batch(sources.clone(), events, notifications)
+            .await?;
         Ok(sources)
     }
 
@@ -478,82 +504,76 @@ where
         }
         let source_governance =
             validate_selected_sources_against_constraints(&sources, &request.constraints)?;
-
-        let documents = sources
-            .iter()
-            .map(|source| CapsuleDocument {
-                document_id: source.source_id.clone(),
-                title: source.title.clone(),
-                uri: format!("knowledge://source/{}", source.source_id),
-                content: source.content_text.clone(),
-                metadata: BTreeMap::from([
-                    ("source_id".to_string(), source.source_id.clone()),
-                    (
-                        "provider".to_string(),
-                        source_kind_label(source.kind).to_string(),
-                    ),
-                    ("country_area".to_string(), source.country_area.clone()),
-                ]),
-                search_text: Some(source.content_text.clone()),
-            })
-            .collect::<Vec<_>>();
-        let build = self.memory_provider.build_capsule(&CapsuleBuildRequest {
-            capsule_id: request.capsule_id.clone(),
-            documents,
-        })?;
+        let published_at = self.clock.now();
+        let artifact_hash = build_capsule_artifact_hash(&sources);
+        let chunks = build_capsule_chunks(&request.capsule_id, &sources);
         let capsule = KnowledgeCapsuleV1 {
             capsule_id: request.capsule_id.clone(),
             publication_id: request.publication_id.clone(),
             title: request.title,
             source_ids: request.source_ids.clone(),
             source_count: sources.len(),
-            storage_ref: build.storage_ref,
-            artifact_hash: build.artifact_hash,
-            version: build.version,
-            memvid_version: build.memvid_version,
-            published_at: self.clock.now(),
+            storage_ref: format!("surrealdb:capsule/{}", request.capsule_id),
+            artifact_hash,
+            version: "v2".to_string(),
+            memvid_version: "surrealdb-3.0.3".to_string(),
+            published_at,
             classification: request.classification,
             retention_class: request.retention_class,
         };
-        repositories.store_capsule(capsule.clone()).await?;
-        repositories
-            .append_event(
-                self.ids.next_id(),
-                RecordedEventV1 {
-                    envelope: EventEnvelopeV1::new(
-                        "knowledge.capsule_published",
-                        ActorRef("knowledge-service".to_string()),
-                        request.publication_id.clone(),
-                        None,
-                        request.classification,
-                        "schemas/events/data_knowledge/v1/knowledge-capsule-published-v1.json",
-                        capsule.artifact_hash.clone(),
+        let edges = sources
+            .iter()
+            .map(|source| KnowledgeEdgeV1 {
+                edge_id: self.ids.next_id(),
+                from_id: capsule.capsule_id.clone(),
+                to_id: source.source_id.clone(),
+                relationship: KnowledgeRelationshipV1::DerivedFrom,
+                rationale: source_governance
+                    .iter()
+                    .find(|decision| decision.source_id == source.source_id)
+                    .map_or_else(
+                        || "Capsule compiled from governed source text.".to_string(),
+                        |decision| decision.reasons.join(" | "),
                     ),
-                    payload_ref: contracts::PayloadRefV1 {
-                        schema_ref: "schemas/contracts/v1/knowledge-publication-v1.json"
-                            .to_string(),
-                        record_id: capsule.capsule_id.clone(),
+            })
+            .collect::<Vec<_>>();
+        repositories
+            .store_publication_bundle(
+                capsule.clone(),
+                chunks,
+                vec![EventRecordV1 {
+                    id: self.ids.next_id(),
+                    event: RecordedEventV1 {
+                        envelope: EventEnvelopeV1::new(
+                            "knowledge.capsule_published",
+                            ActorRef("knowledge-service".to_string()),
+                            request.publication_id.clone(),
+                            None,
+                            request.classification,
+                            "schemas/events/data_knowledge/v1/knowledge-capsule-published-v1.json",
+                            capsule.artifact_hash.clone(),
+                        ),
+                        payload_ref: contracts::PayloadRefV1 {
+                            schema_ref: "schemas/contracts/v1/knowledge-publication-v1.json"
+                                .to_string(),
+                            record_id: capsule.capsule_id.clone(),
+                        },
                     },
-                },
+                }],
+                edges,
+                vec![KnowledgeChangeNotificationV1 {
+                    notification_id: self.ids.next_id(),
+                    kind: KnowledgeChangeKindV1::CapsulePublished,
+                    record_id: capsule.capsule_id.clone(),
+                    publication_id: Some(capsule.publication_id.clone()),
+                    capsule_id: Some(capsule.capsule_id.clone()),
+                    source_id: None,
+                    analysis_id: None,
+                    published_at: capsule.published_at,
+                    classification: request.classification,
+                }],
             )
             .await?;
-        for source in &sources {
-            repositories
-                .store_edge(KnowledgeEdgeV1 {
-                    edge_id: self.ids.next_id(),
-                    from_id: capsule.capsule_id.clone(),
-                    to_id: source.source_id.clone(),
-                    relationship: KnowledgeRelationshipV1::DerivedFrom,
-                    rationale: source_governance
-                        .iter()
-                        .find(|decision| decision.source_id == source.source_id)
-                        .map_or_else(
-                            || "Capsule compiled from governed source text.".to_string(),
-                            |decision| decision.reasons.join(" | "),
-                        ),
-                })
-                .await?;
-        }
         Ok(capsule)
     }
 
@@ -575,17 +595,17 @@ where
             }
             return Ok(sources);
         }
-        if let Some(capsule_id) = &request.capsule_id
-            && let Some(capsule) = repositories.load_capsule(capsule_id).await?
-        {
-            let sources = repositories.load_sources(&capsule.source_ids).await?;
-            if sources.len() != capsule.source_ids.len() {
-                return Err(InstitutionalError::not_found(
-                    knowledge_context("resolve_sources"),
-                    "one or more capsule knowledge sources",
-                ));
+        if let Some(capsule_id) = &request.capsule_id {
+            if let Some(capsule) = repositories.load_capsule(capsule_id).await? {
+                let sources = repositories.load_sources(&capsule.source_ids).await?;
+                if sources.len() != capsule.source_ids.len() {
+                    return Err(InstitutionalError::not_found(
+                        knowledge_context("resolve_sources"),
+                        "one or more capsule knowledge sources",
+                    ));
+                }
+                return Ok(sources);
             }
-            return Ok(sources);
         }
         Ok(Vec::new())
     }
@@ -604,9 +624,8 @@ where
         })?;
         let source_domain = source_url.host_str().unwrap_or_default().to_string();
         let parsed = parse_source_metadata(spec, bytes)?;
-        let content_text =
-            self.memory_provider
-                .extract_text(bytes, spec.expected_format, Some(mime_type))?;
+        let extracted_text = extract_document_text(bytes, spec.expected_format, Some(mime_type))?;
+        let content_text = fallback_source_content_text(spec, &parsed, &extracted_text);
         let governance = evaluate_source_governance(
             spec.source_id.as_str(),
             spec.title.as_str(),
@@ -658,6 +677,106 @@ where
     }
 }
 
+fn build_capsule_artifact_hash(sources: &[KnowledgeSourceV1]) -> String {
+    let mut entries = sources
+        .iter()
+        .map(|source| {
+            format!(
+                "{}:{}:{}",
+                source.source_id,
+                source.content_digest,
+                source.acquired_at.to_rfc3339()
+            )
+        })
+        .collect::<Vec<_>>();
+    entries.sort();
+    sha256_hex(entries.join("\n").as_bytes())
+}
+
+fn build_capsule_chunks(
+    capsule_id: &str,
+    sources: &[KnowledgeSourceV1],
+) -> Vec<KnowledgeChunkRecordV1> {
+    sources
+        .iter()
+        .flat_map(|source| {
+            source
+                .content_text
+                .split("\n\n")
+                .map(normalize_search_text)
+                .filter(|segment| !segment.is_empty())
+                .collect::<Vec<_>>()
+                .into_iter()
+                .chain(fallback_chunk_text(source))
+                .collect::<Vec<_>>()
+                .into_iter()
+                .flat_map(chunk_search_text)
+                .enumerate()
+                .map(|(chunk_index, search_text)| {
+                    let chunk_id = format!("{capsule_id}::{}::{chunk_index}", source.source_id);
+                    KnowledgeChunkRecordV1 {
+                        id: chunk_id.clone(),
+                        chunk_id,
+                        capsule_id: capsule_id.to_string(),
+                        source_id: source.source_id.clone(),
+                        chunk_index,
+                        title: source.title.clone(),
+                        uri: format!(
+                            "knowledge://capsule/{capsule_id}/source/{}/chunk/{chunk_index}",
+                            source.source_id
+                        ),
+                        country_area: source.country_area.clone(),
+                        classification: source.classification,
+                        source_kind: source.kind,
+                        search_text,
+                        content_digest: source.content_digest.clone(),
+                        acquired_at: source.acquired_at,
+                    }
+                })
+                .collect::<Vec<_>>()
+        })
+        .collect()
+}
+
+fn fallback_chunk_text(source: &KnowledgeSourceV1) -> Option<String> {
+    if source.content_text.trim().is_empty() {
+        Some(normalize_search_text(&format!(
+            "{} {} {}",
+            source.title,
+            source.country_area,
+            source.notes.join(" ")
+        )))
+    } else {
+        None
+    }
+}
+
+fn chunk_search_text(text: String) -> Vec<String> {
+    const TARGET_CHARS: usize = 480;
+
+    let characters = text.chars().collect::<Vec<_>>();
+    if characters.len() <= TARGET_CHARS {
+        return vec![text];
+    }
+
+    let mut chunks = Vec::new();
+    let mut start = 0;
+    while start < characters.len() {
+        let end = (start + TARGET_CHARS).min(characters.len());
+        let chunk = characters[start..end].iter().collect::<String>();
+        let normalized = normalize_search_text(&chunk);
+        if !normalized.is_empty() {
+            chunks.push(normalized);
+        }
+        start = end;
+    }
+    chunks
+}
+
+fn normalize_search_text(text: &str) -> String {
+    text.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
 #[must_use]
 pub fn service_boundary() -> ServiceBoundaryV1 {
     ServiceBoundaryV1 {
@@ -699,6 +818,34 @@ fn default_official_document_hosts() -> BTreeSet<String> {
     .into_iter()
     .map(str::to_owned)
     .collect()
+}
+
+fn fallback_source_content_text(
+    spec: &KnowledgeSourceFetchSpecV1,
+    parsed: &ParsedSourceMetadata,
+    extracted_text: &str,
+) -> String {
+    let normalized = normalize_search_text(extracted_text);
+    if !normalized.is_empty() {
+        return normalized;
+    }
+
+    let mut parts = vec![
+        spec.title.clone(),
+        spec.country_area.clone(),
+        spec.series_name.clone().unwrap_or_default(),
+        parsed.last_observation.clone().unwrap_or_default(),
+        parsed.units.clone().unwrap_or_default(),
+        parsed.transform.clone().unwrap_or_default(),
+        parsed.release_lag.clone().unwrap_or_default(),
+    ];
+    parts.extend(parsed.provider_metadata.values().cloned());
+    let summary = normalize_search_text(&parts.join(" "));
+    if summary.is_empty() {
+        spec.source_id.clone()
+    } else {
+        summary
+    }
 }
 
 fn validate_source_url(
@@ -2910,6 +3057,15 @@ mod tests {
         (address, handle)
     }
 
+    fn test_service(
+        clock: Arc<dyn Clock>,
+        ids: Arc<dyn IdGenerator>,
+    ) -> (tempfile::TempDir, KnowledgeService<MemvidMemoryProvider>) {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let service = KnowledgeService::new(MemvidMemoryProvider::new(dir.path()), clock, ids);
+        (dir, service)
+    }
+
     fn sample_direct_inputs() -> contracts::MacroFinancialDirectInputsV1 {
         contracts::MacroFinancialDirectInputsV1 {
             fx_levels_returns: vec![contracts::AnalysisSeriesInputV1 {
@@ -3032,17 +3188,15 @@ mod tests {
     async fn knowledge_service_ingests_publishes_and_generates_analysis() {
         let (address, _server) = spawn_source_server().await;
         let repositories = connect_in_memory().await.expect("memory db");
-        let dir = tempfile::tempdir().expect("tempdir");
-        let service = KnowledgeService::new(
-            MemvidMemoryProvider::new(dir.path()),
+        let (_dir, service) = test_service(
             Arc::new(FixedClock::new(
                 Utc.with_ymd_and_hms(2026, 3, 9, 12, 0, 0)
                     .single()
                     .expect("time"),
             )),
             Arc::new(SequenceIdGenerator::new("knowledge")),
-        )
-        .with_official_document_host("127.0.0.1");
+        );
+        let service = service.with_official_document_host("127.0.0.1");
 
         let ingested = service
             .ingest_sources_unchecked(
@@ -3131,29 +3285,30 @@ mod tests {
             .expect("publish");
         assert_eq!(capsule.source_count, 4);
 
-        let analysis = Box::pin(service.generate_analysis(
-            &repositories,
-            MacroFinancialAnalysisRequestV1 {
-                analysis_id: "analysis-1".to_string(),
-                objective: AnalysisObjectiveV1::PolicyEval,
-                horizon: AnalysisHorizonV1::Nowcast,
-                coverage: AnalysisCoverageV1 {
-                    countries: vec!["Japan".to_string(), "Brazil".to_string()],
-                    regions: vec!["Asia".to_string(), "Latin America".to_string()],
-                    currencies: vec!["JPY".to_string(), "BRL".to_string()],
-                    fx_pairs: vec!["USD/JPY".to_string(), "USD/BRL".to_string()],
-                    asset_classes: vec!["rates".to_string(), "credit".to_string()],
+        let analysis = service
+            .generate_analysis(
+                &repositories,
+                MacroFinancialAnalysisRequestV1 {
+                    analysis_id: "analysis-1".to_string(),
+                    objective: AnalysisObjectiveV1::PolicyEval,
+                    horizon: AnalysisHorizonV1::Nowcast,
+                    coverage: AnalysisCoverageV1 {
+                        countries: vec!["Japan".to_string(), "Brazil".to_string()],
+                        regions: vec!["Asia".to_string(), "Latin America".to_string()],
+                        currencies: vec!["JPY".to_string(), "BRL".to_string()],
+                        fx_pairs: vec!["USD/JPY".to_string(), "USD/BRL".to_string()],
+                        asset_classes: vec!["rates".to_string(), "credit".to_string()],
+                    },
+                    data_vintage: Some("2026-03-09".to_string()),
+                    source_ids: Vec::new(),
+                    capsule_id: Some(capsule.capsule_id.clone()),
+                    direct_inputs: contracts::MacroFinancialDirectInputsV1::default(),
+                    classification: Classification::Internal,
+                    constraints: SourceConstraintsV1::default(),
                 },
-                data_vintage: Some("2026-03-09".to_string()),
-                source_ids: Vec::new(),
-                capsule_id: Some(capsule.capsule_id.clone()),
-                direct_inputs: contracts::MacroFinancialDirectInputsV1::default(),
-                classification: Classification::Internal,
-                constraints: SourceConstraintsV1::default(),
-            },
-        ))
-        .await
-        .expect("analysis");
+            )
+            .await
+            .expect("analysis");
 
         assert_eq!(analysis.scenario_matrix.len(), 4);
         assert!(
@@ -3279,13 +3434,11 @@ mod tests {
     async fn workflow_context_can_gate_ingest_with_engine_authorization() {
         let (address, _server) = spawn_source_server().await;
         let repositories = connect_in_memory().await.expect("memory db");
-        let dir = tempfile::tempdir().expect("tempdir");
-        let service = KnowledgeService::new(
-            MemvidMemoryProvider::new(dir.path()),
+        let (_dir, service) = test_service(
             Arc::new(FixedClock::new(Utc::now() + Duration::minutes(1))),
             Arc::new(SequenceIdGenerator::new("knowledge")),
-        )
-        .with_official_document_host("127.0.0.1");
+        );
+        let service = service.with_official_document_host("127.0.0.1");
         let mut engine = orchestrator::WorkflowEngine::new(
             PolicyService::institutional_default(),
             ApprovalService::default(),
@@ -3354,9 +3507,7 @@ mod tests {
     #[tokio::test]
     async fn direct_input_only_analysis_is_supported_and_traceable() {
         let repositories = connect_in_memory().await.expect("memory db");
-        let dir = tempfile::tempdir().expect("tempdir");
-        let service = KnowledgeService::new(
-            MemvidMemoryProvider::new(dir.path()),
+        let (_dir, service) = test_service(
             Arc::new(FixedClock::new(
                 Utc.with_ymd_and_hms(2026, 3, 9, 12, 0, 0)
                     .single()
@@ -3365,29 +3516,30 @@ mod tests {
             Arc::new(SequenceIdGenerator::new("knowledge")),
         );
 
-        let analysis = Box::pin(service.generate_analysis(
-            &repositories,
-            MacroFinancialAnalysisRequestV1 {
-                analysis_id: "analysis-direct".to_string(),
-                objective: AnalysisObjectiveV1::RiskMgmt,
-                horizon: AnalysisHorizonV1::OneToThreeMonths,
-                coverage: AnalysisCoverageV1 {
-                    countries: vec!["Japan".to_string()],
-                    regions: vec!["Asia".to_string()],
-                    currencies: vec!["JPY".to_string()],
-                    fx_pairs: vec!["USD/JPY".to_string()],
-                    asset_classes: vec!["rates".to_string()],
+        let analysis = service
+            .generate_analysis(
+                &repositories,
+                MacroFinancialAnalysisRequestV1 {
+                    analysis_id: "analysis-direct".to_string(),
+                    objective: AnalysisObjectiveV1::RiskMgmt,
+                    horizon: AnalysisHorizonV1::OneToThreeMonths,
+                    coverage: AnalysisCoverageV1 {
+                        countries: vec!["Japan".to_string()],
+                        regions: vec!["Asia".to_string()],
+                        currencies: vec!["JPY".to_string()],
+                        fx_pairs: vec!["USD/JPY".to_string()],
+                        asset_classes: vec!["rates".to_string()],
+                    },
+                    data_vintage: None,
+                    source_ids: Vec::new(),
+                    capsule_id: None,
+                    direct_inputs: sample_direct_inputs(),
+                    classification: Classification::Internal,
+                    constraints: SourceConstraintsV1::default(),
                 },
-                data_vintage: None,
-                source_ids: Vec::new(),
-                capsule_id: None,
-                direct_inputs: sample_direct_inputs(),
-                classification: Classification::Internal,
-                constraints: SourceConstraintsV1::default(),
-            },
-        ))
-        .await
-        .expect("analysis");
+            )
+            .await
+            .expect("analysis");
 
         assert_eq!(analysis.executive_brief.as_of_date, ANALYSIS_AS_OF_DATE);
         assert_eq!(analysis.executive_brief.as_of_timezone, ANALYSIS_TIMEZONE);
@@ -3437,17 +3589,15 @@ mod tests {
     async fn governance_rules_block_forbidden_publication_and_secondary_only_analysis() {
         let (address, _server) = spawn_source_server().await;
         let repositories = connect_in_memory().await.expect("memory db");
-        let dir = tempfile::tempdir().expect("tempdir");
-        let service = KnowledgeService::new(
-            MemvidMemoryProvider::new(dir.path()),
+        let (_dir, service) = test_service(
             Arc::new(FixedClock::new(
                 Utc.with_ymd_and_hms(2026, 3, 9, 12, 0, 0)
                     .single()
                     .expect("time"),
             )),
             Arc::new(SequenceIdGenerator::new("knowledge")),
-        )
-        .with_official_document_host("127.0.0.1");
+        );
+        let service = service.with_official_document_host("127.0.0.1");
 
         let forbidden_ingest = service
             .ingest_sources_unchecked(
@@ -3545,29 +3695,30 @@ mod tests {
             KnowledgeEvidenceUseV1::ContextOnly
         );
 
-        let secondary_only_error = Box::pin(service.generate_analysis(
-            &repositories,
-            MacroFinancialAnalysisRequestV1 {
-                analysis_id: "analysis-secondary".to_string(),
-                objective: AnalysisObjectiveV1::PolicyEval,
-                horizon: AnalysisHorizonV1::Nowcast,
-                coverage: AnalysisCoverageV1 {
-                    countries: vec!["Japan".to_string()],
-                    regions: Vec::new(),
-                    currencies: vec!["JPY".to_string()],
-                    fx_pairs: vec!["USD/JPY".to_string()],
-                    asset_classes: vec!["rates".to_string()],
+        let secondary_only_error = service
+            .generate_analysis(
+                &repositories,
+                MacroFinancialAnalysisRequestV1 {
+                    analysis_id: "analysis-secondary".to_string(),
+                    objective: AnalysisObjectiveV1::PolicyEval,
+                    horizon: AnalysisHorizonV1::Nowcast,
+                    coverage: AnalysisCoverageV1 {
+                        countries: vec!["Japan".to_string()],
+                        regions: Vec::new(),
+                        currencies: vec!["JPY".to_string()],
+                        fx_pairs: vec!["USD/JPY".to_string()],
+                        asset_classes: vec!["rates".to_string()],
+                    },
+                    data_vintage: Some("2026-03-09".to_string()),
+                    source_ids: vec!["source-secondary".to_string()],
+                    capsule_id: None,
+                    direct_inputs: contracts::MacroFinancialDirectInputsV1::default(),
+                    classification: Classification::Internal,
+                    constraints: SourceConstraintsV1::default(),
                 },
-                data_vintage: Some("2026-03-09".to_string()),
-                source_ids: vec!["source-secondary".to_string()],
-                capsule_id: None,
-                direct_inputs: contracts::MacroFinancialDirectInputsV1::default(),
-                classification: Classification::Internal,
-                constraints: SourceConstraintsV1::default(),
-            },
-        ))
-        .await
-        .expect_err("secondary-only analysis should fail");
+            )
+            .await
+            .expect_err("secondary-only analysis should fail");
         assert!(matches!(
             secondary_only_error,
             InstitutionalError::NotFound { .. }
