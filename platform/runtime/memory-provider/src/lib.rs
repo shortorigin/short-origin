@@ -246,14 +246,22 @@ impl KnowledgeMemoryProvider for MemvidMemoryProvider {
         format: KnowledgeDocumentFormatV1,
         mime_type: Option<&str>,
     ) -> InstitutionalResult<String> {
-        match format {
-            KnowledgeDocumentFormatV1::Json => extract_json_text(bytes),
-            KnowledgeDocumentFormatV1::Xml => extract_xml_text(bytes),
-            KnowledgeDocumentFormatV1::Html => extract_html_text(bytes),
-            KnowledgeDocumentFormatV1::Pdf => extract_binary_text(bytes, mime_type),
-            KnowledgeDocumentFormatV1::Text => String::from_utf8(bytes.to_vec())
-                .map_err(|error| InstitutionalError::parse("knowledge text", error.to_string())),
-        }
+        extract_document_text(bytes, format, mime_type)
+    }
+}
+
+pub fn extract_document_text(
+    bytes: &[u8],
+    format: KnowledgeDocumentFormatV1,
+    mime_type: Option<&str>,
+) -> InstitutionalResult<String> {
+    match format {
+        KnowledgeDocumentFormatV1::Json => extract_json_text(bytes),
+        KnowledgeDocumentFormatV1::Xml => extract_xml_text(bytes),
+        KnowledgeDocumentFormatV1::Html => extract_html_text(bytes),
+        KnowledgeDocumentFormatV1::Pdf => extract_binary_text(bytes, mime_type),
+        KnowledgeDocumentFormatV1::Text => String::from_utf8(bytes.to_vec())
+            .map_err(|error| InstitutionalError::parse("knowledge text", error.to_string())),
     }
 }
 

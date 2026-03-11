@@ -6,18 +6,21 @@ publish.workspace = true
 version.workspace = true
 
 [dependencies]
+chrono.workspace = true
+codegen = { path = "../../schemas/crates/codegen" }
 contracts = { path = "../../schemas/crates/contracts" }
 error-model = { path = "../error-model" }
 events = { path = "../../schemas/crates/events" }
+futures.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 surrealdb.workspace = true
 surrealdb-model = { path = "../../schemas/crates/surrealdb-model" }
+tokio.workspace = true
 
 [dev-dependencies]
 chrono.workspace = true
 identity = { path = "../identity" }
-tokio.workspace = true
 
 [lints]
 workspace = true

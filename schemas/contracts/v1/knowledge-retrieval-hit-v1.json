@@ -1,0 +1,5 @@
+{
+  "name": "KnowledgeRetrievalHitV1",
+  "version": "v1",
+  "fields": ["chunk_id", "capsule_id", "source_id", "title", "uri", "snippet", "rank", "score", "classification", "source_kind", "country_area", "content_digest", "acquired_at"]
+}

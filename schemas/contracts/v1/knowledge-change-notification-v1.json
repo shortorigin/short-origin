@@ -1,0 +1,5 @@
+{
+  "name": "KnowledgeChangeNotificationV1",
+  "version": "v1",
+  "fields": ["notification_id", "kind", "record_id", "publication_id", "capsule_id", "source_id", "analysis_id", "published_at", "classification"]
+}

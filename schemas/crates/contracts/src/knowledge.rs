@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
 
 use chrono::{DateTime, Utc};
+use identity::ActorRef;
 use serde::{Deserialize, Serialize};
 
 use crate::Classification;
@@ -532,6 +533,64 @@ impl KnowledgePublicationStatusV1 {
             version: capsule.version.clone(),
         }
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
+pub struct KnowledgeRetrievalSelectorV1 {
+    pub capsule_id: Option<String>,
+    pub source_ids: Vec<String>,
+    pub country_areas: Vec<String>,
+    pub source_kinds: Vec<KnowledgeSourceKindV1>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct KnowledgeRetrievalQueryV1 {
+    pub query_id: String,
+    pub actor_ref: ActorRef,
+    pub purpose: String,
+    pub classification: Classification,
+    pub selector: KnowledgeRetrievalSelectorV1,
+    pub query_text: String,
+    pub top_k: usize,
+    pub snippet_chars: usize,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct KnowledgeRetrievalHitV1 {
+    pub chunk_id: String,
+    pub capsule_id: String,
+    pub source_id: String,
+    pub title: String,
+    pub uri: String,
+    pub snippet: String,
+    pub rank: usize,
+    pub score: Option<f32>,
+    pub classification: Classification,
+    pub source_kind: KnowledgeSourceKindV1,
+    pub country_area: String,
+    pub content_digest: String,
+    pub acquired_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[serde(rename_all = "snake_case")]
+pub enum KnowledgeChangeKindV1 {
+    SourceIngested,
+    CapsulePublished,
+    AnalysisGenerated,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct KnowledgeChangeNotificationV1 {
+    pub notification_id: String,
+    pub kind: KnowledgeChangeKindV1,
+    pub record_id: String,
+    pub publication_id: Option<String>,
+    pub capsule_id: Option<String>,
+    pub source_id: Option<String>,
+    pub analysis_id: Option<String>,
+    pub published_at: DateTime<Utc>,
+    pub classification: Classification,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]

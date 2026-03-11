@@ -6,6 +6,7 @@ publish.workspace = true
 version.workspace = true
 
 [dependencies]
+chrono.workspace = true
 contracts = { path = "../contracts" }
 events = { path = "../events" }
 identity = { path = "../../../shared/identity" }

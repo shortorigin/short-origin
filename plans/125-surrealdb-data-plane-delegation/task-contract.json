@@ -1,0 +1,84 @@
+{
+  "issue_id": 125,
+  "issue_url": "https://github.com/shortorigin/origin/issues/125",
+  "branch": "feature/125-surrealdb-data-plane-delegation",
+  "primary_architectural_plane": "cross-layer",
+  "owning_subsystem": "schemas/surrealdb, schemas/crates/surrealdb-model, shared/surrealdb-access, shared/governed-storage, services/knowledge-service, workflows/knowledge_publication, platform/runtime, docs, and plans",
+  "architectural_references": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "docs/architecture/layer-boundaries.md",
+    "docs/architecture/runtime-composition.md",
+    "docs/architecture/first-principles-implementation-roadmap.md",
+    "docs/adr/0006-canonical-event-substrate.md",
+    "docs/adr/0010-durable-workflow-execution-plane.md",
+    "docs/adr/0012-layered-intelligence-behind-stable-retrieval.md",
+    "docs/adr/0017-replaceable-compute-and-governed-state.md"
+  ],
+  "allowed_touchpoints": [
+    "schemas/",
+    "shared/",
+    "services/",
+    "workflows/",
+    "platform/",
+    "docs/",
+    "plans/",
+    "testing/",
+    "Cargo.toml",
+    "Cargo.lock",
+    "README.md"
+  ],
+  "non_goals": [
+    "Do not move approval semantics, workflow sequencing, or cross-service orchestration into SurrealDB.",
+    "Do not add direct UI-to-SurrealDB access.",
+    "Do not migrate non-knowledge domains in this umbrella beyond reusable shared substrate support."
+  ],
+  "scope_in": [
+    "Upgrade and unify the workspace SurrealDB dependency.",
+    "Add versioned SurrealDB DDL artifacts for schemafull knowledge-domain tables, relations, indexes, projections, and change propagation.",
+    "Add typed retrieval contracts and shared repository ports for searchable knowledge chunks, lineage traversals, publication read models, and typed change notifications.",
+    "Add durable shared SurrealDB access helpers including configuration, DDL bootstrapping, transactions, retrieval, and projection queries.",
+    "Migrate the data_knowledge runtime path from memory-provider retrieval to SurrealDB-backed storage and search.",
+    "Add execution artifacts, tests, and supporting documentation updates."
+  ],
+  "scope_out": [
+    "New managed database infrastructure outside the existing host/runtime model.",
+    "UI product changes or direct client-side database connectivity.",
+    "Governance, finance, or other non-knowledge domain migrations beyond reusable substrate changes."
+  ],
+  "target_paths": [
+    "schemas/",
+    "shared/",
+    "services/",
+    "workflows/",
+    "platform/",
+    "docs/",
+    "plans/",
+    "testing/",
+    "Cargo.toml",
+    "Cargo.lock",
+    "README.md"
+  ],
+  "acceptance_criteria": [
+    "The data_knowledge path uses SurrealDB-backed canonical storage, searchable retrieval, graph lineage, and materialized latest-publication-status views.",
+    "Runtime retrieval consumers use typed shared contracts and ports rather than memory-provider search.",
+    "Direct SurrealDB usage remains confined to shared/surrealdb-access.",
+    "Workflow-stage persistence for touched knowledge mutations is atomic and leaves no partial records, projections, or emitted change notifications on failure.",
+    "Schema registry tests cover the new DDL artifacts and retrieval/read-model contract surfaces.",
+    "Repository validation passes."
+  ],
+  "validation_commands": [
+    "cargo fmt --all --check",
+    "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+    "cargo test --workspace --all-targets",
+    "cargo verify-repo"
+  ],
+  "validation_artifacts": [
+    "Passing shared/surrealdb-access and knowledge-path tests",
+    "Passing schema registry and contract tests for DDL and retrieval additions",
+    "Committed execution artifact bundle under plans/125-surrealdb-data-plane-delegation/"
+  ],
+  "rollback_path": "Revert the SurrealDB version uplift, DDL artifacts, shared access-layer expansion, data_knowledge migration, tests, and documentation together so the repository returns coherently to the previous in-memory retrieval posture.",
+  "exec_plan_required": true,
+  "exec_plan_path": "plans/125-surrealdb-data-plane-delegation/EXEC_PLAN.md"
+}

@@ -18,8 +18,7 @@ quick-xml.workspace = true
 reqwest.workspace = true
 serde_json.workspace = true
 sha2.workspace = true
-surrealdb.workspace = true
-surrealdb-access = { path = "../../shared/surrealdb-access" }
+surrealdb-model = { path = "../../schemas/crates/surrealdb-model" }
 telemetry = { path = "../../shared/telemetry" }
 trading-core = { path = "../../shared/trading-core" }
 

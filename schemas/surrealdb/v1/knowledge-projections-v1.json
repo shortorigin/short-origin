@@ -1,0 +1,7 @@
+{
+  "name": "SurrealDbKnowledgeProjectionsV1",
+  "version": "v1",
+  "statements": [
+    "DEFINE EVENT IF NOT EXISTS materialize_latest_knowledge_publication_status ON TABLE knowledge_capsule WHEN $event = 'CREATE' OR $event = 'UPDATE' THEN { UPSERT type::record('knowledge_publication_status', 'latest') CONTENT { publication_id: $value.capsule.publication_id, capsule_id: $value.capsule.capsule_id, published_at: $value.capsule.published_at, source_count: $value.capsule.source_count, storage_ref: $value.capsule.storage_ref, artifact_hash: $value.capsule.artifact_hash, version: $value.capsule.version }; };"
+  ]
+}
