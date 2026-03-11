@@ -19,6 +19,7 @@ pub trait KnowledgeStore: Send + Sync {
         events: Vec<EventRecordV1>,
         notifications: Vec<KnowledgeChangeNotificationV1>,
     ) -> impl Future<Output = InstitutionalResult<()>> + Send + '_;
+
     fn store_publication_bundle(
         &self,
         capsule: KnowledgeCapsuleV1,
@@ -27,6 +28,7 @@ pub trait KnowledgeStore: Send + Sync {
         edges: Vec<KnowledgeEdgeV1>,
         notifications: Vec<KnowledgeChangeNotificationV1>,
     ) -> impl Future<Output = InstitutionalResult<()>> + Send + '_;
+
     fn store_analysis_bundle(
         &self,
         analysis: MacroFinancialAnalysisV1,
@@ -36,29 +38,36 @@ pub trait KnowledgeStore: Send + Sync {
         edges: Vec<KnowledgeEdgeV1>,
         notifications: Vec<KnowledgeChangeNotificationV1>,
     ) -> impl Future<Output = InstitutionalResult<()>> + Send + '_;
+
     fn load_analysis(
         &self,
         analysis_id: &str,
     ) -> impl Future<Output = InstitutionalResult<Option<MacroFinancialAnalysisV1>>> + Send + '_;
+
     fn load_sources(
         &self,
         ids: &[String],
     ) -> impl Future<Output = InstitutionalResult<Vec<KnowledgeSourceV1>>> + Send + '_;
+
     fn load_capsule(
         &self,
         capsule_id: &str,
     ) -> impl Future<Output = InstitutionalResult<Option<KnowledgeCapsuleV1>>> + Send + '_;
+
     fn latest_publication_status(
         &self,
     ) -> impl Future<Output = InstitutionalResult<Option<KnowledgePublicationStatusV1>>> + Send + '_;
+
     fn search_capsule(
         &self,
         query: KnowledgeRetrievalQueryV1,
     ) -> impl Future<Output = InstitutionalResult<Vec<KnowledgeRetrievalHitV1>>> + Send + '_;
+
     fn load_change_notifications(
         &self,
         limit: usize,
     ) -> impl Future<Output = InstitutionalResult<Vec<KnowledgeChangeNotificationV1>>> + Send + '_;
+
     fn subscribe_change_notifications(
         &self,
     ) -> impl Future<Output = InstitutionalResult<KnowledgeChangeStream>> + Send + '_;
@@ -107,6 +116,130 @@ pub async fn connect_from_env() -> InstitutionalResult<DurableKnowledgeStore> {
     connect_durable_from_env().await
 }
 
+impl<C> GovernedKnowledgeStore<storage_backend::KnowledgeStoreBackend<C>>
+where
+    C: storage_backend::BackendConnection + Send + Sync,
+{
+    async fn store_sources_batch_inner(
+        &self,
+        sources: Vec<KnowledgeSourceV1>,
+        events: Vec<EventRecordV1>,
+        notifications: Vec<KnowledgeChangeNotificationV1>,
+    ) -> InstitutionalResult<()> {
+        self.inner
+            .store_sources_batch(sources, events, notifications)
+            .await
+    }
+
+    async fn store_publication_bundle_inner(
+        &self,
+        capsule: KnowledgeCapsuleV1,
+        chunks: Vec<KnowledgeChunkRecordV1>,
+        events: Vec<EventRecordV1>,
+        edges: Vec<KnowledgeEdgeV1>,
+        notifications: Vec<KnowledgeChangeNotificationV1>,
+    ) -> InstitutionalResult<()> {
+        self.inner
+            .store_publication_bundle(capsule, chunks, events, edges, notifications)
+            .await
+    }
+
+    async fn store_analysis_bundle_inner(
+        &self,
+        analysis: MacroFinancialAnalysisV1,
+        evidence_id: String,
+        manifest: EvidenceManifestV1,
+        events: Vec<EventRecordV1>,
+        edges: Vec<KnowledgeEdgeV1>,
+        notifications: Vec<KnowledgeChangeNotificationV1>,
+    ) -> InstitutionalResult<()> {
+        self.inner
+            .store_analysis_bundle(
+                analysis,
+                evidence_id,
+                manifest,
+                events,
+                edges,
+                notifications,
+            )
+            .await
+    }
+
+    async fn load_analysis_inner(
+        &self,
+        analysis_id: String,
+    ) -> InstitutionalResult<Option<MacroFinancialAnalysisV1>> {
+        Ok(self
+            .inner
+            .knowledge_analyses()
+            .load(&analysis_id)
+            .await?
+            .map(|record| record.analysis))
+    }
+
+    async fn load_sources_inner(
+        &self,
+        ids: Vec<String>,
+    ) -> InstitutionalResult<Vec<KnowledgeSourceV1>> {
+        Ok(self
+            .inner
+            .knowledge_sources()
+            .load_many(&ids)
+            .await?
+            .into_iter()
+            .map(|record| record.source)
+            .collect())
+    }
+
+    async fn load_capsule_inner(
+        &self,
+        capsule_id: String,
+    ) -> InstitutionalResult<Option<KnowledgeCapsuleV1>> {
+        Ok(self
+            .inner
+            .knowledge_capsules()
+            .load(&capsule_id)
+            .await?
+            .map(|record| record.capsule))
+    }
+
+    async fn latest_publication_status_inner(
+        &self,
+    ) -> InstitutionalResult<Option<KnowledgePublicationStatusV1>> {
+        self.inner.publication_status().latest().await
+    }
+
+    async fn search_capsule_inner(
+        &self,
+        query: KnowledgeRetrievalQueryV1,
+    ) -> InstitutionalResult<Vec<KnowledgeRetrievalHitV1>> {
+        self.inner.knowledge_chunks().search(query).await
+    }
+
+    async fn load_change_notifications_inner(
+        &self,
+        limit: usize,
+    ) -> InstitutionalResult<Vec<KnowledgeChangeNotificationV1>> {
+        Ok(self
+            .inner
+            .change_notifications()
+            .recent(limit)
+            .await?
+            .into_iter()
+            .map(|record| record.as_notification())
+            .collect())
+    }
+
+    async fn subscribe_change_notifications_inner(
+        &self,
+    ) -> InstitutionalResult<KnowledgeChangeStream> {
+        let stream = self.inner.change_notifications().subscribe().await?;
+        Ok(stream
+            .map(|result| result.map(|record| record.as_notification()))
+            .boxed())
+    }
+}
+
 impl<C> KnowledgeStore for GovernedKnowledgeStore<storage_backend::KnowledgeStoreBackend<C>>
 where
     C: storage_backend::BackendConnection + Send + Sync,
@@ -117,11 +250,7 @@ where
         events: Vec<EventRecordV1>,
         notifications: Vec<KnowledgeChangeNotificationV1>,
     ) -> impl Future<Output = InstitutionalResult<()>> + Send + '_ {
-        async move {
-            self.inner
-                .store_sources_batch(sources, events, notifications)
-                .await
-        }
+        self.store_sources_batch_inner(sources, events, notifications)
     }
 
     fn store_publication_bundle(
@@ -132,11 +261,7 @@ where
         edges: Vec<KnowledgeEdgeV1>,
         notifications: Vec<KnowledgeChangeNotificationV1>,
     ) -> impl Future<Output = InstitutionalResult<()>> + Send + '_ {
-        async move {
-            self.inner
-                .store_publication_bundle(capsule, chunks, events, edges, notifications)
-                .await
-        }
+        self.store_publication_bundle_inner(capsule, chunks, events, edges, notifications)
     }
 
     fn store_analysis_bundle(
@@ -148,18 +273,14 @@ where
         edges: Vec<KnowledgeEdgeV1>,
         notifications: Vec<KnowledgeChangeNotificationV1>,
     ) -> impl Future<Output = InstitutionalResult<()>> + Send + '_ {
-        async move {
-            self.inner
-                .store_analysis_bundle(
-                    analysis,
-                    evidence_id,
-                    manifest,
-                    events,
-                    edges,
-                    notifications,
-                )
-                .await
-        }
+        self.store_analysis_bundle_inner(
+            analysis,
+            evidence_id,
+            manifest,
+            events,
+            edges,
+            notifications,
+        )
     }
 
     fn load_analysis(
@@ -167,61 +288,35 @@ where
         analysis_id: &str,
     ) -> impl Future<Output = InstitutionalResult<Option<MacroFinancialAnalysisV1>>> + Send + '_
     {
-        let analysis_id = analysis_id.to_owned();
-        async move {
-            Ok(self
-                .inner
-                .knowledge_analyses()
-                .load(&analysis_id)
-                .await?
-                .map(|record| record.analysis))
-        }
+        self.load_analysis_inner(analysis_id.to_owned())
     }
 
     fn load_sources(
         &self,
         ids: &[String],
     ) -> impl Future<Output = InstitutionalResult<Vec<KnowledgeSourceV1>>> + Send + '_ {
-        let ids = ids.to_vec();
-        async move {
-            Ok(self
-                .inner
-                .knowledge_sources()
-                .load_many(&ids)
-                .await?
-                .into_iter()
-                .map(|record| record.source)
-                .collect())
-        }
+        self.load_sources_inner(ids.to_vec())
     }
 
     fn load_capsule(
         &self,
         capsule_id: &str,
     ) -> impl Future<Output = InstitutionalResult<Option<KnowledgeCapsuleV1>>> + Send + '_ {
-        let capsule_id = capsule_id.to_owned();
-        async move {
-            Ok(self
-                .inner
-                .knowledge_capsules()
-                .load(&capsule_id)
-                .await?
-                .map(|record| record.capsule))
-        }
+        self.load_capsule_inner(capsule_id.to_owned())
     }
 
     fn latest_publication_status(
         &self,
     ) -> impl Future<Output = InstitutionalResult<Option<KnowledgePublicationStatusV1>>> + Send + '_
     {
-        async move { self.inner.publication_status().latest().await }
+        self.latest_publication_status_inner()
     }
 
     fn search_capsule(
         &self,
         query: KnowledgeRetrievalQueryV1,
     ) -> impl Future<Output = InstitutionalResult<Vec<KnowledgeRetrievalHitV1>>> + Send + '_ {
-        async move { self.inner.knowledge_chunks().search(query).await }
+        self.search_capsule_inner(query)
     }
 
     fn load_change_notifications(
@@ -229,27 +324,13 @@ where
         limit: usize,
     ) -> impl Future<Output = InstitutionalResult<Vec<KnowledgeChangeNotificationV1>>> + Send + '_
     {
-        async move {
-            Ok(self
-                .inner
-                .change_notifications()
-                .recent(limit)
-                .await?
-                .into_iter()
-                .map(|record| record.as_notification())
-                .collect())
-        }
+        self.load_change_notifications_inner(limit)
     }
 
     fn subscribe_change_notifications(
         &self,
     ) -> impl Future<Output = InstitutionalResult<KnowledgeChangeStream>> + Send + '_ {
-        async move {
-            let stream = self.inner.change_notifications().subscribe().await?;
-            Ok(stream
-                .map(|result| result.map(|record| record.as_notification()))
-                .boxed())
-        }
+        self.subscribe_change_notifications_inner()
     }
 }
 
