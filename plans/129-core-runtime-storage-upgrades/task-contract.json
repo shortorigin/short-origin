@@ -1,0 +1,75 @@
+{
+  "issue_id": 129,
+  "issue_url": "https://github.com/shortorigin/origin/issues/129",
+  "branch": "refactor/129-core-runtime-storage-upgrades",
+  "primary_architectural_plane": "cross-layer",
+  "owning_subsystem": "shared storage/runtime crates, platform runtime/tooling, and service/workflow non-UI dependencies",
+  "architectural_references": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "docs/architecture/layer-boundaries.md",
+    "platform/README.md",
+    "services/README.md",
+    "xtask/AGENTS.md"
+  ],
+  "allowed_touchpoints": [
+    "Cargo.toml",
+    "Cargo.lock",
+    "shared/",
+    "platform/",
+    "services/",
+    "workflows/",
+    "xtask/",
+    "plans/",
+    "docs/"
+  ],
+  "non_goals": [
+    "Do not upgrade the Leptos/browser/Tauri stack in this phase.",
+    "Do not move contract or schema ownership out of schemas/.",
+    "Do not change the workspace edition in this phase.",
+    "Do not bypass shared/surrealdb-access for SurrealDB access."
+  ],
+  "scope_in": [
+    "Upgrade non-UI direct dependencies to current stable releases where feasible in this phase.",
+    "Upgrade SurrealDB consumers under shared/surrealdb-access and services/knowledge-service.",
+    "Upgrade Wasmtime consumers under platform/runtime/strategy-sandbox and dependent workflow tests.",
+    "Upgrade wasmCloud/WIT helper dependencies where needed to keep runtime/tooling coherent."
+  ],
+  "scope_out": [
+    "UI framework modernization.",
+    "Edition 2024 uplift.",
+    "Breaking schema/event redesign unless forced by an additive compatibility fix."
+  ],
+  "target_paths": [
+    "Cargo.toml",
+    "Cargo.lock",
+    "shared/",
+    "platform/",
+    "services/",
+    "workflows/",
+    "xtask/",
+    "plans/"
+  ],
+  "acceptance_criteria": [
+    "The workspace resolves and compiles after the non-UI dependency upgrades.",
+    "Focused SurrealDB and Wasmtime consumers pass their test suites.",
+    "cargo test --workspace --all-targets passes.",
+    "cargo verify-repo passes without new architectural boundary violations."
+  ],
+  "validation_commands": [
+    "cargo test -p surrealdb-access --all-targets",
+    "cargo test -p knowledge-service --all-targets",
+    "cargo test -p strategy-sandbox --all-targets",
+    "cargo test -p wasmcloud-bindings --all-targets",
+    "cargo test --workspace --all-targets",
+    "cargo verify-repo"
+  ],
+  "validation_artifacts": [
+    "Passing focused crate test output",
+    "Passing workspace test output",
+    "Passing cargo verify-repo output"
+  ],
+  "rollback_path": "Revert the phase-2 manifest and lockfile updates together with the SurrealDB, Wasmtime, and supporting runtime/tooling code changes so the workspace returns to the phase-1 baseline.",
+  "exec_plan_required": true,
+  "exec_plan_path": "plans/129-core-runtime-storage-upgrades/EXEC_PLAN.md"
+}

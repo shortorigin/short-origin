@@ -7,7 +7,7 @@ use contracts::{
 };
 use error_model::{InstitutionalError, InstitutionalResult, OperationContext};
 use rand::rngs::StdRng;
-use rand::{Rng, SeedableRng};
+use rand::{RngExt, SeedableRng};
 use trading_core::{Clock, IdGenerator, MarketDataAdapter, SystemClock};
 use trading_errors::{TradingError, TradingResult};
 
@@ -260,16 +260,16 @@ fn generate_bars(seed: u64, req: HistoricalDataRequestV1) -> TradingResult<Vec<M
     let mut rng = StdRng::seed_from_u64(seed);
     let mut events = Vec::new();
     let mut cursor: DateTime<Utc> = req.start;
-    let mut price = 100.0 + rng.random_range(0.0f64..5.0f64);
+    let mut price = 100.0f64 + rng.random_range(0.0f64..5.0f64);
     let interval = Duration::seconds(req.interval_seconds);
 
     while cursor < req.end {
         let next = cursor + interval;
         let drift = rng.random_range(-0.005f64..0.005f64);
-        let open = price;
-        let close = (open * (1.0 + drift)).max(0.0001);
-        let high = open.max(close) * (1.0 + rng.random_range(0.0f64..0.0015f64));
-        let low = open.min(close) * (1.0 - rng.random_range(0.0f64..0.0015f64));
+        let open: f64 = price;
+        let close: f64 = (open * (1.0f64 + drift)).max(0.0001f64);
+        let high: f64 = open.max(close) * (1.0f64 + rng.random_range(0.0f64..0.0015f64));
+        let low: f64 = open.min(close) * (1.0f64 - rng.random_range(0.0f64..0.0015f64));
         let volume = rng.random_range(50.0f64..10_000.0f64);
         events.push(MarketEventV1::Bar(OhlcvBarV1 {
             symbol: req.symbol.clone(),
