@@ -5,13 +5,15 @@ manual-only entrypoints.
 
 ## Required Pull Request Checks
 
-- `Governance / validate`
+- `Governance / governance-gate`
 - `CI / pr-gate`
 - `Security / security-gate`
 
-These checks run automatically on pull requests. `Governance / validate` also emits the generated
+These checks run automatically on pull requests. `Governance / governance-gate` also emits the generated
 process audit artifacts from `cargo xtask github audit-process`, including ADR corpus and
-traceability-field validation.
+traceability-field validation. `CI / pr-gate`, `Security / security-gate`, and `Governance / governance-gate`
+all invoke repo-owned `cargo xtask validate ...` entrypoints so local and GitHub execution stay on
+the same command surface.
 
 ## Main-Branch Delivery
 
@@ -33,9 +35,23 @@ Run these from the repository root when you want local parity with the enforced 
 
 ```bash
 cargo verify-repo
-cargo xtask verify profile ui
+cargo xtask validate changed
+```
+
+Install the blocking local hook once per clone:
+
+```bash
+cargo xtask validate install-hooks
+```
+
+If the change touches `ui/`, also run:
+
+```bash
+cargo verify-ui
+cargo xtask validate suite ui-hardening
 ```
 
 For long or high-risk work, keep the matching `plans/<issue-id>-<slug>/` execution artifacts in
 git as part of the same change set. The audit command writes JSON and Markdown evidence under
-`target/process-audit/`.
+`target/process-audit/`. Validation commands write Markdown and JSON evidence under
+`target/validation/`.

@@ -65,9 +65,16 @@ Closes #
 
 - [ ] This branch is based on the current target branch (`origin/main` for normal PRs, the parent branch for stacked PRs).
 - [ ] If this PR is stacked, the PR base points to the parent branch until that parent work merges.
-- [ ] If this PR touches `ui/crates/desktop_runtime`, `ui/crates/system_ui`, or `ui/crates/site/src/generated`, I rebased immediately before requesting merge.
-- [ ] If this PR touches `ui/`, `shared/`, `platform/`, `schemas/`, `.github/`, or `infrastructure/wasmcloud/manifests`, I refreshed from the latest target branch and reran validation immediately before requesting merge.
-- [ ] If this PR updates generated assets or token outputs, I regenerated them after the last rebase.
+- [ ] If this PR touches `ui/crates/desktop_runtime`, `ui/crates/system_ui`, `shared/`, `platform/`, `schemas/`, `.github/`, or `infrastructure/wasmcloud/manifests`, I refreshed from the latest target branch and reran validation immediately before requesting merge.
+- [ ] If this PR changes shell, token, or Tailwind inputs, I regenerated the local derived UI outputs after the last rebase and did not commit repo-generated CSS/token files.
+- [ ] The repository pre-push hook is installed locally, or I am disclosing below why it was bypassed.
+
+## Local Validation
+
+- `cargo xtask validate changed`: pass/fail
+- `cargo xtask github validate-pr-local`: pass/fail
+- `git push --no-verify` used: no/yes
+- If `git push --no-verify` was used, document the incident, rationale, and follow-up issue here.
 
 ## Technical Changes
 

@@ -41,6 +41,8 @@ pub struct ThemeTokens {
 #[cfg(test)]
 mod tests {
     use super::TokenFile;
+    use std::fs;
+    use std::path::PathBuf;
 
     #[test]
     fn semantic_token_schema_parses_current_token_file() {
@@ -60,7 +62,8 @@ mod tests {
 
     #[test]
     fn generated_tailwind_config_exposes_semantic_shell_tokens() {
-        let raw = include_str!("../../../site/tailwind.config.js");
+        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../site/tailwind.config.js");
+        let raw = fs::read_to_string(&path).expect("generated tailwind config should exist");
 
         assert!(raw.contains("semantic"));
         assert!(raw.contains("taskbar"));

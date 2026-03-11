@@ -36,6 +36,8 @@ Safeguard:
 - contributors must branch from fresh `origin/main`;
 - contributors must rebase or otherwise refresh from the latest target branch before requesting
   merge;
+- the blocking pre-push hook should reject stale conflict-prone branches locally before they ever
+  reach GitHub;
 - GitHub branch protection remains strict on required checks so stale heads cannot merge cleanly by
   policy drift alone.
 
@@ -83,12 +85,13 @@ Refreshing from the latest target branch and rerunning validation is mandatory w
 Recommended commands:
 
 ```bash
-cargo verify-repo
+cargo xtask validate install-hooks
+cargo xtask validate changed
 ```
 
 If the change touches `ui/`, also run:
 
 ```bash
-cargo xtask verify profile ui
-cargo xtask ui-hardening
+cargo verify-ui
+cargo xtask validate suite ui-hardening
 ```

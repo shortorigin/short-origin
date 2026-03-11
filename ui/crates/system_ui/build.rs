@@ -1038,6 +1038,7 @@ a {
 }
 
 fn main() {
+    println!("cargo:rerun-if-env-changed=ORIGIN_FORCE_SYSTEM_UI_GENERATION");
     let manifest_dir = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").expect("manifest dir"));
     let token_path = manifest_dir.join("tokens/tokens.toml");
     println!("cargo:rerun-if-changed={}", token_path.display());

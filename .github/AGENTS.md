@@ -6,7 +6,7 @@
 
 ## When Editing This Plane
 - Update `.github/governance.toml`, templates, and workflow checks together when policy changes.
-- Keep `Governance / validate` authoritative for process enforcement; prefer extending `xtask` over adding one-off shell scripts.
+- Keep `Governance / governance-gate` authoritative for process enforcement; prefer extending `xtask` over adding one-off shell scripts.
 - Re-run `cargo xtask github audit-process` after any template or workflow change.
 
 ## Required Companion Updates

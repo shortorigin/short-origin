@@ -1,0 +1,78 @@
+{
+  "issue_id": 139,
+  "issue_url": "https://github.com/shortorigin/origin/issues/139",
+  "branch": "infra/139-local-first-validation-framework",
+  "primary_architectural_plane": "cross-layer",
+  "owning_subsystem": "repo-owned validation, GitHub workflow parity, and UI generated-asset governance",
+  "architectural_references": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "docs/architecture/layer-boundaries.md",
+    "DEVELOPMENT_MODEL.md",
+    "docs/process/github-workflow-migration.md",
+    "docs/process/platform-regression-guardrails.md",
+    "docs/process/pr-conflict-reduction-playbook.md"
+  ],
+  "allowed_touchpoints": [
+    "xtask/",
+    ".github/",
+    ".cargo/",
+    "ui/",
+    "docs/",
+    "plans/"
+  ],
+  "non_goals": [
+    "Do not redesign domain runtime behavior outside validation and generated-asset flow.",
+    "Do not replace the native local development model with a container-first workflow.",
+    "Do not bypass protected-branch, review, or merge-queue policy."
+  ],
+  "scope_in": [
+    "Add the repo-owned `cargo xtask validate` command family and shared suite selection matrix.",
+    "Normalize security validation into a local and remote repo-owned suite with explicit exceptions metadata.",
+    "Install blocking pre-push validation and conflict-hotspot freshness enforcement.",
+    "Refactor GitHub workflows to call repo-owned validation entrypoints instead of duplicating validation logic in workflow YAML.",
+    "Stop tracking generated UI styling artifacts and generate them deterministically from repo-owned flows.",
+    "Update contributor docs, templates, and governance guidance to reflect the new local-first workflow."
+  ],
+  "scope_out": [
+    "Unrelated product feature work outside validation, workflow parity, and generated asset handling.",
+    "Containerized-only development flows or environment replacement.",
+    "Broad runtime architecture changes not required to support validation parity."
+  ],
+  "target_paths": [
+    "xtask/",
+    ".github/",
+    ".cargo/",
+    "ui/",
+    "docs/",
+    "plans/"
+  ],
+  "acceptance_criteria": [
+    "The repository exposes `cargo xtask validate doctor`, `bootstrap`, `changed`, `suite`, `ci`, and `install-hooks`.",
+    "Local scoped validation and GitHub CI derive suite selection from the same repo-owned logic.",
+    "Security validation runs locally and remotely with repo-owned exception metadata that requires owner, linked issue, and expiry.",
+    "Pre-push hook installation enables blocking local validation before push.",
+    "Conflict-hotspot branches fail local validation when they are stale relative to their effective base branch.",
+    "Generated UI CSS and Tailwind outputs are no longer tracked in Git and are reproduced by repo-owned generation.",
+    "Required GitHub workflows invoke repo-owned validation entrypoints instead of duplicating shell-only validation logic.",
+    "Contributor docs and templates describe the local-first workflow, merge-queue expectations, and local bypass disclosure."
+  ],
+  "validation_commands": [
+    "cargo test -p xtask",
+    "cargo xtask validate doctor",
+    "cargo xtask validate suite security",
+    "cargo xtask validate changed --base origin/main",
+    "cargo verify-repo",
+    "cargo verify-ui",
+    "cargo xtask ui-hardening"
+  ],
+  "validation_artifacts": [
+    "Passing xtask test output",
+    "Passing validation reports under target/validation",
+    "Passing repo and UI verification output",
+    "Updated workflow parity tests"
+  ],
+  "rollback_path": "Revert the validation framework, workflow parity updates, and generated-asset tracking changes together so local and remote validation stay aligned.",
+  "exec_plan_required": true,
+  "exec_plan_path": "plans/139-local-first-validation-framework/EXEC_PLAN.md"
+}

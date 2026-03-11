@@ -275,6 +275,7 @@ pub fn run(args: Vec<String>) -> Result<(), String> {
     match args.split_first() {
         Some((command, rest)) if command == "sync" => sync(rest),
         Some((command, rest)) if command == "validate-pr" => validate_pr(rest),
+        Some((command, rest)) if command == "validate-pr-local" => validate_pr_local(rest),
         Some((command, rest)) if command == "validate-execution-artifacts" => {
             validate_execution_artifacts(rest)
         }
@@ -345,6 +346,90 @@ fn validate_pr(args: &[String]) -> Result<(), String> {
     validate_pr_event(&config, &event)?;
     println!(
         "validated PR governance for branch `{}` with title `{}`",
+        event.branch, event.title
+    );
+    Ok(())
+}
+
+fn validate_pr_local(args: &[String]) -> Result<(), String> {
+    let mut config_path = PathBuf::from(".github/governance.toml");
+    let mut title = None;
+    let mut body_file = None;
+    let mut branch = None;
+    let mut base_ref = None;
+    let mut index = 0usize;
+
+    while index < args.len() {
+        match args[index].as_str() {
+            "--config" => {
+                let Some(path) = args.get(index + 1) else {
+                    return Err("missing value for --config".to_owned());
+                };
+                config_path = PathBuf::from(path);
+                index += 2;
+            }
+            "--title" => {
+                let Some(value) = args.get(index + 1) else {
+                    return Err("missing value for --title".to_owned());
+                };
+                title = Some(value.clone());
+                index += 2;
+            }
+            "--body-file" => {
+                let Some(value) = args.get(index + 1) else {
+                    return Err("missing value for --body-file".to_owned());
+                };
+                body_file = Some(PathBuf::from(value));
+                index += 2;
+            }
+            "--branch" => {
+                let Some(value) = args.get(index + 1) else {
+                    return Err("missing value for --branch".to_owned());
+                };
+                branch = Some(value.clone());
+                index += 2;
+            }
+            "--base" => {
+                let Some(value) = args.get(index + 1) else {
+                    return Err("missing value for --base".to_owned());
+                };
+                base_ref = Some(value.clone());
+                index += 2;
+            }
+            other => return Err(format!("unknown validate-pr-local argument `{other}`")),
+        }
+    }
+
+    let config = load_config(&config_path)?;
+    let workspace_root = workspace_root()?;
+    let title = title.ok_or_else(|| "missing --title".to_owned())?;
+    let body_path = body_file.ok_or_else(|| "missing --body-file".to_owned())?;
+    let body = fs::read_to_string(&body_path)
+        .map_err(|error| format!("failed to read `{}`: {error}", body_path.display()))?;
+    let branch = branch.unwrap_or_else(|| current_branch(&workspace_root));
+    let base_ref = base_ref.unwrap_or_else(|| current_base_ref(&workspace_root));
+    let base_sha = git_output(
+        &workspace_root,
+        &["merge-base", &base_ref, "HEAD"],
+        "resolve local PR merge-base",
+    )?;
+    let head_sha = git_output(
+        &workspace_root,
+        &["rev-parse", "HEAD"],
+        "resolve local PR head SHA",
+    )?;
+    let event = PullRequestEvent {
+        title,
+        body,
+        branch,
+        repository: default_repository(&config),
+        base_sha: Some(base_sha),
+        head_sha: Some(head_sha),
+        changed_files: Vec::new(),
+    };
+    validate_pr_event(&config, &event)?;
+    println!(
+        "validated local PR governance for branch `{}` with title `{}`",
         event.branch, event.title
     );
     Ok(())
@@ -888,6 +973,7 @@ fn collect_audit_defects(
     defects.extend(audit_nested_agent_guides()?);
     defects.extend(audit_docs_indexes()?);
     defects.extend(audit_governance_workflow_for_architecture_step()?);
+    defects.extend(audit_validation_workflow_entrypoints()?);
     defects.extend(audit_adr_corpus(&workspace_root()?)?);
 
     Ok(defects)
@@ -945,6 +1031,12 @@ fn audit_pr_template(required_sections: &[String]) -> Result<Vec<String>, String
                 "pull request template is missing required section `{section}`"
             ));
         }
+    }
+    if !raw.contains("git push --no-verify") {
+        defects.push(
+            "pull request template must disclose any `git push --no-verify` local-validation bypass"
+                .to_owned(),
+        );
     }
     Ok(defects)
 }
@@ -1005,14 +1097,18 @@ fn audit_governance_workflow_for_architecture_step() -> Result<Vec<String>, Stri
     let raw = fs::read_to_string(workspace_root.join(path))
         .map_err(|error| format!("failed to read `{path}`: {error}"))?;
     let mut defects = Vec::new();
-    if !raw.contains("cargo xtask architecture audit-boundaries") {
+    if !(raw.contains("cargo xtask architecture audit-boundaries")
+        || raw.contains("cargo xtask validate suite governance"))
+    {
         defects.push(
-            "governance workflow must run `cargo xtask architecture audit-boundaries`".to_owned(),
+            "governance workflow must run the repo-owned governance validation path".to_owned(),
         );
     }
-    if !raw.contains("cargo xtask plugin validate-manifests") {
+    if !(raw.contains("cargo xtask plugin validate-manifests")
+        || raw.contains("cargo xtask validate suite governance"))
+    {
         defects.push(
-            "governance workflow must run `cargo xtask plugin validate-manifests`".to_owned(),
+            "governance workflow must validate governed plugin manifests through the repo-owned governance path".to_owned(),
         );
     }
     if !raw.contains("cargo xtask github validate-pr") {
@@ -1020,6 +1116,36 @@ fn audit_governance_workflow_for_architecture_step() -> Result<Vec<String>, Stri
             "governance workflow must run `cargo xtask github validate-pr` for PR traceability enforcement"
                 .to_owned(),
         );
+    }
+    Ok(defects)
+}
+
+fn audit_validation_workflow_entrypoints() -> Result<Vec<String>, String> {
+    let workspace_root = workspace_root()?;
+    let checks = [
+        (
+            ".github/workflows/ci.yml",
+            "cargo xtask validate ci",
+            "CI workflow must use `cargo xtask validate ci` as the repo-owned validation entrypoint",
+        ),
+        (
+            ".github/workflows/security.yml",
+            "cargo xtask validate suite security",
+            "Security workflow must use `cargo xtask validate suite security` as the repo-owned validation entrypoint",
+        ),
+        (
+            ".github/workflows/governance.yml",
+            "cargo xtask validate suite governance",
+            "Governance workflow must use `cargo xtask validate suite governance` as the repo-owned validation entrypoint",
+        ),
+    ];
+    let mut defects = Vec::new();
+    for (path, command, defect) in checks {
+        let raw = fs::read_to_string(workspace_root.join(path))
+            .map_err(|error| format!("failed to read `{path}`: {error}"))?;
+        if !raw.contains(command) {
+            defects.push(defect.to_owned());
+        }
     }
     Ok(defects)
 }
@@ -2778,9 +2904,48 @@ Subcommands:
   sync           Sync repository governance settings from .github/governance.toml
   validate-execution-artifacts  Validate plan/task-contract artifacts for an issue branch
   validate-pr    Validate pull request title, branch, and issue linkage
+  validate-pr-local  Validate local PR title/body content before opening a PR
   audit-process  Audit contributor docs, governance config, and workflow enforcement
 "
     .to_owned()
+}
+
+fn git_output(workspace_root: &Path, args: &[&str], label: &str) -> Result<String, String> {
+    let output = Command::new("git")
+        .current_dir(workspace_root)
+        .args(args)
+        .output()
+        .map_err(|error| format!("failed to {label}: {error}"))?;
+    if !output.status.success() {
+        return Err(format!(
+            "failed to {label}: {}",
+            String::from_utf8_lossy(&output.stderr).trim()
+        ));
+    }
+    Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
+}
+
+fn current_branch(workspace_root: &Path) -> String {
+    git_output(
+        workspace_root,
+        &["branch", "--show-current"],
+        "resolve current branch",
+    )
+    .unwrap_or_else(|_| "HEAD".to_owned())
+}
+
+fn current_base_ref(workspace_root: &Path) -> String {
+    git_output(
+        workspace_root,
+        &[
+            "rev-parse",
+            "--abbrev-ref",
+            "--symbolic-full-name",
+            "@{upstream}",
+        ],
+        "resolve current upstream branch",
+    )
+    .unwrap_or_else(|_| "origin/main".to_owned())
 }
 
 #[cfg(test)]
@@ -2813,7 +2978,7 @@ mod tests {
         assert_eq!(
             config.repository_defaults.required_status_checks,
             vec![
-                "Governance / validate",
+                "Governance / governance-gate",
                 "CI / pr-gate",
                 "Security / security-gate",
             ]
@@ -2998,7 +3163,7 @@ mod tests {
 
     fn valid_task_contract(issue_id: u64, dir_name: &str, branch: &str) -> String {
         format!(
-            "{{\n  \"issue_id\": {issue_id},\n  \"issue_url\": \"https://github.com/shortorigin/origin/issues/{issue_id}\",\n  \"branch\": \"{branch}\",\n  \"primary_architectural_plane\": \"cross-layer\",\n  \"owning_subsystem\": \"xtask governance\",\n  \"architectural_references\": [\"docs/adr/0015-gitops-and-policy-as-code-control-artifacts.md\"],\n  \"allowed_touchpoints\": [\"xtask/\", \"plans/\"],\n  \"non_goals\": [\"no runtime redesign\"],\n  \"scope_in\": [\"validate execution artifacts\"],\n  \"scope_out\": [\"unrelated work\"],\n  \"target_paths\": [\"xtask/\", \"plans/\"],\n  \"acceptance_criteria\": [\"artifacts validate\"],\n  \"validation_commands\": [\"cargo xtask verify profile repo\"],\n  \"validation_artifacts\": [\"passing xtask output\"],\n  \"rollback_path\": \"revert the workflow changes\",\n  \"exec_plan_required\": true,\n  \"exec_plan_path\": \"plans/{dir_name}/EXEC_PLAN.md\"\n}}\n"
+            "{{\n  \"issue_id\": {issue_id},\n  \"issue_url\": \"https://github.com/shortorigin/origin/issues/{issue_id}\",\n  \"branch\": \"{branch}\",\n  \"primary_architectural_plane\": \"cross-layer\",\n  \"owning_subsystem\": \"xtask governance\",\n  \"architectural_references\": [\"docs/adr/0015-gitops-and-policy-as-code-control-artifacts.md\"],\n  \"allowed_touchpoints\": [\"xtask/\", \"plans/\"],\n  \"non_goals\": [\"no runtime redesign\"],\n  \"scope_in\": [\"validate execution artifacts\"],\n  \"scope_out\": [\"unrelated work\"],\n  \"target_paths\": [\"xtask/\", \"plans/\"],\n  \"acceptance_criteria\": [\"artifacts validate\"],\n  \"validation_commands\": [\"cargo verify-repo\"],\n  \"validation_artifacts\": [\"passing xtask output\"],\n  \"rollback_path\": \"revert the workflow changes\",\n  \"exec_plan_required\": true,\n  \"exec_plan_path\": \"plans/{dir_name}/EXEC_PLAN.md\"\n}}\n"
         )
     }
 

@@ -47,7 +47,7 @@ jobs:
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
         with:
-          node-version: "20"
+          node-version-file: .nvmrc
           node-cache-path: infrastructure/pulumi/package-lock.json
 
       - name: Setup delivery environment

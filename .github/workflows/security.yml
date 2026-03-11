@@ -15,11 +15,6 @@ jobs:
   security-gate:
     name: security-gate
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-    env:
-      CARGO_AUDIT_VERSION: 0.22.1
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,20 +22,23 @@ jobs:
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
 
-      - name: Dependency review
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/dependency-review-action@v4
+      - name: Run repo-owned security validation
+        run: cargo xtask validate suite security
 
-      - name: Cache cargo-audit
-        id: cargo-audit-cache
-        uses: actions/cache@v4
+      - name: Publish security summary
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f target/validation/security.md ]]; then
+            cat target/validation/security.md >> "${GITHUB_STEP_SUMMARY}"
+          else
+            echo "No security validation report was produced." >> "${GITHUB_STEP_SUMMARY}"
+          fi
+
+      - name: Upload validation reports
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          path: ~/.cargo/bin/cargo-audit
-          key: ${{ runner.os }}-cargo-audit-${{ env.CARGO_AUDIT_VERSION }}
-
-      - name: Install cargo-audit
-        if: steps.cargo-audit-cache.outputs.cache-hit != 'true'
-        run: cargo install cargo-audit --locked --version "${CARGO_AUDIT_VERSION}"
-
-      - name: Run cargo audit
-        run: cargo audit
+          name: validation-reports-security
+          path: target/validation
+          if-no-files-found: ignore

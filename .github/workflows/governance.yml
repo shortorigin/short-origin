@@ -9,8 +9,8 @@ permissions:
   contents: read
 
 jobs:
-  validate:
-    name: validate
+  governance-gate:
+    name: governance-gate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -21,18 +21,24 @@ jobs:
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
 
-      - name: Audit architecture boundaries
-        run: cargo xtask architecture audit-boundaries
-
-      - name: Validate governed plugin manifests
-        run: cargo xtask plugin validate-manifests
-
-      - name: Audit documented process against automation
-        run: cargo xtask github audit-process
+      - name: Run repo-owned governance validation
+        run: cargo xtask validate suite governance
 
       - name: Validate PR governance
         if: ${{ github.event_name == 'pull_request' }}
         run: cargo xtask github validate-pr --event-path "$GITHUB_EVENT_PATH" --config .github/governance.toml
+
+      - name: Publish governance summary
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f target/validation/suite.md ]]; then
+            cat target/validation/suite.md >> "${GITHUB_STEP_SUMMARY}"
+          fi
+          if [[ -f target/process-audit/report.md ]]; then
+            echo "" >> "${GITHUB_STEP_SUMMARY}"
+            cat target/process-audit/report.md >> "${GITHUB_STEP_SUMMARY}"
+          fi
 
       - name: Upload process audit artifacts
         if: always()
@@ -40,3 +46,12 @@ jobs:
         with:
           name: process-audit
           path: target/process-audit
+          if-no-files-found: ignore
+
+      - name: Upload validation reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-reports-governance
+          path: target/validation
+          if-no-files-found: ignore

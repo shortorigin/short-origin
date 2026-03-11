@@ -5,6 +5,7 @@ mod github;
 mod plugin;
 mod rust;
 mod ui_hardening;
+mod validate;
 
 use std::env;
 use std::fs;
@@ -15,7 +16,7 @@ use std::process::{Child, Command};
 use std::thread;
 use std::time::{Duration, Instant};
 
-use common::{absolutize, run_command, workspace_root};
+use common::{absolutize, run_command, stamp_ui_asset_generation, workspace_root};
 use regex::Regex;
 
 const UI_PACKAGES: &[&str] = &[
@@ -73,6 +74,7 @@ fn run() -> Result<(), String> {
         Some("ui") => run_ui(args.collect()),
         Some("tauri") => run_tauri(args.collect()),
         Some("components") => run_components(args.collect()),
+        Some("validate") => validate::run(args.collect()),
         Some("verify") => run_verify(args.collect()),
         Some(command) => Err(format!("unknown xtask command `{command}`")),
         None => Err(help()),
@@ -95,6 +97,7 @@ fn run_ui(args: Vec<String>) -> Result<(), String> {
     command.current_dir(&site_dir);
     command.arg(trunk_subcommand);
     command.arg(index);
+    stamp_ui_asset_generation(&mut command);
     sanitize_trunk_environment(&mut command);
 
     let mut passthrough = passthrough.to_vec();
@@ -122,6 +125,7 @@ fn run_tauri(args: Vec<String>) -> Result<(), String> {
     let tauri_dir = workspace_root.join("ui/crates/desktop_tauri");
     let mut command = Command::new("cargo");
     command.current_dir(&tauri_dir);
+    stamp_ui_asset_generation(&mut command);
     command.arg("tauri");
     command.arg(subcommand);
     command.args(passthrough);
@@ -137,6 +141,7 @@ fn run_components(args: Vec<String>) -> Result<(), String> {
 
     let mut command = Command::new("cargo");
     command.current_dir(workspace_root);
+    stamp_ui_asset_generation(&mut command);
     command.args([
         "check",
         "-p",
@@ -181,92 +186,23 @@ fn run_verify(args: Vec<String>) -> Result<(), String> {
         _ => return Err("expected `verify profile <core|fast|repo|ui|ui-ci|full>`".to_string()),
     };
 
-    let workspace_root = workspace_root()?;
     match profile {
         "core" | "fast" => {
-            cargo(&workspace_root, &["fmt", "--all", "--check"])?;
-            cargo(
-                &workspace_root,
-                &workspace_command_with_excludes(
-                    &["clippy", "--workspace", "--all-targets", "--all-features"],
-                    CORE_EXCLUDED_PACKAGES,
-                    &["--", "-D", "warnings"],
-                ),
-            )?;
-            cargo(
-                &workspace_root,
-                &workspace_command_with_excludes(
-                    &["test", "--workspace", "--all-targets"],
-                    CORE_EXCLUDED_PACKAGES,
-                    &[],
-                ),
-            )?;
+            validate::run(vec!["suite".to_string(), "core".to_string()])?;
         }
         "repo" => {
-            cargo(&workspace_root, &["fmt", "--all", "--check"])?;
-            cargo(
-                &workspace_root,
-                &workspace_command_with_excludes(
-                    &["clippy", "--workspace", "--all-targets", "--all-features"],
-                    CORE_EXCLUDED_PACKAGES,
-                    &["--", "-D", "warnings"],
-                ),
-            )?;
-            cargo(
-                &workspace_root,
-                &workspace_command_with_excludes(
-                    &["test", "--workspace", "--all-targets"],
-                    CORE_EXCLUDED_PACKAGES,
-                    &[],
-                ),
-            )?;
-            cargo(
-                &workspace_root,
-                &["xtask", "architecture", "audit-boundaries"],
-            )?;
-            cargo(&workspace_root, &["xtask", "plugin", "validate-manifests"])?;
-            cargo(&workspace_root, &["xtask", "github", "audit-process"])?;
-        }
-        "ui" | "ui-ci" => {
-            cargo(
-                &workspace_root,
-                &package_command_with_packages(
-                    &["clippy", "--all-targets", "--all-features"],
-                    UI_PACKAGES,
-                    &["--", "-D", "warnings"],
-                ),
-            )?;
-            cargo(
-                &workspace_root,
-                &package_command_with_packages(&["test", "--all-targets"], UI_PACKAGES, &[]),
-            )?;
-            verify_ui_browser_manifest_hygiene(&workspace_root)?;
-            verify_ui_shell_style_hygiene(&workspace_root)?;
-            run_ui_preview_smoke(&workspace_root)?;
-            run_ui(vec![
-                "build".to_string(),
-                "--features".to_string(),
-                "desktop-tauri".to_string(),
-                "--dist".to_string(),
-                "target/trunk-ci-dist".to_string(),
+            validate::run(vec![
+                "suite".to_string(),
+                "governance".to_string(),
+                "security".to_string(),
+                "core".to_string(),
             ])?;
         }
+        "ui" | "ui-ci" => {
+            validate::run(vec!["suite".to_string(), "ui".to_string()])?;
+        }
         "full" => {
-            cargo(&workspace_root, &["fmt", "--all", "--check"])?;
-            cargo(
-                &workspace_root,
-                &[
-                    "clippy",
-                    "--workspace",
-                    "--all-targets",
-                    "--all-features",
-                    "--",
-                    "-D",
-                    "warnings",
-                ],
-            )?;
-            cargo(&workspace_root, &["test", "--workspace", "--all-targets"])?;
-            verify_ui_shell_style_hygiene(&workspace_root)?;
+            validate::run(vec!["suite".to_string(), "full".to_string()])?;
         }
         other => return Err(format!("unknown verification profile `{other}`")),
     }
@@ -298,6 +234,7 @@ fn run_wasmcloud_doctor(workspace_root: &Path) -> Result<(), String> {
 fn run_wasmcloud_manifest(workspace_root: &Path, args: &[String]) -> Result<(), String> {
     let mut command = Command::new("cargo");
     command.current_dir(workspace_root);
+    stamp_ui_asset_generation(&mut command);
     command.args(["xtask", "delivery", "render-manifest"]);
     command.args(args);
     run_command(&mut command)
@@ -404,6 +341,7 @@ fn package_command_with_packages(
 fn cargo(workspace_root: &Path, args: &[&str]) -> Result<(), String> {
     let mut command = Command::new("cargo");
     command.current_dir(workspace_root);
+    stamp_ui_asset_generation(&mut command);
     command.args(args);
     run_command(&mut command)
 }
@@ -431,6 +369,7 @@ fn run_ui_preview_smoke(workspace_root: &Path) -> Result<(), String> {
     let site_dir = workspace_root.join("ui/crates/site");
     let mut command = Command::new("trunk");
     command.current_dir(&site_dir);
+    stamp_ui_asset_generation(&mut command);
     command.arg("serve");
     command.arg("index.html");
     command.arg("--no-autoreload");
@@ -727,6 +666,7 @@ Commands:
   github        GitHub governance sync, PR validation, and process auditing
   plugin        Governed plugin manifest validation
   rust          Rust build-cache audit, targeted cleanup, and tracing helpers
+  validate      Local-first validation suites, bootstrap, and hook installation
   verify        Workspace verification profiles, including `repo` for canonical non-UI validation
   delivery      Delivery manifest and component rendering
   ui-hardening  Deterministic UI/browser hardening verification

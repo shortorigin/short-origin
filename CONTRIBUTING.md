@@ -35,11 +35,13 @@ All material changes are issue-driven and must follow the same GitHub workflow:
    merge quickly.
 8. Keep each branch focused on one dominant subsystem or one explicitly sequenced cross-layer
    objective.
-9. For long, multi-step, multi-plane, or `high` risk-class work, add execution artifacts under
+9. Install the blocking local hook once per clone with `cargo xtask validate install-hooks` so
+   pushes run the repo-owned changed-scope validation gate before reaching GitHub.
+10. For long, multi-step, multi-plane, or `high` risk-class work, add execution artifacts under
    `plans/<issue-id>-<slug>/` using the templates in `plans/templates/`.
-10. If the work is stacked, create the child branch from its parent branch and open the child PR against the parent branch until the base PR lands.
-11. Rebase on the current target branch before requesting merge, and rebase again if the target branch moves while the PR is open.
-12. Open a pull request targeting `main` or the parent branch in a stack that:
+11. If the work is stacked, create the child branch from its parent branch and open the child PR against the parent branch until the base PR lands.
+12. Rebase on the current target branch before requesting merge, and rebase again if the target branch moves while the PR is open.
+13. Open a pull request targeting `main` or the parent branch in a stack that:
    - references the originating issue,
    - records the execution artifact status or matching plan bundle path,
    - records ADR references and impacted domains,
@@ -48,9 +50,10 @@ All material changes are issue-driven and must follow the same GitHub workflow:
    - records the rollback path and validation artifacts,
    - documents the testing strategy,
    - records the risk class,
+   - discloses any `git push --no-verify` bypass incident,
    - includes an `Architecture Delta` section when the PR spans multiple architectural planes,
    - includes a closing directive such as `Closes #<issue-id>`.
-13. Merge only after review and required checks pass so GitHub automatically closes the linked issue.
+14. Merge only after review, merge-queue admission, and required checks pass so GitHub automatically closes the linked issue.
 
 Example commands:
 
@@ -79,11 +82,11 @@ gh pr create --fill
 - Squash merge is the default merge strategy.
 - Keep the `Closes #<issue-id>` directive in the PR body through merge so the issue closes automatically.
 - If the PR is stacked, target the parent branch until the base PR merges.
-- If the PR touches `ui/crates/desktop_runtime`, `ui/crates/system_ui`, or `ui/crates/site/src/generated`, rebase on the current target branch immediately before requesting merge.
+- If the PR touches `ui/crates/desktop_runtime` or `ui/crates/system_ui`, rebase on the current target branch immediately before requesting merge.
 - If the PR touches shell composition, `shared/`, `platform/`, `schemas/`, `.github/`, or
   `infrastructure/wasmcloud/manifests`, refresh from the latest target branch and rerun validation
   immediately before requesting merge.
-- Regenerate derived assets after the last rebase and before review whenever the PR changes token, shell, or generated CSS inputs.
+- Regenerate derived assets after the last rebase and before review whenever the PR changes token, shell, or generated CSS inputs, but do not commit repo-generated UI CSS/token outputs.
 - Do not mix unrelated shell refactors, generated asset churn, and behavioral fixes into one PR when they can be reviewed separately.
 - Multi-plane PRs must explain why the change could not be split into a narrower sequence.
 
@@ -123,18 +126,34 @@ Run the baseline checks from the repository root:
 cargo verify-repo
 ```
 
+Install the blocking local hook once per clone:
+
+```bash
+cargo xtask validate install-hooks
+```
+
+Use the changed-scope local gate while developing and before each push:
+
+```bash
+cargo xtask validate changed
+cargo xtask github validate-pr-local --title "type(scope): summary" --body-file /tmp/pr-body.md
+```
+
 If the change touches `ui/`, also run:
 
 ```bash
-cargo xtask verify profile ui
-cargo xtask ui-hardening
+cargo verify-ui
+cargo xtask validate suite ui-hardening
 ```
 
-If your change affects dependency security posture, validate `cargo audit` locally or rely on the `Security Scan` workflow in CI.
+Do not treat GitHub Actions as the first place to discover routine validation failures. `git push --no-verify` is an emergency escape hatch only and must be disclosed in the PR body.
+
+`cargo verify-repo` now covers governance, security, and core validation through the repo-owned
+`cargo xtask validate` framework.
 
 The required GitHub checks are:
 
-- `Governance / validate`
+- `Governance / governance-gate`
 - `CI / pr-gate`
 - `Security / security-gate`
 

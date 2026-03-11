@@ -134,11 +134,12 @@ PRs that touch multiple architectural planes must also include:
 Merge policy:
 
 - minimum reviewers: 1
+- merge queue: required on `main` (configured in GitHub UI)
 - squash merge: required
 - direct pushes to `main`: prohibited
 - dismiss stale approvals when new commits are pushed
 - code owner review: required
-- auto-merge: enabled as the fallback path when merge queue is unavailable
+- auto-merge: may remain enabled operationally, but contributors should use the queue on `main`
 - merging the PR closes the linked issue through the PR closing directive
 
 ## CI/CD Baseline
@@ -150,22 +151,34 @@ Required CI stages:
 - security gate
 - delivery promotion
 
-Baseline checks:
+Repo-owned validation surfaces:
 
 ```bash
-cargo fmt --all --check
-cargo clippy --workspace --all-targets --all-features -- -D warnings
-cargo test --workspace --all-targets
-cargo audit
+cargo verify-repo
+```
+
+For UI work:
+
+```bash
+cargo verify-ui
+cargo xtask validate suite ui-hardening
+```
+
+Local-first workflow:
+
+```bash
+cargo xtask validate install-hooks
+cargo xtask validate changed
+cargo xtask github validate-pr-local --title "type(scope): summary" --body-file /tmp/pr-body.md
 ```
 
 CI optimization policy:
 
+- Local and GitHub validation share the same suite-selection model through `cargo xtask validate changed` and `cargo xtask validate ci`.
 - Rust validation is path-scoped:
-  backend-only Rust changes run the core validation profile, UI-only changes run the UI validation profile, and shared/root changes run the full workspace validation plus browser preview build.
+  backend-only Rust changes run the core suite, UI-only changes run the UI plus UI-hardening suites, and shared/root changes run the combined repo-owned suites selected by the validation matrix.
 - GitHub Actions reuses shared Rust dependency caches across CI, delivery, release, and security workflows with stable shared cache keys.
-- Small cargo-installed tools are cached explicitly:
-  `trunk` is cached for UI/browser preview builds and `cargo-audit` is cached for the security workflow.
+- Small cargo-installed tools are prepared through `cargo xtask validate bootstrap` locally and installed on demand by the repo-owned suites in GitHub.
 - CI keeps incremental compilation disabled so cache storage is spent on reusable dependency artifacts instead of large incremental state that churns quickly on hosted runners.
 - `sccache` and `target/` artifact reuse were evaluated but are not enabled in the current baseline:
   the workspace artifact footprint is too large for GitHub's cache budget to make those approaches efficient without an external cache backend.
@@ -175,7 +188,7 @@ CI optimization policy:
 
 Required status checks:
 
-- `Governance / validate`
+- `Governance / governance-gate`
 - `CI / pr-gate`
 - `Security / security-gate`
 
@@ -192,6 +205,9 @@ The canonical non-UI local validation surface is:
 ```bash
 cargo verify-repo
 ```
+
+`cargo verify-repo` now covers governance, security, and core validation through the shared
+repo-owned validation framework.
 
 Rust workspace hygiene and tracing workflows are repository-owned through:
 

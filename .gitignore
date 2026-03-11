@@ -13,6 +13,10 @@ coverage/
 .vscode/
 .idea/
 
+# Generated UI token and browser styling artifacts
+ui/crates/site/src/generated/
+ui/crates/site/tailwind.config.js
+
 # Local task ledgers and spec notes
 completion-todo.txt
 complex-task.txt

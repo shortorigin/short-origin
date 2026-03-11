@@ -33,7 +33,7 @@ The same `ui/` shell/runtime files are being edited by multiple refactors and fi
 
 ### 4. Mixed source changes and generated outputs
 
-Shell PRs frequently include both hand-authored source changes and regenerated outputs such as `ui/crates/site/src/generated/tailwind.css` and `ui/crates/site/src/generated/tokens.css`. Those generated files amplify conflicts because they are large, derived from shared inputs, and easy to invalidate after a rebase.
+Shell PRs historically included both hand-authored source changes and regenerated outputs such as `ui/crates/site/src/generated/tailwind.css` and `ui/crates/site/src/generated/tokens.css`. Those generated files amplified conflicts because they were large, derived from shared inputs, and easy to invalidate after a rebase. The repo now treats those outputs as derived local artifacts and they should not be committed.
 
 ### 5. Governance drift between source-of-truth and live settings
 
@@ -54,8 +54,9 @@ Rules:
 1. Always fetch before creating the branch.
 2. Create the branch from `origin/main`, not from a stale local `main`.
 3. Keep the branch focused on one primary issue.
-4. Rebase on the current target branch before requesting merge.
-5. If `main` moves while the PR is open, rebase again before merge.
+4. Install the blocking local hook with `cargo xtask validate install-hooks` so stale or failing pushes are rejected before GitHub.
+5. Rebase on the current target branch before requesting merge.
+6. If `main` moves while the PR is open, rebase again before merge.
 
 For conflict hot spots, rebasing before merge is mandatory:
 
@@ -83,7 +84,7 @@ When work touches the shell/runtime conflict hot spots:
 2. Split refactors from behavior fixes when practical.
 3. Do not combine wallpaper, taskbar, shell layout, and token regeneration into one PR unless they are inseparable.
 4. Regenerate derived assets only after rebasing onto the current target branch.
-5. Treat `ui/crates/site/src/generated/*` as derived artifacts that must be refreshed after every rebase that changes shell or token inputs.
+5. Treat `ui/crates/site/src/generated/*` and `ui/crates/site/tailwind.config.js` as derived artifacts that must be refreshed locally after shell or token changes, but do not commit them.
 
 ## Conflict Resolution Playbook
 
@@ -114,14 +115,14 @@ After the rebase:
 Recommended validation:
 
 ```bash
-cargo verify-repo
+cargo xtask validate changed
 ```
 
 If the rebased change touches `ui/`, also run:
 
 ```bash
-cargo xtask verify profile ui
-cargo xtask ui-hardening
+cargo verify-ui
+cargo xtask validate suite ui-hardening
 ```
 
 ## Governance And Review Expectations
@@ -139,4 +140,4 @@ Operational follow-through:
 
 1. Re-sync repository governance after changing `.github/governance.toml`.
 2. Run `cargo xtask github audit-process` regularly to detect drift.
-3. Enable merge queue for `main` in GitHub so conflicting or stale PRs are rebased through a single protected integration path.
+3. Keep merge queue enabled for `main` in GitHub so conflicting or stale PRs are rebased through a single protected integration path.

@@ -49,7 +49,7 @@ jobs:
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
         with:
-          node-version: "20"
+          node-version-file: .nvmrc
           node-cache-path: infrastructure/pulumi/package-lock.json
 
       - name: Setup delivery environment
@@ -64,7 +64,7 @@ jobs:
 
       - name: Rebuild and verify target SHA
         run: |
-          cargo xtask verify profile core
+          cargo xtask validate suite core
           cargo components-build
           cargo test -p wasmcloud-bindings -p surrealdb-access
 

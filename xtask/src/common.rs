@@ -1,6 +1,9 @@
 use std::env;
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitStatus};
+use std::time::{SystemTime, UNIX_EPOCH};
+
+const UI_ASSET_GENERATION_ENV: &str = "ORIGIN_FORCE_SYSTEM_UI_GENERATION";
 
 pub fn absolutize(workspace_root: &Path, value: &str) -> PathBuf {
     let path = PathBuf::from(value);
@@ -16,6 +19,15 @@ pub fn run_command(command: &mut Command) -> Result<(), String> {
         .status()
         .map_err(|error| format!("failed to start `{}`: {error}", display_command(command)))?;
     ensure_success(command, status)
+}
+
+pub fn stamp_ui_asset_generation(command: &mut Command) {
+    let nonce = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_nanos()
+        .to_string();
+    command.env(UI_ASSET_GENERATION_ENV, nonce);
 }
 
 pub fn ensure_success(command: &Command, status: ExitStatus) -> Result<(), String> {

@@ -21,146 +21,45 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Detect changed areas
-        id: filter
-        if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' }}
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            shared_root:
-              - '.cargo/**'
-              - 'Cargo.toml'
-              - 'Cargo.lock'
-              - 'rust-toolchain.toml'
-              - 'README.md'
-              - 'CONTRIBUTING.md'
-              - 'DEVELOPMENT_MODEL.md'
-              - 'ARCHITECTURE.md'
-              - '.github/workflows/**'
-              - '.github/actions/**'
-              - 'xtask/**'
-              - 'shared/**'
-              - 'schemas/**'
-              - 'platform/**'
-              - 'enterprise/**'
-              - 'workflows/**'
-            core_rust:
-              - 'services/**'
-              - 'agents/**'
-            ui:
-              - 'ui/**'
-            nomad:
-              - 'infrastructure/nomad/**/*.hcl'
-            pulumi:
-              - 'infrastructure/pulumi/**'
-
-      - name: Resolve validation scope
-        id: scope
-        shell: bash
-        run: |
-          if [[ "${GITHUB_EVENT_NAME}" == "merge_group" || "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
-            shared_root=true
-            core_rust=true
-            ui=true
-            nomad=true
-            pulumi=true
-          else
-            shared_root="${{ steps.filter.outputs.shared_root }}"
-            core_rust="${{ steps.filter.outputs.core_rust }}"
-            ui="${{ steps.filter.outputs.ui }}"
-            nomad="${{ steps.filter.outputs.nomad }}"
-            pulumi="${{ steps.filter.outputs.pulumi }}"
-          fi
-
-          if [[ "${shared_root}" == "true" || "${core_rust}" == "true" ]]; then
-            run_core=true
-          else
-            run_core=false
-          fi
-
-          if [[ "${shared_root}" == "true" || "${ui}" == "true" ]]; then
-            run_ui=true
-          else
-            run_ui=false
-          fi
-
-          {
-            echo "run_core=${run_core}"
-            echo "run_ui=${run_ui}"
-            echo "run_nomad=${nomad}"
-            echo "run_pulumi=${pulumi}"
-          } >> "${GITHUB_OUTPUT}"
-
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
         with:
           rust-components: rustfmt,clippy
-          node-version: "20"
-          node-cache-path: ui/e2e/package-lock.json
+          node-version-file: .nvmrc
+          node-cache-path: |
+            ui/e2e/package-lock.json
+            infrastructure/pulumi/package-lock.json
 
-      - name: Install UI verification dependencies
-        if: ${{ steps.scope.outputs.run_ui == 'true' }}
-        run: npm ci --prefix ui/e2e
-
-      - name: Install Playwright browsers for browser hardening validation
-        if: ${{ steps.scope.outputs.run_ui == 'true' }}
-        run: npx --prefix ui/e2e playwright install --with-deps chromium firefox webkit
-
-      - name: Run core verification profile
-        if: ${{ steps.scope.outputs.run_core == 'true' }}
-        run: cargo xtask verify profile core
-
-      - name: Run UI verification profile
-        if: ${{ steps.scope.outputs.run_ui == 'true' }}
-        run: cargo xtask verify profile ui
-
-      - name: Run UI hardening verification
-        if: ${{ steps.scope.outputs.run_ui == 'true' }}
-        run: cargo xtask ui-hardening
-
-      - name: Infrastructure posture validation
-        if: ${{ steps.scope.outputs.run_core == 'true' }}
-        run: |
-          if rg -n 'driver\s*=\s*"raw_exec"' infrastructure/nomad/jobs; then
-            echo "raw_exec deployments are not allowed for workload services"
-            exit 1
-          fi
-
-      - name: Validate Nomad jobs
-        if: ${{ steps.scope.outputs.run_nomad == 'true' }}
+      - name: Run repo-owned CI validation
         shell: bash
         run: |
-          mapfile -t files < <(find infrastructure/nomad/jobs -type f -name '*.nomad.hcl' | sort)
-          if [[ "${#files[@]}" -eq 0 ]]; then
-            echo "No Nomad jobs found."
-            exit 0
-          fi
-          for file in "${files[@]}"; do
-            docker run --rm -v "${PWD}:/workspace" -w /workspace hashicorp/nomad:1.8.4 \
-              nomad job validate "${file}"
-          done
+          command=(cargo xtask validate ci --event "${GITHUB_EVENT_NAME}")
 
-      - name: Install Pulumi dependencies
-        if: ${{ steps.scope.outputs.run_pulumi == 'true' }}
-        working-directory: infrastructure/pulumi
-        run: npm ci
+          case "${GITHUB_EVENT_NAME}" in
+            pull_request)
+              command+=(--base "${{ github.event.pull_request.base.sha }}" --head "${{ github.event.pull_request.head.sha }}")
+              ;;
+            push)
+              command+=(--base "${{ github.event.before }}" --head "${{ github.sha }}")
+              ;;
+          esac
 
-      - name: Run Pulumi workspace tests
-        if: ${{ steps.scope.outputs.run_pulumi == 'true' }}
-        working-directory: infrastructure/pulumi
-        run: npm test
+          "${command[@]}"
 
-      - name: Summarize path-scoped validation
+      - name: Publish validation summary
         if: always()
         shell: bash
         run: |
-          {
-            echo "## Path-scoped validation summary"
-            echo ""
-            echo "- core verification: ${{ steps.scope.outputs.run_core }}"
-            echo "- ui verification: ${{ steps.scope.outputs.run_ui }}"
-            echo "- nomad validation: ${{ steps.scope.outputs.run_nomad }}"
-            echo "- pulumi validation: ${{ steps.scope.outputs.run_pulumi }}"
-            echo ""
-            echo "The top-level required check remains \`CI / pr-gate\` even when individual validation areas are skipped."
-          } >> "${GITHUB_STEP_SUMMARY}"
+          if [[ -f target/validation/ci.md ]]; then
+            cat target/validation/ci.md >> "${GITHUB_STEP_SUMMARY}"
+          else
+            echo "No CI validation report was produced." >> "${GITHUB_STEP_SUMMARY}"
+          fi
+
+      - name: Upload validation reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-reports-ci
+          path: target/validation
+          if-no-files-found: ignore

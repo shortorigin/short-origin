@@ -11,14 +11,15 @@ branch_name_pattern = "^(feature|fix|infra|docs|refactor|research)/[0-9]+-[a-z0-
 pr_title_pattern = "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|test)\\([a-z0-9][a-z0-9_-]*\\): [a-z0-9].+$"
 # `xtask github sync repo` applies these checks with strict status enforcement so PR heads
 # must be current with the target branch before merge.
-required_status_checks = ["Governance / validate", "CI / pr-gate", "Security / security-gate"]
+required_status_checks = ["Governance / governance-gate", "CI / pr-gate", "Security / security-gate"]
 # `main` requires one approval and code owner review. Stacked PRs should target their
 # parent branch until the base PR merges instead of pointing multiple layers at `main`.
 required_approving_review_count = 1
 dismiss_stale_reviews_on_push = true
 require_code_owner_review = true
 required_review_thread_resolution = true
-# Keep one merge path on `main`; merge queue is enabled separately in GitHub UI.
+# Keep one merge path on `main`; merge queue must remain enabled in GitHub UI and should be the
+# default merge path after local-first validation succeeds.
 allow_auto_merge = true
 allow_squash_merge = true
 allow_merge_commit = false

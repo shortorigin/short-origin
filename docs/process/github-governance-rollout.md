@@ -100,7 +100,7 @@ Use the audit output to confirm that the live ruleset still matches `.github/gov
 
 Configure the `main` ruleset to require these check names:
 
-- `Governance / validate`
+- `Governance / governance-gate`
 - `CI / pr-gate`
 - `Security / security-gate`
 

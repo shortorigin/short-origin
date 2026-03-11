@@ -14,6 +14,10 @@ inputs:
     description: Node.js version to install. Empty skips Node setup.
     required: false
     default: ""
+  node-version-file:
+    description: File that declares the Node.js version to install. Empty skips version-file setup.
+    required: false
+    default: ""
   node-cache-path:
     description: npm lockfile path used for cache setup. Empty disables npm cache wiring.
     required: false
@@ -22,17 +26,38 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Validate Node inputs
+      if: ${{ inputs.node-version != '' && inputs.node-version-file != '' }}
+      shell: bash
+      run: |
+        echo "Provide either node-version or node-version-file, not both."
+        exit 1
+
     - name: Setup Node
-      if: ${{ inputs.node-version != '' && inputs.node-cache-path == '' }}
+      if: ${{ inputs.node-version != '' && inputs.node-version-file == '' && inputs.node-cache-path == '' }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
 
     - name: Setup Node with npm cache
-      if: ${{ inputs.node-version != '' && inputs.node-cache-path != '' }}
+      if: ${{ inputs.node-version != '' && inputs.node-version-file == '' && inputs.node-cache-path != '' }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
+        cache: npm
+        cache-dependency-path: ${{ inputs.node-cache-path }}
+
+    - name: Setup Node from version file
+      if: ${{ inputs.node-version == '' && inputs.node-version-file != '' && inputs.node-cache-path == '' }}
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: ${{ inputs.node-version-file }}
+
+    - name: Setup Node from version file with npm cache
+      if: ${{ inputs.node-version == '' && inputs.node-version-file != '' && inputs.node-cache-path != '' }}
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: ${{ inputs.node-version-file }}
         cache: npm
         cache-dependency-path: ${{ inputs.node-cache-path }}
 

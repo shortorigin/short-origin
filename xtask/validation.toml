@@ -1,0 +1,48 @@
+version = 1
+
+[tools]
+node_major = 20
+cargo_audit_version = "0.22.1"
+trunk_version = "0.21.14"
+nomad_image = "hashicorp/nomad:1.8.4"
+
+[selectors]
+shared_root_files = [
+  "Cargo.toml",
+  "Cargo.lock",
+  "rust-toolchain.toml",
+  "README.md",
+  "CONTRIBUTING.md",
+  "DEVELOPMENT_MODEL.md",
+  "ARCHITECTURE.md",
+  ".nvmrc",
+]
+shared_root_prefixes = [
+  ".cargo/",
+  ".github/workflows/",
+  ".github/actions/",
+  "xtask/",
+  "shared/",
+  "schemas/",
+  "platform/",
+  "enterprise/",
+  "workflows/",
+]
+core_rust_prefixes = ["services/", "agents/"]
+ui_prefixes = ["ui/"]
+nomad_prefixes = ["infrastructure/nomad/"]
+nomad_suffixes = [".nomad.hcl"]
+pulumi_prefixes = ["infrastructure/pulumi/"]
+
+[freshness]
+required_prefixes = [
+  "ui/",
+  "shared/",
+  "platform/",
+  "schemas/",
+  ".github/",
+  "infrastructure/wasmcloud/manifests/",
+  "ui/crates/desktop_runtime/",
+  "ui/crates/system_ui/",
+  "ui/crates/site/src/generated/",
+]

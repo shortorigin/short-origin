@@ -14,6 +14,8 @@ use serde::Deserialize;
 use serde_json::Value;
 use sha2::{Digest, Sha256, Sha384};
 
+use crate::common::stamp_ui_asset_generation;
+
 const BUILD_ROOT: &str = "build/wasm-hardening";
 const CARGO_TARGET_DIR_NAME: &str = "cargo-target";
 const BUILD_A_NAME: &str = "build-a";
@@ -67,6 +69,7 @@ pub fn run(args: Vec<String>) -> Result<(), String> {
         .map_err(|error| format!("failed to create `{}`: {error}", base_dir.display()))?;
 
     let report = verify(&workspace_root, &base_dir)?;
+    let hardened = report.contains("- pipeline status: HARDENED");
     fs::write(&output_path, &report).map_err(|error| {
         format!(
             "failed to write report `{}`: {error}",
@@ -74,7 +77,14 @@ pub fn run(args: Vec<String>) -> Result<(), String> {
         )
     })?;
     println!("{report}");
-    Ok(())
+    if hardened {
+        Ok(())
+    } else {
+        Err(format!(
+            "UI hardening verification failed; see `{}`",
+            output_path.display()
+        ))
+    }
 }
 
 fn parse_output_path(workspace_root: &Path, args: &[String]) -> PathBuf {
@@ -1394,6 +1404,7 @@ fn run_logged_command(
 
 fn command<const N: usize>(program: &str, args: [&str; N]) -> Command {
     let mut command = Command::new(program);
+    stamp_ui_asset_generation(&mut command);
     command.args(args);
     command
 }

@@ -83,19 +83,28 @@ Run from the repository root:
 cargo verify-repo
 ```
 
-`cargo verify-repo` is the canonical non-UI validation surface. The GitHub CI baseline also
-includes `cargo audit`.
+`cargo verify-repo` remains the canonical non-UI validation alias and now resolves to the
+repo-owned `cargo xtask validate` framework, including governance, security, and core validation.
 
-For local enforcement parity, also run:
+For local-first parity, install the hook once and use the changed-scope gate during development:
 
 ```bash
-cargo xtask verify profile ui
-cargo xtask ui-hardening
+cargo xtask validate install-hooks
+cargo xtask validate changed
+cargo xtask github validate-pr-local --title "type(scope): summary" --body-file /tmp/pr-body.md
 ```
 
-For Rust workspace hygiene and tracing workflows, use:
+If the change touches `ui/`, also run:
 
 ```bash
+cargo verify-ui
+cargo xtask validate suite ui-hardening
+```
+
+For bootstrap, Rust workspace hygiene, and tracing workflows, use:
+
+```bash
+cargo xtask validate bootstrap
 cargo rust-audit
 cargo rust-clean incremental
 cargo rust-trace desktop --dry-run
@@ -110,7 +119,9 @@ workspace artifact growth under control.
 Origin uses a GitHub-native, trunk-based delivery model:
 
 - `main` is the only long-lived branch.
-- `CI / pr-gate`, `Security / security-gate`, and `Governance / validate` are the required checks.
+- Merge queue is the required merge path for `main`; required checks should confirm already-green
+  branches rather than discover routine failures.
+- `CI / pr-gate`, `Security / security-gate`, and `Governance / governance-gate` are the required checks.
 - The browser/PWA runtime is the baseline platform surface; the Tauri host extends the same surface
   with desktop-only capabilities instead of forking the product model.
 - The `Delivery Dev` workflow runs automatically on pushes to `main`, publishes

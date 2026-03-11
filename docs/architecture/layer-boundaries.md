@@ -64,7 +64,7 @@ cargo xtask architecture audit-boundaries
 
 The audit validates direct and transitive workspace dependencies, checks source-level workspace
 crate imports, enforces targeted source-scan rules, verifies foundational dependency governance in
-workspace manifests, and is part of `Governance / validate`.
+workspace manifests, and is part of `Governance / governance-gate`.
 
 Remaining gaps are still explicit:
 - non-Rust asset and generated-code dependency analysis is not yet fully enforced
