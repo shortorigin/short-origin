@@ -63,13 +63,13 @@ The shell supports two runtime targets with a shared Rust composition core:
 - `shared/telemetry` provides stable runtime-target and environment-profile types used by UI logs.
 - `platform_host` owns the canonical UI host error contract through `HostError` and `HostResult<T>`.
 - `desktop_runtime` is the target home for shared runtime logging metadata helpers and future structured `tracing` events.
-- `site` currently installs the panic hook used for browser debugging, but does not yet install a tracing subscriber in the checked-in entrypoint.
-- `desktop_tauri` does not yet install the native JSON tracing subscriber described by the target architecture in the checked-in entrypoint.
+- `site` installs the browser tracing bootstrap alongside the panic hook and emits the initial UI bootstrap event with stable runtime/environment fields.
+- `desktop_tauri` installs the native JSON tracing subscriber before host startup and emits bootstrap/start events with the required runtime/environment fields.
 
 Current development policy:
 - Development builds must preserve visible warnings, runtime diagnostics, panic hooks, reducer errors, host failures, and persistence failures in active browser and desktop workflows.
-- Until browser and native tracing bootstrap is implemented and verified, warning paths in browser/runtime code should use the currently observable diagnostics channel instead of tracing-only emission.
-- Migration from `leptos::logging` to `tracing` must be gated on end-to-end subscriber initialization and verified parity for developer-visible output.
+- Browser and native tracing bootstrap are implemented at the UI entrypoints, but existing visible warning paths in `desktop_runtime` remain the required fallback until broader callsite migration is intentionally verified.
+- Migration from `leptos::logging` to `tracing` should proceed incrementally and only where end-to-end developer-visible parity remains intact.
 
 Required log fields:
 - `timestamp`
@@ -113,13 +113,17 @@ cargo verify-ui
 cargo check -p desktop_runtime
 cargo check -p site
 cargo check -p desktop_tauri
+cargo rust-trace site --dry-run
+cargo rust-trace desktop --dry-run
 ```
 
 `cargo ui-dev` is the preferred browser/PWA workflow. `cargo ui-build` drives the corresponding
 build pipeline. `cargo verify-ui` now exercises the preview toolchain with a real `site_app` wasm
 build, Trunk packaging, and a localhost smoke probe so baseline browser regressions are caught
-before merge. Use the crate-level `cargo check` commands for focused iteration in the shared
-runtime, browser entrypoint, and desktop host.
+before merge. `cargo rust-trace site` and `cargo rust-trace desktop` apply the repo-owned
+backtrace/tracing defaults for the browser and desktop entrypoints. Use the crate-level
+`cargo check` commands for focused iteration in the shared runtime, browser entrypoint, and
+desktop host.
 
 ## Integration Patterns
 All UI-to-platform integration must flow through typed contracts.

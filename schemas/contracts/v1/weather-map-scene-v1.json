@@ -1,0 +1,18 @@
+{
+  "name": "WeatherMapSceneV1",
+  "version": "v1",
+  "fields": [
+    "scene_id",
+    "region_id",
+    "scene_revision",
+    "bounds",
+    "default_center",
+    "default_zoom",
+    "generated_at",
+    "active_frame_id",
+    "refresh_interval_seconds",
+    "frames",
+    "sources",
+    "layers"
+  ]
+}

@@ -1,0 +1,695 @@
+{
+  "availability": {
+    "catalog_id": "catalog-us-west",
+    "region_id": "us-west",
+    "bounds": {
+      "north": 49,
+      "south": 31,
+      "east": -109,
+      "west": -125
+    },
+    "generated_at": "2026-03-10T11:10:00Z",
+    "source_kinds": [
+      "hrrr",
+      "goes",
+      "nexrad",
+      "surface",
+      "nws_alert"
+    ],
+    "available_layers": [
+      {
+        "layer": "precipitation",
+        "latest_event_time": "2026-03-10T11:00:00Z",
+        "latest_valid_time": "2026-03-10T15:00:00Z",
+        "horizon_hours": 4,
+        "product_ref": "product-hrrr-001"
+      },
+      {
+        "layer": "cloud_cover",
+        "latest_event_time": "2026-03-10T11:06:00Z",
+        "latest_valid_time": "2026-03-10T11:10:00Z",
+        "horizon_hours": 0,
+        "product_ref": "product-goes-001"
+      },
+      {
+        "layer": "radar_reflectivity",
+        "latest_event_time": "2026-03-10T11:07:00Z",
+        "latest_valid_time": "2026-03-10T11:12:00Z",
+        "horizon_hours": 0,
+        "product_ref": "product-nexrad-001"
+      }
+    ]
+  },
+  "view": {
+    "view_id": "weather-view-us-west",
+    "region_id": "us-west",
+    "bounds": {
+      "north": 49,
+      "south": 31,
+      "east": -109,
+      "west": -125
+    },
+    "generated_at": "2026-03-10T11:10:00Z",
+    "valid_time": "2026-03-10T15:00:00Z",
+    "horizon_hours": 4,
+    "layers": [
+      {
+        "layer": "precipitation",
+        "title": "Pacific Precipitation",
+        "asset_ref": "zarr://weather/views/us-west/precipitation",
+        "native_identifier": "APCP",
+        "event_time": "2026-03-10T11:00:00Z",
+        "valid_time": "2026-03-10T15:00:00Z",
+        "qc_flags": [
+          "passed"
+        ],
+        "provenance": [
+          {
+            "source_kind": "hrrr",
+            "source_dataset": "hrrr",
+            "source_object_ref": "s3://noaa-hrrr/hrrr.t15z.wrfsfcf04.grib2",
+            "retrieved_at": "2026-03-10T11:00:00Z",
+            "raw_artifact_hash": "sha-hrrr-001",
+            "transform_version": "weather/v1",
+            "config_hash": "cfg-west-1"
+          }
+        ]
+      },
+      {
+        "layer": "alert_overlay",
+        "title": "NWS Alerts",
+        "asset_ref": "parquet://weather/views/us-west/alerts",
+        "native_identifier": "nws-alerts",
+        "event_time": "2026-03-10T11:09:00Z",
+        "valid_time": "2026-03-10T15:00:00Z",
+        "qc_flags": [
+          "passed"
+        ],
+        "provenance": [
+          {
+            "source_kind": "nws_alert",
+            "source_dataset": "nws-alerts",
+            "source_object_ref": "https://api.weather.gov/alerts/active?area=CA",
+            "retrieved_at": "2026-03-10T11:09:00Z",
+            "raw_artifact_hash": "sha-alert-001",
+            "transform_version": "weather/v1",
+            "config_hash": "cfg-west-1"
+          }
+        ]
+      }
+    ],
+    "alert_feed_id": "alerts-us-west"
+  },
+  "feature_slices": [
+    {
+      "slice_id": "feature-us-west-1",
+      "region_id": "us-west",
+      "event_time": "2026-03-10T11:00:00Z",
+      "valid_time": "2026-03-10T15:00:00Z",
+      "lead_hours": 4,
+      "source_product_refs": [
+        "product-hrrr-001"
+      ],
+      "features": [
+        {
+          "feature": "precipitation_rate",
+          "value": 2.4,
+          "units": "mm/hr",
+          "probability": 0.62,
+          "qc_flags": [
+            "passed"
+          ]
+        },
+        {
+          "feature": "convective_risk",
+          "value": 0.4,
+          "units": "score",
+          "probability": 0.41,
+          "qc_flags": [
+            "estimated"
+          ]
+        }
+      ],
+      "provenance": [
+        {
+          "source_kind": "hrrr",
+          "source_dataset": "hrrr",
+          "source_object_ref": "s3://noaa-hrrr/hrrr.t15z.wrfsfcf04.grib2",
+          "retrieved_at": "2026-03-10T11:00:00Z",
+          "raw_artifact_hash": "sha-hrrr-001",
+          "transform_version": "weather/v1",
+          "config_hash": "cfg-west-1"
+        }
+      ]
+    },
+    {
+      "slice_id": "feature-us-west-2",
+      "region_id": "us-west",
+      "event_time": "2026-03-10T11:08:00Z",
+      "valid_time": "2026-03-10T11:08:00Z",
+      "lead_hours": 0,
+      "source_product_refs": [
+        "product-surface-001"
+      ],
+      "features": [
+        {
+          "feature": "visibility",
+          "value": 8,
+          "units": "mi",
+          "probability": null,
+          "qc_flags": [
+            "passed"
+          ]
+        },
+        {
+          "feature": "wind_speed10m",
+          "value": 14,
+          "units": "kt",
+          "probability": null,
+          "qc_flags": [
+            "passed"
+          ]
+        }
+      ],
+      "provenance": [
+        {
+          "source_kind": "surface",
+          "source_dataset": "metar",
+          "source_object_ref": "https://aviationweather.gov/metar/data?ids=KSFO",
+          "retrieved_at": "2026-03-10T11:08:00Z",
+          "raw_artifact_hash": "sha-surface-001",
+          "transform_version": "weather/v1",
+          "config_hash": "cfg-west-1"
+        }
+      ]
+    }
+  ],
+  "alerts": {
+    "feed_id": "alerts-us-west",
+    "region_id": "us-west",
+    "generated_at": "2026-03-10T11:10:00Z",
+    "alerts": [
+      {
+        "alert_id": "alert-west-1",
+        "region_id": "us-west",
+        "headline": "Flood Watch",
+        "severity": "moderate",
+        "effective_at": "2026-03-10T11:09:00Z",
+        "expires_at": "2026-03-10T18:00:00Z",
+        "source": "nws",
+        "bounds": {
+          "north": 42,
+          "south": 36,
+          "east": -118,
+          "west": -124
+        },
+        "provenance": [
+          {
+            "source_kind": "nws_alert",
+            "source_dataset": "nws-alerts",
+            "source_object_ref": "https://api.weather.gov/alerts/active?area=CA",
+            "retrieved_at": "2026-03-10T11:09:00Z",
+            "raw_artifact_hash": "sha-alert-001",
+            "transform_version": "weather/v1",
+            "config_hash": "cfg-west-1"
+          }
+        ]
+      }
+    ]
+  },
+  "map_scene": {
+    "scene_id": "weather-map-scene-us-west",
+    "region_id": "us-west",
+    "scene_revision": "us-west-20260310111000",
+    "bounds": {
+      "north": 49,
+      "south": 31,
+      "east": -109,
+      "west": -125
+    },
+    "default_center": {
+      "longitude": -117,
+      "latitude": 40
+    },
+    "default_zoom": 4.4,
+    "generated_at": "2026-03-10T11:10:00Z",
+    "active_frame_id": "frame-04",
+    "refresh_interval_seconds": 300,
+    "frames": [
+      {
+        "frame_id": "frame-01",
+        "label": "11:08Z",
+        "event_time": "2026-03-10T11:08:00Z",
+        "valid_time": "2026-03-10T11:08:00Z",
+        "horizon_hours": 0,
+        "source_bindings": [
+          {
+            "source_id": "surface-stations",
+            "revision": "surface-stations-1741604880",
+            "tilejson_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/surface-stations/tilejson.json?frame_id=frame-01&revision=surface-stations-1741604880",
+            "data_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/surface-stations/features.geojson?frame_id=frame-01&revision=surface-stations-1741604880"
+          },
+          {
+            "source_id": "selection-overlay",
+            "revision": "selection-overlay-1741604880",
+            "tilejson_url": null,
+            "data_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/selection-overlay/features.geojson?frame_id=frame-01&revision=selection-overlay-1741604880"
+          }
+        ]
+      },
+      {
+        "frame_id": "frame-02",
+        "label": "11:10Z",
+        "event_time": "2026-03-10T11:10:00Z",
+        "valid_time": "2026-03-10T11:10:00Z",
+        "horizon_hours": 0,
+        "source_bindings": [
+          {
+            "source_id": "cloud-cover",
+            "revision": "cloud-cover-1741605000",
+            "tilejson_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/cloud-cover/tilejson.json?frame_id=frame-02&revision=cloud-cover-1741605000",
+            "data_url": null
+          },
+          {
+            "source_id": "surface-stations",
+            "revision": "surface-stations-1741605000",
+            "tilejson_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/surface-stations/tilejson.json?frame_id=frame-02&revision=surface-stations-1741605000",
+            "data_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/surface-stations/features.geojson?frame_id=frame-02&revision=surface-stations-1741605000"
+          },
+          {
+            "source_id": "alert-overlay",
+            "revision": "alert-overlay-1741605000",
+            "tilejson_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/alert-overlay/tilejson.json?frame_id=frame-02&revision=alert-overlay-1741605000",
+            "data_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/alert-overlay/features.geojson?frame_id=frame-02&revision=alert-overlay-1741605000"
+          },
+          {
+            "source_id": "selection-overlay",
+            "revision": "selection-overlay-1741605000",
+            "tilejson_url": null,
+            "data_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/selection-overlay/features.geojson?frame_id=frame-02&revision=selection-overlay-1741605000"
+          }
+        ]
+      },
+      {
+        "frame_id": "frame-03",
+        "label": "11:12Z",
+        "event_time": "2026-03-10T11:12:00Z",
+        "valid_time": "2026-03-10T11:12:00Z",
+        "horizon_hours": 0,
+        "source_bindings": [
+          {
+            "source_id": "cloud-cover",
+            "revision": "cloud-cover-1741605120",
+            "tilejson_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/cloud-cover/tilejson.json?frame_id=frame-03&revision=cloud-cover-1741605120",
+            "data_url": null
+          },
+          {
+            "source_id": "radar-reflectivity",
+            "revision": "radar-reflectivity-1741605120",
+            "tilejson_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/radar-reflectivity/tilejson.json?frame_id=frame-03&revision=radar-reflectivity-1741605120",
+            "data_url": null
+          },
+          {
+            "source_id": "surface-stations",
+            "revision": "surface-stations-1741605120",
+            "tilejson_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/surface-stations/tilejson.json?frame_id=frame-03&revision=surface-stations-1741605120",
+            "data_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/surface-stations/features.geojson?frame_id=frame-03&revision=surface-stations-1741605120"
+          },
+          {
+            "source_id": "alert-overlay",
+            "revision": "alert-overlay-1741605120",
+            "tilejson_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/alert-overlay/tilejson.json?frame_id=frame-03&revision=alert-overlay-1741605120",
+            "data_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/alert-overlay/features.geojson?frame_id=frame-03&revision=alert-overlay-1741605120"
+          },
+          {
+            "source_id": "selection-overlay",
+            "revision": "selection-overlay-1741605120",
+            "tilejson_url": null,
+            "data_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/selection-overlay/features.geojson?frame_id=frame-03&revision=selection-overlay-1741605120"
+          }
+        ]
+      },
+      {
+        "frame_id": "frame-04",
+        "label": "15:00Z",
+        "event_time": "2026-03-10T11:10:00Z",
+        "valid_time": "2026-03-10T15:00:00Z",
+        "horizon_hours": 4,
+        "source_bindings": [
+          {
+            "source_id": "precipitation-raster",
+            "revision": "precipitation-raster-1741618800",
+            "tilejson_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/precipitation-raster/tilejson.json?frame_id=frame-04&revision=precipitation-raster-1741618800",
+            "data_url": null
+          },
+          {
+            "source_id": "precipitation-contours",
+            "revision": "precipitation-contours-1741618800",
+            "tilejson_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/precipitation-contours/tilejson.json?frame_id=frame-04&revision=precipitation-contours-1741618800",
+            "data_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/precipitation-contours/features.geojson?frame_id=frame-04&revision=precipitation-contours-1741618800"
+          },
+          {
+            "source_id": "cloud-cover",
+            "revision": "cloud-cover-1741618800",
+            "tilejson_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/cloud-cover/tilejson.json?frame_id=frame-04&revision=cloud-cover-1741618800",
+            "data_url": null
+          },
+          {
+            "source_id": "radar-reflectivity",
+            "revision": "radar-reflectivity-1741618800",
+            "tilejson_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/radar-reflectivity/tilejson.json?frame_id=frame-04&revision=radar-reflectivity-1741618800",
+            "data_url": null
+          },
+          {
+            "source_id": "surface-stations",
+            "revision": "surface-stations-1741618800",
+            "tilejson_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/surface-stations/tilejson.json?frame_id=frame-04&revision=surface-stations-1741618800",
+            "data_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/surface-stations/features.geojson?frame_id=frame-04&revision=surface-stations-1741618800"
+          },
+          {
+            "source_id": "alert-overlay",
+            "revision": "alert-overlay-1741618800",
+            "tilejson_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/alert-overlay/tilejson.json?frame_id=frame-04&revision=alert-overlay-1741618800",
+            "data_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/alert-overlay/features.geojson?frame_id=frame-04&revision=alert-overlay-1741618800"
+          },
+          {
+            "source_id": "selection-overlay",
+            "revision": "selection-overlay-1741618800",
+            "tilejson_url": null,
+            "data_url": "/api/weather/maps/scenes/weather-map-scene-us-west/sources/selection-overlay/features.geojson?frame_id=frame-04&revision=selection-overlay-1741618800"
+          }
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "source_id": "precipitation-raster",
+        "layer": "precipitation",
+        "title": "Forecast Precipitation",
+        "encoding": "raster_tile",
+        "min_zoom": 0,
+        "max_zoom": 9,
+        "attribution": "NOAA HRRR",
+        "promote_id": null,
+        "cluster": false
+      },
+      {
+        "source_id": "precipitation-contours",
+        "layer": "precipitation",
+        "title": "Precipitation Isobands",
+        "encoding": "vector_tile",
+        "min_zoom": 2,
+        "max_zoom": 10,
+        "attribution": "NOAA HRRR",
+        "promote_id": "contour_id",
+        "cluster": false
+      },
+      {
+        "source_id": "radar-reflectivity",
+        "layer": "radar_reflectivity",
+        "title": "Radar Reflectivity",
+        "encoding": "raster_tile",
+        "min_zoom": 0,
+        "max_zoom": 10,
+        "attribution": "NOAA NEXRAD",
+        "promote_id": null,
+        "cluster": false
+      },
+      {
+        "source_id": "cloud-cover",
+        "layer": "cloud_cover",
+        "title": "Cloud Cover",
+        "encoding": "raster_tile",
+        "min_zoom": 0,
+        "max_zoom": 8,
+        "attribution": "NOAA GOES",
+        "promote_id": null,
+        "cluster": false
+      },
+      {
+        "source_id": "surface-stations",
+        "layer": "surface_observations",
+        "title": "Surface Stations",
+        "encoding": "vector_tile",
+        "min_zoom": 3,
+        "max_zoom": 12,
+        "attribution": "NOAA METAR",
+        "promote_id": "station_id",
+        "cluster": true
+      },
+      {
+        "source_id": "alert-overlay",
+        "layer": "alert_overlay",
+        "title": "Active Alerts",
+        "encoding": "vector_tile",
+        "min_zoom": 2,
+        "max_zoom": 10,
+        "attribution": "NWS Alerts",
+        "promote_id": "alert_id",
+        "cluster": false
+      },
+      {
+        "source_id": "selection-overlay",
+        "layer": "surface_observations",
+        "title": "Selection Overlay",
+        "encoding": "geo_json",
+        "min_zoom": 0,
+        "max_zoom": 12,
+        "attribution": "Origin Weather",
+        "promote_id": "selection_id",
+        "cluster": false
+      }
+    ],
+    "layers": [
+      {
+        "layer_id": "precipitation-raster",
+        "source_id": "precipitation-raster",
+        "layer": "precipitation",
+        "title": "Forecast Precipitation",
+        "render_mode": "raster",
+        "source_layer": null,
+        "visible_by_default": true,
+        "legend": [
+          {
+            "label": "Light",
+            "color": "#6baed6",
+            "min_value": 0,
+            "max_value": 2
+          },
+          {
+            "label": "Moderate",
+            "color": "#3182bd",
+            "min_value": 2,
+            "max_value": 6
+          },
+          {
+            "label": "Heavy",
+            "color": "#08519c",
+            "min_value": 6,
+            "max_value": null
+          }
+        ],
+        "interaction": {
+          "popup_title": "Forecast precipitation",
+          "property_keys": [
+            "native_identifier",
+            "valid_time"
+          ]
+        }
+      },
+      {
+        "layer_id": "precipitation-contours",
+        "source_id": "precipitation-contours",
+        "layer": "precipitation",
+        "title": "Precipitation Isobands",
+        "render_mode": "fill",
+        "source_layer": "precipitation_contours",
+        "visible_by_default": false,
+        "legend": [
+          {
+            "label": "Watch",
+            "color": "#9ecae1",
+            "min_value": 0,
+            "max_value": 1
+          },
+          {
+            "label": "Advisory",
+            "color": "#6baed6",
+            "min_value": 1,
+            "max_value": 3
+          },
+          {
+            "label": "Severe",
+            "color": "#2171b5",
+            "min_value": 3,
+            "max_value": null
+          }
+        ],
+        "interaction": {
+          "popup_title": "Precipitation band",
+          "property_keys": [
+            "precipitation_rate",
+            "probability"
+          ]
+        }
+      },
+      {
+        "layer_id": "radar-reflectivity",
+        "source_id": "radar-reflectivity",
+        "layer": "radar_reflectivity",
+        "title": "Radar Reflectivity",
+        "render_mode": "raster",
+        "source_layer": null,
+        "visible_by_default": true,
+        "legend": [
+          {
+            "label": "Light",
+            "color": "#c7e9b4",
+            "min_value": null,
+            "max_value": 20
+          },
+          {
+            "label": "Moderate",
+            "color": "#41ab5d",
+            "min_value": 20,
+            "max_value": 40
+          },
+          {
+            "label": "Strong",
+            "color": "#005a32",
+            "min_value": 40,
+            "max_value": null
+          }
+        ],
+        "interaction": {
+          "popup_title": "Radar",
+          "property_keys": [
+            "native_identifier",
+            "valid_time"
+          ]
+        }
+      },
+      {
+        "layer_id": "cloud-cover",
+        "source_id": "cloud-cover",
+        "layer": "cloud_cover",
+        "title": "Cloud Cover",
+        "render_mode": "raster",
+        "source_layer": null,
+        "visible_by_default": false,
+        "legend": [
+          {
+            "label": "Sparse",
+            "color": "#bdd7e7",
+            "min_value": null,
+            "max_value": 0.4
+          },
+          {
+            "label": "Broken",
+            "color": "#6baed6",
+            "min_value": 0.4,
+            "max_value": 0.8
+          },
+          {
+            "label": "Overcast",
+            "color": "#2171b5",
+            "min_value": 0.8,
+            "max_value": null
+          }
+        ],
+        "interaction": {
+          "popup_title": "Cloud cover",
+          "property_keys": [
+            "native_identifier",
+            "valid_time"
+          ]
+        }
+      },
+      {
+        "layer_id": "surface-stations",
+        "source_id": "surface-stations",
+        "layer": "surface_observations",
+        "title": "Surface Stations",
+        "render_mode": "circle",
+        "source_layer": "surface_stations",
+        "visible_by_default": true,
+        "legend": [
+          {
+            "label": "Visibility < 5 mi",
+            "color": "#fdae6b",
+            "min_value": null,
+            "max_value": 5
+          },
+          {
+            "label": "Visibility 5-10 mi",
+            "color": "#fd8d3c",
+            "min_value": 5,
+            "max_value": 10
+          },
+          {
+            "label": "Visibility > 10 mi",
+            "color": "#e6550d",
+            "min_value": 10,
+            "max_value": null
+          }
+        ],
+        "interaction": {
+          "popup_title": "Surface station",
+          "property_keys": [
+            "station_id",
+            "visibility",
+            "wind_speed10m"
+          ]
+        }
+      },
+      {
+        "layer_id": "alert-overlay",
+        "source_id": "alert-overlay",
+        "layer": "alert_overlay",
+        "title": "Active Alerts",
+        "render_mode": "line",
+        "source_layer": "alerts",
+        "visible_by_default": true,
+        "legend": [
+          {
+            "label": "Moderate",
+            "color": "#fdae6b",
+            "min_value": null,
+            "max_value": null
+          },
+          {
+            "label": "Severe",
+            "color": "#e6550d",
+            "min_value": null,
+            "max_value": null
+          }
+        ],
+        "interaction": {
+          "popup_title": "Weather alert",
+          "property_keys": [
+            "headline",
+            "severity",
+            "effective_at"
+          ]
+        }
+      },
+      {
+        "layer_id": "selection-overlay",
+        "source_id": "selection-overlay",
+        "layer": "surface_observations",
+        "title": "Selection Overlay",
+        "render_mode": "symbol",
+        "source_layer": null,
+        "visible_by_default": false,
+        "legend": [],
+        "interaction": {
+          "popup_title": "Selection",
+          "property_keys": [
+            "selection_label",
+            "selection_kind"
+          ]
+        }
+      }
+    ]
+  }
+}

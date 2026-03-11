@@ -6,6 +6,10 @@ use error_model::{InstitutionalError, InstitutionalResult};
 use trading_errors::TradingError;
 use trading_sim::{DeterministicBacktestEngine, SweepJob, run_trend_sweep};
 
+mod weather;
+
+pub use weather::*;
+
 const SERVICE_NAME: &str = "quant-research-service";
 const DOMAIN_NAME: &str = "capital_markets_research";
 const APPROVED_WORKFLOWS: &[&str] = &["quant_strategy_promotion"];

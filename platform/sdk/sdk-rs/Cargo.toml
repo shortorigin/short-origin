@@ -16,6 +16,7 @@ serde.workspace = true
 [dev-dependencies]
 chrono.workspace = true
 identity = { path = "../../../shared/identity" }
+serde_json.workspace = true
 tokio.workspace = true
 
 [lints]

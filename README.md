@@ -93,6 +93,18 @@ cargo xtask verify profile ui
 cargo xtask ui-hardening
 ```
 
+For Rust workspace hygiene and tracing workflows, use:
+
+```bash
+cargo rust-audit
+cargo rust-clean incremental
+cargo rust-trace desktop --dry-run
+```
+
+The root workspace defaults to lean daily development with reduced `dev` debuginfo, an opt-in
+`debugging` profile for richer debugger sessions, and stripped `release` debuginfo to keep
+workspace artifact growth under control.
+
 ## Delivery and Release
 
 Origin uses a GitHub-native, trunk-based delivery model:

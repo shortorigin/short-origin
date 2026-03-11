@@ -3,6 +3,8 @@ use contracts::{
     EvidenceManifestV1, ExceptionRecordV1, ExperimentResultV1, FillV1, MarketDataBatchV1,
     ModelApprovalV1, OrderRequestV1, PolicyDecisionV1, PortfolioSnapshotV1,
     PromotionRecommendationV1, RiskRecordV1, TradingRiskSnapshotV1, TreasuryDisbursementRecordedV1,
+    WeatherAlertFeedV1, WeatherAvailabilityV1, WeatherFeatureSliceV1, WeatherMapSceneV1,
+    WeatherViewV1,
 };
 use events::RecordedEventV1;
 use identity::ActorV1;
@@ -79,6 +81,36 @@ pub struct TreasuryDisbursementRecordV1 {
 pub struct MarketDatasetRecordV1 {
     pub id: String,
     pub dataset: MarketDataBatchV1,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct WeatherDatasetRecordV1 {
+    pub id: String,
+    pub availability: WeatherAvailabilityV1,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct WeatherFeatureProductRecordV1 {
+    pub id: String,
+    pub feature_slice: WeatherFeatureSliceV1,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct WeatherAlertRecordV1 {
+    pub id: String,
+    pub alert_feed: WeatherAlertFeedV1,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct WeatherViewProductRecordV1 {
+    pub id: String,
+    pub view: WeatherViewV1,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct WeatherMapSceneRecordV1 {
+    pub id: String,
+    pub scene: WeatherMapSceneV1,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

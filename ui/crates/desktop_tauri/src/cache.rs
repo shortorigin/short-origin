@@ -164,17 +164,22 @@ mod tests {
     use std::fs;
     use std::path::PathBuf;
     use std::process;
+    use std::sync::atomic::{AtomicU64, Ordering};
     use std::time::{SystemTime, UNIX_EPOCH};
+
+    static NEXT_TEMP_ID: AtomicU64 = AtomicU64::new(0);
 
     fn temp_file_path() -> PathBuf {
         let now = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap_or_default()
             .as_nanos();
+        let sequence = NEXT_TEMP_ID.fetch_add(1, Ordering::Relaxed);
         std::env::temp_dir().join(format!(
-            "desktop_tauri_cache_{}_{}.json",
+            "desktop_tauri_cache_{}_{}_{}.json",
             process::id(),
-            now
+            now,
+            sequence
         ))
     }
 
@@ -183,8 +188,13 @@ mod tests {
             .duration_since(UNIX_EPOCH)
             .unwrap_or_default()
             .as_nanos();
-        let path =
-            std::env::temp_dir().join(format!("desktop_tauri_cache_dir_{}_{}", process::id(), now));
+        let sequence = NEXT_TEMP_ID.fetch_add(1, Ordering::Relaxed);
+        let path = std::env::temp_dir().join(format!(
+            "desktop_tauri_cache_dir_{}_{}_{}",
+            process::id(),
+            now,
+            sequence
+        ));
         fs::create_dir_all(&path).expect("create temp dir");
         path
     }

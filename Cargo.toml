@@ -51,6 +51,7 @@ members = [
   "services/approval-service",
   "services/risk-service",
   "services/evidence-service",
+  "services/meteorological-service",
   "workflows/engine",
   "workflows/knowledge_publication",
   "workflows/payroll",
@@ -70,6 +71,7 @@ members = [
   "workflows/continuity_activation",
   "workflows/disaster_recovery_test",
   "workflows/quant_strategy_promotion",
+  "workflows/weather_ingestion",
   "agents/runtime",
   "ui/crates/shrs_core_headless",
   "ui/crates/system_shell_contract",
@@ -81,6 +83,7 @@ members = [
   "ui/crates/apps/control_center",
   "ui/crates/apps/settings",
   "ui/crates/apps/terminal",
+  "ui/crates/apps/weather",
   "ui/crates/desktop_runtime",
   "ui/crates/site",
   "ui/crates/desktop_tauri",
@@ -97,6 +100,7 @@ version = "0.1.0"
 [workspace.dependencies]
 base64 = "0.22.1"
 chrono = { version = "0.4.44", features = ["clock", "serde"] }
+console-subscriber = "0.5.0"
 console_error_panic_hook = "0.1.7"
 futures = "0.3.32"
 hex = "0.4.3"
@@ -127,8 +131,9 @@ tauri-plugin-opener = "2.5.3"
 tempfile = "3.27.0"
 thiserror = "2.0.18"
 toml = "0.8.23"
-tokio = { version = "1.50.0", features = ["macros", "rt-multi-thread", "time"] }
+tokio = { version = "1.50.0", features = ["macros", "rt-multi-thread", "time", "tracing"] }
 tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.22", features = ["env-filter", "fmt", "json", "tracing"] }
 uuid = { version = "1.22.0", features = ["js", "serde", "v4"] }
 wasm-bindgen = "0.2.114"
 wasm-bindgen-futures = "0.4.64"
@@ -139,6 +144,7 @@ wit-parser = "0.245.1"
 
 [workspace.lints.rust]
 unsafe_code = "deny"
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(tokio_unstable)'] }
 
 [workspace.lints.clippy]
 all = { level = "deny", priority = -1 }
@@ -155,3 +161,16 @@ struct_excessive_bools = "allow"
 too_many_arguments = "allow"
 too_many_lines = "allow"
 uninlined_format_args = "allow"
+
+[profile.dev]
+debug = "line-tables-only"
+
+[profile.dev.package."*"]
+debug = false
+
+[profile.debugging]
+inherits = "dev"
+debug = true
+
+[profile.release]
+strip = "debuginfo"

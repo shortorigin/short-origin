@@ -1,0 +1,5 @@
+{
+  "name": "WeatherAlertFeedV1",
+  "version": "v1",
+  "fields": ["feed_id", "region_id", "generated_at", "alerts"]
+}

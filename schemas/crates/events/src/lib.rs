@@ -9,8 +9,10 @@ use telemetry::{CausationId, CorrelationId, DecisionRef};
 use uuid::Uuid;
 
 mod knowledge;
+mod weather;
 
 pub use knowledge::*;
+pub use weather::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct EventEnvelopeV1 {

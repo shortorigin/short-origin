@@ -1303,6 +1303,46 @@ dependencies = [
 ]
 
 [[package]]
+name = "console-api"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e8599749b6667e2f0c910c1d0dff6901163ff698a52d5a39720f61b5be4b20d3"
+dependencies = [
+ "futures-core",
+ "prost",
+ "prost-types",
+ "tonic",
+ "tonic-prost",
+ "tracing-core",
+]
+
+[[package]]
+name = "console-subscriber"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fb4915b7d8dd960457a1b6c380114c2944f728e7c65294ab247ae6b6f1f37592"
+dependencies = [
+ "console-api",
+ "crossbeam-channel",
+ "crossbeam-utils",
+ "futures-task",
+ "hdrhistogram",
+ "humantime",
+ "hyper-util",
+ "prost",
+ "prost-types",
+ "serde",
+ "serde_json",
+ "thread_local",
+ "tokio",
+ "tokio-stream",
+ "tonic",
+ "tracing",
+ "tracing-core",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "console_error_panic_hook"
 version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2079,6 +2119,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "desktop_app_weather"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "contracts",
+ "desktop_app_contract",
+ "leptos",
+ "sdk-rs",
+ "serde",
+ "serde_json",
+ "system_ui",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "desktop_runtime"
 version = "0.1.0"
 dependencies = [
@@ -2086,6 +2141,7 @@ dependencies = [
  "desktop_app_control_center",
  "desktop_app_settings",
  "desktop_app_terminal",
+ "desktop_app_weather",
  "futures",
  "js-sys",
  "leptos",
@@ -2118,6 +2174,9 @@ dependencies = [
  "tauri-build",
  "tauri-plugin-notification",
  "tauri-plugin-opener",
+ "telemetry",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -3605,6 +3664,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "hdrhistogram"
+version = "7.5.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "765c9198f173dd59ce26ff9f95ef0aafd0a0fe01fb9d72841bc5066a4c06511d"
+dependencies = [
+ "base64 0.21.7",
+ "byteorder",
+ "flate2",
+ "nom 7.1.3",
+ "num-traits",
+]
+
+[[package]]
 name = "headers"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4496,6 +4568,7 @@ dependencies = [
  "policy-service",
  "quick-xml 0.39.2",
  "reqwest",
+ "sdk-rs",
  "serde_json",
  "sha2",
  "surrealdb-model",
@@ -5124,6 +5197,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "matchers"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d1525a2a28c7f4fa0fc98bb91ae755d1e2d1505079e05539e35bc876b5d65ae9"
+dependencies = [
+ "regex-automata",
+]
+
+[[package]]
 name = "matches"
 version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5255,6 +5337,19 @@ dependencies = [
  "uuid",
  "zip 7.2.0",
  "zstd",
+]
+
+[[package]]
+name = "meteorological-service"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "contracts",
+ "error-model",
+ "events",
+ "serde",
+ "serde_json",
+ "toml 0.8.23",
 ]
 
 [[package]]
@@ -7054,6 +7149,8 @@ dependencies = [
  "chrono",
  "contracts",
  "error-model",
+ "sdk-rs",
+ "serde",
  "serde_json",
  "toml 0.8.23",
  "trading-core",
@@ -7141,9 +7238,9 @@ dependencies = [
 
 [[package]]
 name = "quick_cache"
-version = "0.6.18"
+version = "0.6.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7ada44a88ef953a3294f6eb55d2007ba44646015e18613d2f213016379203ef3"
+checksum = "530e84778a55de0f52645a51d4e3b9554978acd6a1e7cd50b6a6784692b3029e"
 dependencies = [
  "ahash 0.8.12",
  "equivalent",
@@ -8189,6 +8286,7 @@ dependencies = [
  "identity",
  "lattice-config",
  "serde",
+ "serde_json",
  "tokio",
 ]
 
@@ -8591,6 +8689,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "sharded-slab"
+version = "0.1.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f40ca3c46823713e0d4209592e8d6e826aa57e928f09752619fc696c499637f6"
+dependencies = [
+ "lazy_static",
+]
+
+[[package]]
 name = "shlex"
 version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8677,6 +8784,8 @@ dependencies = [
  "leptos_meta",
  "leptos_router",
  "platform_host_web",
+ "telemetry",
+ "tracing",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
@@ -9893,9 +10002,14 @@ dependencies = [
 name = "telemetry"
 version = "0.1.0"
 dependencies = [
+ "console-subscriber",
+ "js-sys",
  "serde",
  "serde_json",
+ "tracing",
+ "tracing-subscriber",
  "uuid",
+ "web-sys",
 ]
 
 [[package]]
@@ -10087,6 +10201,7 @@ dependencies = [
  "pin-project-lite",
  "socket2",
  "tokio-macros",
+ "tracing",
  "windows-sys 0.61.2",
 ]
 
@@ -10427,6 +10542,49 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "db97caf9d906fbde555dd62fa95ddba9eecfd14cb388e4f491a66d74cd5fb79a"
 dependencies = [
  "once_cell",
+ "valuable",
+]
+
+[[package]]
+name = "tracing-log"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee855f1f400bd0e5c02d150ae5de3840039a3f54b025156404e34c23c03f47c3"
+dependencies = [
+ "log",
+ "once_cell",
+ "tracing-core",
+]
+
+[[package]]
+name = "tracing-serde"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "704b1aeb7be0d0a84fc9828cae51dab5970fee5088f83d1dd7ee6f6246fc6ff1"
+dependencies = [
+ "serde",
+ "tracing-core",
+]
+
+[[package]]
+name = "tracing-subscriber"
+version = "0.3.22"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2f30143827ddab0d256fd843b7a66d164e9f271cfa0dde49142c5ca0ca291f1e"
+dependencies = [
+ "matchers",
+ "nu-ansi-term",
+ "once_cell",
+ "regex-automata",
+ "serde",
+ "serde_json",
+ "sharded-slab",
+ "smallvec",
+ "thread_local",
+ "tracing",
+ "tracing-core",
+ "tracing-log",
+ "tracing-serde",
 ]
 
 [[package]]
@@ -10880,6 +11038,12 @@ dependencies = [
  "outref",
  "vsimd",
 ]
+
+[[package]]
+name = "valuable"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ba73ea9cf16a25df0c8caa16c51acb937d5712a8429db78a3ee29d5dcacd3a65"
 
 [[package]]
 name = "vart"
@@ -11369,6 +11533,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cd48d1679b6858988cb96b154dda0ec5bbb09275b71db46057be37332d5477be"
 dependencies = [
  "wast",
+]
+
+[[package]]
+name = "weather_ingestion"
+version = "0.1.0"
+dependencies = [
+ "approval-service",
+ "contracts",
+ "enforcement",
+ "error-model",
+ "events",
+ "evidence-sdk",
+ "evidence-service",
+ "identity",
+ "meteorological-service",
+ "orchestrator",
+ "policy-sdk",
+ "policy-service",
+ "serde_json",
+ "tokio",
 ]
 
 [[package]]
@@ -12248,6 +12432,7 @@ dependencies = [
  "serde_json",
  "serde_yaml_ng",
  "sha2",
+ "tempfile",
  "toml 0.8.23",
 ]
 

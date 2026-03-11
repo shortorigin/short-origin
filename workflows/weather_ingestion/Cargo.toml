@@ -1,0 +1,27 @@
+[package]
+name = "weather_ingestion"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+version.workspace = true
+
+[dependencies]
+contracts = { path = "../../schemas/crates/contracts" }
+enforcement = { path = "../../platform/runtime/enforcement" }
+evidence-sdk = { path = "../../shared/evidence-sdk" }
+error-model = { path = "../../shared/error-model" }
+events = { path = "../../schemas/crates/events" }
+identity = { path = "../../shared/identity" }
+meteorological-service = { path = "../../services/meteorological-service" }
+orchestrator = { path = "../../platform/runtime/orchestrator" }
+policy-sdk = { path = "../../shared/policy-sdk" }
+
+[dev-dependencies]
+approval-service = { path = "../../services/approval-service" }
+evidence-service = { path = "../../services/evidence-service" }
+policy-service = { path = "../../services/policy-service" }
+serde_json.workspace = true
+tokio.workspace = true
+
+[lints]
+workspace = true

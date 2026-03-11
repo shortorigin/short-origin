@@ -1,0 +1,75 @@
+{
+  "issue_id": 137,
+  "issue_url": "https://github.com/shortorigin/origin/issues/137",
+  "branch": "infra/137-repo-main-consolidation",
+  "primary_architectural_plane": "cross-layer",
+  "owning_subsystem": "repository git workflow, workspace stabilization, branch integration, and repo-owned validation",
+  "architectural_references": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "docs/architecture/layer-boundaries.md",
+    "DEVELOPMENT_MODEL.md",
+    "docs/process/github-workflow-migration.md",
+    "docs/process/execution-artifacts.md"
+  ],
+  "allowed_touchpoints": [
+    "plans/",
+    "DEVELOPMENT_MODEL.md",
+    "any repository paths touched by the merged branches and required stabilization fixes",
+    "git refs and tags"
+  ],
+  "non_goals": [
+    "Do not bypass branch protection or review policy.",
+    "Do not preserve stale branch tips when a documented superseding reconciliation is safer.",
+    "Do not discard legitimate work without explicit audit notes in the issue and execution artifacts."
+  ],
+  "scope_in": [
+    "Commit and validate the current refactor/136-rust-build-hygiene-tracing-baseline working tree.",
+    "Create an integration branch from origin/main and carry the issue-linked execution artifact bundle there.",
+    "Merge refactor/129-core-runtime-storage-upgrades, refactor/131-edition-2024-rust-modernization, feature/121-meteorological-intelligence, and committed refactor/136-rust-build-hygiene-tracing-baseline.",
+    "Reconcile feature/125-surrealdb-data-plane-delegation only through a curated additive follow-up commit if it still contains behavior missing from the integrated tree.",
+    "Stabilize the resulting branch until the repo-level and UI-level validation gates pass.",
+    "Archive and prune already-landed, derivative, and superseded branches after main reflects the integrated state."
+  ],
+  "scope_out": [
+    "Unrelated product changes outside the identified branch consolidation set.",
+    "Promoting stale stash-only note or report artifacts into main.",
+    "Long-lived placeholder behavior beyond narrow temporary stabilization stubs."
+  ],
+  "target_paths": [
+    "plans/",
+    "DEVELOPMENT_MODEL.md",
+    "workspace paths changed by the merged branches",
+    "shared/governed-storage/",
+    "ui/",
+    "xtask/"
+  ],
+  "acceptance_criteria": [
+    "The integration branch exists and carries the issue-linked task contract and execution plan.",
+    "refactor/136 is committed and validated before it is merged into the consolidation branch.",
+    "Legitimate remaining work from 129, 131, 121, and 136 is integrated into one validated branch.",
+    "feature/125 is either reconciled through one curated additive commit or explicitly documented as superseded.",
+    "cargo fmt --all --check, cargo verify-repo, cargo xtask verify profile ui, and cargo xtask ui-hardening pass on the final integration result.",
+    "Archive tags exist for every pruned branch that is not merged directly.",
+    "Already-landed, derivative, and merged branches are pruned only after main contains the validated result."
+  ],
+  "validation_commands": [
+    "cargo check --workspace",
+    "cargo xtask verify profile ui",
+    "cargo test -p xtask",
+    "cargo test -p telemetry",
+    "cargo check -p desktop_tauri",
+    "cargo xtask ui-hardening",
+    "cargo fmt --all --check",
+    "cargo verify-repo"
+  ],
+  "validation_artifacts": [
+    "Passing focused branch merge validation output",
+    "Passing final repo and UI gate output",
+    "Archive tags for pruned branches",
+    "Issue comment summarizing discarded stash-only note artifacts"
+  ],
+  "rollback_path": "Keep the integration branch and archive tags until main reflects the validated result, so the branch merges or reconciliation commits can be reverted together if needed.",
+  "exec_plan_required": true,
+  "exec_plan_path": "plans/137-repo-main-consolidation/EXEC_PLAN.md"
+}

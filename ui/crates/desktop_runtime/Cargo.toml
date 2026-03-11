@@ -13,6 +13,7 @@ csr = [
   "desktop_app_control_center/csr",
   "desktop_app_terminal/csr",
   "desktop_app_settings/csr",
+  "desktop_app_weather/csr",
 ]
 desktop-tauri = ["csr"]
 
@@ -21,6 +22,7 @@ desktop_app_contract = { path = "../desktop_app_contract", default-features = fa
 desktop_app_control_center = { path = "../apps/control_center", default-features = false }
 desktop_app_terminal = { path = "../apps/terminal", default-features = false }
 desktop_app_settings = { path = "../apps/settings", default-features = false }
+desktop_app_weather = { path = "../apps/weather", default-features = false }
 futures.workspace = true
 js-sys.workspace = true
 leptos = { workspace = true, default-features = false }

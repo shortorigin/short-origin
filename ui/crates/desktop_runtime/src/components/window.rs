@@ -8,7 +8,7 @@ use desktop_app_contract::{AppMountContext, AppServices, ApplicationId, Capabili
 use leptos::ev::MouseEvent;
 use leptos::prelude::GetValue;
 use leptos::task::spawn_local;
-use sdk_rs::{InstitutionalPlatformClientV1, ReleasedUiAppV1};
+use sdk_rs::{InstitutionalPlatformClientV1, ReleasedUiAppV1, WeatherPlatformSnapshotV1};
 use system_ui::components::{
     WindowControls as SystemWindowControls, WindowFrame as SystemWindowFrame,
     WindowTitleBar as SystemWindowTitleBar,
@@ -32,6 +32,14 @@ fn try_set_pointer_capture(ev: &web_sys::PointerEvent) {
 
 #[cfg(not(target_arch = "wasm32"))]
 fn try_set_pointer_capture(_: &web_sys::PointerEvent) {}
+
+fn load_platform_weather_snapshot() -> WeatherPlatformSnapshotV1 {
+    serde_json::from_str(include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../../testing/fixtures/weather/run-2026-03-10/platform_snapshot.json"
+    )))
+    .expect("weather platform snapshot fixture")
+}
 
 #[component]
 pub(super) fn DesktopWindow(window_id: WindowId) -> impl IntoView {
@@ -377,6 +385,7 @@ fn ManagedWindowBody(window_id: WindowId) -> impl IntoView {
             true,
         ),
     );
+    let platform_weather = RwSignal::new(load_platform_weather_snapshot());
     let services = StoredValue::new_local(AppServices::new(
         app_id.clone(),
         command_sender,
@@ -390,6 +399,7 @@ fn ManagedWindowBody(window_id: WindowId) -> impl IntoView {
         theme_high_contrast.read_only(),
         theme_reduced_motion.read_only(),
         platform_dashboard.read_only(),
+        platform_weather.read_only(),
         shell::build_command_service(
             runtime.clone(),
             app_id.clone(),

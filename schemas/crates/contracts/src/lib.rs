@@ -12,9 +12,11 @@ use uuid::Uuid;
 
 mod decision;
 mod knowledge;
+mod weather;
 
 pub use decision::*;
 pub use knowledge::*;
+pub use weather::*;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "snake_case")]

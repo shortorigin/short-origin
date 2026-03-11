@@ -1,0 +1,2 @@
+version = "v1"
+required_evidence = ["weather_dataset", "weather_feature_product", "weather_alert", "provenance_record"]

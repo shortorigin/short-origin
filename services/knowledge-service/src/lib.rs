@@ -34,6 +34,10 @@ use surrealdb_model::{EventRecordV1, KnowledgeChunkRecordV1};
 use telemetry::DecisionRef;
 use trading_core::{Clock, IdGenerator, SystemClock, SystemIdGenerator};
 
+mod weather;
+
+pub use weather::*;
+
 const SERVICE_NAME: &str = "knowledge-service";
 const DOMAIN_NAME: &str = "data_knowledge";
 const APPROVED_WORKFLOWS: &[&str] = &["knowledge_publication", "record_retention"];
@@ -595,17 +599,17 @@ where
             }
             return Ok(sources);
         }
-        if let Some(capsule_id) = &request.capsule_id {
-            if let Some(capsule) = repositories.load_capsule(capsule_id).await? {
-                let sources = repositories.load_sources(&capsule.source_ids).await?;
-                if sources.len() != capsule.source_ids.len() {
-                    return Err(InstitutionalError::not_found(
-                        knowledge_context("resolve_sources"),
-                        "one or more capsule knowledge sources",
-                    ));
-                }
-                return Ok(sources);
+        if let Some(capsule_id) = &request.capsule_id
+            && let Some(capsule) = repositories.load_capsule(capsule_id).await?
+        {
+            let sources = repositories.load_sources(&capsule.source_ids).await?;
+            if sources.len() != capsule.source_ids.len() {
+                return Err(InstitutionalError::not_found(
+                    knowledge_context("resolve_sources"),
+                    "one or more capsule knowledge sources",
+                ));
             }
+            return Ok(sources);
         }
         Ok(Vec::new())
     }
@@ -3285,30 +3289,29 @@ mod tests {
             .expect("publish");
         assert_eq!(capsule.source_count, 4);
 
-        let analysis = service
-            .generate_analysis(
-                &repositories,
-                MacroFinancialAnalysisRequestV1 {
-                    analysis_id: "analysis-1".to_string(),
-                    objective: AnalysisObjectiveV1::PolicyEval,
-                    horizon: AnalysisHorizonV1::Nowcast,
-                    coverage: AnalysisCoverageV1 {
-                        countries: vec!["Japan".to_string(), "Brazil".to_string()],
-                        regions: vec!["Asia".to_string(), "Latin America".to_string()],
-                        currencies: vec!["JPY".to_string(), "BRL".to_string()],
-                        fx_pairs: vec!["USD/JPY".to_string(), "USD/BRL".to_string()],
-                        asset_classes: vec!["rates".to_string(), "credit".to_string()],
-                    },
-                    data_vintage: Some("2026-03-09".to_string()),
-                    source_ids: Vec::new(),
-                    capsule_id: Some(capsule.capsule_id.clone()),
-                    direct_inputs: contracts::MacroFinancialDirectInputsV1::default(),
-                    classification: Classification::Internal,
-                    constraints: SourceConstraintsV1::default(),
+        let analysis = Box::pin(service.generate_analysis(
+            &repositories,
+            MacroFinancialAnalysisRequestV1 {
+                analysis_id: "analysis-1".to_string(),
+                objective: AnalysisObjectiveV1::PolicyEval,
+                horizon: AnalysisHorizonV1::Nowcast,
+                coverage: AnalysisCoverageV1 {
+                    countries: vec!["Japan".to_string(), "Brazil".to_string()],
+                    regions: vec!["Asia".to_string(), "Latin America".to_string()],
+                    currencies: vec!["JPY".to_string(), "BRL".to_string()],
+                    fx_pairs: vec!["USD/JPY".to_string(), "USD/BRL".to_string()],
+                    asset_classes: vec!["rates".to_string(), "credit".to_string()],
                 },
-            )
-            .await
-            .expect("analysis");
+                data_vintage: Some("2026-03-09".to_string()),
+                source_ids: Vec::new(),
+                capsule_id: Some(capsule.capsule_id.clone()),
+                direct_inputs: contracts::MacroFinancialDirectInputsV1::default(),
+                classification: Classification::Internal,
+                constraints: SourceConstraintsV1::default(),
+            },
+        ))
+        .await
+        .expect("analysis");
 
         assert_eq!(analysis.scenario_matrix.len(), 4);
         assert!(
@@ -3516,30 +3519,29 @@ mod tests {
             Arc::new(SequenceIdGenerator::new("knowledge")),
         );
 
-        let analysis = service
-            .generate_analysis(
-                &repositories,
-                MacroFinancialAnalysisRequestV1 {
-                    analysis_id: "analysis-direct".to_string(),
-                    objective: AnalysisObjectiveV1::RiskMgmt,
-                    horizon: AnalysisHorizonV1::OneToThreeMonths,
-                    coverage: AnalysisCoverageV1 {
-                        countries: vec!["Japan".to_string()],
-                        regions: vec!["Asia".to_string()],
-                        currencies: vec!["JPY".to_string()],
-                        fx_pairs: vec!["USD/JPY".to_string()],
-                        asset_classes: vec!["rates".to_string()],
-                    },
-                    data_vintage: None,
-                    source_ids: Vec::new(),
-                    capsule_id: None,
-                    direct_inputs: sample_direct_inputs(),
-                    classification: Classification::Internal,
-                    constraints: SourceConstraintsV1::default(),
+        let analysis = Box::pin(service.generate_analysis(
+            &repositories,
+            MacroFinancialAnalysisRequestV1 {
+                analysis_id: "analysis-direct".to_string(),
+                objective: AnalysisObjectiveV1::RiskMgmt,
+                horizon: AnalysisHorizonV1::OneToThreeMonths,
+                coverage: AnalysisCoverageV1 {
+                    countries: vec!["Japan".to_string()],
+                    regions: vec!["Asia".to_string()],
+                    currencies: vec!["JPY".to_string()],
+                    fx_pairs: vec!["USD/JPY".to_string()],
+                    asset_classes: vec!["rates".to_string()],
                 },
-            )
-            .await
-            .expect("analysis");
+                data_vintage: None,
+                source_ids: Vec::new(),
+                capsule_id: None,
+                direct_inputs: sample_direct_inputs(),
+                classification: Classification::Internal,
+                constraints: SourceConstraintsV1::default(),
+            },
+        ))
+        .await
+        .expect("analysis");
 
         assert_eq!(analysis.executive_brief.as_of_date, ANALYSIS_AS_OF_DATE);
         assert_eq!(analysis.executive_brief.as_of_timezone, ANALYSIS_TIMEZONE);
@@ -3695,30 +3697,29 @@ mod tests {
             KnowledgeEvidenceUseV1::ContextOnly
         );
 
-        let secondary_only_error = service
-            .generate_analysis(
-                &repositories,
-                MacroFinancialAnalysisRequestV1 {
-                    analysis_id: "analysis-secondary".to_string(),
-                    objective: AnalysisObjectiveV1::PolicyEval,
-                    horizon: AnalysisHorizonV1::Nowcast,
-                    coverage: AnalysisCoverageV1 {
-                        countries: vec!["Japan".to_string()],
-                        regions: Vec::new(),
-                        currencies: vec!["JPY".to_string()],
-                        fx_pairs: vec!["USD/JPY".to_string()],
-                        asset_classes: vec!["rates".to_string()],
-                    },
-                    data_vintage: Some("2026-03-09".to_string()),
-                    source_ids: vec!["source-secondary".to_string()],
-                    capsule_id: None,
-                    direct_inputs: contracts::MacroFinancialDirectInputsV1::default(),
-                    classification: Classification::Internal,
-                    constraints: SourceConstraintsV1::default(),
+        let secondary_only_error = Box::pin(service.generate_analysis(
+            &repositories,
+            MacroFinancialAnalysisRequestV1 {
+                analysis_id: "analysis-secondary".to_string(),
+                objective: AnalysisObjectiveV1::PolicyEval,
+                horizon: AnalysisHorizonV1::Nowcast,
+                coverage: AnalysisCoverageV1 {
+                    countries: vec!["Japan".to_string()],
+                    regions: Vec::new(),
+                    currencies: vec!["JPY".to_string()],
+                    fx_pairs: vec!["USD/JPY".to_string()],
+                    asset_classes: vec!["rates".to_string()],
                 },
-            )
-            .await
-            .expect_err("secondary-only analysis should fail");
+                data_vintage: Some("2026-03-09".to_string()),
+                source_ids: vec!["source-secondary".to_string()],
+                capsule_id: None,
+                direct_inputs: contracts::MacroFinancialDirectInputsV1::default(),
+                classification: Classification::Internal,
+                constraints: SourceConstraintsV1::default(),
+            },
+        ))
+        .await
+        .expect_err("secondary-only analysis should fail");
         assert!(matches!(
             secondary_only_error,
             InstitutionalError::NotFound { .. }
