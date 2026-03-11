@@ -12,5 +12,9 @@ events = { path = "../../schemas/crates/events" }
 futures.workspace = true
 storage_backend = { package = "surrealdb-access", path = "../surrealdb-access" }
 
+[dev-dependencies]
+chrono.workspace = true
+tokio.workspace = true
+
 [lints]
 workspace = true

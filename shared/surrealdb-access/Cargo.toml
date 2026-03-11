@@ -11,7 +11,7 @@ error-model = { path = "../error-model" }
 events = { path = "../../schemas/crates/events" }
 serde.workspace = true
 serde_json.workspace = true
-surrealdb = { version = "2.2.1", default-features = false, features = ["kv-mem"] }
+surrealdb = { version = "2.2.1", default-features = false, features = ["kv-mem", "protocol-ws"] }
 surrealdb-model = { path = "../../schemas/crates/surrealdb-model" }
 
 [dev-dependencies]

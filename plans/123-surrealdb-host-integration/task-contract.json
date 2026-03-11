@@ -1,0 +1,75 @@
+{
+  "issue_id": 123,
+  "issue_url": "https://github.com/shortorigin/origin/issues/123",
+  "branch": "feature/123-surrealdb-host-integration",
+  "primary_architectural_plane": "cross-layer",
+  "owning_subsystem": "governed SurrealDB connectivity across shared storage, runtime-facing configuration, and infrastructure documentation",
+  "architectural_references": [
+    "ARCHITECTURE.md",
+    "docs/architecture/layer-boundaries.md",
+    "docs/architecture/runtime-composition.md",
+    "docs/adr/0004-wasmcloud-first-ui-shell.md",
+    "docs/adr/0007-consistency-semantics-by-criticality.md",
+    "docs/adr/0010-durable-workflow-execution-plane.md"
+  ],
+  "allowed_touchpoints": [
+    "shared/",
+    "platform/",
+    "services/",
+    "workflows/",
+    "infrastructure/",
+    "docs/",
+    "plans/",
+    "Cargo.toml",
+    "Cargo.lock",
+    "README.md"
+  ],
+  "non_goals": [
+    "Do not add direct SurrealDB usage outside shared/surrealdb-access.",
+    "Do not introduce ui/ database connectivity or service-local query strings.",
+    "Do not redesign schema contracts or replace the host-installed SurrealDB deployment model."
+  ],
+  "scope_in": [
+    "Add typed durable SurrealDB connection configuration in the shared access layer.",
+    "Expose governed durable connection helpers alongside the existing test-only in-memory helpers.",
+    "Add connection validation and targeted tests for namespace, database, and connectivity handling.",
+    "Document host-installed SurrealDB runtime expectations, validation, and rollback guidance."
+  ],
+  "scope_out": [
+    "Managed database provisioning outside the current infrastructure model.",
+    "UI feature work or direct database reads from ui/.",
+    "Unrelated contract or workflow redesign."
+  ],
+  "target_paths": [
+    "shared/",
+    "platform/",
+    "services/",
+    "workflows/",
+    "infrastructure/",
+    "docs/",
+    "plans/",
+    "Cargo.toml",
+    "Cargo.lock",
+    "README.md"
+  ],
+  "acceptance_criteria": [
+    "Shared runtime code can connect to a host-installed SurrealDB instance through an explicit governed configuration surface.",
+    "Durable connection setup applies namespace and database selection and reports configuration failures deterministically.",
+    "Tests preserve the in-memory path for local harnesses while adding coverage for durable configuration behavior.",
+    "Repository documentation explains the host integration path, required environment variables, validation commands, and rollback expectations."
+  ],
+  "validation_commands": [
+    "cargo fmt --all --check",
+    "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+    "cargo test --workspace --all-targets",
+    "cargo verify-repo"
+  ],
+  "validation_artifacts": [
+    "Passing surrealdb-access and governed-storage test output",
+    "Updated repository docs for SurrealDB host integration",
+    "Committed execution artifact bundle under plans/123-surrealdb-host-integration/"
+  ],
+  "rollback_path": "Revert the shared storage integration, runtime-facing configuration, tests, and documentation together so the repository returns to the previous in-memory-only storage baseline.",
+  "exec_plan_required": true,
+  "exec_plan_path": "plans/123-surrealdb-host-integration/EXEC_PLAN.md"
+}

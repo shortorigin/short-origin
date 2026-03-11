@@ -2,9 +2,11 @@ use contracts::{
     EvidenceManifestV1, KnowledgeCapsuleV1, KnowledgeEdgeV1, KnowledgePublicationStatusV1,
     KnowledgeSourceV1, MacroFinancialAnalysisV1, TreasuryDisbursementRecordedV1,
 };
-use error_model::{InstitutionalError, InstitutionalResult};
+use error_model::{InstitutionalError, InstitutionalResult, OperationContext};
 use events::RecordedEventV1;
+use surrealdb::engine::any::{self, Any};
 use surrealdb::engine::local::{Db, Mem};
+use surrealdb::opt::auth::Root;
 use surrealdb::{Connection, Surreal};
 use surrealdb_model::{
     EventRecordV1, EvidenceManifestRecordV1, KnowledgeAnalysisRecordV1, KnowledgeCapsuleRecordV1,
@@ -14,11 +16,17 @@ use surrealdb_model::{
 
 pub const DEFAULT_NAMESPACE: &str = "short_origin";
 pub const DEFAULT_DATABASE: &str = "institutional";
+pub const ENV_ENDPOINT: &str = "ORIGIN_SURREALDB_ENDPOINT";
+pub const ENV_NAMESPACE: &str = "ORIGIN_SURREALDB_NAMESPACE";
+pub const ENV_DATABASE: &str = "ORIGIN_SURREALDB_DATABASE";
+pub const ENV_USERNAME: &str = "ORIGIN_SURREALDB_USERNAME";
+pub const ENV_PASSWORD: &str = "ORIGIN_SURREALDB_PASSWORD";
 
 pub use surrealdb::Connection as BackendConnection;
 
 pub type KnowledgeStoreBackend<C> = SurrealRepositoryContext<C>;
 pub type InMemoryKnowledgeStoreBackend = SurrealRepositoryContext<Db>;
+pub type DurableKnowledgeStoreBackend = SurrealRepositoryContext<Any>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct TableCatalog {
@@ -42,6 +50,84 @@ pub const TABLES: TableCatalog = TableCatalog {
     knowledge_analysis: "knowledge_analysis",
     knowledge_edge: "knowledge_edge",
 };
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SurrealConnectionConfig {
+    pub endpoint: String,
+    pub namespace: String,
+    pub database: String,
+    pub username: Option<String>,
+    pub password: Option<String>,
+}
+
+impl SurrealConnectionConfig {
+    pub fn from_env() -> InstitutionalResult<Self> {
+        Self::from_env_with(|key| std::env::var(key).ok())
+    }
+
+    fn from_env_with<F>(mut read: F) -> InstitutionalResult<Self>
+    where
+        F: FnMut(&str) -> Option<String>,
+    {
+        let endpoint = read_required_env(&mut read, ENV_ENDPOINT)?;
+        let namespace = read_optional_env(&mut read, ENV_NAMESPACE)
+            .unwrap_or_else(|| DEFAULT_NAMESPACE.to_string());
+        let database = read_optional_env(&mut read, ENV_DATABASE)
+            .unwrap_or_else(|| DEFAULT_DATABASE.to_string());
+        let username = read_optional_env(&mut read, ENV_USERNAME);
+        let password = read_optional_env(&mut read, ENV_PASSWORD);
+        let config = Self {
+            endpoint,
+            namespace,
+            database,
+            username,
+            password,
+        };
+        config.validate()?;
+        Ok(config)
+    }
+
+    pub fn validate(&self) -> InstitutionalResult<()> {
+        if self.endpoint.trim().is_empty() {
+            return Err(configuration_error(
+                "load-connection-config",
+                format!("environment variable `{ENV_ENDPOINT}` must not be empty"),
+            ));
+        }
+        if !supported_endpoint(self.endpoint.as_str()) {
+            return Err(configuration_error(
+                "load-connection-config",
+                format!(
+                    "endpoint `{}` is not supported; use `ws://`, `wss://`, `mem://`, or `memory`",
+                    self.endpoint
+                ),
+            ));
+        }
+        if self.namespace.trim().is_empty() {
+            return Err(configuration_error(
+                "load-connection-config",
+                "SurrealDB namespace must not be empty",
+            ));
+        }
+        if self.database.trim().is_empty() {
+            return Err(configuration_error(
+                "load-connection-config",
+                "SurrealDB database must not be empty",
+            ));
+        }
+        if requires_root_auth(self.endpoint.as_str())
+            && (self.username.is_none() || self.password.is_none())
+        {
+            return Err(configuration_error(
+                "load-connection-config",
+                format!(
+                    "remote SurrealDB endpoints require both `{ENV_USERNAME}` and `{ENV_PASSWORD}`"
+                ),
+            ));
+        }
+        Ok(())
+    }
+}
 
 pub struct SurrealRepositoryContext<C>
 where
@@ -76,6 +162,14 @@ where
             .use_db(database)
             .await
             .map_err(surreal_error)?;
+        Ok(())
+    }
+
+    pub async fn healthcheck(&self) -> InstitutionalResult<()> {
+        self.db
+            .health()
+            .await
+            .map_err(|error| surreal_operation_error("health", error))?;
         Ok(())
     }
 
@@ -143,6 +237,43 @@ pub async fn connect_in_memory() -> InstitutionalResult<SurrealRepositoryContext
         .use_namespace(DEFAULT_NAMESPACE, DEFAULT_DATABASE)
         .await?;
     Ok(context)
+}
+
+pub async fn connect_durable(
+    config: &SurrealConnectionConfig,
+) -> InstitutionalResult<SurrealRepositoryContext<Any>> {
+    config.validate()?;
+    let db = any::connect(config.endpoint.clone())
+        .await
+        .map_err(|error| surreal_operation_error("connect", error))?;
+    if requires_root_auth(config.endpoint.as_str()) {
+        let username = config.username.as_deref().ok_or_else(|| {
+            configuration_error(
+                "connect",
+                format!("missing `{ENV_USERNAME}` for remote SurrealDB endpoint"),
+            )
+        })?;
+        let password = config.password.as_deref().ok_or_else(|| {
+            configuration_error(
+                "connect",
+                format!("missing `{ENV_PASSWORD}` for remote SurrealDB endpoint"),
+            )
+        })?;
+        db.signin(Root { username, password })
+            .await
+            .map_err(|error| surreal_operation_error("signin", error))?;
+    }
+    let context = SurrealRepositoryContext::new(db);
+    context.healthcheck().await?;
+    context
+        .use_namespace(config.namespace.as_str(), config.database.as_str())
+        .await?;
+    Ok(context)
+}
+
+pub async fn connect_durable_from_env() -> InstitutionalResult<SurrealRepositoryContext<Any>> {
+    let config = SurrealConnectionConfig::from_env()?;
+    connect_durable(&config).await
 }
 
 pub struct WorkflowExecutionRepository<C>
@@ -477,8 +608,53 @@ where
     response.take(0).map_err(surreal_error)
 }
 
+fn read_required_env<F>(read: &mut F, key: &str) -> InstitutionalResult<String>
+where
+    F: FnMut(&str) -> Option<String>,
+{
+    read_optional_env(read, key).ok_or_else(|| {
+        configuration_error(
+            "load-connection-config",
+            format!("environment variable `{key}` is required"),
+        )
+    })
+}
+
+fn read_optional_env<F>(read: &mut F, key: &str) -> Option<String>
+where
+    F: FnMut(&str) -> Option<String>,
+{
+    read(key)
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty())
+}
+
+fn supported_endpoint(endpoint: &str) -> bool {
+    let endpoint = endpoint.trim().to_ascii_lowercase();
+    endpoint == "memory"
+        || endpoint == "mem://"
+        || endpoint.starts_with("ws://")
+        || endpoint.starts_with("wss://")
+}
+
+fn requires_root_auth(endpoint: &str) -> bool {
+    let endpoint = endpoint.trim().to_ascii_lowercase();
+    endpoint.starts_with("ws://") || endpoint.starts_with("wss://")
+}
+
+fn configuration_error(operation: &'static str, message: impl Into<String>) -> InstitutionalError {
+    InstitutionalError::configuration(
+        OperationContext::new("shared/surrealdb-access", operation),
+        message,
+    )
+}
+
 fn surreal_error(error: surrealdb::Error) -> InstitutionalError {
     InstitutionalError::external("surrealdb", None, error.to_string())
+}
+
+fn surreal_operation_error(operation: &'static str, error: surrealdb::Error) -> InstitutionalError {
+    InstitutionalError::external("surrealdb", Some(operation.to_string()), error.to_string())
 }
 
 #[cfg(test)]
@@ -864,5 +1040,73 @@ mod tests {
             .await
             .expect("store edge");
         assert_eq!(edge.edge.from_id, "analysis-1");
+    }
+
+    #[test]
+    fn durable_config_from_env_defaults_namespace_and_database() {
+        let values = std::collections::BTreeMap::from([
+            (ENV_ENDPOINT.to_string(), "ws://127.0.0.1:8000".to_string()),
+            (ENV_USERNAME.to_string(), "root".to_string()),
+            (ENV_PASSWORD.to_string(), "root-password".to_string()),
+        ]);
+        let config =
+            SurrealConnectionConfig::from_env_with(|key| values.get(key).cloned()).expect("config");
+
+        assert_eq!(config.endpoint, "ws://127.0.0.1:8000");
+        assert_eq!(config.namespace, DEFAULT_NAMESPACE);
+        assert_eq!(config.database, DEFAULT_DATABASE);
+    }
+
+    #[test]
+    fn durable_config_requires_remote_credentials() {
+        let error = SurrealConnectionConfig {
+            endpoint: "ws://127.0.0.1:8000".to_string(),
+            namespace: DEFAULT_NAMESPACE.to_string(),
+            database: DEFAULT_DATABASE.to_string(),
+            username: None,
+            password: None,
+        }
+        .validate()
+        .expect_err("remote credentials required");
+
+        assert_eq!(
+            error.category(),
+            error_model::InstitutionalErrorCategory::Configuration
+        );
+        assert!(error.to_string().contains(ENV_USERNAME));
+    }
+
+    #[tokio::test]
+    async fn durable_connection_supports_memory_endpoint_for_runtime_path() {
+        let context = connect_durable(&SurrealConnectionConfig {
+            endpoint: "mem://".to_string(),
+            namespace: DEFAULT_NAMESPACE.to_string(),
+            database: DEFAULT_DATABASE.to_string(),
+            username: None,
+            password: None,
+        })
+        .await
+        .expect("durable memory connection");
+
+        context.healthcheck().await.expect("healthcheck");
+
+        let stored = context
+            .workflow_executions()
+            .store(WorkflowExecutionRecordV1 {
+                id: "wf-durable-1".to_string(),
+                workflow_name: "knowledge_publication".to_string(),
+                trace_ref: "trace-durable-1".to_string(),
+            })
+            .await
+            .expect("store workflow");
+        assert_eq!(stored.id, "wf-durable-1");
+
+        let loaded = context
+            .workflow_executions()
+            .load("wf-durable-1")
+            .await
+            .expect("load workflow")
+            .expect("workflow present");
+        assert_eq!(loaded.workflow_name, "knowledge_publication");
     }
 }

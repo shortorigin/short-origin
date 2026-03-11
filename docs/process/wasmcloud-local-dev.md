@@ -79,6 +79,38 @@ Run the wasmCloud smoke tests:
 cargo test -p wasmcloud-smoke-tests --all-targets
 ```
 
+## Wire Local SurrealDB Access
+
+If SurrealDB is installed on the workstation, start it as the local durable store on loopback:
+
+```bash
+surreal start \
+  --log info \
+  --bind 127.0.0.1:8000 \
+  --user root \
+  --pass "<PASSWORD>" \
+  surrealkv://$HOME/.local/share/origin/surrealdb.db
+```
+
+Export the runtime variables consumed by `shared/governed-storage::connect_from_env()`:
+
+```bash
+export ORIGIN_SURREALDB_ENDPOINT="ws://127.0.0.1:8000"
+export ORIGIN_SURREALDB_USERNAME="root"
+export ORIGIN_SURREALDB_PASSWORD="<PASSWORD>"
+export ORIGIN_SURREALDB_NAMESPACE="short_origin"
+export ORIGIN_SURREALDB_DATABASE="institutional"
+```
+
+Validate the governed storage path before starting other runtime components:
+
+```bash
+cargo test -p surrealdb-access -p governed-storage
+```
+
+The in-memory storage helper remains available for isolated tests, but local runtime verification
+should prefer the durable host-installed SurrealDB path above.
+
 ## Render a Development Lattice Manifest
 
 Render a development manifest with explicit component references and digests:

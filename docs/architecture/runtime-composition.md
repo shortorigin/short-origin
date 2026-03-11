@@ -37,9 +37,26 @@ This document defines how Origin composes at build time, at runtime, and across 
 1. A user interacts with the Leptos/WebAssembly shell.
 2. The shell resolves the active plugin module and invokes typed platform interfaces.
 3. `platform/` routes requests across host boundaries and published service/workflow contracts.
-4. wasmCloud services and workflows execute backend behavior on AWS-hosted runtime infrastructure.
-5. Cloudflare mediates public network ingress and routing to AWS-hosted workloads.
-6. Environment promotion uses digest-pinned manifests and release artifacts rather than rebuilds.
+4. `shared/governed-storage` is the only approved runtime gateway for durable SurrealDB access and
+   loads its connection contract from `ORIGIN_SURREALDB_ENDPOINT`,
+   `ORIGIN_SURREALDB_USERNAME`, `ORIGIN_SURREALDB_PASSWORD`,
+   `ORIGIN_SURREALDB_NAMESPACE`, and `ORIGIN_SURREALDB_DATABASE`.
+5. wasmCloud services and workflows execute backend behavior on AWS-hosted runtime infrastructure.
+6. Cloudflare mediates public network ingress and routing to AWS-hosted workloads.
+7. Environment promotion uses digest-pinned manifests and release artifacts rather than rebuilds.
+
+## Governed SurrealDB Connectivity
+
+- Direct SurrealDB client usage remains isolated to `shared/surrealdb-access`.
+- Runtime consumers use `shared/governed-storage::connect_from_env()` or
+  `shared/governed-storage::connect_durable(...)`; tests and local harnesses may continue using
+  `connect_in_memory()`.
+- The supported durable runtime path is a WebSocket connection to a host-installed SurrealDB
+  service, typically `ws://127.0.0.1:8000` for local and Pulumi-provisioned hosts.
+- Namespace and database selection remain explicit even when callers accept the repository defaults
+  of `short_origin` and `institutional`.
+- Connection or credential misconfiguration is treated as a configuration failure before services
+  enter normal repository operations.
 
 ## Environments and Delivery
 

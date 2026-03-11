@@ -24,6 +24,7 @@ workflow.
 - [Execution Artifacts](process/execution-artifacts.md)
 - [GitHub Governance Rollout](process/github-governance-rollout.md)
 - [GitHub Workflow Migration Note](process/github-workflow-migration.md)
+- [Local wasmCloud development](process/wasmcloud-local-dev.md)
 - [Platform Regression Guardrails](process/platform-regression-guardrails.md)
 - [PR Conflict Reduction Playbook](process/pr-conflict-reduction-playbook.md)
 - [Work Item Migration](process/work-item-migration.md)

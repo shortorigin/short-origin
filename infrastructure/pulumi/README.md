@@ -44,6 +44,23 @@ pulumi config set --secret origin:surrealdbRootPassword "<PASSWORD>"
 ./scripts/deploy.sh dev
 ```
 
+## Runtime Client Contract
+
+Pulumi-configured hosts install and start SurrealDB on `127.0.0.1:8000` with root credentials
+from `origin:surrealdbRootPassword`. Runtime consumers in the repository connect through the
+governed shared storage layer and should receive these environment variables:
+
+```bash
+export ORIGIN_SURREALDB_ENDPOINT="ws://127.0.0.1:8000"
+export ORIGIN_SURREALDB_USERNAME="root"
+export ORIGIN_SURREALDB_PASSWORD="<origin:surrealdbRootPassword>"
+export ORIGIN_SURREALDB_NAMESPACE="short_origin"
+export ORIGIN_SURREALDB_DATABASE="institutional"
+```
+
+Do not add direct SurrealDB client usage outside `shared/surrealdb-access`; services and workflows
+should consume the governed connection helpers exposed by `shared/governed-storage`.
+
 ## Required Environment Variables
 
 - `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION` (or OIDC in CI)
