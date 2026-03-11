@@ -11,11 +11,11 @@ error-model = { path = "../error-model" }
 events = { path = "../../schemas/crates/events" }
 serde.workspace = true
 serde_json.workspace = true
-surrealdb = { version = "2.2.1", default-features = false, features = ["kv-mem", "protocol-ws"] }
+surrealdb.workspace = true
 surrealdb-model = { path = "../../schemas/crates/surrealdb-model" }
 
 [dev-dependencies]
-chrono = { version = "0.4.42", features = ["clock", "serde"] }
+chrono.workspace = true
 identity = { path = "../identity" }
 tokio.workspace = true
 

@@ -9,7 +9,7 @@ version.workspace = true
 serde.workspace = true
 
 [dev-dependencies]
-wit-parser = "0.245.1"
+wit-parser.workspace = true
 
 [lints]
 workspace = true

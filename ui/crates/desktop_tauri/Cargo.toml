@@ -12,11 +12,11 @@ path = "src/main.rs"
 test = false
 
 [build-dependencies]
-tauri-build = { version = "2", default-features = false, features = ["config-json"] }
+tauri-build = { workspace = true, default-features = false, features = ["config-json"] }
 
 [dependencies]
 platform_host = { path = "../platform_host" }
 serde_json.workspace = true
-tauri = { version = "2", default-features = false, features = ["common-controls-v6", "compression", "dynamic-acl", "wry", "x11"] }
-tauri-plugin-notification = "2"
-tauri-plugin-opener = "2"
+tauri = { workspace = true, default-features = false, features = ["common-controls-v6", "compression", "dynamic-acl", "wry", "x11"] }
+tauri-plugin-notification.workspace = true
+tauri-plugin-opener.workspace = true

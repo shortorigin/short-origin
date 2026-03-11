@@ -11,7 +11,7 @@ csr = ["leptos/csr"]
 
 [dependencies]
 futures.workspace = true
-leptos = { version = "0.6", default-features = false }
+leptos = { workspace = true, default-features = false }
 platform_host = { path = "../platform_host" }
 sdk-rs = { path = "../../../platform/sdk/sdk-rs" }
 serde.workspace = true

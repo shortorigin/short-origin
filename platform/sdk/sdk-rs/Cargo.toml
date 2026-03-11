@@ -14,7 +14,7 @@ lattice-config = { path = "../../wasmcloud/lattice-config" }
 serde.workspace = true
 
 [dev-dependencies]
-chrono = { version = "0.4.42", features = ["clock", "serde"] }
+chrono.workspace = true
 identity = { path = "../../../shared/identity" }
 tokio.workspace = true
 

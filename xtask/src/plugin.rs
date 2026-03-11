@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use jsonschema::JSONSchema;
+use jsonschema::{validator_for, Validator};
 use serde::Deserialize;
 use serde_json::Value;
 
@@ -85,7 +85,7 @@ fn validate_manifest_paths(paths: Vec<PathBuf>) -> Result<(), String> {
     let schema_json: Value = serde_json::from_str(&schema_raw)
         .map_err(|error| format!("failed to parse `{}`: {error}", schema_path.display()))?;
     let validator =
-        JSONSchema::compile(&schema_json).map_err(|error| format!("schema error: {error}"))?;
+        validator_for(&schema_json).map_err(|error| format!("schema error: {error}"))?;
 
     let mut defects = Vec::new();
     for path in paths {
@@ -104,7 +104,7 @@ fn validate_manifest_paths(paths: Vec<PathBuf>) -> Result<(), String> {
     }
 }
 
-fn validate_manifest_path(path: &Path, validator: &JSONSchema) -> Result<Vec<String>, String> {
+fn validate_manifest_path(path: &Path, validator: &Validator) -> Result<Vec<String>, String> {
     let raw = fs::read_to_string(path)
         .map_err(|error| format!("failed to read `{}`: {error}", path.display()))?;
     let toml_value: toml::Value = toml::from_str(&raw)
@@ -113,15 +113,12 @@ fn validate_manifest_path(path: &Path, validator: &JSONSchema) -> Result<Vec<Str
         .map_err(|error| format!("TOML conversion failed: {error}"))?;
 
     let mut defects = validator
-        .validate(&json_value)
-        .err()
-        .into_iter()
-        .flatten()
+        .iter_errors(&json_value)
         .map(|error| {
             format!(
                 "{}: schema violation at `{}`: {}",
                 path.display(),
-                error.instance_path,
+                error.instance_path(),
                 error
             )
         })
@@ -247,7 +244,7 @@ fn help() -> String {
 #[cfg(test)]
 mod tests {
     use super::{validate_manifest_path, PluginManifest};
-    use jsonschema::JSONSchema;
+    use jsonschema::{validator_for, Validator};
     use serde_json::Value;
     use std::fs;
     use std::path::{Path, PathBuf};
@@ -265,13 +262,13 @@ mod tests {
         base
     }
 
-    fn load_validator() -> JSONSchema {
+    fn load_validator() -> Validator {
         let workspace_root = crate::common::workspace_root().expect("workspace root");
         let schema_raw =
             fs::read_to_string(workspace_root.join("schemas/contracts/v1/plugin-module-v1.json"))
                 .expect("schema raw");
         let schema_json: Value = serde_json::from_str(&schema_raw).expect("schema json");
-        JSONSchema::compile(&schema_json).expect("validator")
+        validator_for(&schema_json).expect("validator")
     }
 
     fn write_manifest(path: &Path, contents: &str) {

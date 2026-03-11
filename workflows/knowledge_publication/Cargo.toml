@@ -19,7 +19,7 @@ policy-sdk = { path = "../../shared/policy-sdk" }
 
 [dev-dependencies]
 approval-service = { path = "../../services/approval-service" }
-chrono = { version = "0.4.42", features = ["clock", "serde"] }
+chrono.workspace = true
 evidence-service = { path = "../../services/evidence-service" }
 policy-service = { path = "../../services/policy-service" }
 tempfile.workspace = true

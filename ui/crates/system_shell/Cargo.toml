@@ -7,7 +7,7 @@ version.workspace = true
 
 [dependencies]
 futures.workspace = true
-leptos = { version = "0.6", default-features = false }
+leptos = { workspace = true, default-features = false }
 serde_json.workspace = true
 shrs_core_headless = { path = "../shrs_core_headless" }
 system_shell_contract = { path = "../system_shell_contract" }

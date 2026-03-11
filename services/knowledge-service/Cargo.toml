@@ -18,7 +18,7 @@ quick-xml.workspace = true
 reqwest.workspace = true
 serde_json.workspace = true
 sha2.workspace = true
-surrealdb = { version = "2.2.1", default-features = false, features = ["kv-mem"] }
+surrealdb.workspace = true
 surrealdb-access = { path = "../../shared/surrealdb-access" }
 telemetry = { path = "../../shared/telemetry" }
 trading-core = { path = "../../shared/trading-core" }

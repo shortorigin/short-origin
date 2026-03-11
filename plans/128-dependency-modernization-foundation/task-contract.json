@@ -1,0 +1,70 @@
+{
+  "issue_id": 128,
+  "issue_url": "https://github.com/shortorigin/origin/issues/128",
+  "branch": "infra/128-dependency-modernization-foundation",
+  "primary_architectural_plane": "cross-layer",
+  "owning_subsystem": ".github workflow determinism, workspace dependency governance, and xtask validation dependencies",
+  "architectural_references": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "docs/architecture/layer-boundaries.md",
+    "docs/process/execution-artifacts.md",
+    "docs/process/platform-regression-guardrails.md",
+    ".github/AGENTS.md",
+    "xtask/AGENTS.md"
+  ],
+  "allowed_touchpoints": [
+    ".github/",
+    "plans/",
+    "Cargo.toml",
+    "Cargo.lock",
+    "xtask/",
+    "docs/"
+  ],
+  "non_goals": [
+    "Do not perform the SurrealDB, Wasmtime, or Leptos major-version migrations in this phase.",
+    "Do not change runtime, service, or UI behavior outside deterministic validation and manifest-governance needs.",
+    "Do not change the workspace edition in this phase."
+  ],
+  "scope_in": [
+    "Add the umbrella and phase-1 execution-artifact bundles.",
+    "Remove the floating-toolchain hardening blocker in the GitHub workflow validation path.",
+    "Add workspace.package.rust-version = \"1.91\".",
+    "Move governed external dependencies into root workspace inheritance.",
+    "Replace serde_yaml with serde_yaml_ng in xtask and upgrade xtask jsonschema."
+  ],
+  "scope_out": [
+    "UI framework upgrades.",
+    "Non-UI runtime and storage major-version upgrades.",
+    "Edition 2024 uplift."
+  ],
+  "target_paths": [
+    ".github/",
+    "plans/",
+    "Cargo.toml",
+    "Cargo.lock",
+    "xtask/"
+  ],
+  "acceptance_criteria": [
+    "cargo xtask ui-hardening no longer reports a floating Rust toolchain blocker.",
+    "The root workspace manifest centralizes governed external dependencies used across crates or critical runtimes.",
+    "xtask validation behavior remains functionally equivalent after the YAML and schema dependency refresh.",
+    "Phase-1 governance and architecture validation commands pass."
+  ],
+  "validation_commands": [
+    "cargo fmt --all --check",
+    "cargo test -p xtask --all-targets",
+    "cargo xtask architecture audit-boundaries",
+    "cargo xtask github audit-process",
+    "cargo xtask verify profile ui",
+    "cargo xtask ui-hardening"
+  ],
+  "validation_artifacts": [
+    "Passing xtask test and audit output",
+    "Passing UI hardening report without the floating-toolchain finding",
+    "Committed phase-1 plans and manifest updates"
+  ],
+  "rollback_path": "Revert the workflow/toolchain detection fix, root manifest governance changes, xtask dependency refresh, lockfile updates, and phase artifacts together so the repository returns to the previous baseline.",
+  "exec_plan_required": true,
+  "exec_plan_path": "plans/128-dependency-modernization-foundation/EXEC_PLAN.md"
+}

@@ -11,7 +11,7 @@ csr = ["leptos/csr", "desktop_app_contract/csr"]
 
 [dependencies]
 desktop_app_contract = { path = "../../desktop_app_contract", default-features = false }
-leptos = { version = "0.6", default-features = false }
+leptos = { workspace = true, default-features = false }
 platform_host = { path = "../../platform_host" }
 serde.workspace = true
 serde_json.workspace = true

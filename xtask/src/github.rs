@@ -1,10 +1,10 @@
 use crate::architecture::{planes_for_paths, Plane};
 use crate::common::workspace_root;
-use jsonschema::JSONSchema;
+use jsonschema::validator_for;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use serde_yaml::Value as YamlValue;
+use serde_yaml_ng::Value as YamlValue;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Write as _;
 use std::fs;
@@ -659,7 +659,7 @@ fn load_workflow_audits(workspace_root: &Path) -> Result<Vec<WorkflowAudit>, Str
 fn parse_workflow_audit(workspace_root: &Path, path: &str) -> Result<WorkflowAudit, String> {
     let raw = fs::read_to_string(workspace_root.join(path))
         .map_err(|error| format!("failed to read workflow `{path}`: {error}"))?;
-    let parsed: YamlValue = serde_yaml::from_str(&raw)
+    let parsed: YamlValue = serde_yaml_ng::from_str(&raw)
         .map_err(|error| format!("failed to parse workflow `{path}`: {error}"))?;
     let workflow_name = yaml_string(&parsed, "name")
         .ok_or_else(|| format!("workflow `{path}` is missing top-level `name`"))?;
@@ -907,7 +907,7 @@ fn audit_issue_templates(required_fields: &[String]) -> Result<Vec<String>, Stri
     for template in templates {
         let raw = fs::read_to_string(workspace_root.join(template))
             .map_err(|error| format!("failed to read `{template}`: {error}"))?;
-        let yaml: YamlValue = serde_yaml::from_str(&raw)
+        let yaml: YamlValue = serde_yaml_ng::from_str(&raw)
             .map_err(|error| format!("failed to parse `{template}`: {error}"))?;
         let Some(body) = yaml.get("body").and_then(YamlValue::as_sequence) else {
             defects.push(format!(
@@ -1164,7 +1164,7 @@ fn parse_adr_document(path: &Path) -> Result<ParsedAdrDocument, String> {
         )
     })?;
     let front_matter: AdrFrontMatter =
-        serde_yaml::from_str(&front_matter_raw).map_err(|error| {
+        serde_yaml_ng::from_str(&front_matter_raw).map_err(|error| {
             format!(
                 "failed to parse ADR front matter `{}`: {error}",
                 path.display()
@@ -2434,7 +2434,7 @@ fn validate_task_contract_file(
     let schema_json: Value = serde_json::from_str(&schema_raw)
         .map_err(|error| format!("failed to parse `{}`: {error}", schema_path.display()))?;
     let validator =
-        JSONSchema::compile(&schema_json).map_err(|error| format!("schema error: {error}"))?;
+        validator_for(&schema_json).map_err(|error| format!("schema error: {error}"))?;
 
     let raw = fs::read_to_string(task_contract_path)
         .map_err(|error| format!("failed to read `{}`: {error}", task_contract_path.display()))?;
@@ -2444,9 +2444,11 @@ fn validate_task_contract_file(
             task_contract_path.display()
         )
     })?;
-    if let Err(errors) = validator.validate(&json_value) {
-        let details = errors
-            .map(|error| format!("{}: {}", error.instance_path, error))
+    let schema_errors = validator.iter_errors(&json_value).collect::<Vec<_>>();
+    if !schema_errors.is_empty() {
+        let details = schema_errors
+            .into_iter()
+            .map(|error| format!("{}: {}", error.instance_path(), error))
             .collect::<Vec<_>>()
             .join("; ");
         return Err(format!(
@@ -2781,7 +2783,7 @@ mod tests {
         validate_exec_plan_file, validate_execution_artifacts_in_workspace, validate_pr_event,
         DriftRow, ExecutionArtifactsValidationInput, PullRequestEvent,
     };
-    use serde_yaml::Value as YamlValue;
+    use serde_yaml_ng::Value as YamlValue;
     use std::fs;
     use std::path::PathBuf;
 
@@ -2877,7 +2879,7 @@ mod tests {
 
     #[test]
     fn extract_trigger_names_reads_mapping_keys() {
-        let yaml: YamlValue = serde_yaml::from_str(
+        let yaml: YamlValue = serde_yaml_ng::from_str(
             "pull_request:\npush:\n  branches:\n    - main\nworkflow_dispatch:\n",
         )
         .expect("yaml");

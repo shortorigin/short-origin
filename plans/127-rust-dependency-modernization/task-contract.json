@@ -1,0 +1,81 @@
+{
+  "issue_id": 127,
+  "issue_url": "https://github.com/shortorigin/origin/issues/127",
+  "branch": "infra/127-rust-dependency-modernization-program",
+  "primary_architectural_plane": "cross-layer",
+  "owning_subsystem": "workspace dependency governance, runtime/tooling modernization, and UI/runtime compatibility",
+  "architectural_references": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "docs/architecture/layer-boundaries.md",
+    "docs/process/execution-artifacts.md",
+    "docs/process/platform-regression-guardrails.md"
+  ],
+  "allowed_touchpoints": [
+    ".github/",
+    "plans/",
+    "Cargo.toml",
+    "Cargo.lock",
+    "xtask/",
+    "shared/",
+    "platform/",
+    "services/",
+    "workflows/",
+    "ui/",
+    "schemas/",
+    "docs/"
+  ],
+  "non_goals": [
+    "Do not change architectural dependency direction.",
+    "Do not introduce direct SurrealDB usage outside shared/surrealdb-access.",
+    "Do not move schema ownership out of schemas/.",
+    "Do not fork browser and desktop UI contracts."
+  ],
+  "scope_in": [
+    "Create issue-linked execution artifacts for the program and each implementation phase.",
+    "Pin repository Rust-installing workflows to the workspace toolchain and remove the UI hardening blocker.",
+    "Centralize governed dependencies in the root workspace manifest.",
+    "Upgrade non-UI and UI dependencies in bounded phases.",
+    "Uplift the workspace to Edition 2024 after dependency phases are green."
+  ],
+  "scope_out": [
+    "Product feature work unrelated to dependency and language modernization.",
+    "Intentional breaking contract or event redesign.",
+    "Infrastructure redesign outside the deterministic toolchain and validation path."
+  ],
+  "target_paths": [
+    ".github/",
+    "plans/",
+    "Cargo.toml",
+    "Cargo.lock",
+    "xtask/",
+    "shared/",
+    "platform/",
+    "services/",
+    "workflows/",
+    "ui/",
+    "schemas/",
+    "docs/"
+  ],
+  "acceptance_criteria": [
+    "The modernization work is decomposed into bounded phase issues with matching execution artifacts.",
+    "cargo verify-repo remains green after the non-UI modernization phases.",
+    "cargo xtask verify profile ui and cargo xtask ui-hardening pass after the UI modernization phase.",
+    "The workspace builds and passes clippy on Edition 2024 without architectural boundary regressions."
+  ],
+  "validation_commands": [
+    "cargo fmt --all --check",
+    "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+    "cargo verify-repo",
+    "cargo xtask verify profile ui",
+    "cargo xtask ui-hardening"
+  ],
+  "validation_artifacts": [
+    "Passing repository verification and UI hardening output",
+    "Committed phase issue references and plan bundles",
+    "Reviewed Cargo manifest and lockfile changes"
+  ],
+  "rollback_path": "Revert each phase as a bounded unit so the repository returns to the pre-modernization dependency, toolchain, and edition baseline without mixed framework states.",
+  "exec_plan_required": true,
+  "exec_plan_path": "plans/127-rust-dependency-modernization/EXEC_PLAN.md"
+}

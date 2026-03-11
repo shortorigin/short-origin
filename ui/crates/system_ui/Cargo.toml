@@ -11,13 +11,13 @@ default = ["csr"]
 csr = ["leptos/csr"]
 
 [dependencies]
-leptos = { version = "0.6", default-features = false }
+leptos = { workspace = true, default-features = false }
 serde.workspace = true
 
 [build-dependencies]
 serde.workspace = true
-toml = "0.8"
+toml.workspace = true
 
 [dev-dependencies]
-toml = "0.8"
+toml.workspace = true
 trybuild = "1"

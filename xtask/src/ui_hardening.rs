@@ -22,6 +22,7 @@ const REPORT_NAME: &str = "remediation-report.md";
 const SITE_INDEX: &str = "ui/crates/site/index.html";
 const SITE_TRUNK: &str = "ui/crates/site/Trunk.toml";
 const SITE_SW: &str = "ui/crates/site/sw.js";
+const SETUP_BUILD_ENVIRONMENT_ACTION: &str = ".github/actions/setup-build-environment/action.yml";
 const BROWSER_SCRIPT: &str = "ui/e2e/wasm_sri_smoke.cjs";
 
 const APPROVED_CRATE_VERSIONS: &[(&str, &str)] = &[
@@ -214,6 +215,10 @@ fn collect_config_audit(workspace_root: &Path) -> Result<ConfigAudit, String> {
         .map_err(|error| format!("failed to read `rust-toolchain.toml`: {error}"))?;
     let service_worker = fs::read_to_string(workspace_root.join(SITE_SW))
         .map_err(|error| format!("failed to read `{SITE_SW}`: {error}"))?;
+    let setup_build_environment_action = fs::read_to_string(
+        workspace_root.join(SETUP_BUILD_ENVIRONMENT_ACTION),
+    )
+    .map_err(|error| format!("failed to read `{SETUP_BUILD_ENVIRONMENT_ACTION}`: {error}"))?;
 
     let workflows = [
         ".github/workflows/ci.yml",
@@ -235,6 +240,7 @@ fn collect_config_audit(workspace_root: &Path) -> Result<ConfigAudit, String> {
         trunk_config,
         rust_toolchain,
         service_worker,
+        setup_build_environment_action,
         workflows,
     })
 }
@@ -682,11 +688,13 @@ fn build_findings(
 ) -> Vec<Finding> {
     let mut findings = Vec::new();
 
-    if !config_audit
-        .workflows
-        .iter()
-        .all(|(_path, contents)| contents.contains("dtolnay/rust-toolchain@1.91.1"))
-    {
+    if !config_audit.workflows.iter().all(|(_path, contents)| {
+        contents.contains("dtolnay/rust-toolchain@1.91.1")
+            || (contents.contains("uses: ./.github/actions/setup-build-environment")
+                && config_audit
+                    .setup_build_environment_action
+                    .contains("dtolnay/rust-toolchain@1.91.1"))
+    }) {
         findings.push(Finding::fail(
             "CI still uses a floating Rust toolchain",
             "Expected all Rust-installing workflows to pin `dtolnay/rust-toolchain@1.91.1`.",
@@ -1472,6 +1480,7 @@ struct ConfigAudit {
     trunk_config: TrunkToml,
     rust_toolchain: String,
     service_worker: String,
+    setup_build_environment_action: String,
     workflows: Vec<(String, String)>,
 }
 

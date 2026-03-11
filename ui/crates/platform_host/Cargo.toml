@@ -6,7 +6,7 @@ publish.workspace = true
 version.workspace = true
 
 [dependencies]
-js-sys = "0.3"
+js-sys.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 
