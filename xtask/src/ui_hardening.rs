@@ -830,7 +830,10 @@ fn build_findings(
     findings
 }
 
-fn workflow_uses_pinned_rust_toolchain(workflow_contents: &str, setup_action_contents: &str) -> bool {
+fn workflow_uses_pinned_rust_toolchain(
+    workflow_contents: &str,
+    setup_action_contents: &str,
+) -> bool {
     workflow_contents.contains("dtolnay/rust-toolchain@1.91.1")
         || (workflow_contents.contains("uses: ./.github/actions/setup-build-environment")
             && setup_action_uses_pinned_rust_toolchain(setup_action_contents))
