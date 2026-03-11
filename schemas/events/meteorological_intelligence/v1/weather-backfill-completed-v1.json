@@ -1,0 +1,5 @@
+{
+  "name": "WeatherBackfillCompletedV1",
+  "version": "v1",
+  "fields": ["run_id", "region_ids", "product_refs", "completed_at"]
+}

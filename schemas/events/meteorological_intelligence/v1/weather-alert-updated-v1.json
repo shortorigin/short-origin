@@ -1,0 +1,5 @@
+{
+  "name": "WeatherAlertUpdatedV1",
+  "version": "v1",
+  "fields": ["feed"]
+}

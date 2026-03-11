@@ -1,0 +1,5 @@
+{
+  "name": "WeatherProductPublishedV1",
+  "version": "v1",
+  "fields": ["product_ref", "region_id", "artifact_kind", "native_identifier", "event_time", "valid_time"]
+}

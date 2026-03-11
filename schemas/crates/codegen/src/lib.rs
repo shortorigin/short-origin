@@ -8,7 +8,7 @@ pub struct EmbeddedSchema {
     pub document: Value,
 }
 
-const CONTRACT_FILES: [(&str, &str); 49] = [
+const CONTRACT_FILES: [(&str, &str); 54] = [
     (
         "command-v1",
         include_str!("../../../contracts/v1/command-v1.json"),
@@ -205,9 +205,29 @@ const CONTRACT_FILES: [(&str, &str); 49] = [
         "macro-financial-analysis-v1",
         include_str!("../../../contracts/v1/macro-financial-analysis-v1.json"),
     ),
+    (
+        "weather-availability-v1",
+        include_str!("../../../contracts/v1/weather-availability-v1.json"),
+    ),
+    (
+        "weather-view-v1",
+        include_str!("../../../contracts/v1/weather-view-v1.json"),
+    ),
+    (
+        "weather-feature-slice-v1",
+        include_str!("../../../contracts/v1/weather-feature-slice-v1.json"),
+    ),
+    (
+        "weather-alert-feed-v1",
+        include_str!("../../../contracts/v1/weather-alert-feed-v1.json"),
+    ),
+    (
+        "weather-map-scene-v1",
+        include_str!("../../../contracts/v1/weather-map-scene-v1.json"),
+    ),
 ];
 
-const EVENT_FILES: [(&str, &str); 12] = [
+const EVENT_FILES: [(&str, &str); 15] = [
     (
         "event-envelope-v1",
         include_str!("../../../events/envelope/v1/event-envelope-v1.json"),
@@ -255,6 +275,24 @@ const EVENT_FILES: [(&str, &str); 12] = [
     (
         "knowledge-analysis-generated-v1",
         include_str!("../../../events/data_knowledge/v1/knowledge-analysis-generated-v1.json"),
+    ),
+    (
+        "weather-product-published-v1",
+        include_str!(
+            "../../../events/meteorological_intelligence/v1/weather-product-published-v1.json"
+        ),
+    ),
+    (
+        "weather-alert-updated-v1",
+        include_str!(
+            "../../../events/meteorological_intelligence/v1/weather-alert-updated-v1.json"
+        ),
+    ),
+    (
+        "weather-backfill-completed-v1",
+        include_str!(
+            "../../../events/meteorological_intelligence/v1/weather-backfill-completed-v1.json"
+        ),
     ),
 ];
 

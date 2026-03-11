@@ -4,6 +4,7 @@
     { "domain": "strategy_governance", "policy_owner": "Institutional Council", "primary_service": "governance-service" },
     { "domain": "finance_treasury", "policy_owner": "CFO", "primary_service": "finance-service" },
     { "domain": "capital_markets_data", "policy_owner": "Chief Data Officer", "primary_service": "market-data-service" },
+    { "domain": "meteorological_intelligence", "policy_owner": "Chief Data Officer", "primary_service": "meteorological-service" },
     { "domain": "capital_markets_research", "policy_owner": "Institutional Council", "primary_service": "quant-research-service" },
     { "domain": "capital_markets_execution", "policy_owner": "COO", "primary_service": "execution-service" },
     { "domain": "capital_markets_portfolio", "policy_owner": "CFO", "primary_service": "portfolio-service" },

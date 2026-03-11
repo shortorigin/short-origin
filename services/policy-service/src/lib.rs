@@ -95,6 +95,7 @@ pub fn service_boundary() -> ServiceBoundaryV1 {
             "release_approval".into(),
             "treasury_disbursement".into(),
             "quant_strategy_promotion".into(),
+            "weather_ingestion".into(),
         ],
         owned_aggregates: vec!["policy_decision".into(), "policy_exception".into()],
     }

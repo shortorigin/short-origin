@@ -1,0 +1,4 @@
+version = "v1"
+domain = "meteorological_intelligence"
+policy_owner = "Chief Data Officer"
+primary_service = "meteorological-service"

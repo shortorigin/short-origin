@@ -34,6 +34,10 @@ use surrealdb_model::{EventRecordV1, KnowledgeChunkRecordV1};
 use telemetry::DecisionRef;
 use trading_core::{Clock, IdGenerator, SystemClock, SystemIdGenerator};
 
+mod weather;
+
+pub use weather::*;
+
 const SERVICE_NAME: &str = "knowledge-service";
 const DOMAIN_NAME: &str = "data_knowledge";
 const APPROVED_WORKFLOWS: &[&str] = &["knowledge_publication", "record_retention"];

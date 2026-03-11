@@ -2079,6 +2079,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "desktop_app_weather"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "contracts",
+ "desktop_app_contract",
+ "leptos",
+ "sdk-rs",
+ "serde",
+ "serde_json",
+ "system_ui",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "desktop_runtime"
 version = "0.1.0"
 dependencies = [
@@ -2086,6 +2101,7 @@ dependencies = [
  "desktop_app_control_center",
  "desktop_app_settings",
  "desktop_app_terminal",
+ "desktop_app_weather",
  "futures",
  "js-sys",
  "leptos",
@@ -4496,6 +4512,7 @@ dependencies = [
  "policy-service",
  "quick-xml 0.39.2",
  "reqwest",
+ "sdk-rs",
  "serde_json",
  "sha2",
  "surrealdb-model",
@@ -5255,6 +5272,19 @@ dependencies = [
  "uuid",
  "zip 7.2.0",
  "zstd",
+]
+
+[[package]]
+name = "meteorological-service"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "contracts",
+ "error-model",
+ "events",
+ "serde",
+ "serde_json",
+ "toml 0.8.23",
 ]
 
 [[package]]
@@ -7054,6 +7084,8 @@ dependencies = [
  "chrono",
  "contracts",
  "error-model",
+ "sdk-rs",
+ "serde",
  "serde_json",
  "toml 0.8.23",
  "trading-core",
@@ -8189,6 +8221,7 @@ dependencies = [
  "identity",
  "lattice-config",
  "serde",
+ "serde_json",
  "tokio",
 ]
 
@@ -11369,6 +11402,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cd48d1679b6858988cb96b154dda0ec5bbb09275b71db46057be37332d5477be"
 dependencies = [
  "wast",
+]
+
+[[package]]
+name = "weather_ingestion"
+version = "0.1.0"
+dependencies = [
+ "approval-service",
+ "contracts",
+ "enforcement",
+ "error-model",
+ "events",
+ "evidence-sdk",
+ "evidence-service",
+ "identity",
+ "meteorological-service",
+ "orchestrator",
+ "policy-sdk",
+ "policy-service",
+ "serde_json",
+ "tokio",
 ]
 
 [[package]]

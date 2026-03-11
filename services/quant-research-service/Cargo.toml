@@ -8,6 +8,7 @@ version.workspace = true
 [dependencies]
 contracts = { path = "../../schemas/crates/contracts" }
 error-model = { path = "../../shared/error-model" }
+serde.workspace = true
 serde_json.workspace = true
 trading-core = { path = "../../shared/trading-core" }
 trading-errors = { path = "../../shared/trading-errors" }
@@ -15,6 +16,7 @@ trading-sim = { path = "../../shared/trading-sim" }
 
 [dev-dependencies]
 chrono.workspace = true
+sdk-rs = { path = "../../platform/sdk/sdk-rs" }
 toml.workspace = true
 
 [lints]

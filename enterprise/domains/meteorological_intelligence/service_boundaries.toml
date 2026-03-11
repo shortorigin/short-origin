@@ -1,0 +1,4 @@
+version = "v1"
+primary_service = "meteorological-service"
+approved_workflows = ["weather_ingestion"]
+owned_aggregates = ["weather_dataset", "weather_feature_product", "weather_alert", "weather_map_scene"]

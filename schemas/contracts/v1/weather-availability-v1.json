@@ -1,0 +1,5 @@
+{
+  "name": "WeatherAvailabilityV1",
+  "version": "v1",
+  "fields": ["catalog_id", "region_id", "bounds", "generated_at", "source_kinds", "available_layers"]
+}

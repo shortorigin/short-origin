@@ -27,6 +27,7 @@ approval-service = { path = "../approval-service" }
 evidence-service = { path = "../evidence-service" }
 orchestrator = { path = "../../platform/runtime/orchestrator" }
 policy-service = { path = "../policy-service" }
+sdk-rs = { path = "../../platform/sdk/sdk-rs" }
 tempfile.workspace = true
 tokio.workspace = true
 toml.workspace = true

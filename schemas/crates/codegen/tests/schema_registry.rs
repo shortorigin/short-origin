@@ -6,8 +6,8 @@ fn schema_registry_embeds_contract_event_and_record_documents() {
     let event_schemas = embedded_event_schemas().unwrap();
     let surrealdb_schemas = embedded_surrealdb_schemas().unwrap();
 
-    assert_eq!(contract_schemas.len(), 49);
-    assert_eq!(event_schemas.len(), 12);
+    assert_eq!(contract_schemas.len(), 54);
+    assert_eq!(event_schemas.len(), 15);
     assert_eq!(surrealdb_schemas.len(), 3);
 
     assert!(
@@ -56,9 +56,24 @@ fn schema_registry_embeds_contract_event_and_record_documents() {
             .any(|schema| schema.name == "decision-audit-record-v1")
     );
     assert!(
+        contract_schemas
+            .iter()
+            .any(|schema| schema.name == "weather-view-v1")
+    );
+    assert!(
+        contract_schemas
+            .iter()
+            .any(|schema| schema.name == "weather-map-scene-v1")
+    );
+    assert!(
         event_schemas
             .iter()
             .any(|schema| schema.name == "knowledge-analysis-generated-v1")
+    );
+    assert!(
+        event_schemas
+            .iter()
+            .any(|schema| schema.name == "weather-product-published-v1")
     );
     assert!(
         surrealdb_schemas

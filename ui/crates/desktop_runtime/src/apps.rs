@@ -10,6 +10,7 @@ use desktop_app_contract::{
 use desktop_app_control_center::ControlCenterApp;
 use desktop_app_settings::SettingsApp;
 use desktop_app_terminal::TerminalApp;
+use desktop_app_weather::WeatherApp;
 use leptos::prelude::*;
 use leptos::tachys::view::any_view::{AnyView, IntoAny};
 use system_ui::primitives::IconName;
@@ -17,6 +18,7 @@ use system_ui::primitives::IconName;
 const APP_ID_CONTROL_CENTER: &str = "system.control-center";
 const APP_ID_TERMINAL: &str = "system.terminal";
 const APP_ID_SETTINGS: &str = "system.settings";
+const APP_ID_WEATHER: &str = "intelligence.weather";
 const ALL_APP_CAPABILITIES: &[AppCapability] = &[
     AppCapability::Window,
     AppCapability::State,
@@ -186,6 +188,12 @@ fn build_app_registry() -> Vec<AppDescriptor> {
             SYSTEM_SETTINGS_MANIFEST,
             AppModule::new(mount_settings_app),
         ),
+        build_app_descriptor(
+            APP_ID_WEATHER,
+            "Weather",
+            INTELLIGENCE_WEATHER_MANIFEST,
+            AppModule::new(mount_weather_app),
+        ),
     ]
 }
 
@@ -199,6 +207,7 @@ const LEGACY_BUILTIN_APP_ID_MAPPINGS: &[(&str, &str)] = &[
     ("Control Center", APP_ID_CONTROL_CENTER),
     ("Terminal", APP_ID_TERMINAL),
     ("Settings", APP_ID_SETTINGS),
+    ("Weather", APP_ID_WEATHER),
 ];
 
 /// Returns the static app registry used by the desktop shell.
@@ -300,6 +309,7 @@ pub fn app_icon_id_by_id(app_id: &ApplicationId) -> &'static str {
         APP_ID_CONTROL_CENTER => "home",
         APP_ID_TERMINAL => "terminal",
         APP_ID_SETTINGS => "settings",
+        APP_ID_WEATHER => "sun",
         _ => "window",
     }
 }
@@ -310,6 +320,7 @@ pub fn app_icon_name_by_id(app_id: &ApplicationId) -> IconName {
         APP_ID_CONTROL_CENTER => IconName::Home,
         APP_ID_TERMINAL => IconName::Terminal,
         APP_ID_SETTINGS => IconName::Settings,
+        APP_ID_WEATHER => IconName::Sun,
         _ => IconName::WindowMultiple,
     }
 }
@@ -380,6 +391,14 @@ fn default_window_rect_for_app(
                 0.82,
                 0.82,
             ),
+            APP_ID_WEATHER => (
+                INTELLIGENCE_WEATHER_MANIFEST.window_defaults.0,
+                INTELLIGENCE_WEATHER_MANIFEST.window_defaults.1,
+                0.96,
+                0.94,
+                0.90,
+                0.86,
+            ),
             _ => (
                 DEFAULT_WINDOW_WIDTH,
                 DEFAULT_WINDOW_HEIGHT,
@@ -437,6 +456,18 @@ fn mount_settings_app(context: AppMountContext) -> AnyView {
     .into_any()
 }
 
+fn mount_weather_app(context: AppMountContext) -> AnyView {
+    view! {
+        <WeatherApp
+            launch_params=context.launch_params.clone()
+            restored_state=Some(context.restored_state.clone())
+            services=Some(context.services)
+        />
+    }
+    .into_view()
+    .into_any()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -480,6 +511,7 @@ mod tests {
                 APP_ID_CONTROL_CENTER.to_string(),
                 APP_ID_TERMINAL.to_string(),
                 APP_ID_SETTINGS.to_string(),
+                APP_ID_WEATHER.to_string(),
             ]
         );
     }

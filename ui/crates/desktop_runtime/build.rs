@@ -45,7 +45,7 @@ struct AppManifest {
 }
 
 fn app_manifest_paths(root: &Path) -> Vec<PathBuf> {
-    ["control_center", "terminal", "settings"]
+    ["control_center", "terminal", "settings", "weather"]
         .iter()
         .map(|name| {
             root.join("..")

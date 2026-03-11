@@ -23,7 +23,7 @@ use platform_host::{
     ExplorerPermissionMode, ExplorerPermissionState, HostCapabilities, PrefsStore,
     load_app_state_with_migration, load_pref_with, save_app_state_with, save_pref_with,
 };
-use sdk_rs::UiDashboardSnapshotV1;
+use sdk_rs::{UiDashboardSnapshotV1, WeatherPlatformSnapshotV1};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use system_shell_contract::{
@@ -1065,12 +1065,17 @@ impl CommandService {
 pub struct PlatformService {
     /// Reactive platform dashboard snapshot owned by the runtime shell.
     pub dashboard: ReadSignal<UiDashboardSnapshotV1>,
+    /// Reactive weather snapshot surfaced through the platform layer.
+    pub weather: ReadSignal<WeatherPlatformSnapshotV1>,
 }
 
 impl PlatformService {
     /// Creates a platform dashboard service.
-    pub fn new(dashboard: ReadSignal<UiDashboardSnapshotV1>) -> Self {
-        Self { dashboard }
+    pub fn new(
+        dashboard: ReadSignal<UiDashboardSnapshotV1>,
+        weather: ReadSignal<WeatherPlatformSnapshotV1>,
+    ) -> Self {
+        Self { dashboard, weather }
     }
 }
 
@@ -1125,6 +1130,7 @@ impl AppServices {
         theme_high_contrast: ReadSignal<bool>,
         theme_reduced_motion: ReadSignal<bool>,
         platform_dashboard: ReadSignal<UiDashboardSnapshotV1>,
+        platform_weather: ReadSignal<WeatherPlatformSnapshotV1>,
         commands: CommandService,
     ) -> Self {
         Self {
@@ -1151,7 +1157,7 @@ impl AppServices {
             },
             notifications: NotificationService { sender },
             ipc: IpcService { sender },
-            platform: PlatformService::new(platform_dashboard),
+            platform: PlatformService::new(platform_dashboard, platform_weather),
             commands,
         }
     }

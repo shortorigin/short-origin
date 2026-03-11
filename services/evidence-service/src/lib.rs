@@ -16,6 +16,7 @@ const APPROVED_WORKFLOWS: &[&str] = &[
     "treasury_disbursement",
     "policy_exception",
     "quant_strategy_promotion",
+    "weather_ingestion",
 ];
 const OWNED_AGGREGATES: &[&str] = &["evidence_manifest", "audit_event"];
 

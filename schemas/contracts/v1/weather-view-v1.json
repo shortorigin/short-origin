@@ -1,0 +1,5 @@
+{
+  "name": "WeatherViewV1",
+  "version": "v1",
+  "fields": ["view_id", "region_id", "bounds", "generated_at", "valid_time", "horizon_hours", "layers", "alert_feed_id"]
+}

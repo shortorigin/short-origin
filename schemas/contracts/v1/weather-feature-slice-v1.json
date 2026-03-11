@@ -1,0 +1,5 @@
+{
+  "name": "WeatherFeatureSliceV1",
+  "version": "v1",
+  "fields": ["slice_id", "region_id", "event_time", "valid_time", "lead_hours", "source_product_refs", "features", "provenance"]
+}

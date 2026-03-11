@@ -1,0 +1,92 @@
+{
+  "issue_id": 121,
+  "issue_url": "https://github.com/shortorigin/origin/issues/121",
+  "branch": "feature/121-meteorological-intelligence",
+  "primary_architectural_plane": "cross-layer",
+  "owning_subsystem": "enterprise/meteorological_intelligence, schemas weather contracts/events, services/meteorological-service, workflows/weather_ingestion, platform/sdk, ui weather app, docs, testing, and plans",
+  "architectural_references": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "docs/architecture/layer-boundaries.md",
+    "docs/architecture/plugin-application-model.md",
+    "docs/adr/0005-domain-bounded-platform-topology.md",
+    "docs/adr/0006-canonical-event-substrate.md",
+    "docs/adr/0008-domain-owned-data-products-with-contracts.md",
+    "docs/adr/0009-lakehouse-open-format-analytical-foundation.md",
+    "docs/adr/0012-layered-intelligence-behind-stable-retrieval.md",
+    "docs/adr/0017-replaceable-compute-and-governed-state.md"
+  ],
+  "allowed_touchpoints": [
+    "enterprise/",
+    "schemas/",
+    "services/",
+    "workflows/",
+    "platform/",
+    "ui/",
+    "testing/",
+    "docs/",
+    "plans/",
+    "Cargo.toml",
+    "Cargo.lock"
+  ],
+  "non_goals": [
+    "Do not add direct ui-to-services imports or direct ui-to-SurrealDB access.",
+    "Do not enable live-network weather dependencies in default CI or local verification.",
+    "Do not extend finance-service mutation paths or unrelated non-weather domains in this issue."
+  ],
+  "scope_in": [
+    "Add the meteorological_intelligence enterprise domain metadata and supporting ADR/docs.",
+    "Add versioned weather contracts, events, and SurrealDB metadata record catalogs.",
+    "Add the meteorological-service crate with fixture-backed ingest, provenance, view products, and map-scene delivery surfaces.",
+    "Add the weather_ingestion workflow as the approved mutation path for ingest and backfill.",
+    "Extend platform/sdk with typed weather query and snapshot surfaces.",
+    "Register and integrate the governed weather app in ui/ without bypassing platform contracts.",
+    "Add read-only weather consumers in knowledge-service and quant-research-service.",
+    "Add the required execution artifacts and validation evidence for this multi-plane change."
+  ],
+  "scope_out": [
+    "Authenticated or live external connectors beyond the NOAA-first fixture-backed path.",
+    "Production infrastructure rollout changes outside existing repository conventions.",
+    "Dynamic plugin loading or unrelated platform-shell redesign."
+  ],
+  "target_paths": [
+    "enterprise/",
+    "schemas/",
+    "services/",
+    "workflows/",
+    "platform/",
+    "ui/",
+    "testing/",
+    "docs/",
+    "plans/",
+    "Cargo.toml",
+    "Cargo.lock"
+  ],
+  "acceptance_criteria": [
+    "The repository contains a governed meteorological_intelligence domain with ontology, ownership, evidence, and service-boundary metadata.",
+    "Weather contracts, events, and schema/codegen coverage compile and validate successfully.",
+    "meteorological-service and weather_ingestion provide deterministic fixture-backed weather ingest and projection behavior.",
+    "platform/sdk and ui expose the governed weather capability only through typed contracts.",
+    "knowledge-service and quant-research-service consume weather products read-only.",
+    "The required multi-plane execution artifacts exist under plans/121-meteorological-intelligence/.",
+    "Canonical local validation passes on the current PR head."
+  ],
+  "validation_commands": [
+    "cargo xtask github validate-execution-artifacts --issue-id 121 --branch feature/121-meteorological-intelligence --risk-class high",
+    "cargo fmt --all --check",
+    "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+    "cargo test --workspace --all-targets",
+    "cargo verify-repo",
+    "cargo xtask verify profile ui",
+    "cargo xtask ui-hardening"
+  ],
+  "validation_artifacts": [
+    "Committed plans/121-meteorological-intelligence/task-contract.json and EXEC_PLAN.md",
+    "Passing workspace clippy and test output on the rebased PR head",
+    "Passing cargo verify-repo, cargo xtask verify profile ui, and cargo xtask ui-hardening output",
+    "GitHub workflow re-enable evidence for CI, Governance, and Security so PR checks can surface again"
+  ],
+  "rollback_path": "Revert the meteorological domain, schema, service, workflow, SDK, UI, fixture, documentation, and execution-artifact changes together so the repository returns to the prior non-weather baseline without hybrid drift.",
+  "exec_plan_required": true,
+  "exec_plan_path": "plans/121-meteorological-intelligence/EXEC_PLAN.md"
+}

@@ -1,0 +1,27 @@
+[package]
+name = "meteorological-service"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+version.workspace = true
+
+[features]
+default = []
+era5 = []
+ecmwf = []
+dwd = []
+eumetsat = []
+
+[dependencies]
+chrono.workspace = true
+contracts = { path = "../../schemas/crates/contracts" }
+error-model = { path = "../../shared/error-model" }
+events = { path = "../../schemas/crates/events" }
+serde.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+toml.workspace = true
+
+[lints]
+workspace = true
