@@ -353,7 +353,7 @@ where
             )
             .await
             .map_err(surreal_error)?;
-        let latest: Option<KnowledgeCapsuleRecordV1> = response.take(0).map_err(surreal_error)?;
+        let latest: Option<KnowledgeCapsuleRecordV1> = take_optional_record(&mut response, 0)?;
         Ok(latest
             .as_ref()
             .map(|record| KnowledgePublicationStatusV1::from_capsule(&record.capsule)))
@@ -450,7 +450,7 @@ where
         }
         other => other,
     };
-    db.query("UPSERT type::thing($table, $id) CONTENT $content;")
+    db.query("UPSERT type::record($table, $id) CONTENT $content;")
         .bind(("table", table.to_string()))
         .bind(("id", id))
         .bind(("content", content))
@@ -469,16 +469,37 @@ where
     T: serde::de::DeserializeOwned,
 {
     let mut response = db
-        .query("SELECT *, type::string(id) AS id FROM ONLY type::thing($table, $id);")
+        .query("SELECT *, type::string(id) AS id FROM ONLY type::record($table, $id);")
         .bind(("table", table.to_string()))
         .bind(("id", id.to_string()))
         .await
         .map_err(surreal_error)?;
-    response.take(0).map_err(surreal_error)
+    take_optional_record(&mut response, 0)
 }
 
 fn surreal_error(error: surrealdb::Error) -> InstitutionalError {
     InstitutionalError::external("surrealdb", None, error.to_string())
+}
+
+fn take_optional_record<T>(
+    response: &mut surrealdb::IndexedResults,
+    index: usize,
+) -> InstitutionalResult<Option<T>>
+where
+    T: serde::de::DeserializeOwned,
+{
+    let value: Option<serde_json::Value> = response.take(index).map_err(surreal_error)?;
+    value
+        .map(|value| {
+            serde_json::from_value(value).map_err(|error| {
+                InstitutionalError::external(
+                    "surrealdb",
+                    Some("deserialize".to_string()),
+                    error.to_string(),
+                )
+            })
+        })
+        .transpose()
 }
 
 #[cfg(test)]
