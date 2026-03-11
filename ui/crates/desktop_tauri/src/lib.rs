@@ -23,6 +23,30 @@ mod prefs;
 /// This registers the current host-domain commands and then transfers control to Tauri's runtime
 /// event loop.
 pub fn run() {
+    let environment = telemetry::EnvironmentProfile::from_optional(
+        std::env::var("ORIGIN_ENVIRONMENT").ok().as_deref(),
+        telemetry::EnvironmentProfile::Development,
+    );
+    let tracing_config = telemetry::TracingBootstrapConfig::native_json(
+        "ui/crates/desktop_tauri",
+        telemetry::RuntimeTarget::DesktopTauri,
+        environment,
+    )
+    .with_tokio_console(std::env::var_os("ORIGIN_ENABLE_TOKIO_CONSOLE").is_some());
+    if let Err(error) = telemetry::bootstrap_native_tracing(&tracing_config) {
+        eprintln!("failed to bootstrap native tracing: {error}");
+    } else {
+        tracing::info!(
+            event = "ui_bootstrap",
+            operation = "startup",
+            component = tracing_config.component.as_str(),
+            runtime_target = tracing_config.runtime_target.as_str(),
+            environment = tracing_config.environment.as_str(),
+            tokio_console = tracing_config.enable_tokio_console,
+            "native tracing bootstrap initialized"
+        );
+    }
+
     tauri::Builder::default()
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_opener::init())
@@ -50,6 +74,18 @@ pub fn run() {
             prefs::prefs_save,
             prefs::prefs_delete
         ])
+        .setup(move |_| {
+            tracing::info!(
+                event = "ui_host_start",
+                operation = "tauri_setup",
+                component = tracing_config.component.as_str(),
+                runtime_target = tracing_config.runtime_target.as_str(),
+                environment = tracing_config.environment.as_str(),
+                tokio_console = tracing_config.enable_tokio_console,
+                "desktop host runtime starting"
+            );
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("desktop_tauri failed to run Tauri application");
 }

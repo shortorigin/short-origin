@@ -21,6 +21,24 @@ pub use web_app::{DesktopEntry, SiteApp};
 /// `csr` feature enabled.
 pub fn mount() {
     console_error_panic_hook::set_once();
+    let environment = telemetry::EnvironmentProfile::from_optional(
+        option_env!("ORIGIN_ENVIRONMENT"),
+        telemetry::EnvironmentProfile::Development,
+    );
+    let tracing_config =
+        telemetry::TracingBootstrapConfig::browser("ui/crates/site", environment.clone());
+    if let Err(error) = telemetry::bootstrap_browser_tracing(&tracing_config) {
+        web_sys::console::error_1(&format!("failed to bootstrap browser tracing: {error}").into());
+    } else {
+        tracing::info!(
+            event = "ui_bootstrap",
+            operation = "mount",
+            component = tracing_config.component.as_str(),
+            runtime_target = tracing_config.runtime_target.as_str(),
+            environment = tracing_config.environment.as_str(),
+            "browser tracing bootstrap initialized"
+        );
+    }
     use wasm_bindgen::JsCast;
 
     let document = web_sys::window()

@@ -1,0 +1,86 @@
+{
+  "issue_id": 136,
+  "issue_url": "https://github.com/shortorigin/origin/issues/136",
+  "branch": "refactor/136-rust-build-hygiene-tracing-baseline",
+  "primary_architectural_plane": "cross-layer",
+  "owning_subsystem": "workspace Cargo policy, xtask Rust tooling, shared telemetry bootstrap, and UI runtime entrypoints",
+  "architectural_references": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "docs/architecture/layer-boundaries.md",
+    "xtask/AGENTS.md",
+    "ui/README.md",
+    "docs/process/github-workflow-migration.md",
+    "DEVELOPMENT_MODEL.md"
+  ],
+  "allowed_touchpoints": [
+    "Cargo.toml",
+    ".cargo/config.toml",
+    "xtask/",
+    "shared/telemetry/",
+    "ui/crates/site/",
+    "ui/crates/desktop_tauri/",
+    "docs/",
+    "README.md",
+    "DEVELOPMENT_MODEL.md",
+    "plans/"
+  ],
+  "non_goals": [
+    "Do not redesign runtime contracts or schema versions.",
+    "Do not add direct UI coupling to services, workflows, or SurrealDB.",
+    "Do not replace existing visible warning paths in desktop_runtime with tracing-only diagnostics in this change set."
+  ],
+  "scope_in": [
+    "Add root workspace profile settings for lean dev, opt-in debugging, and stripped release.",
+    "Add cargo xtask rust audit, clean, and trace workflows plus matching cargo aliases.",
+    "Implement read-only artifact audit reporting, optional timings capture, and targeted cleanup planning/apply flows.",
+    "Extend shared telemetry with runtime/environment models and browser/native tracing bootstrap helpers.",
+    "Wire site and desktop_tauri to initialize tracing bootstrap and emit initial lifecycle events.",
+    "Update contributor docs and execution artifacts for the new workflows."
+  ],
+  "scope_out": [
+    "External cache backend adoption such as sccache or remote artifact reuse.",
+    "Repository-wide conversion of existing warning and error callsites to tracing.",
+    "Product-facing behavior changes unrelated to build hygiene or tracing bootstrap."
+  ],
+  "target_paths": [
+    "Cargo.toml",
+    ".cargo/config.toml",
+    "xtask/",
+    "shared/telemetry/",
+    "ui/crates/site/",
+    "ui/crates/desktop_tauri/",
+    "README.md",
+    "DEVELOPMENT_MODEL.md",
+    "ui/README.md",
+    "plans/"
+  ],
+  "acceptance_criteria": [
+    "Root workspace profiles encode the lean dev, debugging, and stripped release policy.",
+    "cargo xtask rust audit, clean, and trace exist with deterministic help and tests.",
+    "Audit output reports target usage, subtree breakdowns, dependency duplication and features context, and build-script rerun hygiene, with timings remaining opt-in.",
+    "Cleanup defaults to dry-run and requires explicit apply for destructive removal.",
+    "site installs wasm-compatible tracing alongside the panic hook, and desktop_tauri installs the native JSON tracing subscriber before host startup.",
+    "Existing desktop_runtime visible warning paths remain intact in this change set.",
+    "Repository docs describe the new commands, profile policy, and tracing bootstrap status accurately."
+  ],
+  "validation_commands": [
+    "cargo test -p xtask",
+    "cargo test -p telemetry",
+    "cargo check -p desktop_tauri",
+    "cargo xtask verify profile ui",
+    "cargo verify-repo",
+    "cargo xtask ui-hardening",
+    "cargo xtask rust audit",
+    "cargo xtask rust clean incremental",
+    "cargo xtask rust trace desktop --dry-run"
+  ],
+  "validation_artifacts": [
+    "Passing xtask, telemetry, desktop_tauri, verify-repo, verify-ui, and ui-hardening output",
+    "Smoke output for cargo xtask rust audit, clean incremental, and trace desktop --dry-run",
+    "Committed task contract and execution plan under plans/136-rust-build-hygiene-tracing-baseline/"
+  ],
+  "rollback_path": "Revert the workspace profile policy, xtask command surface, telemetry bootstrap, UI entrypoint wiring, docs, and execution artifacts together so the repository returns to the previous build and diagnostics baseline.",
+  "exec_plan_required": true,
+  "exec_plan_path": "plans/136-rust-build-hygiene-tracing-baseline/EXEC_PLAN.md"
+}

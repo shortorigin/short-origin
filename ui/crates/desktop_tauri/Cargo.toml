@@ -20,3 +20,6 @@ serde_json.workspace = true
 tauri = { workspace = true, default-features = false, features = ["common-controls-v6", "compression", "dynamic-acl", "wry", "x11"] }
 tauri-plugin-notification.workspace = true
 tauri-plugin-opener.workspace = true
+telemetry = { path = "../../../shared/telemetry", features = ["native-tracing"] }
+tokio.workspace = true
+tracing.workspace = true

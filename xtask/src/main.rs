@@ -3,17 +3,20 @@ mod common;
 mod delivery;
 mod github;
 mod plugin;
+mod rust;
 mod ui_hardening;
 
 use std::env;
+use std::fs;
 use std::io::{Read, Write};
 use std::net::TcpStream;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::{Child, Command};
 use std::thread;
 use std::time::{Duration, Instant};
 
 use common::{absolutize, run_command, workspace_root};
+use regex::Regex;
 
 const UI_PACKAGES: &[&str] = &[
     "desktop_app_contract",
@@ -64,6 +67,7 @@ fn run() -> Result<(), String> {
         Some("github") => github::run(args.collect()),
         Some("delivery") => delivery::run(args.collect()),
         Some("plugin") => plugin::run(args.collect()),
+        Some("rust") => rust::run(args.collect()),
         Some("wasmcloud") => run_wasmcloud(args.collect()),
         Some("ui-hardening") => ui_hardening::run(args.collect()),
         Some("ui") => run_ui(args.collect()),
@@ -95,10 +99,19 @@ fn run_ui(args: Vec<String>) -> Result<(), String> {
 
     let mut passthrough = passthrough.to_vec();
     normalize_dist_arg(&workspace_root, &mut passthrough);
+    let dist_dir = if trunk_subcommand == "build" {
+        Some(resolve_ui_dist_dir(&workspace_root, &passthrough))
+    } else {
+        None
+    };
     drop_no_open_arg(&mut passthrough);
     command.args(passthrough);
 
-    run_command(&mut command)
+    run_command(&mut command)?;
+    if let Some(dist_dir) = dist_dir {
+        canonicalize_ui_build_output(&dist_dir)?;
+    }
+    Ok(())
 }
 
 fn run_tauri(args: Vec<String>) -> Result<(), String> {
@@ -613,6 +626,70 @@ fn normalize_dist_arg(workspace_root: &Path, args: &mut [String]) {
     }
 }
 
+fn resolve_ui_dist_dir(workspace_root: &Path, args: &[String]) -> PathBuf {
+    let mut index = 0usize;
+    while index < args.len() {
+        if args[index] == "--dist" {
+            if let Some(value) = args.get(index + 1) {
+                return PathBuf::from(value);
+            }
+            break;
+        }
+
+        if let Some(value) = args[index].strip_prefix("--dist=") {
+            return PathBuf::from(value);
+        }
+        index += 1;
+    }
+
+    workspace_root.join("target/trunk-site-dist")
+}
+
+fn canonicalize_ui_build_output(dist_dir: &Path) -> Result<(), String> {
+    let index_path = dist_dir.join("index.html");
+    if !index_path.exists() {
+        return Ok(());
+    }
+
+    let html = fs::read_to_string(&index_path)
+        .map_err(|error| format!("failed to read `{}`: {error}", index_path.display()))?;
+    let normalized = normalize_modulepreload_links(&html)?;
+    if normalized != html {
+        fs::write(&index_path, normalized)
+            .map_err(|error| format!("failed to write `{}`: {error}", index_path.display()))?;
+    }
+    Ok(())
+}
+
+fn normalize_modulepreload_links(html: &str) -> Result<String, String> {
+    let group_pattern = Regex::new(r#"(?s)(?:<link rel="modulepreload" [^>]*>\s*){2,}"#)
+        .map_err(|error| format!("failed to compile modulepreload group regex: {error}"))?;
+    let tag_pattern = Regex::new(r#"<link rel="modulepreload" [^>]*>"#)
+        .map_err(|error| format!("failed to compile modulepreload tag regex: {error}"))?;
+
+    let mut normalized = String::with_capacity(html.len());
+    let mut last_end = 0usize;
+    for group in group_pattern.find_iter(html) {
+        normalized.push_str(&html[last_end..group.start()]);
+
+        let tag_matches = tag_pattern.find_iter(group.as_str()).collect::<Vec<_>>();
+        let mut tags = tag_matches
+            .iter()
+            .map(|tag| tag.as_str().to_string())
+            .collect::<Vec<_>>();
+        tags.sort();
+        normalized.push_str(&tags.join(""));
+
+        if let Some(last_tag) = tag_matches.last() {
+            normalized.push_str(&group.as_str()[last_tag.end()..]);
+        }
+        last_end = group.end();
+    }
+    normalized.push_str(&html[last_end..]);
+
+    Ok(normalized)
+}
+
 fn drop_no_open_arg(args: &mut Vec<String>) {
     args.retain(|arg| arg != "--no-open");
 }
@@ -649,6 +726,7 @@ Commands:
   architecture   Architecture boundary and dependency auditing
   github        GitHub governance sync, PR validation, and process auditing
   plugin        Governed plugin manifest validation
+  rust          Rust build-cache audit, targeted cleanup, and tracing helpers
   verify        Workspace verification profiles, including `repo` for canonical non-UI validation
   delivery      Delivery manifest and component rendering
   ui-hardening  Deterministic UI/browser hardening verification
@@ -663,9 +741,9 @@ Commands:
 #[cfg(test)]
 mod tests {
     use super::{
-        args_include_lattice, drop_no_open_arg, normalize_dist_arg, prepend_get_hosts,
-        probe_http_root, sanitize_trunk_environment_with, verify_ui_browser_manifest_hygiene,
-        verify_ui_shell_style_hygiene,
+        args_include_lattice, drop_no_open_arg, normalize_dist_arg, normalize_modulepreload_links,
+        prepend_get_hosts, probe_http_root, resolve_ui_dist_dir, sanitize_trunk_environment_with,
+        verify_ui_browser_manifest_hygiene, verify_ui_shell_style_hygiene,
     };
     use std::fs;
     use std::io::{Read, Write};
@@ -701,6 +779,41 @@ mod tests {
         let mut args = vec!["--dist=target/ui-dist".to_string()];
         normalize_dist_arg(workspace_root, &mut args);
         assert_eq!(args, ["--dist=/workspace/target/ui-dist"]);
+    }
+
+    #[test]
+    fn resolve_ui_dist_dir_defaults_to_trunk_output() {
+        let workspace_root = Path::new("/workspace");
+        let args = Vec::new();
+        assert_eq!(
+            resolve_ui_dist_dir(workspace_root, &args),
+            Path::new("/workspace/target/trunk-site-dist")
+        );
+    }
+
+    #[test]
+    fn normalize_modulepreload_links_sorts_generated_tags() {
+        let html = concat!(
+            "<head>",
+            "<link rel=\"modulepreload\" href=\"/snippets/z.js\">",
+            "<link rel=\"modulepreload\" href=\"/snippets/a.js\">",
+            "<link rel=\"preload\" href=\"/site_bg.wasm\" as=\"fetch\">",
+            "</head>"
+        );
+
+        let normalized =
+            normalize_modulepreload_links(html).expect("normalize modulepreload ordering");
+
+        assert_eq!(
+            normalized,
+            concat!(
+                "<head>",
+                "<link rel=\"modulepreload\" href=\"/snippets/a.js\">",
+                "<link rel=\"modulepreload\" href=\"/snippets/z.js\">",
+                "<link rel=\"preload\" href=\"/site_bg.wasm\" as=\"fetch\">",
+                "</head>"
+            )
+        );
     }
 
     #[test]

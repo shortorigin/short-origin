@@ -169,6 +169,9 @@ CI optimization policy:
 - CI keeps incremental compilation disabled so cache storage is spent on reusable dependency artifacts instead of large incremental state that churns quickly on hosted runners.
 - `sccache` and `target/` artifact reuse were evaluated but are not enabled in the current baseline:
   the workspace artifact footprint is too large for GitHub's cache budget to make those approaches efficient without an external cache backend.
+- Local development now uses a lean default Cargo profile:
+  `dev` keeps line-table-only debuginfo, `debugging` is the opt-in full-debug profile, and `release`
+  strips debuginfo by default to reduce retained artifact size.
 
 Required status checks:
 
@@ -189,6 +192,19 @@ The canonical non-UI local validation surface is:
 ```bash
 cargo verify-repo
 ```
+
+Rust workspace hygiene and tracing workflows are repository-owned through:
+
+```bash
+cargo rust-audit
+cargo rust-clean incremental
+cargo rust-trace cargo -- check
+```
+
+`cargo rust-audit` reports target growth, dependency duplication, feature activation samples,
+build-script rerun hygiene, and optional cargo timings. `cargo rust-clean` defaults to dry-run and
+requires `--apply` for deletion. `cargo rust-trace` standardizes backtrace and tracing-oriented
+launch workflows for browser, desktop, and Cargo debugging paths.
 
 ## Rust Boundary Invariants
 
