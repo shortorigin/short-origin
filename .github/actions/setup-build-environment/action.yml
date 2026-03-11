@@ -62,19 +62,37 @@ runs:
         cache-dependency-path: ${{ inputs.node-cache-path }}
 
     - name: Install Rust toolchain
-      if: ${{ inputs.rust-components == '' }}
-      uses: dtolnay/rust-toolchain@1.91.1
+      shell: bash
+      run: |
+        set -euo pipefail
 
-    - name: Install Rust toolchain with components
-      if: ${{ inputs.rust-components != '' }}
-      uses: dtolnay/rust-toolchain@1.91.1
-      with:
-        components: ${{ inputs.rust-components }}
+        toolchain="$(sed -n 's/^channel = \"\\(.*\\)\"$/\\1/p' rust-toolchain.toml)"
+        if [[ -z "${toolchain}" ]]; then
+          echo "failed to resolve Rust toolchain channel from rust-toolchain.toml"
+          exit 1
+        fi
 
-    - name: Cache cargo
-      uses: Swatinem/rust-cache@v2
+        rustup toolchain install "${toolchain}" --profile minimal --target wasm32-unknown-unknown
+
+        while IFS= read -r component; do
+          [[ -z "${component}" ]] && continue
+          rustup component add --toolchain "${toolchain}" "${component}"
+        done < <(sed -n 's/^components = \\[\\(.*\\)\\]$/\\1/p' rust-toolchain.toml | tr -d '" ' | tr ',' '\n')
+
+        if [[ -n "${{ inputs.rust-components }}" ]]; then
+          IFS=',' read -r -a extra_components <<< "${{ inputs.rust-components }}"
+          for component in "${extra_components[@]}"; do
+            [[ -z "${component}" ]] && continue
+            rustup component add --toolchain "${toolchain}" "${component}"
+          done
+        fi
+
+    - name: Cache cargo registry
+      uses: actions/cache@v4
       with:
-        shared-key: ${{ inputs.rust-cache-shared-key }}
-        cache-all-crates: "false"
-        cache-bin: "false"
-        cache-workspace-crates: "false"
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+        key: ${{ runner.os }}-${{ inputs.rust-cache-shared-key }}-${{ hashFiles('Cargo.lock', 'rust-toolchain.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ inputs.rust-cache-shared-key }}-
