@@ -130,7 +130,7 @@ tauri-plugin-notification = "2.3.3"
 tauri-plugin-opener = "2.5.3"
 tempfile = "3.27.0"
 thiserror = "2.0.18"
-toml = "0.8.23"
+toml = "1.0.6"
 tokio = { version = "1.50.0", features = ["macros", "rt-multi-thread", "time", "tracing"] }
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.22", features = ["env-filter", "fmt", "json", "tracing"] }
