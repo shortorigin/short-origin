@@ -109,7 +109,7 @@ jsonschema = "0.45.0"
 leptos = { version = "0.8.17", default-features = false }
 leptos_meta = { version = "0.8.6", default-features = false }
 leptos_router = { version = "0.8.12", default-features = false }
-memvid-core = { version = "2.0.138", default-features = false }
+memvid-core = { version = "2.0.139", default-features = false }
 nu-ansi-term = { version = "0.50.3", default-features = false }
 nu-protocol = { version = "0.110.0", default-features = false }
 nu-table = { version = "0.110.0", default-features = false }
