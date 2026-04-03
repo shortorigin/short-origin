@@ -9085,9 +9085,9 @@ checksum = "b7401a30af6cb5818bb64852270bb722533397edcfc7344954a38f420819ece2"
 
 [[package]]
 name = "surrealdb"
-version = "3.0.3"
+version = "3.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c8062e4e1760499593dce33e780976f70a7a1554ac317fdc0b295d7aeb6c4712"
+checksum = "504a96b55e86ef8653a03b6b97e771f49c954e26bcc0308160b0134d94f334fd"
 dependencies = [
  "anyhow",
  "async-channel",
@@ -9141,9 +9141,9 @@ dependencies = [
 
 [[package]]
 name = "surrealdb-core"
-version = "3.0.3"
+version = "3.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0f4ce9f65f242afc7e8535f603b1b62ef0a08ec982aac362ac24a01cd1bab7b5"
+checksum = "d3e6a7f248c958fd5000c4fab5759503663bf93c622be10a6d7bf7d2d676b8fc"
 dependencies = [
  "addr",
  "affinitypool",
@@ -9266,9 +9266,9 @@ dependencies = [
 
 [[package]]
 name = "surrealdb-types"
-version = "3.0.3"
+version = "3.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "221012e96d93ccbe79f9b1de2b4df579e93ad7fcde7628063a6971de2d9fa1f3"
+checksum = "c79e71d035367b933cf528c09b7ed186bc17dea58c66a1bca84d22f9abf167db"
 dependencies = [
  "anyhow",
  "bytes",
@@ -9292,9 +9292,9 @@ dependencies = [
 
 [[package]]
 name = "surrealdb-types-derive"
-version = "3.0.3"
+version = "3.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "521afc1b691597be4ce36fe8b60c4432894760572902b5c06e7c973aead6d6af"
+checksum = "a76abdbfc597e062daae5269251e18a84553f9090cfff423591f57c8c6765aa8"
 dependencies = [
  "proc-macro2",
  "quote",
