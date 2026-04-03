@@ -140,7 +140,7 @@ wasm-bindgen-futures = "0.4.64"
 wasmtime = { version = "42.0.1", default-features = false, features = ["cranelift", "runtime", "std"] }
 wat = "1.245.1"
 web-sys = "0.3.91"
-wit-parser = "0.245.1"
+wit-parser = "0.246.1"
 
 [workspace.lints.rust]
 unsafe_code = "deny"
