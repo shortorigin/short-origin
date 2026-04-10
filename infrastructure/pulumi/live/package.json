@@ -16,7 +16,7 @@
   "dependencies": {
     "@pulumi/aws": "^6.80.0",
     "@pulumi/cloudflare": "^6.5.0",
-    "@pulumi/pulumi": "^3.154.0",
+    "@pulumi/pulumi": "^3.230.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
